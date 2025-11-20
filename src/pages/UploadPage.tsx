@@ -91,7 +91,7 @@ const UploadPage: React.FC = () => {
               여기에 파일을 드래그하거나 클릭하여 업로드하세요.
             </p>
             <p className="text-sm text-gray-500 mb-6">
-              로그인 시 최대 3GB까지 업로드 수 있습니다.
+              로그인 시 최대 3GB까지 업로드할 수 있습니다.
             </p>
             <button
               type="button"
