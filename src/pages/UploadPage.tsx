@@ -56,7 +56,8 @@ const UploadPage: React.FC = () => {
     }
   };
 
-  const expirationOptions: { value: ExpirationOption; label: string }[] = [
+  const expirationOptions: { value: ExpirationOption; label: string; requiresAuth?: boolean }[] = [
+    { value: 'one_time', label: '일회용', requiresAuth: true },
     { value: 'one_hour', label: '1시간' },
     { value: 'one_day', label: '1일' },
     { value: 'three_days', label: '3일' },
@@ -70,7 +71,7 @@ const UploadPage: React.FC = () => {
         {/* Header */}
         <div className="mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-3">파일 전송</h1>
-          <p className="text-lg text-gray-600">파일을 쉽고 안전하게 공유하세요.</p>
+          <p className="text-lg text-gray-600">파일은 암호화되어 보관되며 유효 기간이 지나면 즉시 폐기됩니다.</p>
         </div>
 
         {/* File Drop Zone */}

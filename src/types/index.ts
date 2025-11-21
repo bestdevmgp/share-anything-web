@@ -60,7 +60,7 @@ export interface UploadHistoryResponse {
   offset: number;
 }
 
-export type ExpirationOption = 'one_hour' | 'one_day' | 'three_days' | 'one_week' | 'one_month';
+export type ExpirationOption = 'one_time' | 'one_hour' | 'one_day' | 'three_days' | 'one_week' | 'one_month';
 
 export interface UploadFormData {
   files: File[];

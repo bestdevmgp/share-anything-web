@@ -240,7 +240,7 @@ const DownloadFilePage: React.FC = () => {
               {fileList.description && (
                 <div className="flex justify-between py-3 border-b border-gray-200">
                   <span className="text-gray-600">업로드한 사람</span>
-                  <span className="font-semibold text-gray-900">익명</span>
+                  <span className="font-semibold text-gray-900">익명의 사용자</span>
                 </div>
               )}
               <div className="flex justify-between py-3">
