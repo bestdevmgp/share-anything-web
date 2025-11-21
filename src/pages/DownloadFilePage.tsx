@@ -39,7 +39,6 @@ const DownloadFilePage: React.FC = () => {
         }
       }
     } catch (err: any) {
-      console.error('Failed to load file list:', err);
       setError(err.response?.data?.message || '찾을 수 없거나 만료된 파일입니다.');
     } finally {
       setLoading(false);
@@ -60,19 +59,25 @@ const DownloadFilePage: React.FC = () => {
 
     try {
       setLoading(true);
-      const list = await fileAPI.getFileList(code, password);
+
+      // 1. 비밀번호 사전 검증
+      await fileAPI.verifyPassword(code, password);
+
+      // 2. 검증 성공 시 파일 목록 조회
+      const list = await fileAPI.getFileList(code);
       setFileList(list);
       setPasswordVerified(true);
+      toast.success('비밀번호가 확인되었습니다.');
+
       // Auto-select first file if single file
       if (list.files.length === 1) {
         setSelectedFiles(new Set([list.files[0].id]));
       }
     } catch (err: any) {
-      console.error('Password verification failed:', err);
       if (err.response?.status === 401) {
-        toast.error('비밀번호가 올바르지 않습니다');
+        toast.error('비밀번호가 올바르지 않습니다.');
       } else {
-        toast.error('비밀번호 확인에 실패했습니다');
+        toast.error('비밀번호 확인에 실패했습니다.');
       }
     } finally {
       setLoading(false);
@@ -93,6 +98,7 @@ const DownloadFilePage: React.FC = () => {
 
         const blob = await fileAPI.downloadFile(code, fileId, password || undefined);
         downloadFile(blob, file.file_name);
+        toast.success('파일 다운로드가 완료되었습니다.');
       } else {
         const blob = await fileAPI.downloadBulk({
           code,
@@ -100,11 +106,11 @@ const DownloadFilePage: React.FC = () => {
           password: password || undefined
         });
         downloadFile(blob, `files_${code}.zip`);
+        toast.success(`${selectedFileIds.length}개 파일 다운로드가 완료되었습니다.`);
       }
     } catch (err: any) {
-      console.error('Download error:', err);
       if (err.response?.status === 401) {
-        toast.error('비밀번호가 올바르지 않습니다');
+        toast.error('비밀번호가 올바르지 않습니다.');
         setPasswordVerified(false);
       } else {
         toast.error('다운로드에 실패했습니다');
@@ -166,7 +172,7 @@ const DownloadFilePage: React.FC = () => {
               </div>
               <h1 className="text-3xl font-bold text-gray-900 mb-2">비밀번호 입력</h1>
               <p className="text-gray-600">
-                이 파일은 비밀번호로 보호되어 있습니다
+                이 파일은 비밀번호로 보호되어 있습니다.
               </p>
             </div>
 

@@ -8,6 +8,7 @@ import type {
   FileListResponse,
   BulkDownloadRequest
 } from '../types';
+import {env} from "@headlessui/react/dist/utils/env";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
@@ -121,13 +122,8 @@ export const fileAPI = {
     return response.data;
   },
 
-  verifyPassword: async (code: string, password: string): Promise<boolean> => {
-    try {
-      await api.post('/file/verify-password', { code, password });
-      return true;
-    } catch (error) {
-      return false;
-    }
+  verifyPassword: async (code: string, password: string): Promise<void> => {
+    await api.post('/file/verify-password', { code, password });
   },
 
   // ⭐ 새로운 API: 파일 목록 조회

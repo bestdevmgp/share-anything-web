@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../services/api';
 import { AuthResponse } from '../types';
+import { toast } from 'react-toastify';
 
 const OAuthCallbackPage: React.FC = () => {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ const OAuthCallbackPage: React.FC = () => {
   const { login } = useAuth();
   const [searchParams] = useSearchParams();
   const [error, setError] = useState('');
+  const hasProcessed = useRef(false);
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -25,71 +27,75 @@ const OAuthCallbackPage: React.FC = () => {
       const token = searchParams.get('token');
       const userParam = searchParams.get('user');
 
-      console.log('OAuth Callback - Provider:', provider);
-      console.log('OAuth Callback - Code:', code);
-      console.log('OAuth Callback - State:', state);
-      console.log('OAuth Callback - Error:', errorParam);
-      console.log('OAuth Callback - Token:', token);
-      console.log('OAuth Callback - User:', userParam);
+      // localStorage로 중복 실행 방지 (code 기반)
+      const processedKey = `oauth_processed_${code}`;
+      if (code && localStorage.getItem(processedKey)) {
+        return;
+      }
+
+      // useRef로 중복 실행 방지
+      if (hasProcessed.current) {
+        return;
+      }
 
       // 백엔드가 이미 처리를 완료하고 token과 user를 쿼리 파라미터로 전달한 경우
       if (token && userParam) {
         try {
+          hasProcessed.current = true;
+          if (code) localStorage.setItem(processedKey, 'true');
+
           const user = JSON.parse(decodeURIComponent(userParam));
           login(token, user);
-          navigate('/');
+          navigate('/', { replace: true });
           return;
         } catch (err) {
-          console.error('Failed to parse user data:', err);
           setError('사용자 정보 파싱에 실패했습니다.');
-          setTimeout(() => navigate('/login'), 2000);
+          setTimeout(() => navigate('/login', { replace: true }), 2000);
           return;
         }
       }
 
       if (errorParam) {
         setError(`로그인이 취소되었거나 오류가 발생했습니다: ${errorParam}`);
-        setTimeout(() => navigate('/login'), 3000);
+        setTimeout(() => navigate('/login', { replace: true }), 3000);
         return;
       }
 
       if (!code) {
         setError('인증 코드를 받지 못했습니다.');
-        setTimeout(() => navigate('/login'), 3000);
+        setTimeout(() => navigate('/login', { replace: true }), 3000);
         return;
       }
 
+      // 중복 실행 방지 플래그 설정 (code 사용 전에!)
+      hasProcessed.current = true;
+      localStorage.setItem(processedKey, 'true');
+
       try {
-        // 백엔드에 코드를 전송하여 토큰과 사용자 정보를 받아옴
-        console.log('Calling handleOAuthCallback with provider:', provider, 'code:', code);
         const data: AuthResponse = await authAPI.handleOAuthCallback(
           provider,
           code,
-          state || provider // state가 없으면 provider 사용
+          state || provider
         );
 
-        console.log('OAuth Response:', data);
-
         if (data.token && data.user) {
-          // 로그인 처리
           login(data.token, data.user);
-          // 메인 페이지로 이동
-          navigate('/');
+          localStorage.removeItem(processedKey);
+          toast.success('로그인되었습니다.');
+          navigate('/', { replace: true });
         } else {
-          setError('로그인 정보를 받지 못했습니다.');
-          setTimeout(() => navigate('/login'), 3000);
+          toast.error('로그인 정보를 받지 못했습니다.');
+          setTimeout(() => navigate('/login', { replace: true }), 3000);
         }
       } catch (err: any) {
-        console.error('OAuth callback error:', err);
-        console.error('Error response:', err.response);
         const errorMessage = err.response?.data?.message || err.message || '로그인에 실패했습니다.';
-        setError(`${errorMessage} (상태: ${err.response?.status || 'unknown'})`);
-        setTimeout(() => navigate('/login'), 5000);
+        toast.error(errorMessage);
+        setTimeout(() => navigate('/login', { replace: true }), 3000);
       }
     };
 
     handleCallback();
-  }, [provider, searchParams, login, navigate]);
+  }, []); // 빈 배열로 최초 1회만 실행
 
   if (error) {
     return (

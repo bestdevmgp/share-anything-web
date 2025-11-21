@@ -49,8 +49,7 @@ const UploadPage: React.FC = () => {
 
       navigate('/upload/success', { state: { uploadResult: response } });
     } catch (err: any) {
-      console.error('Upload error:', err);
-      toast.error(err.response?.data?.message || '업로드에 실패했습니다');
+      toast.error(err.response?.data?.message || '업로드에 실패했습니다.');
     } finally {
       setIsUploading(false);
     }
