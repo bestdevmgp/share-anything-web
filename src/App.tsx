@@ -12,6 +12,8 @@ import UploadSuccessPage from './pages/UploadSuccessPage';
 import DownloadPage from './pages/DownloadPage';
 import DownloadFilePage from './pages/DownloadFilePage';
 import OAuthCallbackPage from './pages/OAuthCallbackPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import TermsOfUsePage from './pages/TermsOfUsePage';
 import Header from './components/Header';
 
 const AppContent: React.FC = () => {
@@ -37,6 +39,8 @@ const AppContent: React.FC = () => {
         <Route path="/download" element={<DownloadPage />} />
         <Route path="/download/:code" element={<DownloadFilePage />} />
         <Route path="/auth/callback/:provider" element={<OAuthCallbackPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms-of-use" element={<TermsOfUsePage />} />
       </Routes>
     </div>
   );
