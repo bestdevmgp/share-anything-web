@@ -82,3 +82,21 @@ export const isPdfFile = (filename: string): boolean => {
   const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
   return extension === '.pdf';
 };
+
+export const isVideoFile = (filename: string): boolean => {
+  const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi', '.mkv'];
+  const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+  return videoExtensions.includes(extension);
+};
+
+export const isAudioFile = (filename: string): boolean => {
+  const audioExtensions = ['.mp3', '.wav', '.ogg', '.m4a', '.aac', '.flac'];
+  const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+  return audioExtensions.includes(extension);
+};
+
+export const isTextFile = (filename: string): boolean => {
+  const textExtensions = ['.txt', '.json', '.xml', '.csv', '.md', '.log', '.yaml', '.yml', '.html', '.css', '.js', '.ts', '.jsx', '.tsx', '.py', '.java', '.c', '.cpp', '.h', '.sh'];
+  const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+  return textExtensions.includes(extension);
+};

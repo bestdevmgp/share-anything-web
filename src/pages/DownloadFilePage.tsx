@@ -2,8 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fileAPI } from '../services/api';
 import { FileListResponse } from '../types';
-import { formatFileSize, downloadFile, formatDateTime, isImageFile } from '../utils/format';
-import { DocumentIcon, LockClosedIcon, CheckIcon, ArrowDownTrayIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { formatFileSize, downloadFile, formatDateTime, isImageFile, isVideoFile, isAudioFile, isTextFile } from '../utils/format';
+import { DocumentIcon, LockClosedIcon, CheckIcon, ArrowDownTrayIcon, EyeIcon, EyeSlashIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 
 const DownloadFilePage: React.FC = () => {
@@ -26,6 +26,9 @@ const DownloadFilePage: React.FC = () => {
   const [downloading, setDownloading] = useState(false);
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
+  const [audioPreview, setAudioPreview] = useState<string | null>(null);
+  const [textPreview, setTextPreview] = useState<string | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
 
   const [imagePreviews, setImagePreviews] = useState<Map<string, string>>(new Map());
@@ -59,21 +62,32 @@ const DownloadFilePage: React.FC = () => {
     loadFileList();
   }, [loadFileList]);
 
-  // Load preview for single image files
+  // Load preview for single files
   useEffect(() => {
     const loadFilePreview = async () => {
       if (!fileList || !code || fileList.files.length !== 1) return;
 
       const file = fileList.files[0];
-      if (!isImageFile(file.file_name)) return;
 
       try {
         setLoadingPreview(true);
         const blob = await fileAPI.downloadFile(code, file.id, password || undefined);
-        const url = URL.createObjectURL(blob);
-        setImagePreview(url);
+
+        if (isImageFile(file.file_name)) {
+          const url = URL.createObjectURL(blob);
+          setImagePreview(url);
+        } else if (isVideoFile(file.file_name)) {
+          const url = URL.createObjectURL(blob);
+          setVideoPreview(url);
+        } else if (isAudioFile(file.file_name)) {
+          const url = URL.createObjectURL(blob);
+          setAudioPreview(url);
+        } else if (isTextFile(file.file_name)) {
+          const text = await blob.text();
+          setTextPreview(text);
+        }
       } catch (err) {
-        console.error('Failed to load image preview:', err);
+        console.error('Failed to load preview:', err);
       } finally {
         setLoadingPreview(false);
       }
@@ -83,9 +97,9 @@ const DownloadFilePage: React.FC = () => {
 
     // Cleanup
     return () => {
-      if (imagePreview) {
-        URL.revokeObjectURL(imagePreview);
-      }
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+      if (videoPreview) URL.revokeObjectURL(videoPreview);
+      if (audioPreview) URL.revokeObjectURL(audioPreview);
     };
   }, [fileList, code, password]);
 
@@ -299,9 +313,13 @@ const DownloadFilePage: React.FC = () => {
 
           {/* File Card */}
           <div className="bg-white rounded-3xl border-2 border-gray-200 p-6 md:p-10">
-            {/* File Icon or Image Preview */}
+            {/* File Preview */}
             <div className="flex justify-center mb-8">
-              {imagePreview && isImageFile(file.file_name) ? (
+              {loadingPreview ? (
+                <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                </div>
+              ) : imagePreview && isImageFile(file.file_name) ? (
                 <div className="max-w-full max-h-96 overflow-hidden rounded-2xl">
                   <img
                     src={imagePreview}
@@ -309,9 +327,34 @@ const DownloadFilePage: React.FC = () => {
                     className="max-w-full max-h-96 object-contain"
                   />
                 </div>
-              ) : loadingPreview ? (
-                <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              ) : videoPreview && isVideoFile(file.file_name) ? (
+                <div className="max-w-full rounded-2xl overflow-hidden">
+                  <video
+                    src={videoPreview}
+                    controls
+                    className="max-w-full max-h-96"
+                  >
+                    브라우저가 비디오 재생을 지원하지 않습니다.
+                  </video>
+                </div>
+              ) : audioPreview && isAudioFile(file.file_name) ? (
+                <div className="w-full max-w-md">
+                  <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MusicalNoteIcon className="w-12 h-12 text-green-600" />
+                  </div>
+                  <audio
+                    src={audioPreview}
+                    controls
+                    className="w-full"
+                  >
+                    브라우저가 오디오 재생을 지원하지 않습니다.
+                  </audio>
+                </div>
+              ) : textPreview && isTextFile(file.file_name) ? (
+                <div className="w-full max-w-2xl max-h-96 overflow-auto bg-gray-50 rounded-2xl p-6">
+                  <pre className="text-sm text-gray-800 whitespace-pre-wrap break-words font-mono">
+                    {textPreview}
+                  </pre>
                 </div>
               ) : (
                 <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center">
@@ -470,6 +513,18 @@ const DownloadFilePage: React.FC = () => {
                       alt={file.file_name}
                       className="w-12 h-12 object-cover rounded"
                     />
+                  ) : isVideoFile(file.file_name) ? (
+                    <div className="w-12 h-12 bg-purple-50 rounded flex items-center justify-center">
+                      <FilmIcon className="w-7 h-7 text-purple-600" />
+                    </div>
+                  ) : isAudioFile(file.file_name) ? (
+                    <div className="w-12 h-12 bg-green-50 rounded flex items-center justify-center">
+                      <MusicalNoteIcon className="w-7 h-7 text-green-600" />
+                    </div>
+                  ) : isTextFile(file.file_name) ? (
+                    <div className="w-12 h-12 bg-yellow-50 rounded flex items-center justify-center">
+                      <DocumentTextIcon className="w-7 h-7 text-yellow-600" />
+                    </div>
                   ) : (
                     <DocumentIcon className="w-10 h-10 text-blue-600" />
                   )}

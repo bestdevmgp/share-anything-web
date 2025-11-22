@@ -4,8 +4,8 @@ import { useDropzone } from 'react-dropzone';
 import { useAuth } from '../context/AuthContext';
 import { fileAPI } from '../services/api';
 import { ExpirationOption } from '../types';
-import { formatFileSize, isImageFile } from '../utils/format';
-import { DocumentIcon, XMarkIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { formatFileSize, isImageFile, isVideoFile, isAudioFile, isTextFile } from '../utils/format';
+import { DocumentIcon, XMarkIcon, EyeIcon, EyeSlashIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 
 const UploadPage: React.FC = () => {
@@ -144,6 +144,18 @@ const UploadPage: React.FC = () => {
                         alt={file.name}
                         className="w-12 h-12 object-cover rounded flex-shrink-0"
                       />
+                    ) : isVideoFile(file.name) ? (
+                      <div className="w-12 h-12 flex-shrink-0 bg-purple-50 rounded flex items-center justify-center">
+                        <FilmIcon className="w-7 h-7 text-purple-600" />
+                      </div>
+                    ) : isAudioFile(file.name) ? (
+                      <div className="w-12 h-12 flex-shrink-0 bg-green-50 rounded flex items-center justify-center">
+                        <MusicalNoteIcon className="w-7 h-7 text-green-600" />
+                      </div>
+                    ) : isTextFile(file.name) ? (
+                      <div className="w-12 h-12 flex-shrink-0 bg-yellow-50 rounded flex items-center justify-center">
+                        <DocumentTextIcon className="w-7 h-7 text-yellow-600" />
+                      </div>
                     ) : (
                       <DocumentIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />
                     )}
