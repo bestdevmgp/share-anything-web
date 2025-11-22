@@ -208,7 +208,9 @@ const UploadPage: React.FC = () => {
 
           {/* Password */}
           <div className="mb-8">
-            <h3 className="text-base font-semibold text-gray-900 mb-4">비밀번호 (선택)</h3>
+            <h3 className="text-base font-semibold text-gray-900 mb-4">
+              비밀번호 <span className="text-sm text-gray-400 font-normal">선택</span>
+            </h3>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -242,7 +244,9 @@ const UploadPage: React.FC = () => {
 
           {/* Description */}
           <div>
-            <h3 className="text-base font-semibold text-gray-900 mb-4">설명 (선택)</h3>
+            <h3 className="text-base font-semibold text-gray-900 mb-4">
+              설명 <span className="text-sm text-gray-400 font-normal">선택</span>
+            </h3>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
