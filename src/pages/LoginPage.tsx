@@ -20,7 +20,7 @@ const LoginPage: React.FC = () => {
               <svg className="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
               </svg>
-              <span className="text-2xl font-bold text-gray-900">Share Anything</span>
+              <span className="text-2xl font-bold text-gray-900">ShareAnything</span>
             </div>
             <h1 className="text-4xl font-bold text-gray-900 mb-3">환영합니다!</h1>
             <p className="text-gray-600">
@@ -53,7 +53,7 @@ const LoginPage: React.FC = () => {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              <span className="text-gray-700 font-medium text-sm">Google 계정으로 로그인</span>
+              <span className="text-gray-700 font-medium text-sm">Google로 계속하기</span>
             </button>
 
             {/* Naver Login */}
@@ -67,7 +67,7 @@ const LoginPage: React.FC = () => {
                   d="M16.273 12.845L7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845z"
                 />
               </svg>
-              <span className="text-white font-medium text-sm">네이버 아이디로 로그인</span>
+              <span className="text-white font-medium text-sm">네이버로 계속하기</span>
             </button>
           </div>
         </div>
