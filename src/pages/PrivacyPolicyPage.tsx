@@ -37,13 +37,13 @@ const PrivacyPolicyPage: React.FC = () => {
 
                                 <h3 className="text-lg font-semibold text-gray-900 mb-2">필수 수집 항목</h3>
                                 <ul className="list-disc list-inside space-y-1 ml-4 mb-4">
-                                    <li>Google OAuth 로그인 시: 이메일 주소, 이름, 프로필 사진(선택적)</li>
-                                    <li>Naver OAuth 로그인 시: 이메일 주소, 이름, 프로필 사진(선택적)</li>
+                                    <li>Google OAuth 로그인 시: 이메일 주소, 이름, 프로필 사진</li>
+                                    <li>Naver OAuth 로그인 시: 이메일 주소, 이름</li>
                                 </ul>
 
                                 <h3 className="text-lg font-semibold text-gray-900 mb-2">자동 수집 항목</h3>
                                 <ul className="list-disc list-inside space-y-1 ml-4 mb-4">
-                                    <li>서비스 이용 기록, 접속 로그, IP 주소, 쿠키</li>
+                                    <li>서비스 이용 기록, IP 주소</li>
                                 </ul>
 
                                 <h3 className="text-lg font-semibold text-gray-900 mb-2">파일 관련 정보</h3>

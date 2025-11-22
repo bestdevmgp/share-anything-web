@@ -88,7 +88,6 @@ const TermsOfServicePage: React.FC = () => {
                             <ul className="list-decimal list-inside space-y-2 ml-4">
                                 <li>업로드된 파일은 이용자가 설정한 유효기간 동안 보관됩니다.</li>
                                 <li>유효기간이 만료된 파일은 자동으로 즉시 삭제되며, 복구가 불가능합니다.</li>
-                                <li>이용자는 유효기간 만료 전 언제든지 업로드한 파일을 삭제할 수 있습니다.</li>
                                 <li>회사는 다음 각 호에 해당하는 파일을 사전 통지 없이 삭제할 수 있습니다.
                                     <ul className="list-disc list-inside space-y-1 ml-8 mt-2">
                                         <li>법령 또는 본 약관을 위반하는 불법적인 파일</li>
