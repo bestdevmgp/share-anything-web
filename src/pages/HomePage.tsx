@@ -47,7 +47,7 @@ const HomePage: React.FC = () => {
             </p>
             <button
               onClick={() => navigate('/upload')}
-              className="w-full max-w-xs px-5 py-3 md:px-6 md:py-4 bg-blue-600 text-white text-base md:text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors"
+              className="w-full max-w-sm md:max-w-xs px-5 py-3 md:px-6 md:py-4 bg-blue-600 text-white text-base md:text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors"
             >
               업로드
             </button>
@@ -64,7 +64,7 @@ const HomePage: React.FC = () => {
             <p className="text-gray-600 mb-6 md:mb-8 text-sm md:text-base">
               공유 코드 6자리를 입력하세요.
             </p>
-            <div className="w-full max-w-xs relative">
+            <div className="w-full max-w-sm md:max-w-xs relative">
               <input
                 type="text"
                 value={downloadCode}
@@ -75,7 +75,7 @@ const HomePage: React.FC = () => {
                   }
                 }}
                 placeholder="123456"
-                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg text-center font-mono text-lg uppercase focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-3 md:py-4 pr-12 border border-gray-300 rounded-lg text-center font-mono text-lg uppercase focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 maxLength={6}
               />
               <button

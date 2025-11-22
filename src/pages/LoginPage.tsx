@@ -70,6 +70,19 @@ const LoginPage: React.FC = () => {
               <span className="text-white font-medium text-sm">네이버로 계속하기</span>
             </button>
           </div>
+
+          {/* Terms and Privacy Notice */}
+          <div className="text-center text-xs text-gray-500 leading-relaxed">
+            본 서비스 이용 시 ShareAnything의{' '}
+            <a href="https://www.notion.so/bestdevmgp/ShareAnything-2b3c0653d82280cf9252d66ecc827945" className="text-gray-500 underline hover:text-gray-700">
+              개인정보처리방침
+            </a>
+            {' '}및{' '}
+            <a href="https://www.notion.so/bestdevmgp/ShareAnything-2b3c0653d822802ea44dcd8fae46841b?source=copy_link" className="text-gray-500 underline hover:text-gray-700">
+              이용약관
+            </a>
+            에 동의하는 것으로 간주됩니다.
+          </div>
         </div>
       </div>
     </div>
