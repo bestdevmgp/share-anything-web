@@ -4,7 +4,7 @@ const TermsOfServicePage: React.FC = () => {
     return (
         <div className="min-h-[calc(100vh-4rem)] bg-gray-50">
             <div className="max-w-4xl mx-auto px-4 py-12">
-                <div className="bg-white rounded-2xl shadow-sm p-8 md:p-12">
+                <div className="bg-white rounded-2xl shadow-sm px-12 py-8 md:px-20 md:py-12">
                     <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
                         ShareAnything 이용약관
                     </h1>
