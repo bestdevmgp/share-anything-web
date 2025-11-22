@@ -71,3 +71,14 @@ export const copyToClipboard = async (text: string): Promise<boolean> => {
     return false;
   }
 };
+
+export const isImageFile = (filename: string): boolean => {
+  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.svg'];
+  const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+  return imageExtensions.includes(extension);
+};
+
+export const isPdfFile = (filename: string): boolean => {
+  const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+  return extension === '.pdf';
+};

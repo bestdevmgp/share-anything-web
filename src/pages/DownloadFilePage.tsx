@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fileAPI } from '../services/api';
 import { FileListResponse } from '../types';
-import { formatFileSize, downloadFile, formatDateTime } from '../utils/format';
+import { formatFileSize, downloadFile, formatDateTime, isImageFile } from '../utils/format';
 import { DocumentIcon, LockClosedIcon, CheckIcon, ArrowDownTrayIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 
@@ -24,6 +24,11 @@ const DownloadFilePage: React.FC = () => {
 
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [downloading, setDownloading] = useState(false);
+
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [loadingPreview, setLoadingPreview] = useState(false);
+
+  const [imagePreviews, setImagePreviews] = useState<Map<string, string>>(new Map());
 
   const loadFileList = useCallback(async () => {
     if (!code) {
@@ -53,6 +58,62 @@ const DownloadFilePage: React.FC = () => {
   useEffect(() => {
     loadFileList();
   }, [loadFileList]);
+
+  // Load preview for single image files
+  useEffect(() => {
+    const loadFilePreview = async () => {
+      if (!fileList || !code || fileList.files.length !== 1) return;
+
+      const file = fileList.files[0];
+      if (!isImageFile(file.file_name)) return;
+
+      try {
+        setLoadingPreview(true);
+        const blob = await fileAPI.downloadFile(code, file.id, password || undefined);
+        const url = URL.createObjectURL(blob);
+        setImagePreview(url);
+      } catch (err) {
+        console.error('Failed to load image preview:', err);
+      } finally {
+        setLoadingPreview(false);
+      }
+    };
+
+    loadFilePreview();
+
+    // Cleanup
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [fileList, code, password]);
+
+  // Load previews for multiple image files
+  useEffect(() => {
+    const loadMultipleImagePreviews = async () => {
+      if (!fileList || !code || fileList.files.length <= 1) return;
+
+      const imageFiles = fileList.files.filter(file => isImageFile(file.file_name));
+
+      for (const file of imageFiles) {
+        try {
+          const blob = await fileAPI.downloadFile(code, file.id, password || undefined);
+          const url = URL.createObjectURL(blob);
+          setImagePreviews(prev => new Map(prev).set(file.id, url));
+        } catch (err) {
+          console.error(`Failed to load preview for ${file.file_name}:`, err);
+        }
+      }
+    };
+
+    loadMultipleImagePreviews();
+
+    // Cleanup
+    return () => {
+      imagePreviews.forEach(url => URL.revokeObjectURL(url));
+    };
+  }, [fileList, code, password]);
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -238,11 +299,25 @@ const DownloadFilePage: React.FC = () => {
 
           {/* File Card */}
           <div className="bg-white rounded-3xl border-2 border-gray-200 p-6 md:p-10">
-            {/* File Icon */}
+            {/* File Icon or Image Preview */}
             <div className="flex justify-center mb-8">
-              <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center">
-                <DocumentIcon className="w-12 h-12 text-blue-600" />
-              </div>
+              {imagePreview && isImageFile(file.file_name) ? (
+                <div className="max-w-full max-h-96 overflow-hidden rounded-2xl">
+                  <img
+                    src={imagePreview}
+                    alt={file.file_name}
+                    className="max-w-full max-h-96 object-contain"
+                  />
+                </div>
+              ) : loadingPreview ? (
+                <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                </div>
+              ) : (
+                <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center">
+                  <DocumentIcon className="w-12 h-12 text-blue-600" />
+                </div>
+              )}
             </div>
 
             {/* File Info */}
@@ -387,9 +462,17 @@ const DownloadFilePage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* File Icon */}
+                {/* File Icon or Image Preview */}
                 <div className="flex-shrink-0">
-                  <DocumentIcon className="w-10 h-10 text-blue-600" />
+                  {isImageFile(file.file_name) && imagePreviews.get(file.id) ? (
+                    <img
+                      src={imagePreviews.get(file.id)}
+                      alt={file.file_name}
+                      className="w-12 h-12 object-cover rounded"
+                    />
+                  ) : (
+                    <DocumentIcon className="w-10 h-10 text-blue-600" />
+                  )}
                 </div>
 
                 {/* File Info */}

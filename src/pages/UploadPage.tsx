@@ -4,7 +4,7 @@ import { useDropzone } from 'react-dropzone';
 import { useAuth } from '../context/AuthContext';
 import { fileAPI } from '../services/api';
 import { ExpirationOption } from '../types';
-import { formatFileSize } from '../utils/format';
+import { formatFileSize, isImageFile } from '../utils/format';
 import { DocumentIcon, XMarkIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 
@@ -17,6 +17,7 @@ const UploadPage: React.FC = () => {
   }, []);
 
   const [files, setFiles] = useState<File[]>([]);
+  const [filePreviews, setFilePreviews] = useState<Map<string, string>>(new Map());
   const [description, setDescription] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -25,6 +26,17 @@ const UploadPage: React.FC = () => {
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFiles(prev => [...prev, ...acceptedFiles]);
+
+    // Generate previews for image files
+    acceptedFiles.forEach(file => {
+      if (isImageFile(file.name)) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setFilePreviews(prev => new Map(prev).set(file.name + file.size, reader.result as string));
+        };
+        reader.readAsDataURL(file);
+      }
+    });
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -33,7 +45,15 @@ const UploadPage: React.FC = () => {
   });
 
   const removeFile = (index: number) => {
+    const fileToRemove = files[index];
+    const key = fileToRemove.name + fileToRemove.size;
+
     setFiles(prev => prev.filter((_, i) => i !== index));
+    setFilePreviews(prev => {
+      const newMap = new Map(prev);
+      newMap.delete(key);
+      return newMap;
+    });
   };
 
   const handleUpload = async () => {
@@ -118,7 +138,15 @@ const UploadPage: React.FC = () => {
                   className="flex items-center justify-between p-4 bg-gray-100 rounded-lg"
                 >
                   <div className="flex items-center space-x-3 flex-1 min-w-0">
-                    <DocumentIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                    {isImageFile(file.name) && filePreviews.get(file.name + file.size) ? (
+                      <img
+                        src={filePreviews.get(file.name + file.size)}
+                        alt={file.name}
+                        className="w-12 h-12 object-cover rounded flex-shrink-0"
+                      />
+                    ) : (
+                      <DocumentIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                    )}
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
                       <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
