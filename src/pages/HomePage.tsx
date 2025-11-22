@@ -31,7 +31,7 @@ const HomePage: React.FC = () => {
           간편한 파일 공유
         </h1>
         <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-          회원가입 없이 빠르고 안전하게 대용량 파일을 공유하세요. 파일을 선택하여 공유 링크를 생성하거나 코드를 입력하여 다운로드하세요.
+          회원가입 없이 빠르고 안전하게 대용량 파일을 공유하세요. 파일을 선택하여 공유 링크를 생성하거나 코드를 입력하여 다운로드할 수 있습니다.
         </p>
       </div>
 
@@ -49,7 +49,7 @@ const HomePage: React.FC = () => {
             </p>
             <button
               onClick={() => navigate('/upload')}
-              className="w-full max-w-sm md:max-w-xs px-5 py-3 md:px-6 md:py-4 bg-blue-600 text-white text-base md:text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors"
+              className="w-full max-w-sm md:max-w-xs px-5 py-3 md:px-10 md:py-3 bg-blue-600 text-white text-base md:text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors"
             >
               업로드
             </button>
@@ -75,7 +75,7 @@ const HomePage: React.FC = () => {
                   }
                 }}
                 placeholder="123456"
-                className="w-full px-5 py-3 md:px-6 md:py-4 pr-12 border border-gray-300 rounded-xl text-center font-mono text-base md:text-lg uppercase focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-5 py-3 md:px-6 md:py-3 pr-12 border border-gray-300 rounded-xl text-center font-mono text-base md:text-lg uppercase focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 maxLength={6}
               />
               <button

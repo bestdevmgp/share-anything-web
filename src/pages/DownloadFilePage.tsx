@@ -237,7 +237,7 @@ const DownloadFilePage: React.FC = () => {
           </div>
 
           {/* File Card */}
-          <div className="bg-white rounded-3xl border-2 border-gray-200 p-10">
+          <div className="bg-white rounded-3xl border-2 border-gray-200 p-6 md:p-10">
             {/* File Icon */}
             <div className="flex justify-center mb-8">
               <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center">
@@ -258,18 +258,18 @@ const DownloadFilePage: React.FC = () => {
             </div>
 
             {/* File Details */}
-            <div className="space-y-4 mb-8">
-              <div className="flex justify-between py-3 border-b border-gray-200">
+            <div className="space-y-3 mb-8">
+              <div className="flex justify-between py-2 border-b border-gray-200">
                 <span className="text-gray-600">파일 크기</span>
                 <span className="font-semibold text-gray-900">{formatFileSize(file.file_size)}</span>
               </div>
               {fileList.description && (
-                <div className="flex justify-between py-3 border-b border-gray-200">
+                <div className="flex justify-between py-2 border-b border-gray-200">
                   <span className="text-gray-600">업로드한 사람</span>
                   <span className="font-semibold text-gray-900">익명의 사용자</span>
                 </div>
               )}
-              <div className="flex justify-between py-3">
+              <div className="flex justify-between py-2">
                 <span className="text-gray-600">만료 일시</span>
                 <span className="font-semibold text-gray-900">{formatDateTime(fileList.expires_at)}</span>
               </div>
@@ -279,7 +279,7 @@ const DownloadFilePage: React.FC = () => {
             <button
               onClick={handleDownload}
               disabled={downloading}
-              className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
+              className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-base md:text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
             >
               <ArrowDownTrayIcon className="w-5 h-5" />
               <span>{downloading ? '다운로드 중...' : '파일 다운로드'}</span>

@@ -65,7 +65,7 @@ const UploadSuccessPage: React.FC = () => {
               전송 코드
             </label>
             <div className="relative bg-gray-50 rounded-xl px-4 md:px-8 py-4 md:py-6 mb-4 border border-gray-300">
-              <p className="text-3xl md:text-5xl font-bold text-center text-gray-900 pr-10 md:pr-12 break-all" style={{ letterSpacing: '0.1em' }}>
+              <p className="text-4xl md:text-5xl font-bold text-center text-gray-900 pr-10 md:pr-12 break-all" style={{ letterSpacing: '0.1em' }}>
                 {displayCode}
               </p>
               <button
@@ -132,7 +132,7 @@ const UploadSuccessPage: React.FC = () => {
         <div className="mt-10">
           <button
             onClick={() => navigate('/')}
-            className="w-full px-8 py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors"
+            className="w-full px-8 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors"
           >
             완료
           </button>
