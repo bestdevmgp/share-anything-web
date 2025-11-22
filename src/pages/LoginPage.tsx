@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { authAPI } from '../services/api';
 
 const LoginPage: React.FC = () => {
+  useEffect(() => {
+    document.title = '로그인';
+  }, []);
+
   const handleGoogleLogin = () => {
     window.location.href = authAPI.getGoogleLoginUrl();
   };
@@ -11,7 +15,7 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <div className="flex items-center justify-center px-4 py-20">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-3xl border-2 border-gray-200 p-10">
           {/* Logo and Title */}

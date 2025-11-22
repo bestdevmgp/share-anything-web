@@ -8,6 +8,10 @@ import { toast } from 'react-toastify';
 const OAuthCallbackPage: React.FC = () => {
   const navigate = useNavigate();
   const { provider } = useParams<{ provider: 'google' | 'naver' }>();
+
+  useEffect(() => {
+    document.title = '로그인 중...';
+  }, []);
   const { login } = useAuth();
   const [searchParams] = useSearchParams();
   const [error, setError] = useState('');
@@ -99,7 +103,7 @@ const OAuthCallbackPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="flex items-center justify-center px-4 py-20">
         <div className="max-w-md w-full text-center">
           <div className="bg-white rounded-3xl shadow-lg p-8">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -117,7 +121,7 @@ const OAuthCallbackPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="flex items-center justify-center py-20">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
         <p className="mt-4 text-gray-600">로그인 중...</p>

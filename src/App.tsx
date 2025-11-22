@@ -15,10 +15,11 @@ import OAuthCallbackPage from './pages/OAuthCallbackPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfUsePage from './pages/TermsOfUsePage';
 import Header from './components/Header';
+import Footer from './components/Footer';
 
 const AppContent: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F9FAFB] flex flex-col">
       <Header />
       <ToastContainer
         position="top-right"
@@ -31,17 +32,20 @@ const AppContent: React.FC = () => {
         draggable
         pauseOnHover
       />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/upload" element={<UploadPage />} />
-        <Route path="/upload/success" element={<UploadSuccessPage />} />
-        <Route path="/download" element={<DownloadPage />} />
-        <Route path="/download/:code" element={<DownloadFilePage />} />
-        <Route path="/auth/callback/:provider" element={<OAuthCallbackPage />} />
-        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-        <Route path="/terms-of-use" element={<TermsOfUsePage />} />
-      </Routes>
+      <div className="flex-1">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/upload" element={<UploadPage />} />
+          <Route path="/upload/success" element={<UploadSuccessPage />} />
+          <Route path="/download" element={<DownloadPage />} />
+          <Route path="/download/:code" element={<DownloadFilePage />} />
+          <Route path="/auth/callback/:provider" element={<OAuthCallbackPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms-of-use" element={<TermsOfUsePage />} />
+        </Routes>
+      </div>
+      <Footer />
     </div>
   );
 };

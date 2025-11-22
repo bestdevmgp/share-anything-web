@@ -8,6 +8,10 @@ const DownloadPage: React.FC = () => {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
+    document.title = '파일 다운로드';
+  }, []);
+
+  useEffect(() => {
     // Focus on first input on mount
     inputRefs.current[0]?.focus();
   }, []);
@@ -39,6 +43,29 @@ const DownloadPage: React.FC = () => {
       if (index < 5) {
         inputRefs.current[index + 1]?.focus();
       }
+    }
+  };
+
+  const handlePaste = (index: number, e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text');
+    const sanitized = pastedData.toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+    if (sanitized.length > 0) {
+      const chars = sanitized.split('').slice(0, 6); // Take only first 6 characters
+      const newCode = [...code];
+
+      chars.forEach((char, i) => {
+        if (index + i < 6) {
+          newCode[index + i] = char;
+        }
+      });
+
+      setCode(newCode);
+
+      // Focus on the next empty input or last input
+      const nextIndex = Math.min(index + chars.length, 5);
+      inputRefs.current[nextIndex]?.focus();
     }
   };
 
@@ -77,7 +104,7 @@ const DownloadPage: React.FC = () => {
   const isComplete = code.every(char => char !== '');
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <div className="flex items-center justify-center px-4 py-20">
       <div className="max-w-lg w-full">
         <div className="bg-white rounded-3xl border-2 border-gray-200 p-12">
           {/* Header */}
@@ -97,6 +124,7 @@ const DownloadPage: React.FC = () => {
                   value={digit}
                   onChange={(e) => handleInputChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
+                  onPaste={(e) => handlePaste(index, e)}
                   maxLength={1}
                   className="w-10 h-12 md:w-14 md:h-16 text-center text-xl md:text-2xl font-bold border-2 border-blue-500 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-600 outline-none transition-all uppercase"
                 />

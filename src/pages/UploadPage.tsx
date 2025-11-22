@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import { useAuth } from '../context/AuthContext';
@@ -11,6 +11,10 @@ import { toast } from 'react-toastify';
 const UploadPage: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    document.title = '파일 업로드';
+  }, []);
 
   const [files, setFiles] = useState<File[]>([]);
   const [description, setDescription] = useState('');
@@ -66,7 +70,7 @@ const UploadPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div>
       <div className="max-w-4xl mx-auto px-4 py-12">
         {/* Header */}
         <div className="mb-12">
@@ -81,7 +85,7 @@ const UploadPage: React.FC = () => {
             className={`border-2 border-dashed rounded-2xl p-6 md:p-16 text-center cursor-pointer transition-colors ${
               isDragActive
                 ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-300 bg-gray-50 hover:border-gray-400'
+                : 'border-gray-300 bg-white hover:border-gray-400'
             }`}
           >
             <input {...getInputProps()} />
@@ -96,7 +100,7 @@ const UploadPage: React.FC = () => {
             </p>
             <button
               type="button"
-              className="px-6 py-2 md:px-8 md:py-3 bg-gray-200 text-gray-700 text-sm md:text-base font-medium rounded-lg hover:bg-gray-300 transition-colors"
+              className="px-6 py-2 md:px-8 md:py-3 bg-gray-100 text-gray-700 text-sm md:text-base font-medium rounded-lg hover:bg-gray-200 transition-colors"
             >
               파일 선택
             </button>
@@ -111,7 +115,7 @@ const UploadPage: React.FC = () => {
               {files.map((file, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                  className="flex items-center justify-between p-4 bg-gray-100 rounded-lg"
                 >
                   <div className="flex items-center space-x-3 flex-1 min-w-0">
                     <DocumentIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />
@@ -122,7 +126,7 @@ const UploadPage: React.FC = () => {
                   </div>
                   <button
                     onClick={() => removeFile(index)}
-                    className="ml-2 p-1 hover:bg-gray-200 rounded"
+                    className="ml-2 p-1 hover:bg-gray-300 rounded"
                   >
                     <XMarkIcon className="w-5 h-5 text-gray-500" />
                   </button>
@@ -172,7 +176,7 @@ const UploadPage: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={!isAuthenticated}
                 placeholder={isAuthenticated ? "다운로드 비밀번호" : "로그인 후 사용 가능합니다."}
-                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-400"
+                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-200 disabled:text-gray-400"
               />
               {isAuthenticated ? (
                 <button

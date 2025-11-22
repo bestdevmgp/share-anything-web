@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { FileUploadResponse } from '../types';
@@ -8,6 +8,10 @@ import { CheckIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
 const UploadSuccessPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    document.title = '업로드 완료';
+  }, []);
   const uploadResult = location.state?.uploadResult as FileUploadResponse | undefined;
 
   const [copiedField, setCopiedField] = useState<'code' | 'link' | null>(null);
@@ -35,7 +39,7 @@ const UploadSuccessPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
+    <div className="flex items-center justify-center px-4 py-12">
       <div className="max-w-2xl w-full">
         {/* Header */}
         <div className="text-center mb-12">
@@ -60,7 +64,7 @@ const UploadSuccessPage: React.FC = () => {
             <label className="block text-sm font-medium text-gray-600 mb-3 text-center">
               전송 코드
             </label>
-            <div className="relative bg-gray-100 rounded-xl px-4 md:px-8 py-4 md:py-6 mb-4">
+            <div className="relative bg-gray-50 rounded-xl px-4 md:px-8 py-4 md:py-6 mb-4 border border-gray-300">
               <p className="text-3xl md:text-5xl font-bold text-center text-gray-900 pr-10 md:pr-12 break-all" style={{ letterSpacing: '0.1em' }}>
                 {displayCode}
               </p>
@@ -97,7 +101,7 @@ const UploadSuccessPage: React.FC = () => {
               />
               <button
                 onClick={() => handleCopy(downloadUrl, 'link')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-300 rounded-lg transition-colors"
                 title="링크 복사"
               >
                 {copiedField === 'link' ? (

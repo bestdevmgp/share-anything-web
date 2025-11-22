@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowUpTrayIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const [downloadCode, setDownloadCode] = useState('');
+
+  useEffect(() => {
+    document.title = 'ShareAnything';
+  }, []);
 
   const handleDownload = () => {
     if (downloadCode.length === 6) {
@@ -20,7 +24,7 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gray-50">
+    <div>
       {/* Hero Section */}
       <div className="text-center pt-20 pb-16 px-4">
         <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
@@ -35,11 +39,9 @@ const HomePage: React.FC = () => {
       <div className="max-w-5xl mx-auto px-4 pb-20">
         <div className="grid md:grid-cols-2 gap-8">
           {/* Send Files Card */}
-          <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 md:p-10 flex flex-col items-center text-center">
+          <div className="bg-white rounded-2xl border-[3px] border-gray-100 p-6 md:p-10 flex flex-col items-center text-center">
             <div className="flex items-center md:flex-col md:items-center mb-4 md:mb-6 w-full md:w-auto">
-              <div className="w-12 h-12 md:w-16 md:h-16 bg-blue-100 rounded-xl flex items-center justify-center mr-4 md:mr-0 md:mb-6 flex-shrink-0">
-                <ArrowUpTrayIcon className="w-6 h-6 md:w-8 md:h-8 text-blue-600" />
-              </div>
+              <ArrowUpTrayIcon className="w-12 h-12 md:w-16 md:h-16 text-blue-600 mr-4 md:mr-0 md:mb-6 flex-shrink-0" strokeWidth={2.5} strokeLinecap="square" strokeLinejoin="miter" />
               <h2 className="text-xl md:text-2xl font-bold text-gray-900">파일 업로드</h2>
             </div>
             <p className="text-gray-600 mb-6 md:mb-8 text-sm md:text-base">
@@ -54,11 +56,9 @@ const HomePage: React.FC = () => {
           </div>
 
           {/* Receive Files Card */}
-          <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 md:p-10 flex flex-col items-center text-center">
+          <div className="bg-white rounded-2xl border-[3px] border-gray-100 p-6 md:p-10 flex flex-col items-center text-center">
             <div className="flex items-center md:flex-col md:items-center mb-4 md:mb-6 w-full md:w-auto">
-              <div className="w-12 h-12 md:w-16 md:h-16 bg-blue-100 rounded-xl flex items-center justify-center mr-4 md:mr-0 md:mb-6 flex-shrink-0">
-                <ArrowDownTrayIcon className="w-6 h-6 md:w-8 md:h-8 text-blue-600" />
-              </div>
+              <ArrowDownTrayIcon className="w-12 h-12 md:w-16 md:h-16 text-gray-700 mr-4 md:mr-0 md:mb-6 flex-shrink-0" strokeWidth={2.5} strokeLinecap="square" strokeLinejoin="miter" />
               <h2 className="text-xl md:text-2xl font-bold text-gray-900">파일 다운로드</h2>
             </div>
             <p className="text-gray-600 mb-6 md:mb-8 text-sm md:text-base">
@@ -75,7 +75,7 @@ const HomePage: React.FC = () => {
                   }
                 }}
                 placeholder="123456"
-                className="w-full px-4 py-3 md:py-4 pr-12 border border-gray-300 rounded-lg text-center font-mono text-lg uppercase focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-5 py-3 md:px-6 md:py-4 pr-12 border border-gray-300 rounded-xl text-center font-mono text-base md:text-lg uppercase focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 maxLength={6}
               />
               <button
@@ -84,7 +84,7 @@ const HomePage: React.FC = () => {
                 className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-colors ${
                   downloadCode.length === 6
                     ? 'bg-blue-600 text-white hover:bg-blue-700'
-                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
                 title="다운로드"
               >

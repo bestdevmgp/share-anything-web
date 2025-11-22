@@ -8,6 +8,10 @@ import { toast } from 'react-toastify';
 
 const DownloadFilePage: React.FC = () => {
   const { code } = useParams<{ code: string }>();
+
+  useEffect(() => {
+    document.title = '파일 다운로드';
+  }, []);
   const navigate = useNavigate();
 
   const [fileList, setFileList] = useState<FileListResponse | null>(null);
@@ -126,7 +130,7 @@ const DownloadFilePage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex items-center justify-center py-20">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">파일 정보를 불러오는 중...</p>
@@ -137,7 +141,7 @@ const DownloadFilePage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="flex items-center justify-center px-4 py-20">
         <div className="max-w-md w-full text-center">
           <div className="bg-white rounded-3xl border-2 border-gray-200 p-8">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -166,7 +170,7 @@ const DownloadFilePage: React.FC = () => {
   // Password verification screen
   if (fileList.has_password && !passwordVerified) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+      <div className="flex items-center justify-center px-4 py-20">
         <div className="max-w-md w-full">
           <div className="bg-white rounded-3xl border-2 border-gray-200 p-10">
             <div className="text-center mb-8">
@@ -222,7 +226,7 @@ const DownloadFilePage: React.FC = () => {
     const file = fileList.files[0];
 
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
+      <div className="flex items-center justify-center px-4 py-12">
         <div className="max-w-2xl w-full">
           {/* Header */}
           <div className="text-center mb-10">
@@ -318,7 +322,7 @@ const DownloadFilePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
+    <div className="py-12 px-4">
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10">
@@ -417,7 +421,7 @@ const DownloadFilePage: React.FC = () => {
 
           {selectedFiles.size > 1 && (
             <p className="mt-4 text-center text-sm text-gray-500">
-              ZIP 파일로 압축되어 다운로드됩니다
+              ZIP 파일로 압축되어 다운로드됩니다.
             </p>
           )}
 
