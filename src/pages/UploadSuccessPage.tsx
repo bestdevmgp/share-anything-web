@@ -46,7 +46,7 @@ const UploadSuccessPage: React.FC = () => {
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-3xl border-2 border-gray-200 p-12">
+        <div className="bg-white rounded-3xl border-2 border-gray-200 p-8 md:p-12">
           {/* Success Icon */}
           <div className="flex items-center space-x-3 mb-8">
             <div className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
@@ -60,19 +60,19 @@ const UploadSuccessPage: React.FC = () => {
             <label className="block text-sm font-medium text-gray-600 mb-3 text-center">
               전송 코드
             </label>
-            <div className="relative bg-gray-100 rounded-xl px-8 py-6 mb-4">
-              <p className="text-5xl font-bold text-center text-gray-900 pr-12" style={{ letterSpacing: '0.15em' }}>
+            <div className="relative bg-gray-100 rounded-xl px-4 md:px-8 py-4 md:py-6 mb-4">
+              <p className="text-3xl md:text-5xl font-bold text-center text-gray-900 pr-10 md:pr-12 break-all" style={{ letterSpacing: '0.1em' }}>
                 {displayCode}
               </p>
               <button
                 onClick={() => handleCopy(groupShareCode, 'code')}
-                className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-200 rounded-lg transition-colors"
                 title="코드 복사"
               >
                 {copiedField === 'code' ? (
-                  <CheckIcon className="w-6 h-6 text-green-600" />
+                  <CheckIcon className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
                 ) : (
-                  <ClipboardDocumentIcon className="w-6 h-6 text-gray-600" />
+                  <ClipboardDocumentIcon className="w-5 h-5 md:w-6 md:h-6 text-gray-600" />
                 )}
               </button>
             </div>

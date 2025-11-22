@@ -88,7 +88,7 @@ const DownloadPage: React.FC = () => {
 
           {/* Code Input */}
           <div className="mb-6">
-            <div className="flex justify-center space-x-3 mb-4">
+            <div className="flex justify-center space-x-2 md:space-x-3 mb-4">
               {code.map((digit, index) => (
                 <input
                   key={index}
@@ -98,7 +98,7 @@ const DownloadPage: React.FC = () => {
                   onChange={(e) => handleInputChange(index, e.target.value)}
                   onKeyDown={(e) => handleKeyDown(index, e)}
                   maxLength={1}
-                  className="w-14 h-16 text-center text-2xl font-bold border-2 border-blue-500 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-600 outline-none transition-all uppercase"
+                  className="w-10 h-12 md:w-14 md:h-16 text-center text-xl md:text-2xl font-bold border-2 border-blue-500 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-600 outline-none transition-all uppercase"
                 />
               ))}
             </div>
@@ -111,7 +111,7 @@ const DownloadPage: React.FC = () => {
           <button
             onClick={handleSubmit}
             disabled={!isComplete}
-            className="w-full px-6 py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors mb-4"
+            className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors mb-4"
           >
             다운로드
           </button>

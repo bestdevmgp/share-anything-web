@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { fileAPI } from '../services/api';
 import { FileListResponse } from '../types';
 import { formatFileSize, downloadFile, formatDateTime } from '../utils/format';
-import { DocumentIcon, LockClosedIcon, CheckIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import { DocumentIcon, LockClosedIcon, CheckIcon, ArrowDownTrayIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 
 const DownloadFilePage: React.FC = () => {
@@ -16,6 +16,7 @@ const DownloadFilePage: React.FC = () => {
 
   const [password, setPassword] = useState('');
   const [passwordVerified, setPasswordVerified] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [downloading, setDownloading] = useState(false);
@@ -76,6 +77,8 @@ const DownloadFilePage: React.FC = () => {
     } catch (err: any) {
       if (err.response?.status === 401) {
         toast.error('비밀번호가 올바르지 않습니다.');
+        setPassword('');
+        setShowPassword(false);
       } else {
         toast.error('비밀번호 확인에 실패했습니다.');
       }
@@ -178,14 +181,27 @@ const DownloadFilePage: React.FC = () => {
 
             <form onSubmit={handlePasswordSubmit}>
               <div className="mb-6">
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="파일 비밀번호를 입력하세요"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  autoFocus
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="파일 비밀번호를 입력하세요"
+                    className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700"
+                  >
+                    {showPassword ? (
+                      <EyeSlashIcon className="w-5 h-5" />
+                    ) : (
+                      <EyeIcon className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               <button
@@ -259,7 +275,7 @@ const DownloadFilePage: React.FC = () => {
             <button
               onClick={handleDownload}
               disabled={downloading}
-              className="w-full px-6 py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
+              className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
             >
               <ArrowDownTrayIcon className="w-5 h-5" />
               <span>{downloading ? '다운로드 중...' : '파일 다운로드'}</span>
@@ -387,7 +403,7 @@ const DownloadFilePage: React.FC = () => {
           <button
             onClick={handleDownload}
             disabled={selectedFiles.size === 0 || downloading}
-            className="w-full px-6 py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
           >
             {downloading
               ? '다운로드 중...'

@@ -59,7 +59,7 @@ const LoginPage: React.FC = () => {
             {/* Naver Login */}
             <button
               onClick={handleNaverLogin}
-              className="w-full flex items-center justify-center space-x-3 px-6 py-3 bg-[#03C75A] hover:bg-[#02b350] rounded-lg transition-colors"
+              className="w-full flex items-center justify-center space-x-5 px-6 py-3 bg-[#03C75A] hover:bg-[#02b350] rounded-lg transition-colors"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path
