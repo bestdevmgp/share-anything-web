@@ -16,6 +16,7 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfUsePage from './pages/TermsOfUsePage';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import ScrollToTop from './components/ScrollToTop';
 
 const AppContent: React.FC = () => {
   return (
@@ -33,6 +34,7 @@ const AppContent: React.FC = () => {
         pauseOnHover
       />
       <div className="flex-1">
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
