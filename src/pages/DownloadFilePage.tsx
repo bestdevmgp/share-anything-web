@@ -220,8 +220,9 @@ const DownloadFilePage: React.FC = () => {
         <div className="max-w-md w-full text-center">
           <div className="bg-white rounded-3xl border-2 border-gray-200 p-8">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M6 18L18 6" className="error-x-path-1" />
+                <path d="M6 6l12 12" className="error-x-path-2" />
               </svg>
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">잘못된 코드</h2>
@@ -233,6 +234,24 @@ const DownloadFilePage: React.FC = () => {
               다시 시도
             </button>
           </div>
+          <style>{`
+            .error-x-path-1,
+            .error-x-path-2 {
+              stroke-dasharray: 17;
+              stroke-dashoffset: 17;
+            }
+            .error-x-path-1 {
+              animation: drawX 0.4s ease-out forwards;
+            }
+            .error-x-path-2 {
+              animation: drawX 0.4s ease-out 0.2s forwards;
+            }
+            @keyframes drawX {
+              to {
+                stroke-dashoffset: 0;
+              }
+            }
+          `}</style>
         </div>
       </div>
     );
@@ -305,11 +324,30 @@ const DownloadFilePage: React.FC = () => {
         <div className="max-w-2xl w-full">
           {/* Header */}
           <div className="text-center mb-10">
+            <div className="flex justify-center mb-5">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 13l4 4L19 7" className="download-checkmark-path" />
+                </svg>
+              </div>
+            </div>
             <h1 className="text-4xl font-bold text-gray-900 mb-3">다운로드 준비 완료</h1>
             <p className="text-gray-600">
               다운로드를 시작하기 전에 아래 파일 정보를 확인하세요.
             </p>
           </div>
+          <style>{`
+            .download-checkmark-path {
+              stroke-dasharray: 20;
+              stroke-dashoffset: 20;
+              animation: drawDownloadCheck 0.6s ease-out forwards;
+            }
+            @keyframes drawDownloadCheck {
+              to {
+                stroke-dashoffset: 0;
+              }
+            }
+          `}</style>
 
           {/* File Card */}
           <div className="bg-white rounded-3xl border-2 border-gray-200 p-6 md:p-10">

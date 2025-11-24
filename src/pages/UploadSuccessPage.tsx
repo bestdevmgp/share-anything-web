@@ -43,22 +43,33 @@ const UploadSuccessPage: React.FC = () => {
       <div className="max-w-2xl w-full">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">파일 전송 준비 완료</h1>
+          <div className="flex justify-center mb-5">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+              <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 13l4 4L19 7" className="upload-checkmark-path" />
+              </svg>
+            </div>
+          </div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-3">업로드 완료</h1>
           <p className="text-lg text-gray-600">
             코드를 공유하거나 아래 링크를 통해 파일을 다운로드하세요.
           </p>
         </div>
+        <style>{`
+          .upload-checkmark-path {
+            stroke-dasharray: 20;
+            stroke-dashoffset: 20;
+            animation: drawUploadCheck 0.6s ease-out forwards;
+          }
+          @keyframes drawUploadCheck {
+            to {
+              stroke-dashoffset: 0;
+            }
+          }
+        `}</style>
 
         {/* Card */}
         <div className="bg-white rounded-3xl border-2 border-gray-200 p-8 md:p-12">
-          {/* Success Icon */}
-          <div className="flex items-center space-x-3 mb-8">
-            <div className="w-7 h-7 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-              <CheckIcon className="w-5 h-5 text-white" />
-            </div>
-            <p className="text-xl font-semibold text-green-600">업로드 완료!</p>
-          </div>
-
           {/* Share Code */}
           <div className="mb-8">
             <label className="block text-sm font-medium text-gray-600 mb-3 text-center">
