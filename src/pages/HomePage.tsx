@@ -1,14 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowUpTrayIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [downloadCode, setDownloadCode] = useState('');
+  const downloadCodeInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     document.title = 'ShareAnything';
-  }, []);
+    // Auto-focus on download code input only when coming from "Try Again" button
+    if (location.state?.autoFocus) {
+      downloadCodeInputRef.current?.focus();
+    }
+  }, [location.state]);
 
   const handleDownload = () => {
     if (downloadCode.length === 6) {
@@ -66,6 +72,7 @@ const HomePage: React.FC = () => {
             </p>
             <div className="w-full max-w-sm md:max-w-xs relative">
               <input
+                ref={downloadCodeInputRef}
                 type="text"
                 value={downloadCode}
                 onChange={handleCodeChange}

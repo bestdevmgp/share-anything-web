@@ -9,7 +9,6 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import UploadPage from './pages/UploadPage';
 import UploadSuccessPage from './pages/UploadSuccessPage';
-import DownloadPage from './pages/DownloadPage';
 import DownloadFilePage from './pages/DownloadFilePage';
 import OAuthCallbackPage from './pages/OAuthCallbackPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
@@ -40,7 +39,6 @@ const AppContent: React.FC = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/upload" element={<UploadPage />} />
           <Route path="/upload/success" element={<UploadSuccessPage />} />
-          <Route path="/download" element={<DownloadPage />} />
           <Route path="/download/:code" element={<DownloadFilePage />} />
           <Route path="/auth/callback/:provider" element={<OAuthCallbackPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />

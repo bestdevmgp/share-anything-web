@@ -18,19 +18,10 @@ const LoginPage: React.FC = () => {
         <div className="flex items-center justify-center px-4 py-20">
             <div className="max-w-md w-full">
                 <div className="bg-white rounded-3xl border-2 border-gray-200 p-10">
-                    {/* Logo and Title */}
                     <div className="text-center mb-10">
-                        <div className="flex items-center justify-center space-x-2 mb-6">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="32px" viewBox="0 -960 960 960" width="32px"
-                                 fill="#0065F4">
-                                <path
-                                    d="M120-160v-640l760 320-760 320Zm80-120 474-200-474-200v140l240 60-240 60v140Zm0 0v-400 400Z"/>
-                            </svg>
-                            <span className="text-2xl font-bold text-gray-900">ShareAnything</span>
-                        </div>
                         <h1 className="text-4xl font-bold text-gray-900 mb-3">환영합니다!</h1>
                         <p className="text-gray-600">
-                            모든 정보는 안전하게 보관됩니다.
+                            계정을 선택해 주세요. 모든 정보는 안전하게 보관됩니다.
                         </p>
                     </div>
 

@@ -35,7 +35,7 @@ const DownloadFilePage: React.FC = () => {
 
   const loadFileList = useCallback(async () => {
     if (!code) {
-      navigate('/download');
+      navigate('/');
       return;
     }
 
@@ -227,7 +227,7 @@ const DownloadFilePage: React.FC = () => {
             <h2 className="text-2xl font-bold text-gray-900 mb-2">잘못된 코드</h2>
             <p className="text-gray-600 mb-6">{error}</p>
             <button
-              onClick={() => navigate('/download')}
+              onClick={() => navigate('/', { state: { autoFocus: true } })}
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
               다시 시도
