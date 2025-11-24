@@ -17,6 +17,7 @@ const DownloadFilePage: React.FC = () => {
   const [fileList, setFileList] = useState<FileListResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [errorTitle, setErrorTitle] = useState('잘못된 코드');
 
   const [password, setPassword] = useState('');
   const [passwordVerified, setPasswordVerified] = useState(false);
@@ -54,7 +55,18 @@ const DownloadFilePage: React.FC = () => {
         }
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || '찾을 수 없거나 만료된 파일입니다.');
+      const statusCode = err.response?.status;
+
+      if (statusCode === 404) {
+        setErrorTitle('잘못된 코드');
+        setError('찾을 수 없거나 만료된 파일입니다.');
+      } else if (statusCode === 429) {
+        setErrorTitle('차단된 IP');
+        setError('비정상적인 활동으로 인해 사용자의 IP가 일시적으로 차단되었습니다. 나중에 다시 시도해 주세요.');
+      } else {
+        setErrorTitle('알 수 없는 오류');
+        setError(err.response?.data?.message || '잠시 후에 다시 시도해 주세요.');
+      }
     } finally {
       setLoading(false);
     }
@@ -255,7 +267,7 @@ const DownloadFilePage: React.FC = () => {
                 <path d="M6 6l12 12" className="error-x-path-2" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">잘못된 코드</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{errorTitle}</h2>
             <p className="text-gray-600 mb-6">{error}</p>
             <button
               onClick={() => navigate('/', { state: { autoFocus: true } })}
