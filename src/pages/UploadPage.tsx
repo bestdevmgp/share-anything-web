@@ -23,6 +23,8 @@ const UploadPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [expiration, setExpiration] = useState<ExpirationOption>('one_day');
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadAbortController, setUploadAbortController] = useState<AbortController | null>(null);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFiles(prev => [...prev, ...acceptedFiles]);
@@ -62,21 +64,41 @@ const UploadPage: React.FC = () => {
       return;
     }
 
+    const abortController = new AbortController();
+    setUploadAbortController(abortController);
+
     try {
       setIsUploading(true);
+      setUploadProgress(0);
 
       const response = await fileAPI.upload(
         files,
         description || undefined,
         isAuthenticated && password ? password : undefined,
-        isAuthenticated ? expiration : undefined
+        isAuthenticated ? expiration : undefined,
+        (progressEvent) => {
+          setUploadProgress(progressEvent.percentage);
+        },
+        abortController.signal
       );
 
       navigate('/upload/success', { state: { uploadResult: response } });
     } catch (err: any) {
-      toast.error(err.response?.data?.message || '업로드에 실패했습니다.');
+      if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') {
+        toast.info('업로드가 취소되었습니다.');
+      } else {
+        toast.error(err.response?.data?.message || '업로드에 실패했습니다.');
+      }
     } finally {
       setIsUploading(false);
+      setUploadProgress(0);
+      setUploadAbortController(null);
+    }
+  };
+
+  const handleCancelUpload = () => {
+    if (uploadAbortController) {
+      uploadAbortController.abort();
     }
   };
 
@@ -258,14 +280,46 @@ const UploadPage: React.FC = () => {
         </div>
 
         {/* Submit Button */}
-        <div className="flex justify-end">
-          <button
-            onClick={handleUpload}
-            disabled={files.length === 0 || isUploading}
-            className="w-full md:w-auto px-10 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-          >
-            {isUploading ? '업로드 중...' : '업로드'}
-          </button>
+        <div className="-mt-4">
+          {isUploading ? (
+            <div className="bg-blue-50 rounded-xl px-4 py-4">
+              <div className="flex items-center gap-2">
+                <div className="flex-1 pl-2">
+                  <div className="flex justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-700 self-start">
+                      {uploadProgress === 100 ? '잠시만 기다려주세요...' : '업로드 중...'}
+                    </span>
+                    {uploadProgress < 100 && (
+                      <span className="text-xs font-semibold text-blue-600 self-end">{uploadProgress}%</span>
+                    )}
+                  </div>
+                  <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                    <div
+                      className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                </div>
+                <button
+                  onClick={handleCancelUpload}
+                  className="p-1 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
+                  title="업로드 취소"
+                >
+                  <XMarkIcon className="w-6 h-6 text-gray-600" />
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex justify-end">
+              <button
+                onClick={handleUpload}
+                disabled={files.length === 0}
+                className="w-full md:w-auto px-10 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+              >
+                업로드
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

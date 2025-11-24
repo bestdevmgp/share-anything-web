@@ -75,7 +75,9 @@ export const fileAPI = {
     files: File[],
     description?: string,
     password?: string,
-    expiration?: ExpirationOption
+    expiration?: ExpirationOption,
+    onUploadProgress?: (progressEvent: { loaded: number; total: number; percentage: number }) => void,
+    signal?: AbortSignal
   ): Promise<FileUploadResponse> => {
     const formData = new FormData();
 
@@ -95,7 +97,19 @@ export const fileAPI = {
       formData.append('expiration', expiration);
     }
 
-    const response = await api.post<FileUploadResponse>('/file/upload', formData);
+    const response = await api.post<FileUploadResponse>('/file/upload', formData, {
+      signal,
+      onUploadProgress: (progressEvent) => {
+        if (onUploadProgress && progressEvent.total) {
+          const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onUploadProgress({
+            loaded: progressEvent.loaded,
+            total: progressEvent.total,
+            percentage
+          });
+        }
+      }
+    });
 
     return response.data;
   },
@@ -141,7 +155,13 @@ export const fileAPI = {
   },
 
   // ⭐ 새로운 API: 단일 파일 다운로드
-  downloadFile: async (code: string, fileId: string, password?: string): Promise<Blob> => {
+  downloadFile: async (
+    code: string,
+    fileId: string,
+    password?: string,
+    onDownloadProgress?: (progressEvent: { loaded: number; total: number; percentage: number }) => void,
+    signal?: AbortSignal
+  ): Promise<Blob> => {
     const headers: Record<string, string> = {};
     if (password) {
       headers['X-File-Password'] = password;
@@ -151,15 +171,41 @@ export const fileAPI = {
       params: { code, file_id: fileId },
       headers,
       responseType: 'blob',
+      signal,
+      onDownloadProgress: (progressEvent) => {
+        if (onDownloadProgress && progressEvent.total) {
+          const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onDownloadProgress({
+            loaded: progressEvent.loaded,
+            total: progressEvent.total,
+            percentage
+          });
+        }
+      }
     });
 
     return response.data;
   },
 
   // ⭐ 새로운 API: Bulk 다운로드 (여러 파일 ZIP)
-  downloadBulk: async (request: BulkDownloadRequest): Promise<Blob> => {
+  downloadBulk: async (
+    request: BulkDownloadRequest,
+    onDownloadProgress?: (progressEvent: { loaded: number; total: number; percentage: number }) => void,
+    signal?: AbortSignal
+  ): Promise<Blob> => {
     const response = await api.post('/download/bulk', request, {
       responseType: 'blob',
+      signal,
+      onDownloadProgress: (progressEvent) => {
+        if (onDownloadProgress && progressEvent.total) {
+          const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onDownloadProgress({
+            loaded: progressEvent.loaded,
+            total: progressEvent.total,
+            percentage
+          });
+        }
+      }
     });
 
     return response.data;

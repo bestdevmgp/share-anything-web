@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { fileAPI } from '../services/api';
 import { FileListResponse } from '../types';
 import { formatFileSize, downloadFile, formatDateTime, isImageFile, isVideoFile, isAudioFile, isTextFile } from '../utils/format';
-import { DocumentIcon, LockClosedIcon, CheckIcon, ArrowDownTrayIcon, EyeIcon, EyeSlashIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { DocumentIcon, LockClosedIcon, CheckIcon, ArrowDownTrayIcon, EyeIcon, EyeSlashIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 
 const DownloadFilePage: React.FC = () => {
@@ -24,6 +24,8 @@ const DownloadFilePage: React.FC = () => {
 
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [downloading, setDownloading] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
+  const [downloadAbortController, setDownloadAbortController] = useState<AbortController | null>(null);
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
@@ -169,8 +171,12 @@ const DownloadFilePage: React.FC = () => {
   const handleDownload = async () => {
     if (!code || !fileList || selectedFiles.size === 0) return;
 
+    const abortController = new AbortController();
+    setDownloadAbortController(abortController);
+
     try {
       setDownloading(true);
+      setDownloadProgress(0);
       const selectedFileIds = Array.from(selectedFiles);
 
       if (selectedFileIds.length === 1) {
@@ -178,20 +184,36 @@ const DownloadFilePage: React.FC = () => {
         const file = fileList.files.find(f => f.id === fileId);
         if (!file) return;
 
-        const blob = await fileAPI.downloadFile(code, fileId, password || undefined);
+        const blob = await fileAPI.downloadFile(
+          code,
+          fileId,
+          password || undefined,
+          (progressEvent) => {
+            setDownloadProgress(progressEvent.percentage);
+          },
+          abortController.signal
+        );
         downloadFile(blob, file.file_name);
         toast.success('파일 다운로드가 완료되었습니다.');
       } else {
-        const blob = await fileAPI.downloadBulk({
-          code,
-          file_ids: selectedFileIds,
-          password: password || undefined
-        });
+        const blob = await fileAPI.downloadBulk(
+          {
+            code,
+            file_ids: selectedFileIds,
+            password: password || undefined
+          },
+          (progressEvent) => {
+            setDownloadProgress(progressEvent.percentage);
+          },
+          abortController.signal
+        );
         downloadFile(blob, `files_${code}.zip`);
         toast.success(`${selectedFileIds.length}개 파일 다운로드가 완료되었습니다.`);
       }
     } catch (err: any) {
-      if (err.response?.status === 401) {
+      if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') {
+        toast.info('다운로드가 취소되었습니다.');
+      } else if (err.response?.status === 401) {
         toast.error('비밀번호가 올바르지 않습니다.');
         setPasswordVerified(false);
       } else {
@@ -199,6 +221,14 @@ const DownloadFilePage: React.FC = () => {
       }
     } finally {
       setDownloading(false);
+      setDownloadProgress(0);
+      setDownloadAbortController(null);
+    }
+  };
+
+  const handleCancelDownload = () => {
+    if (downloadAbortController) {
+      downloadAbortController.abort();
     }
   };
 
@@ -321,7 +351,7 @@ const DownloadFilePage: React.FC = () => {
 
     return (
       <div className="flex items-center justify-center px-4 py-12">
-        <div className="max-w-2xl w-full">
+    <div className="max-w-2xl w-full">
           {/* Header */}
           <div className="text-center mb-10">
             <div className="flex justify-center mb-5">
@@ -432,14 +462,45 @@ const DownloadFilePage: React.FC = () => {
             </div>
 
             {/* Download Button */}
-            <button
-              onClick={handleDownload}
-              disabled={downloading}
-              className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-base md:text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
-            >
-              <ArrowDownTrayIcon className="w-5 h-5" />
-              <span>{downloading ? '다운로드 중...' : '파일 다운로드'}</span>
-            </button>
+            <div className="-mt-4">
+              {downloading ? (
+                <div className="bg-blue-50 rounded-xl px-4 py-4">
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 pl-2">
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-700 self-start">
+                          {downloadProgress === 100 ? '잠시만 기다려주세요...' : '다운로드 중...'}
+                        </span>
+                        {downloadProgress < 100 && (
+                          <span className="text-xs font-semibold text-blue-600 self-end">{downloadProgress}%</span>
+                        )}
+                      </div>
+                      <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
+                          style={{ width: `${downloadProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleCancelDownload}
+                      className="p-1 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
+                      title="다운로드 취소"
+                    >
+                      <XMarkIcon className="w-6 h-6 text-gray-600" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={handleDownload}
+                  className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-base md:text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+                >
+                  <ArrowDownTrayIcon className="w-5 h-5" />
+                  <span>파일 다운로드</span>
+                </button>
+              )}
+            </div>
 
             {/* Back Button */}
             <div className="mt-4 text-center">
@@ -580,26 +641,58 @@ const DownloadFilePage: React.FC = () => {
           </div>
 
           {/* Download Button */}
-          <button
-            onClick={handleDownload}
-            disabled={selectedFiles.size === 0 || downloading}
-            className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-          >
-            {downloading
-              ? '다운로드 중...'
-              : selectedFiles.size === 0
-              ? '파일을 선택하세요'
-              : selectedFiles.size === 1
-              ? '다운로드'
-              : `${selectedFiles.size}개 파일 ZIP으로 다운로드`
-            }
-          </button>
+          <div className="-mt-4">
+            {downloading ? (
+              <div className="bg-blue-50 rounded-xl px-4 py-4">
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 pl-2">
+                    <div className="flex justify-between mb-2">
+                      <span className="text-sm font-medium text-gray-700 self-start">
+                        {downloadProgress === 100 ? '잠시만 기다려주세요...' : '다운로드 중...'}
+                      </span>
+                      {downloadProgress < 100 && (
+                        <span className="text-xs font-semibold text-blue-600 self-end">{downloadProgress}%</span>
+                      )}
+                    </div>
+                    <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
+                        style={{ width: `${downloadProgress}%` }}
+                      />
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleCancelDownload}
+                    className="p-1 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
+                    title="다운로드 취소"
+                  >
+                    <XMarkIcon className="w-6 h-6 text-gray-600" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <button
+                  onClick={handleDownload}
+                  disabled={selectedFiles.size === 0}
+                  className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                >
+                  {selectedFiles.size === 0
+                    ? '파일을 선택하세요'
+                    : selectedFiles.size === 1
+                    ? '다운로드'
+                    : `${selectedFiles.size}개 파일 ZIP으로 다운로드`
+                  }
+                </button>
 
-          {selectedFiles.size > 1 && (
-            <p className="mt-4 text-center text-sm text-gray-500">
-              ZIP 파일로 압축되어 다운로드됩니다.
-            </p>
-          )}
+                {selectedFiles.size > 1 && (
+                  <p className="text-center text-sm text-gray-500">
+                    ZIP 파일로 압축되어 다운로드됩니다.
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
 
           {/* Back Button */}
           <div className="mt-4 text-center">
