@@ -18,15 +18,21 @@ const UploadPage: React.FC = () => {
 
   const [files, setFiles] = useState<File[]>([]);
   const [filePreviews, setFilePreviews] = useState<Map<string, string>>(new Map());
+  const [isProcessingFiles, setIsProcessingFiles] = useState(false);
   const [description, setDescription] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [expiration, setExpiration] = useState<ExpirationOption>('one_day');
+  const [expiration, setExpiration] = useState<ExpirationOption>('five_minutes');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadAbortController, setUploadAbortController] = useState<AbortController | null>(null);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    setIsProcessingFiles(true);
+
+    // 로딩 UI가 표시되도록 약간의 딜레이
+    await new Promise(resolve => setTimeout(resolve, 10));
+
     setFiles(prev => [...prev, ...acceptedFiles]);
 
     // Generate previews for image files
@@ -39,6 +45,8 @@ const UploadPage: React.FC = () => {
         reader.readAsDataURL(file);
       }
     });
+
+    setIsProcessingFiles(false);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -104,11 +112,13 @@ const UploadPage: React.FC = () => {
 
   const expirationOptions: { value: ExpirationOption; label: string; requiresAuth?: boolean }[] = [
     { value: 'one_time', label: '일회용', requiresAuth: true },
+    { value: 'five_minutes', label: '5분' },
+    { value: 'thirty_minutes', label: '30분' },
     { value: 'one_hour', label: '1시간' },
-    { value: 'one_day', label: '1일' },
-    { value: 'three_days', label: '3일' },
-    { value: 'one_week', label: '1주일' },
-    { value: 'one_month', label: '1개월' },
+    { value: 'three_hours', label: '3시간' },
+    { value: 'six_hours', label: '6시간' },
+    { value: 'twelve_hours', label: '12시간' },
+    { value: 'twenty_four_hours', label: '24시간' },
   ];
 
   return (
@@ -148,6 +158,13 @@ const UploadPage: React.FC = () => {
             </button>
           </div>
         </div>
+
+        {/* File Processing */}
+        {isProcessingFiles && (
+          <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <p className="text-sm font-medium text-gray-700">파일 처리 중...</p>
+          </div>
+        )}
 
         {/* Selected Files */}
         {files.length > 0 && (
@@ -212,12 +229,12 @@ const UploadPage: React.FC = () => {
                 <button
                   key={option.value}
                   onClick={() => setExpiration(option.value)}
-                  disabled={!isAuthenticated && option.value !== 'one_day'}
+                  disabled={!isAuthenticated && option.value !== 'five_minutes'}
                   className={`px-4 py-2 md:px-6 md:py-3 rounded-xl text-sm md:text-base font-medium transition-colors ${
                     expiration === option.value
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  } ${!isAuthenticated && option.value !== 'one_day' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  } ${!isAuthenticated && option.value !== 'five_minutes' ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   {option.label}
                 </button>

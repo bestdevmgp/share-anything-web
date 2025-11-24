@@ -42,13 +42,15 @@ export const formatDateTime = (dateString: string): string => {
 export const getExpirationLabel = (expiration: string): string => {
   const labels: Record<string, string> = {
     'one_time': '일회용',
+    'five_minutes': '5분',
+    'thirty_minutes': '30분',
     'one_hour': '1시간',
-    'one_day': '1일',
-    'three_days': '3일',
-    'one_week': '1주일',
-    'one_month': '1개월',
+    'three_hours': '3시간',
+    'six_hours': '6시간',
+    'twelve_hours': '12시간',
+    'twenty_four_hours': '24시간',
   };
-  return labels[expiration] || '1일';
+  return labels[expiration] || '24시간';
 };
 
 export const downloadFile = (blob: Blob, filename: string) => {

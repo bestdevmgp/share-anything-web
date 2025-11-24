@@ -563,16 +563,16 @@ const DownloadFilePage: React.FC = () => {
             <h3 className="text-lg font-semibold text-gray-900">
               파일 목록 ({selectedFiles.size}/{fileList.total_count} 선택됨)
             </h3>
-            <div className="flex space-x-2">
+            <div className="flex gap-1">
               <button
                 onClick={selectAllFiles}
-                className="px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg"
+                className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg"
               >
                 전체 선택
               </button>
               <button
                 onClick={deselectAllFiles}
-                className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-lg"
+                className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg"
               >
                 선택 해제
               </button>
@@ -625,7 +625,9 @@ const DownloadFilePage: React.FC = () => {
                       <DocumentTextIcon className="w-7 h-7 text-yellow-600" />
                     </div>
                   ) : (
-                    <DocumentIcon className="w-10 h-10 text-blue-600" />
+                    <div className="w-12 h-12 bg-gray-50 rounded flex items-center justify-center">
+                      <DocumentIcon className="w-7 h-7 text-gray-400" />
+                    </div>
                   )}
                 </div>
 
