@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { fileAPI } from '../services/api';
 import { ExpirationOption } from '../types';
 import { formatFileSize, isImageFile, isVideoFile, isAudioFile, isTextFile } from '../utils/format';
-import { DocumentIcon, XMarkIcon, EyeIcon, EyeSlashIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { DocumentIcon, XMarkIcon, EyeIcon, EyeSlashIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 
 const UploadPage: React.FC = () => {
@@ -23,6 +23,7 @@ const UploadPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [expiration, setExpiration] = useState<ExpirationOption>('five_minutes');
+  const [isOneTime, setIsOneTime] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadAbortController, setUploadAbortController] = useState<AbortController | null>(null);
@@ -84,6 +85,7 @@ const UploadPage: React.FC = () => {
         description || undefined,
         isAuthenticated && password ? password : undefined,
         isAuthenticated ? expiration : undefined,
+        isAuthenticated ? isOneTime : undefined,
         (progressEvent) => {
           setUploadProgress(progressEvent.percentage);
         },
@@ -110,8 +112,7 @@ const UploadPage: React.FC = () => {
     }
   };
 
-  const expirationOptions: { value: ExpirationOption; label: string; requiresAuth?: boolean }[] = [
-    { value: 'one_time', label: '일회용', requiresAuth: true },
+  const expirationOptions: { value: ExpirationOption; label: string }[] = [
     { value: 'five_minutes', label: '5분' },
     { value: 'thirty_minutes', label: '30분' },
     { value: 'one_hour', label: '1시간' },
@@ -223,8 +224,13 @@ const UploadPage: React.FC = () => {
 
           {/* Expiration */}
           <div className="mb-8">
-            <h3 className="text-base font-semibold text-gray-900 mb-4">유효 기간</h3>
-            <div className="flex flex-wrap gap-2 md:gap-3">
+            <h3 className={`text-base font-semibold text-gray-900 ${!isAuthenticated ? 'mb-1' : 'mb-4'}`}>유효 기간</h3>
+            {!isAuthenticated && (
+              <p className="mb-4 text-sm text-gray-500">
+                로그인 후 사용 가능합니다.
+              </p>
+            )}
+            <div className="flex flex-wrap gap-2 md:gap-3 mb-4">
               {expirationOptions.map(option => (
                 <button
                   key={option.value}
@@ -240,11 +246,41 @@ const UploadPage: React.FC = () => {
                 </button>
               ))}
             </div>
-            {!isAuthenticated && (
-              <p className="mt-3 text-sm text-gray-500">
-                로그인 후 사용 가능합니다.
-              </p>
-            )}
+
+            {/* One Time Download Checkbox */}
+            <div className="mt-4">
+              <div className="flex items-center">
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    checked={isOneTime}
+                    onChange={(e) => setIsOneTime(e.target.checked)}
+                    disabled={!isAuthenticated}
+                    className="sr-only"
+                  />
+                  <div
+                    onClick={() => isAuthenticated && setIsOneTime(!isOneTime)}
+                    className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors ${
+                      isOneTime
+                        ? 'bg-blue-600 border-blue-600'
+                        : 'border-gray-300 bg-white'
+                    } ${
+                      isAuthenticated ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'
+                    }`}
+                  >
+                    {isOneTime && (
+                      <CheckIcon className="w-4 h-4 text-white" strokeWidth={3} />
+                    )}
+                  </div>
+                </div>
+                <span
+                  onClick={() => isAuthenticated && setIsOneTime(!isOneTime)}
+                  className={`ml-2.5 text-base font-medium ${isAuthenticated ? 'cursor-pointer' : 'cursor-not-allowed'} ${!isAuthenticated ? 'text-gray-400' : 'text-gray-900'}`}
+                >
+                  일회용 다운로드
+                </span>
+              </div>
+            </div>
           </div>
 
           {/* Password */}

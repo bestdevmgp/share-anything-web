@@ -76,6 +76,7 @@ export const fileAPI = {
     description?: string,
     password?: string,
     expiration?: ExpirationOption,
+    isOneTime?: boolean,
     onUploadProgress?: (progressEvent: { loaded: number; total: number; percentage: number }) => void,
     signal?: AbortSignal
   ): Promise<FileUploadResponse> => {
@@ -95,6 +96,10 @@ export const fileAPI = {
 
     if (expiration) {
       formData.append('expiration', expiration);
+    }
+
+    if (isOneTime !== undefined) {
+      formData.append('is_one_time', String(isOneTime));
     }
 
     const response = await api.post<FileUploadResponse>('/file/upload', formData, {

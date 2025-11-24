@@ -41,7 +41,6 @@ export const formatDateTime = (dateString: string): string => {
 
 export const getExpirationLabel = (expiration: string): string => {
   const labels: Record<string, string> = {
-    'one_time': '일회용',
     'five_minutes': '5분',
     'thirty_minutes': '30분',
     'one_hour': '1시간',
