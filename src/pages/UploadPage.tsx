@@ -179,7 +179,9 @@ const UploadPage: React.FC = () => {
                         <DocumentTextIcon className="w-7 h-7 text-yellow-600" />
                       </div>
                     ) : (
-                      <DocumentIcon className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                      <div className="w-12 h-12 flex-shrink-0 bg-gray-50 rounded flex items-center justify-center">
+                        <DocumentIcon className="w-7 h-7 text-gray-400" />
+                      </div>
                     )}
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
