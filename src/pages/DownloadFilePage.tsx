@@ -78,6 +78,10 @@ const DownloadFilePage: React.FC = () => {
 
   // Load preview for single files
   useEffect(() => {
+    let imageUrl: string | null = null;
+    let videoUrl: string | null = null;
+    let audioUrl: string | null = null;
+
     const loadFilePreview = async () => {
       if (!fileList || !code || fileList.files.length !== 1) return;
 
@@ -85,16 +89,19 @@ const DownloadFilePage: React.FC = () => {
 
       try {
         setLoadingPreview(true);
-        const blob = await fileAPI.downloadFile(code, file.id, password || undefined);
+        const blob = await fileAPI.previewFile(code, file.id, password || undefined);
 
         if (isImageFile(file.file_name)) {
           const url = URL.createObjectURL(blob);
+          imageUrl = url;
           setImagePreview(url);
         } else if (isVideoFile(file.file_name)) {
           const url = URL.createObjectURL(blob);
+          videoUrl = url;
           setVideoPreview(url);
         } else if (isAudioFile(file.file_name)) {
           const url = URL.createObjectURL(blob);
+          audioUrl = url;
           setAudioPreview(url);
         } else if (isTextFile(file.file_name)) {
           const text = await blob.text();
@@ -109,16 +116,18 @@ const DownloadFilePage: React.FC = () => {
 
     loadFilePreview();
 
-    // Cleanup
+    // Cleanup: revoke only URLs created in this effect
     return () => {
-      if (imagePreview) URL.revokeObjectURL(imagePreview);
-      if (videoPreview) URL.revokeObjectURL(videoPreview);
-      if (audioPreview) URL.revokeObjectURL(audioPreview);
+      if (imageUrl) URL.revokeObjectURL(imageUrl);
+      if (videoUrl) URL.revokeObjectURL(videoUrl);
+      if (audioUrl) URL.revokeObjectURL(audioUrl);
     };
   }, [fileList, code, password]);
 
   // Load previews for multiple image files
   useEffect(() => {
+    const createdUrls: string[] = [];
+
     const loadMultipleImagePreviews = async () => {
       if (!fileList || !code || fileList.files.length <= 1) return;
 
@@ -126,8 +135,9 @@ const DownloadFilePage: React.FC = () => {
 
       for (const file of imageFiles) {
         try {
-          const blob = await fileAPI.downloadFile(code, file.id, password || undefined);
+          const blob = await fileAPI.previewFile(code, file.id, password || undefined);
           const url = URL.createObjectURL(blob);
+          createdUrls.push(url);
           setImagePreviews(prev => new Map(prev).set(file.id, url));
         } catch (err) {
           console.error(`Failed to load preview for ${file.file_name}:`, err);
@@ -137,9 +147,9 @@ const DownloadFilePage: React.FC = () => {
 
     loadMultipleImagePreviews();
 
-    // Cleanup
+    // Cleanup: revoke only URLs created in this effect
     return () => {
-      imagePreviews.forEach(url => URL.revokeObjectURL(url));
+      createdUrls.forEach(url => URL.revokeObjectURL(url));
     };
   }, [fileList, code, password]);
 

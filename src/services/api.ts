@@ -192,7 +192,26 @@ export const fileAPI = {
     return response.data;
   },
 
-  // ⭐ 새로운 API: Bulk 다운로드 (여러 파일 ZIP)
+  // ⭐ 새로운 API: 파일 미리보기 (다운로드 카운트 증가 없음)
+  previewFile: async (
+    code: string,
+    fileId: string,
+    password?: string
+  ): Promise<Blob> => {
+    const headers: Record<string, string> = {};
+    if (password) {
+      headers['X-File-Password'] = password;
+    }
+
+    const response = await api.get('/preview/file', {
+      params: { code, file_id: fileId },
+      headers,
+      responseType: 'blob'
+    });
+
+    return response.data;
+  },
+
   downloadBulk: async (
     request: BulkDownloadRequest,
     onDownloadProgress?: (progressEvent: { loaded: number; total: number; percentage: number }) => void,
