@@ -20,6 +20,7 @@ const UploadHistoryPage: React.FC = () => {
   const [selectedFileForLogs, setSelectedFileForLogs] = useState<string | null>(null);
   const [loadingPreviews, setLoadingPreviews] = useState<{ [key: string]: boolean }>({});
   const [closingRow, setClosingRow] = useState<string | null>(null);
+  const [copiedFiles, setCopiedFiles] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     if (authLoading) {
@@ -112,11 +113,14 @@ const UploadHistoryPage: React.FC = () => {
     }
   };
 
-  const handleCopyLink = (shareCode: string, e: React.MouseEvent) => {
+  const handleCopyLink = (fileId: string, shareCode: string, e: React.MouseEvent) => {
     e.stopPropagation();
     const url = `${window.location.origin}/download/${shareCode}`;
     navigator.clipboard.writeText(url);
-    toast.success('링크가 복사되었습니다.');
+    setCopiedFiles({ ...copiedFiles, [fileId]: true });
+    setTimeout(() => {
+      setCopiedFiles({ ...copiedFiles, [fileId]: false });
+    }, 2000);
   };
 
   const handleViewAllLogs = (fileId: string, e: React.MouseEvent) => {
@@ -335,17 +339,23 @@ const UploadHistoryPage: React.FC = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex justify-end space-x-2">
                             <button
-                              onClick={(e) => handleCopyLink(upload.share_code, e)}
-                              className="p-2 text-blue-600 hover:bg-gray-200 rounded transition-colors"
+                              onClick={(e) => handleCopyLink(upload.id, upload.share_code, e)}
+                              className="p-2 text-gray-700 hover:bg-gray-200 rounded transition-colors"
                               title="링크 복사"
                             >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5A3.375 3.375 0 006.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0015 2.25h-1.5a2.251 2.251 0 00-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 00-9-9z" />
-                              </svg>
+                              {copiedFiles[upload.id] ? (
+                                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                              ) : (
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5A3.375 3.375 0 006.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0015 2.25h-1.5a2.251 2.251 0 00-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 00-9-9z" />
+                                </svg>
+                              )}
                             </button>
                             <button
                               onClick={(e) => handleDelete(upload.id, e)}
-                              className="p-2 text-red-600 hover:bg-gray-200 rounded transition-colors"
+                              className="p-2 text-gray-700 hover:text-red-600 hover:bg-gray-200 rounded transition-colors"
                               title="삭제"
                             >
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -359,7 +369,7 @@ const UploadHistoryPage: React.FC = () => {
                       {/* Expanded Row with Animation */}
                       {(expandedRow === upload.id || closingRow === upload.id) && (
                         <tr>
-                          <td colSpan={7} className="px-6 bg-gray-100">
+                          <td colSpan={7} className="px-6" style={{ backgroundColor: '#F9FAFB' }}>
                             <div className={`py-6 ${closingRow === upload.id ? 'animate-collapse-up' : 'animate-expand-down'}`}>
                               <div className="space-y-6">
                                 {/* Preview Section */}
@@ -399,10 +409,10 @@ const UploadHistoryPage: React.FC = () => {
 
                                 {/* Details and Download Logs Section - 반반 레이아웃 */}
                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                  {/* Details Section */}
+                                  {/* Details Section - 2열 레이아웃 */}
                                   <div>
                                     <h3 className="text-lg font-semibold text-gray-900 mb-4">상세 정보</h3>
-                                    <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
+                                    <div className="bg-white rounded-lg border border-gray-200 p-4 grid grid-cols-2 gap-x-6 gap-y-3">
                                       <div>
                                         <span className="text-sm font-medium text-gray-500">파일명:</span>
                                         <p className="text-sm text-gray-900 break-all">{upload.file_name}</p>
@@ -415,16 +425,16 @@ const UploadHistoryPage: React.FC = () => {
                                         <span className="text-sm font-medium text-gray-500">파일 크기:</span>
                                         <p className="text-sm text-gray-900">{formatFileSize(upload.file_size)}</p>
                                       </div>
-                                      {upload.description && (
-                                        <div>
-                                          <span className="text-sm font-medium text-gray-500">설명:</span>
-                                          <p className="text-sm text-gray-900">{upload.description}</p>
-                                        </div>
-                                      )}
                                       <div>
                                         <span className="text-sm font-medium text-gray-500">공유 코드:</span>
                                         <p className="text-sm text-gray-900 font-mono">{upload.share_code}</p>
                                       </div>
+                                      {upload.description && (
+                                        <div className="col-span-2">
+                                          <span className="text-sm font-medium text-gray-500">설명:</span>
+                                          <p className="text-sm text-gray-900">{upload.description}</p>
+                                        </div>
+                                      )}
                                       <div>
                                         <span className="text-sm font-medium text-gray-500">비밀번호 설정:</span>
                                         <p className="text-sm text-gray-900">{upload.has_password ? '있음' : '없음'}</p>
@@ -451,7 +461,7 @@ const UploadHistoryPage: React.FC = () => {
                                       {downloadLogs[upload.id]?.length > 3 && (
                                         <button
                                           onClick={(e) => handleViewAllLogs(upload.id, e)}
-                                          className="px-3 py-1.5 text-sm text-gray-700 bg-transparent border border-gray-300 rounded hover:bg-gray-100 transition-colors font-medium"
+                                          className="px-3 py-1.5 text-sm text-gray-700 rounded hover:bg-gray-200 transition-colors font-medium"
                                         >
                                           전체보기
                                         </button>
@@ -521,11 +531,40 @@ const UploadHistoryPage: React.FC = () => {
           <div className="md:hidden space-y-4">
             {uploads.map((upload) => (
               <div key={upload.id} className="bg-white rounded-lg shadow overflow-hidden">
-                <div
-                  onClick={() => handleRowClick(upload.id)}
-                  className={`p-4 cursor-pointer ${expandedRow === upload.id ? 'bg-blue-50' : ''}`}
-                >
-                  <div className="flex items-start space-x-3">
+                <div className="relative">
+                  {/* 상단 오른쪽 버튼 */}
+                  <div className="absolute top-3 right-3 flex space-x-2 z-10">
+                    <button
+                      onClick={(e) => handleCopyLink(upload.id, upload.share_code, e)}
+                      className="p-2 text-gray-700 hover:bg-gray-200 rounded-full transition-colors bg-white shadow-sm"
+                      title="링크 복사"
+                    >
+                      {copiedFiles[upload.id] ? (
+                        <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5A3.375 3.375 0 006.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0015 2.25h-1.5a2.251 2.251 0 00-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 00-9-9z" />
+                        </svg>
+                      )}
+                    </button>
+                    <button
+                      onClick={(e) => handleDelete(upload.id, e)}
+                      className="p-2 text-gray-700 hover:text-red-600 hover:bg-gray-200 rounded-full transition-colors bg-white shadow-sm"
+                      title="삭제"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div
+                    onClick={() => handleRowClick(upload.id)}
+                    className={`p-4 cursor-pointer ${expandedRow === upload.id ? 'bg-blue-50' : ''}`}
+                  >
+                    <div className="flex items-start space-x-3 pr-20">
                     <div className="flex-shrink-0 w-16 h-16 rounded overflow-hidden bg-gray-100 flex items-center justify-center">
                       {isExpired(upload.expires_at) ? (
                         // 만료된 파일은 무조건 파일 아이콘만 표시
@@ -570,31 +609,12 @@ const UploadHistoryPage: React.FC = () => {
                       )}
                     </div>
                   </div>
-                  <div className="mt-3 flex justify-end space-x-2">
-                    <button
-                      onClick={(e) => handleCopyLink(upload.share_code, e)}
-                      className="p-2 text-blue-600 hover:bg-blue-100 rounded transition-colors"
-                      title="링크 복사"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5A3.375 3.375 0 006.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0015 2.25h-1.5a2.251 2.251 0 00-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 00-9-9z" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={(e) => handleDelete(upload.id, e)}
-                      className="p-2 text-red-600 hover:bg-red-100 rounded transition-colors"
-                      title="삭제"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
-                      </svg>
-                    </button>
-                  </div>
                 </div>
+              </div>
 
                 {/* 모바일 확장 영역 */}
                 {(expandedRow === upload.id || closingRow === upload.id) && (
-                  <div className={`border-t border-gray-200 p-4 bg-gray-100 ${closingRow === upload.id ? 'animate-collapse-up' : 'animate-expand-down'}`}>
+                  <div className={`border-t border-gray-200 p-4 ${closingRow === upload.id ? 'animate-collapse-up' : 'animate-expand-down'}`} style={{ backgroundColor: '#F9FAFB' }}>
                     <div className="space-y-4">
                       {/* 미리보기 */}
                       <div>
@@ -667,7 +687,7 @@ const UploadHistoryPage: React.FC = () => {
                           {downloadLogs[upload.id]?.length > 2 && (
                             <button
                               onClick={(e) => handleViewAllLogs(upload.id, e)}
-                              className="px-2 py-1 text-xs text-gray-700 bg-transparent border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                              className="px-2 py-1 text-xs text-gray-700 rounded hover:bg-gray-200 transition-colors"
                             >
                               전체보기
                             </button>
@@ -765,7 +785,7 @@ const UploadHistoryPage: React.FC = () => {
       {/* All Logs Modal - 표 형태로 변경 */}
       {showAllLogsModal && selectedFileForLogs && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg w-full max-w-5xl max-h-[80vh] flex flex-col">
+          <div className="bg-white rounded-xl w-full max-w-5xl max-h-[80vh] flex flex-col">
             <div className="p-6 border-b border-gray-200 flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-900">전체 다운로드 기록</h2>
               <button
