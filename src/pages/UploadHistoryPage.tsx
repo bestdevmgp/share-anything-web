@@ -414,42 +414,42 @@ const UploadHistoryPage: React.FC = () => {
                                     <h3 className="text-lg font-semibold text-gray-900 mb-4">상세 정보</h3>
                                     <div className="bg-white rounded-lg border border-gray-200 p-4 grid grid-cols-2 gap-x-6 gap-y-3">
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500">파일명:</span>
+                                        <span className="text-sm font-medium text-gray-500">파일명</span>
                                         <p className="text-sm text-gray-900 break-all">{upload.file_name}</p>
                                       </div>
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500">파일 타입:</span>
+                                        <span className="text-sm font-medium text-gray-500">파일 타입</span>
                                         <p className="text-sm text-gray-900">{upload.file_type}</p>
                                       </div>
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500">파일 크기:</span>
+                                        <span className="text-sm font-medium text-gray-500">파일 크기</span>
                                         <p className="text-sm text-gray-900">{formatFileSize(upload.file_size)}</p>
                                       </div>
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500">공유 코드:</span>
+                                        <span className="text-sm font-medium text-gray-500">공유 코드</span>
                                         <p className="text-sm text-gray-900 font-mono">{upload.share_code}</p>
                                       </div>
                                       {upload.description && (
                                         <div className="col-span-2">
-                                          <span className="text-sm font-medium text-gray-500">설명:</span>
+                                          <span className="text-sm font-medium text-gray-500">설명</span>
                                           <p className="text-sm text-gray-900">{upload.description}</p>
                                         </div>
                                       )}
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500">비밀번호 설정:</span>
+                                        <span className="text-sm font-medium text-gray-500">비밀번호</span>
                                         <p className="text-sm text-gray-900">{upload.has_password ? '있음' : '없음'}</p>
                                       </div>
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500">업로드 날짜:</span>
+                                        <span className="text-sm font-medium text-gray-500">다운로드 횟수</span>
+                                        <p className="text-sm text-gray-900">{upload.download_count}회</p>
+                                      </div>
+                                      <div>
+                                        <span className="text-sm font-medium text-gray-500">업로드 날짜</span>
                                         <p className="text-sm text-gray-900">{formatDate(upload.created_at)}</p>
                                       </div>
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500">만료 날짜:</span>
+                                        <span className="text-sm font-medium text-gray-500">만료 날짜</span>
                                         <p className="text-sm text-gray-900">{formatDate(upload.expires_at)}</p>
-                                      </div>
-                                      <div>
-                                        <span className="text-sm font-medium text-gray-500">다운로드 횟수:</span>
-                                        <p className="text-sm text-gray-900">{upload.download_count}회</p>
                                       </div>
                                     </div>
                                   </div>
@@ -467,15 +467,17 @@ const UploadHistoryPage: React.FC = () => {
                                         </button>
                                       )}
                                     </div>
-                                    <div className="bg-white rounded-lg border border-gray-200 p-4 flex-1 min-h-[400px] flex flex-col">
+                                    <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-col" style={{ height: 'fit-content', maxHeight: '400px' }}>
                                       {loadingLogs[upload.id] ? (
                                         <div className="text-sm text-gray-500 text-center py-4">로딩 중...</div>
                                       ) : downloadLogs[upload.id]?.length > 0 ? (
-                                        <div className="space-y-5 overflow-y-auto flex-1" style={{ maxHeight: '368px' }}>
-                                          {downloadLogs[upload.id].slice(0, 3).map((log) => (
+                                        <div className="space-y-4 overflow-y-auto pr-2" style={{
+                                          maxHeight: downloadLogs[upload.id].length <= 3 ? 'none' : '320px'
+                                        }}>
+                                          {downloadLogs[upload.id].map((log) => (
                                             <div
                                               key={log.id}
-                                              className="text-sm border-b border-gray-100 pb-4 last:border-0"
+                                              className="text-sm border-b border-gray-100 pb-3 last:border-0 last:pb-0"
                                             >
                                               <div className="flex justify-between items-start">
                                                 <div>
@@ -494,7 +496,7 @@ const UploadHistoryPage: React.FC = () => {
                                           ))}
                                         </div>
                                       ) : (
-                                        <div className="text-sm text-gray-500 text-center py-4 flex-1 flex items-center justify-center">
+                                        <div className="text-sm text-gray-500 text-center py-4">
                                           아직 다운로드 기록이 없습니다.
                                         </div>
                                       )}
@@ -851,13 +853,10 @@ const UploadHistoryPage: React.FC = () => {
             opacity: 0;
             max-height: 0;
             overflow: hidden;
-            transform: scaleY(0);
-            transform-origin: top;
           }
           to {
             opacity: 1;
             max-height: 2000px;
-            transform: scaleY(1);
           }
         }
 
@@ -865,25 +864,20 @@ const UploadHistoryPage: React.FC = () => {
           from {
             opacity: 1;
             max-height: 2000px;
-            transform: scaleY(1);
-            transform-origin: top;
           }
           to {
             opacity: 0;
             max-height: 0;
             overflow: hidden;
-            transform: scaleY(0);
           }
         }
 
         .animate-expand-down {
-          animation: expandDown 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-          will-change: transform, opacity, max-height;
+          animation: expandDown 0.4s ease-in-out forwards;
         }
 
         .animate-collapse-up {
-          animation: collapseUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-          will-change: transform, opacity, max-height;
+          animation: collapseUp 0.4s ease-in-out forwards;
         }
       `}</style>
     </div>
