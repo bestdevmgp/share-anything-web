@@ -47,6 +47,14 @@ const UploadHistoryPage: React.FC = () => {
     };
   }, [showAllLogsModal]);
 
+  // 브라우저 탭 제목 설정
+  useEffect(() => {
+    document.title = '업로드 기록';
+    return () => {
+      document.title = 'ShareAnything';
+    };
+  }, []);
+
   const fetchUploads = async () => {
     try {
       setLoading(true);
@@ -211,7 +219,7 @@ const UploadHistoryPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-32">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">업로드 기록</h1>
         <p className="text-gray-600 mt-2">총 {total}개의 파일을 공유했습니다.</p>
@@ -408,7 +416,7 @@ const UploadHistoryPage: React.FC = () => {
                                 </div>
 
                                 {/* Details and Download Logs Section - 반반 레이아웃 */}
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
                                   {/* Details Section - 2열 레이아웃 */}
                                   <div>
                                     <h3 className="text-lg font-semibold text-gray-900 mb-4">상세 정보</h3>
@@ -455,7 +463,7 @@ const UploadHistoryPage: React.FC = () => {
                                   </div>
 
                                   {/* Download Logs */}
-                                  <div className="flex flex-col h-full">
+                                  <div>
                                     <div className="flex items-center justify-between mb-4">
                                       <h3 className="text-lg font-semibold text-gray-900">다운로드 기록</h3>
                                       {downloadLogs[upload.id]?.length > 3 && (
@@ -467,12 +475,12 @@ const UploadHistoryPage: React.FC = () => {
                                         </button>
                                       )}
                                     </div>
-                                    <div className="bg-white rounded-lg border border-gray-200 p-4 flex flex-col" style={{ height: 'fit-content', maxHeight: '400px' }}>
+                                    <div className="bg-white rounded-lg border border-gray-200 p-4">
                                       {loadingLogs[upload.id] ? (
                                         <div className="text-sm text-gray-500 text-center py-4">로딩 중...</div>
                                       ) : downloadLogs[upload.id]?.length > 0 ? (
-                                        <div className="space-y-4 overflow-y-auto pr-2" style={{
-                                          maxHeight: downloadLogs[upload.id].length <= 3 ? 'none' : '320px'
+                                        <div className="space-y-3 overflow-y-auto pr-2" style={{
+                                          maxHeight: downloadLogs[upload.id].length <= 3 ? 'none' : '240px'
                                         }}>
                                           {downloadLogs[upload.id].map((log) => (
                                             <div
@@ -538,7 +546,7 @@ const UploadHistoryPage: React.FC = () => {
                   <div className="absolute top-3 right-3 flex space-x-2 z-10">
                     <button
                       onClick={(e) => handleCopyLink(upload.id, upload.share_code, e)}
-                      className="p-2 text-gray-700 hover:bg-gray-200 rounded-full transition-colors bg-white shadow-sm"
+                      className="p-2 text-gray-700 hover:bg-gray-200 rounded transition-colors bg-white shadow-sm"
                       title="링크 복사"
                     >
                       {copiedFiles[upload.id] ? (
@@ -553,7 +561,7 @@ const UploadHistoryPage: React.FC = () => {
                     </button>
                     <button
                       onClick={(e) => handleDelete(upload.id, e)}
-                      className="p-2 text-gray-700 hover:text-red-600 hover:bg-gray-200 rounded-full transition-colors bg-white shadow-sm"
+                      className="p-2 text-gray-700 hover:text-red-600 hover:bg-gray-200 rounded transition-colors bg-white shadow-sm"
                       title="삭제"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -623,9 +631,9 @@ const UploadHistoryPage: React.FC = () => {
                         <h4 className="text-sm font-semibold text-gray-900 mb-2">미리보기</h4>
                         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
                           {isExpired(upload.expires_at) ? (
-                            <div className="flex items-center justify-center h-48 bg-gray-100">
+                            <div className="flex items-center justify-center h-32 bg-gray-100">
                               <div className="text-center text-xs text-gray-500">
-                                <svg className="w-12 h-12 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-10 h-10 text-gray-400 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                                 </svg>
                                 <p>유효기간이 지난 파일</p>
@@ -635,10 +643,10 @@ const UploadHistoryPage: React.FC = () => {
                             <img
                               src={upload.download_url}
                               alt={upload.file_name}
-                              className="w-full h-auto max-h-64 object-contain"
+                              className="w-full h-auto max-h-40 object-contain"
                             />
                           ) : (
-                            <div className="flex items-center justify-center h-48 bg-gray-100">
+                            <div className="flex items-center justify-center h-32 bg-gray-100">
                               {getFileIcon(upload.file_type)}
                             </div>
                           )}
@@ -787,7 +795,7 @@ const UploadHistoryPage: React.FC = () => {
       {/* All Logs Modal - 표 형태로 변경 */}
       {showAllLogsModal && selectedFileForLogs && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-5xl max-h-[80vh] flex flex-col overflow-hidden">
+          <div className="bg-white rounded-xl w-full max-w-3xl max-h-[80vh] flex flex-col overflow-hidden">
             <div className="p-6 border-b border-gray-200 flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-900">전체 다운로드 기록</h2>
               <button
