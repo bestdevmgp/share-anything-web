@@ -40,7 +40,7 @@ const AppContent: React.FC = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/upload" element={<UploadPage />} />
           <Route path="/upload/success" element={<UploadSuccessPage />} />
-          <Route path="/upload-history" element={<UploadHistoryPage />} />
+          <Route path="/history" element={<UploadHistoryPage />} />
           <Route path="/download/:code" element={<DownloadFilePage />} />
           <Route path="/auth/callback/:provider" element={<OAuthCallbackPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />

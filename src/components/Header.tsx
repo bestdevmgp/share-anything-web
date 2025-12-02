@@ -46,7 +46,7 @@ const Header: React.FC = () => {
                   <Menu.Item>
                     {({ active }) => (
                       <button
-                        onClick={() => navigate('/upload-history')}
+                        onClick={() => navigate('/history')}
                         className={`${
                           active ? 'bg-gray-100' : ''
                         } w-full text-left px-4 py-2 text-sm text-gray-700`}

@@ -263,8 +263,8 @@ const UploadHistoryPage: React.FC = () => {
                     <React.Fragment key={upload.id}>
                       <tr
                         onClick={() => handleRowClick(upload.id)}
-                        className={`cursor-pointer transition-colors ${
-                          isExpired(upload.expires_at) ? 'bg-gray-50' : 'hover:bg-gray-50'
+                        className={`cursor-pointer transition-colors bg-white ${
+                          !isExpired(upload.expires_at) && 'hover:bg-gray-50'
                         } ${expandedRow === upload.id ? 'bg-blue-50' : ''}`}
                       >
                         <td className="px-6 py-4">
@@ -337,7 +337,7 @@ const UploadHistoryPage: React.FC = () => {
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <div className="flex justify-end space-x-2">
+                          <div className="flex justify-end space-x-1">
                             <button
                               onClick={(e) => handleCopyLink(upload.id, upload.share_code, e)}
                               className="p-2 text-gray-700 hover:bg-gray-200 rounded transition-colors"
@@ -467,15 +467,15 @@ const UploadHistoryPage: React.FC = () => {
                                         </button>
                                       )}
                                     </div>
-                                    <div className="bg-white rounded-lg border border-gray-200 p-4">
+                                    <div className="bg-white rounded-lg border border-gray-200 p-4 overflow-hidden">
                                       {loadingLogs[upload.id] ? (
                                         <div className="text-sm text-gray-500 text-center py-4">로딩 중...</div>
                                       ) : downloadLogs[upload.id]?.length > 0 ? (
-                                        <div className="space-y-2 max-h-[220px] overflow-y-auto">
+                                        <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2">
                                           {downloadLogs[upload.id].slice(0, 3).map((log) => (
                                             <div
                                               key={log.id}
-                                              className="text-sm border-b border-gray-100 pb-2 last:border-0"
+                                              className="text-sm border-b border-gray-100 pb-3 last:border-0"
                                             >
                                               <div className="flex justify-between items-start">
                                                 <div>
@@ -785,7 +785,7 @@ const UploadHistoryPage: React.FC = () => {
       {/* All Logs Modal - 표 형태로 변경 */}
       {showAllLogsModal && selectedFileForLogs && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-5xl max-h-[80vh] flex flex-col">
+          <div className="bg-white rounded-xl w-full max-w-5xl max-h-[80vh] flex flex-col overflow-hidden">
             <div className="p-6 border-b border-gray-200 flex items-center justify-between">
               <h2 className="text-xl font-bold text-gray-900">전체 다운로드 기록</h2>
               <button
@@ -797,7 +797,7 @@ const UploadHistoryPage: React.FC = () => {
                 </svg>
               </button>
             </div>
-            <div className="overflow-auto flex-1">
+            <div className="overflow-auto flex-1 rounded-b-xl">
               {downloadLogs[selectedFileForLogs]?.length > 0 ? (
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50 sticky top-0">
