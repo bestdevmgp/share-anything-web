@@ -49,7 +49,17 @@ export interface DownloadLog {
 }
 
 export interface UploadHistoryItem {
-  file_share: FileShare;
+  id: string;
+  share_code: string;
+  file_name: string;
+  file_size: number;
+  file_type: string;
+  description?: string;
+  has_password: boolean;
+  expires_at: string;
+  created_at: string;
+  download_url: string;
+  qr_code: string;
   download_count: number;
 }
 

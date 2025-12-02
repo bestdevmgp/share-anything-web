@@ -46,6 +46,18 @@ const Header: React.FC = () => {
                   <Menu.Item>
                     {({ active }) => (
                       <button
+                        onClick={() => navigate('/upload-history')}
+                        className={`${
+                          active ? 'bg-gray-100' : ''
+                        } w-full text-left px-4 py-2 text-sm text-gray-700`}
+                      >
+                        업로드 기록
+                      </button>
+                    )}
+                  </Menu.Item>
+                  <Menu.Item>
+                    {({ active }) => (
+                      <button
                         onClick={handleLogout}
                         className={`${
                           active ? 'bg-gray-100' : ''

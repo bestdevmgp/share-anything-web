@@ -159,7 +159,6 @@ export const fileAPI = {
     return response.data;
   },
 
-  // ⭐ 새로운 API: 단일 파일 다운로드
   downloadFile: async (
     code: string,
     fileId: string,
@@ -192,7 +191,7 @@ export const fileAPI = {
     return response.data;
   },
 
-  // ⭐ 새로운 API: 파일 미리보기 (다운로드 카운트 증가 없음)
+
   previewFile: async (
     code: string,
     fileId: string,
