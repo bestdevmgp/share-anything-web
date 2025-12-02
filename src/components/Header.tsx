@@ -60,8 +60,8 @@ const Header: React.FC = () => {
                       <button
                         onClick={handleLogout}
                         className={`${
-                          active ? 'bg-gray-100' : ''
-                        } w-full text-left px-4 py-2 text-sm text-gray-700`}
+                          active ? 'bg-red-50' : ''
+                        } w-full text-left px-4 py-2 text-sm text-red-600 font-medium`}
                       >
                         로그아웃
                       </button>

@@ -211,7 +211,7 @@ const UploadHistoryPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">업로드 기록</h1>
         <p className="text-gray-600 mt-2">총 {total}개의 파일을 공유했습니다.</p>
@@ -235,25 +235,25 @@ const UploadHistoryPage: React.FC = () => {
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       파일명
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       크기
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       업로드 일시
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       만료 기한
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       다운로드
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       상태
                     </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       동작
                     </th>
                   </tr>
@@ -336,8 +336,8 @@ const UploadHistoryPage: React.FC = () => {
                             </span>
                           )}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <div className="flex justify-end space-x-1">
+                        <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                          <div className="flex justify-center space-x-1">
                             <button
                               onClick={(e) => handleCopyLink(upload.id, upload.share_code, e)}
                               className="p-2 text-gray-700 hover:bg-gray-200 rounded transition-colors"
@@ -455,7 +455,7 @@ const UploadHistoryPage: React.FC = () => {
                                   </div>
 
                                   {/* Download Logs */}
-                                  <div>
+                                  <div className="flex flex-col h-full">
                                     <div className="flex items-center justify-between mb-4">
                                       <h3 className="text-lg font-semibold text-gray-900">다운로드 기록</h3>
                                       {downloadLogs[upload.id]?.length > 3 && (
@@ -467,22 +467,22 @@ const UploadHistoryPage: React.FC = () => {
                                         </button>
                                       )}
                                     </div>
-                                    <div className="bg-white rounded-lg border border-gray-200 p-4 overflow-hidden">
+                                    <div className="bg-white rounded-lg border border-gray-200 p-4 flex-1 min-h-[400px] flex flex-col">
                                       {loadingLogs[upload.id] ? (
                                         <div className="text-sm text-gray-500 text-center py-4">로딩 중...</div>
                                       ) : downloadLogs[upload.id]?.length > 0 ? (
-                                        <div className="space-y-4 max-h-[350px] overflow-y-auto pr-2">
+                                        <div className="space-y-5 overflow-y-auto flex-1" style={{ maxHeight: '368px' }}>
                                           {downloadLogs[upload.id].slice(0, 3).map((log) => (
                                             <div
                                               key={log.id}
-                                              className="text-sm border-b border-gray-100 pb-3 last:border-0"
+                                              className="text-sm border-b border-gray-100 pb-4 last:border-0"
                                             >
                                               <div className="flex justify-between items-start">
                                                 <div>
                                                   <p className="font-medium text-gray-900">
                                                     {log.downloader_name || '익명의 사용자'}
                                                   </p>
-                                                  <p className="text-gray-500 text-xs">
+                                                  <p className="text-gray-500 text-xs mt-1">
                                                     {log.device_platform} • {log.ip_address}
                                                   </p>
                                                 </div>
@@ -494,7 +494,7 @@ const UploadHistoryPage: React.FC = () => {
                                           ))}
                                         </div>
                                       ) : (
-                                        <div className="text-sm text-gray-500 text-center py-4">
+                                        <div className="text-sm text-gray-500 text-center py-4 flex-1 flex items-center justify-center">
                                           아직 다운로드 기록이 없습니다.
                                         </div>
                                       )}
@@ -851,10 +851,13 @@ const UploadHistoryPage: React.FC = () => {
             opacity: 0;
             max-height: 0;
             overflow: hidden;
+            transform: scaleY(0);
+            transform-origin: top;
           }
           to {
             opacity: 1;
             max-height: 2000px;
+            transform: scaleY(1);
           }
         }
 
@@ -862,20 +865,25 @@ const UploadHistoryPage: React.FC = () => {
           from {
             opacity: 1;
             max-height: 2000px;
+            transform: scaleY(1);
+            transform-origin: top;
           }
           to {
             opacity: 0;
             max-height: 0;
             overflow: hidden;
+            transform: scaleY(0);
           }
         }
 
         .animate-expand-down {
-          animation: expandDown 0.3s ease-out forwards;
+          animation: expandDown 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          will-change: transform, opacity, max-height;
         }
 
         .animate-collapse-up {
-          animation: collapseUp 0.3s ease-out forwards;
+          animation: collapseUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          will-change: transform, opacity, max-height;
         }
       `}</style>
     </div>
