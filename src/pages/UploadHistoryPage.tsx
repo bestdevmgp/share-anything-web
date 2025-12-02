@@ -448,6 +448,10 @@ const UploadHistoryPage: React.FC = () => {
                                         <p className="text-sm text-gray-900">{upload.has_password ? '있음' : '없음'}</p>
                                       </div>
                                       <div>
+                                        <span className="text-sm font-medium text-gray-500">일회용 공유</span>
+                                        <p className="text-sm text-gray-900">{upload.is_one_time ? '예' : '아니오'}</p>
+                                      </div>
+                                      <div>
                                         <span className="text-sm font-medium text-gray-500">다운로드 횟수</span>
                                         <p className="text-sm text-gray-900">{upload.download_count}회</p>
                                       </div>
@@ -475,17 +479,17 @@ const UploadHistoryPage: React.FC = () => {
                                         </button>
                                       )}
                                     </div>
-                                    <div className="bg-white rounded-lg border border-gray-200 p-4">
+                                    <div className="bg-white rounded-lg border border-gray-200 p-3">
                                       {loadingLogs[upload.id] ? (
-                                        <div className="text-sm text-gray-500 text-center py-4">로딩 중...</div>
+                                        <div className="text-sm text-gray-500 text-center py-3">로딩 중...</div>
                                       ) : downloadLogs[upload.id]?.length > 0 ? (
-                                        <div className="space-y-3 overflow-y-auto pr-2" style={{
-                                          maxHeight: downloadLogs[upload.id].length <= 3 ? 'none' : '240px'
+                                        <div className="space-y-2 overflow-y-auto pr-2" style={{
+                                          maxHeight: downloadLogs[upload.id].length <= 3 ? 'none' : '200px'
                                         }}>
                                           {downloadLogs[upload.id].map((log) => (
                                             <div
                                               key={log.id}
-                                              className="text-sm border-b border-gray-100 pb-3 last:border-0 last:pb-0"
+                                              className="text-sm border-b border-gray-100 pb-2 last:border-0 last:pb-0"
                                             >
                                               <div className="flex justify-between items-start">
                                                 <div>
@@ -504,7 +508,7 @@ const UploadHistoryPage: React.FC = () => {
                                           ))}
                                         </div>
                                       ) : (
-                                        <div className="text-sm text-gray-500 text-center py-4">
+                                        <div className="text-sm text-gray-500 text-center py-3">
                                           아직 다운로드 기록이 없습니다.
                                         </div>
                                       )}
@@ -546,7 +550,7 @@ const UploadHistoryPage: React.FC = () => {
                   <div className="absolute top-3 right-3 flex space-x-2 z-10">
                     <button
                       onClick={(e) => handleCopyLink(upload.id, upload.share_code, e)}
-                      className="p-2 text-gray-700 hover:bg-gray-200 rounded transition-colors bg-white shadow-sm"
+                      className="p-2 text-gray-700 hover:bg-gray-200 rounded transition-colors"
                       title="링크 복사"
                     >
                       {copiedFiles[upload.id] ? (
@@ -561,7 +565,7 @@ const UploadHistoryPage: React.FC = () => {
                     </button>
                     <button
                       onClick={(e) => handleDelete(upload.id, e)}
-                      className="p-2 text-gray-700 hover:text-red-600 hover:bg-gray-200 rounded transition-colors bg-white shadow-sm"
+                      className="p-2 text-gray-700 hover:text-red-600 hover:bg-gray-200 rounded transition-colors"
                       title="삭제"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -631,9 +635,9 @@ const UploadHistoryPage: React.FC = () => {
                         <h4 className="text-sm font-semibold text-gray-900 mb-2">미리보기</h4>
                         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
                           {isExpired(upload.expires_at) ? (
-                            <div className="flex items-center justify-center h-32 bg-gray-100">
+                            <div className="flex items-center justify-center h-24 bg-gray-100">
                               <div className="text-center text-xs text-gray-500">
-                                <svg className="w-10 h-10 text-gray-400 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg className="w-8 h-8 text-gray-400 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                                 </svg>
                                 <p>유효기간이 지난 파일</p>
@@ -643,10 +647,10 @@ const UploadHistoryPage: React.FC = () => {
                             <img
                               src={upload.download_url}
                               alt={upload.file_name}
-                              className="w-full h-auto max-h-40 object-contain"
+                              className="w-full h-auto max-h-32 object-contain"
                             />
                           ) : (
-                            <div className="flex items-center justify-center h-32 bg-gray-100">
+                            <div className="flex items-center justify-center h-24 bg-gray-100">
                               {getFileIcon(upload.file_type)}
                             </div>
                           )}
@@ -657,6 +661,12 @@ const UploadHistoryPage: React.FC = () => {
                       <div>
                         <h4 className="text-sm font-semibold text-gray-900 mb-2">상세 정보</h4>
                         <div className="bg-white rounded-lg border border-gray-200 p-3 space-y-2 text-xs">
+                          {upload.description && (
+                            <div>
+                              <span className="text-gray-500">설명:</span>
+                              <span className="ml-2 text-gray-900">{upload.description}</span>
+                            </div>
+                          )}
                           <div>
                             <span className="text-gray-500">파일 타입:</span>
                             <span className="ml-2 text-gray-900">{upload.file_type}</span>
@@ -668,6 +678,10 @@ const UploadHistoryPage: React.FC = () => {
                           <div>
                             <span className="text-gray-500">비밀번호:</span>
                             <span className="ml-2 text-gray-900">{upload.has_password ? '있음' : '없음'}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">일회용 공유:</span>
+                            <span className="ml-2 text-gray-900">{upload.is_one_time ? '예' : '아니오'}</span>
                           </div>
                           <div>
                             <span className="text-gray-500">업로드:</span>
@@ -707,9 +721,11 @@ const UploadHistoryPage: React.FC = () => {
                           {loadingLogs[upload.id] ? (
                             <div className="text-xs text-gray-500 text-center py-2">로딩 중...</div>
                           ) : downloadLogs[upload.id]?.length > 0 ? (
-                            <div className="space-y-2 max-h-[180px] overflow-y-auto">
-                              {downloadLogs[upload.id].slice(0, 2).map((log) => (
-                                <div key={log.id} className="text-xs border-b border-gray-100 pb-2 last:border-0">
+                            <div className="space-y-2 overflow-y-auto pr-1" style={{
+                              maxHeight: downloadLogs[upload.id].length <= 2 ? 'none' : '150px'
+                            }}>
+                              {downloadLogs[upload.id].map((log) => (
+                                <div key={log.id} className="text-xs border-b border-gray-100 pb-2 last:border-0 last:pb-0">
                                   <p className="font-medium text-gray-900">{log.downloader_name || '익명의 사용자'}</p>
                                   <p className="text-gray-500 mt-1">
                                     {log.device_platform} • {log.ip_address}

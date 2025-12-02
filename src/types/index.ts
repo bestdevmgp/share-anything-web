@@ -56,6 +56,7 @@ export interface UploadHistoryItem {
   file_type: string;
   description?: string;
   has_password: boolean;
+  is_one_time?: boolean;
   expires_at: string;
   created_at: string;
   download_url: string;
