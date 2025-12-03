@@ -5,6 +5,7 @@ import { UploadHistoryItem, DownloadLog } from '../types';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import { isVideoFile, isAudioFile, isTextFile } from '../utils/format';
+import { QRCodeSVG } from 'qrcode.react';
 
 const UploadHistoryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -27,7 +28,7 @@ const UploadHistoryPage: React.FC = () => {
   const [textPreviews, setTextPreviews] = useState<{ [key: string]: string }>({});
   const [loadingFilePreviews, setLoadingFilePreviews] = useState<{ [key: string]: boolean }>({});
   const [showQRModal, setShowQRModal] = useState(false);
-  const [selectedQRCode, setSelectedQRCode] = useState<string | null>(null);
+  const [selectedShareCode, setSelectedShareCode] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) {
@@ -182,9 +183,9 @@ const UploadHistoryPage: React.FC = () => {
     setShowAllLogsModal(true);
   };
 
-  const handleShowQRCode = (qrCode: string, e: React.MouseEvent) => {
+  const handleShowQRCode = (shareCode: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setSelectedQRCode(qrCode);
+    setSelectedShareCode(shareCode);
     setShowQRModal(true);
   };
 
@@ -353,8 +354,8 @@ const UploadHistoryPage: React.FC = () => {
                         onClick={() => handleRowClick(upload.id)}
                         className={`cursor-pointer transition-colors bg-white hover:bg-gray-50 ${expandedRow === upload.id ? 'bg-blue-50' : ''}`}
                       >
-                        <td className="px-6 py-4">
-                          <div className="flex items-center space-x-3">
+                        <td className="px-6 py-4 max-w-0">
+                          <div className="flex items-center space-x-3 overflow-hidden">
                             <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-gray-100 flex items-center justify-center">
                               {isImageFileByType(upload.file_type) ? (
                                 loadingPreviews[upload.id] ? (
@@ -436,7 +437,7 @@ const UploadHistoryPage: React.FC = () => {
                             </button>
                             {!isExpired(upload.expires_at) && (
                               <button
-                                onClick={(e) => handleShowQRCode(upload.qr_code, e)}
+                                onClick={(e) => handleShowQRCode(upload.share_code, e)}
                                 className="p-2 text-gray-700 hover:bg-gray-200 rounded transition-colors"
                                 title="QR 코드"
                               >
@@ -469,7 +470,7 @@ const UploadHistoryPage: React.FC = () => {
                                   <div className="bg-white rounded-lg border-2 border-gray-200 overflow-hidden aspect-square">
                                     {isExpired(upload.expires_at) ? (
                                       <div className="flex items-center justify-center h-full bg-gray-50">
-                                        <p className="text-sm text-gray-500 text-center px-4">만료 기간이 지난 파일입니다.</p>
+                                        <p className="text-sm text-gray-500 text-center px-4">만료된 파일입니다.</p>
                                       </div>
                                     ) : loadingFilePreviews[upload.id] ? (
                                       <div className="flex flex-col items-center justify-center h-full bg-gray-100">
@@ -651,7 +652,7 @@ const UploadHistoryPage: React.FC = () => {
                     </button>
                     {!isExpired(upload.expires_at) && (
                       <button
-                        onClick={(e) => handleShowQRCode(upload.qr_code, e)}
+                        onClick={(e) => handleShowQRCode(upload.share_code, e)}
                         className="p-2 text-gray-700 hover:bg-gray-200 rounded transition-colors"
                         title="QR 코드"
                       >
@@ -727,7 +728,7 @@ const UploadHistoryPage: React.FC = () => {
                         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden aspect-square">
                           {isExpired(upload.expires_at) ? (
                             <div className="flex items-center justify-center h-full bg-gray-50">
-                              <p className="text-xs text-gray-500 text-center px-4">만료 기간이 지난 파일입니다.</p>
+                              <p className="text-xs text-gray-500 text-center px-4">만료된 파일입니다.</p>
                             </div>
                           ) : loadingFilePreviews[upload.id] ? (
                             <div className="flex flex-col items-center justify-center h-full bg-gray-100">
@@ -970,7 +971,7 @@ const UploadHistoryPage: React.FC = () => {
         </div>
       )}
 
-      {showQRModal && selectedQRCode && (
+      {showQRModal && selectedShareCode && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
           onClick={() => setShowQRModal(false)}
@@ -990,11 +991,12 @@ const UploadHistoryPage: React.FC = () => {
                 </svg>
               </button>
             </div>
-            <div className="flex justify-center">
-              <img
-                src={selectedQRCode}
-                alt="QR Code"
-                className="w-64 h-64"
+            <div className="flex justify-center p-4 bg-white">
+              <QRCodeSVG
+                value={`${window.location.origin}/download/${selectedShareCode}`}
+                size={256}
+                level="H"
+                includeMargin={true}
               />
             </div>
             <p className="text-sm text-gray-500 text-center mt-4">
