@@ -332,7 +332,7 @@ const UploadHistoryPage: React.FC = () => {
                     <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       파일명
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
+                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       크기
                     </th>
                     <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
@@ -341,10 +341,10 @@ const UploadHistoryPage: React.FC = () => {
                     <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       만료 기한
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
+                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       다운로드
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
+                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       상태
                     </th>
                     <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
@@ -400,19 +400,19 @@ const UploadHistoryPage: React.FC = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                           {formatFileSize(upload.file_size)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                           {formatDate(upload.created_at)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                           {formatDate(upload.expires_at)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                           {upload.download_count}회
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-left">
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
                           {isExpired(upload.expires_at) ? (
                             <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                               만료됨
@@ -589,8 +589,11 @@ const UploadHistoryPage: React.FC = () => {
                                                   <p className="font-medium text-gray-900">
                                                     {log.downloader_name || '익명의 사용자'}
                                                   </p>
-                                                  <p className="text-gray-500 text-xs mt-2 break-all">
-                                                    {log.device_platform} • {log.ip_address}
+                                                  <p className="text-gray-500 text-xs mt-2">
+                                                    {log.device_platform}
+                                                  </p>
+                                                  <p className="text-gray-500 text-xs">
+                                                    {log.ip_address}
                                                   </p>
                                                 </div>
                                                 <p className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
