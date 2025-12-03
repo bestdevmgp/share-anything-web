@@ -584,16 +584,16 @@ const UploadHistoryPage: React.FC = () => {
                                               key={log.id}
                                               className="text-sm border-b border-gray-100 pb-4 last:border-0 last:pb-0"
                                             >
-                                              <div className="flex justify-between items-start">
-                                                <div>
+                                              <div className="flex justify-between items-start gap-4">
+                                                <div className="min-w-0 flex-1">
                                                   <p className="font-medium text-gray-900">
                                                     {log.downloader_name || '익명의 사용자'}
                                                   </p>
-                                                  <p className="text-gray-500 text-xs mt-2">
+                                                  <p className="text-gray-500 text-xs mt-2 break-all">
                                                     {log.device_platform} • {log.ip_address}
                                                   </p>
                                                 </div>
-                                                <p className="text-xs text-gray-500 whitespace-nowrap ml-2">
+                                                <p className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
                                                   {formatDate(log.downloaded_at)}
                                                 </p>
                                               </div>
