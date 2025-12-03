@@ -133,9 +133,9 @@ const UploadHistoryPage: React.FC = () => {
 
   const handleRowClick = (fileId: string) => {
     if (expandedRow === fileId) {
+      setExpandedRow(null);
       setClosingRow(fileId);
       setTimeout(() => {
-        setExpandedRow(null);
         setClosingRow(null);
       }, 300);
     } else {
@@ -362,7 +362,7 @@ const UploadHistoryPage: React.FC = () => {
                         <td className="px-6 py-4 max-w-0">
                           <div className="flex items-center space-x-3 overflow-hidden">
                             <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-gray-100 flex items-center justify-center">
-                              {isImageFileByType(upload.file_type) ? (
+                              {isImageFileByType(upload.file_type) && !isExpired(upload.expires_at) ? (
                                 loadingPreviews[upload.id] ? (
                                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                                 ) : (
@@ -419,7 +419,7 @@ const UploadHistoryPage: React.FC = () => {
                             </span>
                           ) : (
                             <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                              활성
+                              유효
                             </span>
                           )}
                         </td>
@@ -455,9 +455,9 @@ const UploadHistoryPage: React.FC = () => {
                           <td colSpan={7} className="px-6" style={{ backgroundColor: '#F9FAFB' }}>
                             <div className={`py-6 ${closingRow === upload.id ? 'animate-collapse-up' : 'animate-expand-down'}`}>
                               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                                <div>
+                                <div className="flex flex-col">
                                   <h3 className="text-lg font-semibold text-gray-900 mb-4">미리보기</h3>
-                                  <div className="bg-white rounded-lg border-2 border-gray-200 overflow-hidden aspect-square">
+                                  <div className="bg-white rounded-lg border-2 border-gray-200 overflow-hidden w-full aspect-square max-w-sm">
                                     {isExpired(upload.expires_at) ? (
                                       <div className="flex items-center justify-center h-full bg-gray-50">
                                         <p className="text-sm text-gray-500 text-center px-4">만료된 파일입니다.</p>
@@ -654,7 +654,7 @@ const UploadHistoryPage: React.FC = () => {
                   >
                     <div className="flex items-start space-x-3 pr-20">
                     <div className="flex-shrink-0 w-16 h-16 rounded overflow-hidden bg-gray-100 flex items-center justify-center">
-                      {isImageFileByType(upload.file_type) ? (
+                      {isImageFileByType(upload.file_type) && !isExpired(upload.expires_at) ? (
                         loadingPreviews[`mobile_${upload.id}`] ? (
                           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                         ) : (
