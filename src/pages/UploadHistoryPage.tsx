@@ -718,7 +718,13 @@ const UploadHistoryPage: React.FC = () => {
                     <div className="space-y-4">
                       <div>
                         <h4 className="text-sm font-semibold text-gray-900 mb-2">미리보기</h4>
-                        <div className={`bg-white rounded-lg border border-gray-200 overflow-hidden ${isExpired(upload.expires_at) ? 'h-20' : 'aspect-square'}`}>
+                        <div className={`bg-white rounded-lg border border-gray-200 overflow-hidden ${
+                          isExpired(upload.expires_at) ? 'h-20' :
+                          (isImageFileByType(upload.file_type) ||
+                           (isVideoFile(upload.file_name) && videoPreviews[upload.id]) ||
+                           (isAudioFile(upload.file_name) && audioPreviews[upload.id]) ||
+                           (isTextFile(upload.file_name) && textPreviews[upload.id])) ? 'aspect-square' : 'h-32'
+                        }`}>
                           {isExpired(upload.expires_at) ? (
                             <div className="flex items-center justify-center h-full bg-gray-50">
                               <p className="text-xs text-gray-500 text-center px-4">만료된 파일입니다.</p>
