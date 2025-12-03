@@ -469,8 +469,8 @@ const UploadHistoryPage: React.FC = () => {
                           <td colSpan={7} className="px-6" style={{ backgroundColor: '#F9FAFB' }}>
                             <div className={`py-6 ${closingRow === upload.id ? 'animate-collapse-up' : 'animate-expand-down'}`}>
                               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                                <div className="flex flex-col min-h-0">
-                                  <h3 className="text-lg font-semibold text-gray-900 mb-4">미리보기</h3>
+                                <div className="h-full flex flex-col min-h-0">
+                                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex-shrink-0">미리보기</h3>
                                   <div className="bg-white rounded-lg border border-gray-200 overflow-hidden w-full flex-1 max-w-md">
                                     {isExpired(upload.expires_at) ? (
                                       <div className="flex items-center justify-center h-full bg-gray-50">
@@ -575,8 +575,8 @@ const UploadHistoryPage: React.FC = () => {
                                     </div>
                                   </div>
 
-                                  <div className="h-full flex flex-col min-h-[400px]">
-                                    <div className="flex items-center justify-between mb-4">
+                                  <div className="h-full flex flex-col overflow-hidden">
+                                    <div className="flex items-center justify-between mb-4 flex-shrink-0">
                                       <h3 className="text-lg font-semibold text-gray-900">다운로드 기록</h3>
                                       {downloadLogs[upload.id]?.length > 3 && (
                                         <button
@@ -587,7 +587,7 @@ const UploadHistoryPage: React.FC = () => {
                                         </button>
                                       )}
                                     </div>
-                                    <div className="bg-white rounded-lg border border-gray-200 p-4 flex-1 flex flex-col">
+                                    <div className="bg-white rounded-lg border border-gray-200 p-4 flex-1 flex flex-col min-h-0">
                                       {loadingLogs[upload.id] ? (
                                         <div className="text-sm text-gray-500 text-center py-4 flex-1 flex items-center justify-center">로딩 중...</div>
                                       ) : downloadLogs[upload.id]?.length > 0 ? (
