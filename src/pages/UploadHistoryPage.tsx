@@ -591,9 +591,7 @@ const UploadHistoryPage: React.FC = () => {
                                       {loadingLogs[upload.id] ? (
                                         <div className="text-sm text-gray-500 text-center py-4 flex-1 flex items-center justify-center">로딩 중...</div>
                                       ) : downloadLogs[upload.id]?.length > 0 ? (
-                                        <div className="space-y-4 overflow-y-auto pr-2 flex-1" style={{
-                                          maxHeight: downloadLogs[upload.id].length <= 3 ? 'none' : '360px'
-                                        }}>
+                                        <div className="space-y-4 overflow-y-auto pr-2 flex-1">
                                           {downloadLogs[upload.id].map((log) => (
                                             <div
                                               key={log.id}
