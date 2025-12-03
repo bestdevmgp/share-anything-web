@@ -311,8 +311,8 @@ const UploadHistoryPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-32">
-      <div className="mb-4 md:mb-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 md:pt-16 pb-32">
+      <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">업로드 기록</h1>
         <p className="text-gray-600 mt-2">활성 파일이 총 {uploads.filter(u => !isExpired(u.expires_at)).length}개 있습니다.</p>
       </div>
@@ -642,14 +642,14 @@ const UploadHistoryPage: React.FC = () => {
             {uploads.map((upload) => (
               <div key={upload.id} className="bg-white rounded-xl border-[3px] border-gray-100 overflow-hidden">
                 <div className="relative">
-                  <div className="absolute top-1/2 -translate-y-1/2 right-3 flex gap-0.5 z-10">
+                  <div className="absolute top-1/2 -translate-y-1/2 right-3 flex gap-1 z-10">
                     {!isExpired(upload.expires_at) && (
                       <button
                         onClick={(e) => handleShowQRCode(upload.share_code, e)}
-                        className="p-2 text-gray-700 hover:bg-gray-200 rounded transition-colors"
+                        className="p-3 text-gray-700 hover:bg-gray-200 rounded transition-colors"
                         title="QR 코드"
                       >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z" />
                         </svg>
@@ -657,10 +657,10 @@ const UploadHistoryPage: React.FC = () => {
                     )}
                     <button
                       onClick={(e) => handleDelete(upload.id, e)}
-                      className="p-2 text-gray-700 hover:text-red-600 hover:bg-gray-200 rounded transition-colors"
+                      className="p-3 text-gray-700 hover:text-red-600 hover:bg-gray-200 rounded transition-colors"
                       title="삭제"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                       </svg>
                     </button>
