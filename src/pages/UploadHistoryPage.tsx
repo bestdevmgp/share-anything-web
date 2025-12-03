@@ -700,7 +700,7 @@ const UploadHistoryPage: React.FC = () => {
                         {isExpired(upload.expires_at) ? (
                           <span className="text-red-600 font-medium">만료됨</span>
                         ) : (
-                          <span className="text-green-600 font-medium">활성</span>
+                          <span className="text-green-600 font-medium">유효함</span>
                         )}
                       </div>
                       {upload.description && (
