@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import { isVideoFile, isAudioFile, isTextFile } from '../utils/format';
 import { QRCodeSVG } from 'qrcode.react';
-import { CheckIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
+import { CheckIcon, ClipboardDocumentIcon, DocumentIcon } from '@heroicons/react/24/outline';
 
 const UploadHistoryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -279,9 +279,7 @@ const UploadHistoryPage: React.FC = () => {
       );
     } else {
       return (
-        <svg className={`w-6 h-6 ${colorClass}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-        </svg>
+        <DocumentIcon className={`w-6 h-6 ${colorClass}`} />
       );
     }
   };
@@ -522,8 +520,9 @@ const UploadHistoryPage: React.FC = () => {
                                         </pre>
                                       </div>
                                     ) : (
-                                      <div className="flex items-center justify-center h-full bg-gray-100">
+                                      <div className="flex flex-col items-center justify-center h-full bg-gray-100 p-4 gap-4">
                                         {getFileIcon(upload.file_type)}
+                                        <p className="text-sm text-gray-500 text-center">해당 파일 확장자는 미리보기를 지원하지 않습니다.</p>
                                       </div>
                                     )}
                                   </div>
@@ -760,8 +759,9 @@ const UploadHistoryPage: React.FC = () => {
                               </pre>
                             </div>
                           ) : (
-                            <div className="flex items-center justify-center h-full bg-gray-100">
+                            <div className="flex flex-col items-center justify-center h-full bg-gray-100 p-4 gap-4">
                               {getFileIcon(upload.file_type)}
+                              <p className="text-xs text-gray-500 text-center">해당 파일 확장자는 미리보기를 지원하지 않습니다.</p>
                             </div>
                           )}
                         </div>
