@@ -538,7 +538,7 @@ const UploadHistoryPage: React.FC = () => {
                                       </div>
                                       <div className="col-span-2">
                                         <span className="text-sm font-medium text-gray-500">설명</span>
-                                        <p className="text-sm text-gray-900">{upload.description || '없음'}</p>
+                                        <p className="text-sm text-gray-900 break-words whitespace-pre-wrap">{upload.description || '없음'}</p>
                                       </div>
                                       <div>
                                         <span className="text-sm font-medium text-gray-500">파일 타입</span>
@@ -704,7 +704,7 @@ const UploadHistoryPage: React.FC = () => {
                         )}
                       </div>
                       {upload.description && (
-                        <p className="mt-1 text-xs text-gray-500 line-clamp-2">
+                        <p className="mt-1 text-xs text-gray-500 line-clamp-2 overflow-hidden text-ellipsis">
                           {upload.description}
                         </p>
                       )}
@@ -719,7 +719,7 @@ const UploadHistoryPage: React.FC = () => {
                       <div>
                         <h4 className="text-sm font-semibold text-gray-900 mb-2">미리보기</h4>
                         <div className={`bg-white rounded-lg border border-gray-200 overflow-hidden ${
-                          isExpired(upload.expires_at) ? 'h-20' :
+                          isExpired(upload.expires_at) ? 'h-28' :
                           (isImageFileByType(upload.file_type) ||
                            (isVideoFile(upload.file_name) && videoPreviews[upload.id]) ||
                            (isAudioFile(upload.file_name) && audioPreviews[upload.id]) ||
@@ -793,8 +793,8 @@ const UploadHistoryPage: React.FC = () => {
                             <span className="ml-2 text-gray-900">{upload.is_one_time ? '예' : '아니요'}</span>
                           </div>
                           <div>
-                            <span className="text-gray-500">설명:</span>
-                            <span className="ml-2 text-gray-900">{upload.description || '없음'}</span>
+                            <div className="text-gray-500 mb-1">설명:</div>
+                            <div className="text-gray-900 break-words whitespace-pre-wrap">{upload.description || '없음'}</div>
                           </div>
                           <div>
                             <span className="text-gray-500">업로드:</span>
