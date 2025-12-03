@@ -837,7 +837,7 @@ const UploadHistoryPage: React.FC = () => {
                               ))}
                             </div>
                           ) : (
-                            <div className="text-xs text-gray-500 text-center py-3">
+                            <div className="h-20 flex items-center justify-center text-xs text-gray-500 text-center">
                               아직 다운로드 기록이 없습니다.
                             </div>
                           )}
