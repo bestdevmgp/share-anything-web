@@ -821,7 +821,7 @@ const UploadHistoryPage: React.FC = () => {
                         </div>
                         <div className="bg-white rounded-lg border border-gray-200 p-4">
                           {loadingLogs[upload.id] ? (
-                            <div className="text-xs text-gray-500 text-center py-3">로딩 중...</div>
+                            <div className="h-20 flex items-center justify-center text-xs text-gray-500 text-center">로딩 중...</div>
                           ) : downloadLogs[upload.id]?.length > 0 ? (
                             <div className="space-y-4 overflow-y-auto pr-1" style={{
                               maxHeight: downloadLogs[upload.id].length <= 2 ? 'none' : '240px'
