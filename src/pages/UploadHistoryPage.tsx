@@ -311,7 +311,16 @@ const UploadHistoryPage: React.FC = () => {
         <>
           <div className="hidden md:block bg-white rounded-lg border-[3px] border-gray-100 overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
+              <table className="min-w-full divide-y divide-gray-200 table-fixed">
+                <colgroup>
+                  <col style={{ width: '30%' }} />
+                  <col style={{ width: '10%' }} />
+                  <col style={{ width: '15%' }} />
+                  <col style={{ width: '15%' }} />
+                  <col style={{ width: '10%' }} />
+                  <col style={{ width: '10%' }} />
+                  <col style={{ width: '10%' }} />
+                </colgroup>
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
@@ -514,9 +523,9 @@ const UploadHistoryPage: React.FC = () => {
                                 </div>
 
                                 <div className="lg:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                  <div>
+                                  <div className="flex flex-col">
                                     <h3 className="text-lg font-semibold text-gray-900 mb-4">상세 정보</h3>
-                                    <div className="bg-white rounded-lg border border-gray-200 p-4 grid grid-cols-2 gap-x-6 gap-y-3">
+                                    <div className="bg-white rounded-lg border border-gray-200 p-4 grid grid-cols-2 gap-x-6 gap-y-3 flex-1">
                                       <div className="col-span-2">
                                         <span className="text-sm font-medium text-gray-500">파일명</span>
                                         <p className="text-sm text-gray-900 break-all">{upload.file_name}</p>
@@ -989,7 +998,7 @@ const UploadHistoryPage: React.FC = () => {
               />
             </div>
             <p className="text-sm text-gray-500 text-center mt-4">
-              QR 코드를 스캔하여 파일에 접근하세요
+              QR 코드를 스캔하여 파일을 다운로드하세요.
             </p>
           </div>
         </div>
