@@ -25,6 +25,7 @@ const UploadHistoryPage: React.FC = () => {
   const [videoPreviews, setVideoPreviews] = useState<{ [key: string]: string }>({});
   const [audioPreviews, setAudioPreviews] = useState<{ [key: string]: string }>({});
   const [textPreviews, setTextPreviews] = useState<{ [key: string]: string }>({});
+  const [loadingFilePreviews, setLoadingFilePreviews] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     if (authLoading) {
@@ -92,27 +93,36 @@ const UploadHistoryPage: React.FC = () => {
 
     if (isVideoFile(fileName) && !videoPreviews[upload.id]) {
       try {
+        setLoadingFilePreviews(prev => ({ ...prev, [upload.id]: true }));
         const blob = await fileAPI.previewFile(upload.share_code, upload.id);
         const url = URL.createObjectURL(blob);
         setVideoPreviews(prev => ({ ...prev, [upload.id]: url }));
       } catch (err) {
         console.error('Failed to load video preview:', err);
+      } finally {
+        setLoadingFilePreviews(prev => ({ ...prev, [upload.id]: false }));
       }
     } else if (isAudioFile(fileName) && !audioPreviews[upload.id]) {
       try {
+        setLoadingFilePreviews(prev => ({ ...prev, [upload.id]: true }));
         const blob = await fileAPI.previewFile(upload.share_code, upload.id);
         const url = URL.createObjectURL(blob);
         setAudioPreviews(prev => ({ ...prev, [upload.id]: url }));
       } catch (err) {
         console.error('Failed to load audio preview:', err);
+      } finally {
+        setLoadingFilePreviews(prev => ({ ...prev, [upload.id]: false }));
       }
     } else if (isTextFile(fileName) && !textPreviews[upload.id]) {
       try {
+        setLoadingFilePreviews(prev => ({ ...prev, [upload.id]: true }));
         const blob = await fileAPI.previewFile(upload.share_code, upload.id);
         const text = await blob.text();
         setTextPreviews(prev => ({ ...prev, [upload.id]: text }));
       } catch (err) {
         console.error('Failed to load text preview:', err);
+      } finally {
+        setLoadingFilePreviews(prev => ({ ...prev, [upload.id]: false }));
       }
     }
   };
@@ -194,6 +204,23 @@ const UploadHistoryPage: React.FC = () => {
   const getPreviewUrl = (shareCode: string, fileId: string) => {
     const apiUrl = process.env.REACT_APP_API_URL;
     return `${apiUrl}/preview/file?code=${shareCode}&file_id=${fileId}`;
+  };
+
+  const truncateFileName = (fileName: string, maxLength: number = 30) => {
+    if (fileName.length <= maxLength) return fileName;
+
+    const lastDotIndex = fileName.lastIndexOf('.');
+    if (lastDotIndex === -1) {
+      return fileName.substring(0, maxLength) + '...';
+    }
+
+    const extension = fileName.substring(lastDotIndex);
+    const nameWithoutExt = fileName.substring(0, lastDotIndex);
+    const maxNameLength = maxLength - extension.length - 3;
+
+    if (nameWithoutExt.length <= maxNameLength) return fileName;
+
+    return nameWithoutExt.substring(0, maxNameLength) + '...' + extension;
   };
 
   const getFileIcon = (fileType: string) => {
@@ -339,8 +366,8 @@ const UploadHistoryPage: React.FC = () => {
                               )}
                             </div>
                             <div className="min-w-0 flex-1">
-                              <div className="text-sm font-medium text-gray-900 truncate">
-                                {upload.file_name}
+                              <div className="text-sm font-medium text-gray-900" title={upload.file_name}>
+                                {truncateFileName(upload.file_name)}
                               </div>
                               {upload.description && (
                                 <div className="text-sm text-gray-500 truncate">
@@ -411,7 +438,12 @@ const UploadHistoryPage: React.FC = () => {
                                 <div>
                                   <h3 className="text-lg font-semibold text-gray-900 mb-4">미리보기</h3>
                                   <div className="bg-white rounded-lg border-2 border-gray-200 overflow-hidden">
-                                    {isImageFileByType(upload.file_type) ? (
+                                    {loadingFilePreviews[upload.id] ? (
+                                      <div className="flex flex-col items-center justify-center h-64 bg-gray-100">
+                                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+                                        <p className="text-sm text-gray-500">로딩 중...</p>
+                                      </div>
+                                    ) : isImageFileByType(upload.file_type) ? (
                                       loadingPreviews[`expanded_${upload.id}`] ? (
                                         <div className="flex items-center justify-center h-96 bg-gray-100">
                                           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -577,7 +609,7 @@ const UploadHistoryPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="md:hidden space-y-4">
+          <div className="md:hidden space-y-2">
             {uploads.map((upload) => (
               <div key={upload.id} className="bg-white rounded-lg border-[3px] border-gray-100 overflow-hidden">
                 <div className="relative">
@@ -631,8 +663,8 @@ const UploadHistoryPage: React.FC = () => {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-medium text-gray-900 truncate">
-                        {upload.file_name}
+                      <h3 className="text-sm font-medium text-gray-900" title={upload.file_name}>
+                        {truncateFileName(upload.file_name, 15)}
                       </h3>
                       <div className="mt-1 flex items-center space-x-2 text-xs text-gray-500">
                         <span>{formatFileSize(upload.file_size)}</span>
@@ -661,7 +693,12 @@ const UploadHistoryPage: React.FC = () => {
                       <div>
                         <h4 className="text-sm font-semibold text-gray-900 mb-2">미리보기</h4>
                         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                          {isImageFileByType(upload.file_type) ? (
+                          {loadingFilePreviews[upload.id] ? (
+                            <div className="flex flex-col items-center justify-center h-24 bg-gray-100">
+                              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
+                              <p className="text-xs text-gray-500">로딩 중...</p>
+                            </div>
+                          ) : isImageFileByType(upload.file_type) ? (
                             <img
                               src={getPreviewUrl(upload.share_code, upload.id)}
                               alt={upload.file_name}
