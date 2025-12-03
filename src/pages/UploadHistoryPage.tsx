@@ -469,7 +469,7 @@ const UploadHistoryPage: React.FC = () => {
                           <td colSpan={7} className="px-6" style={{ backgroundColor: '#F9FAFB' }}>
                             <div className={`py-6 ${closingRow === upload.id ? 'animate-collapse-up' : 'animate-expand-down'}`}>
                               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                                <div className="h-full flex flex-col min-h-0">
+                                <div className="h-0 min-h-full flex flex-col overflow-hidden">
                                   <h3 className="text-lg font-semibold text-gray-900 mb-4 flex-shrink-0">미리보기</h3>
                                   <div className="bg-white rounded-lg border border-gray-200 overflow-hidden w-full flex-1 max-w-md">
                                     {isExpired(upload.expires_at) ? (
