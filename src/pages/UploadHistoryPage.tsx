@@ -438,7 +438,7 @@ const UploadHistoryPage: React.FC = () => {
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                          <div className="flex justify-center gap-0.5">
+                          <div className="flex justify-end gap-0.5">
                             {!isExpired(upload.expires_at) && (
                               <button
                                 onClick={(e) => handleShowQRCode(upload.share_code, e)}
