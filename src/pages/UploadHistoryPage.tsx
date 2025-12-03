@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import { isVideoFile, isAudioFile, isTextFile } from '../utils/format';
 import { QRCodeSVG } from 'qrcode.react';
+import { CheckIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
 
 const UploadHistoryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -22,13 +23,13 @@ const UploadHistoryPage: React.FC = () => {
   const [selectedFileForLogs, setSelectedFileForLogs] = useState<string | null>(null);
   const [loadingPreviews, setLoadingPreviews] = useState<{ [key: string]: boolean }>({});
   const [closingRow, setClosingRow] = useState<string | null>(null);
-  const [copiedFiles, setCopiedFiles] = useState<{ [key: string]: boolean }>({});
   const [videoPreviews, setVideoPreviews] = useState<{ [key: string]: string }>({});
   const [audioPreviews, setAudioPreviews] = useState<{ [key: string]: string }>({});
   const [textPreviews, setTextPreviews] = useState<{ [key: string]: string }>({});
   const [loadingFilePreviews, setLoadingFilePreviews] = useState<{ [key: string]: boolean }>({});
   const [showQRModal, setShowQRModal] = useState(false);
   const [selectedShareCode, setSelectedShareCode] = useState<string | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   useEffect(() => {
     if (authLoading) {
@@ -167,16 +168,6 @@ const UploadHistoryPage: React.FC = () => {
     }
   };
 
-  const handleCopyLink = (fileId: string, shareCode: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    const url = `${window.location.origin}/download/${shareCode}`;
-    navigator.clipboard.writeText(url);
-    setCopiedFiles({ ...copiedFiles, [fileId]: true });
-    setTimeout(() => {
-      setCopiedFiles({ ...copiedFiles, [fileId]: false });
-    }, 2000);
-  };
-
   const handleViewAllLogs = (fileId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setSelectedFileForLogs(fileId);
@@ -187,6 +178,20 @@ const UploadHistoryPage: React.FC = () => {
     e.stopPropagation();
     setSelectedShareCode(shareCode);
     setShowQRModal(true);
+    setCopiedLink(false);
+  };
+
+  const handleCopyLink = async () => {
+    if (!selectedShareCode) return;
+
+    const url = `${window.location.origin}/download/${selectedShareCode}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -303,7 +308,7 @@ const UploadHistoryPage: React.FC = () => {
           <p className="text-gray-500">활성화된 공유 파일이 없습니다.</p>
           <button
             onClick={() => navigate('/upload')}
-            className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold"
           >
             파일 공유하기
           </button>
@@ -327,7 +332,7 @@ const UploadHistoryPage: React.FC = () => {
                     <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       파일명
                     </th>
-                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       크기
                     </th>
                     <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
@@ -336,10 +341,10 @@ const UploadHistoryPage: React.FC = () => {
                     <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       만료 기한
                     </th>
-                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       다운로드
                     </th>
-                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
+                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       상태
                     </th>
                     <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
@@ -395,7 +400,7 @@ const UploadHistoryPage: React.FC = () => {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-left">
                           {formatFileSize(upload.file_size)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -404,10 +409,10 @@ const UploadHistoryPage: React.FC = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {formatDate(upload.expires_at)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-left">
                           {upload.download_count}회
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-6 py-4 whitespace-nowrap text-left">
                           {isExpired(upload.expires_at) ? (
                             <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                               만료됨
@@ -419,22 +424,7 @@ const UploadHistoryPage: React.FC = () => {
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-                          <div className="flex justify-center space-x-1">
-                            <button
-                              onClick={(e) => handleCopyLink(upload.id, upload.share_code, e)}
-                              className="p-2 text-gray-700 hover:bg-gray-200 rounded transition-colors"
-                              title="링크 복사"
-                            >
-                              {copiedFiles[upload.id] ? (
-                                <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                </svg>
-                              ) : (
-                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5A3.375 3.375 0 006.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0015 2.25h-1.5a2.251 2.251 0 00-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 00-9-9z" />
-                                </svg>
-                              )}
-                            </button>
+                          <div className="flex justify-center gap-0.5">
                             {!isExpired(upload.expires_at) && (
                               <button
                                 onClick={(e) => handleShowQRCode(upload.share_code, e)}
@@ -634,22 +624,7 @@ const UploadHistoryPage: React.FC = () => {
             {uploads.map((upload) => (
               <div key={upload.id} className="bg-white rounded-lg border-[3px] border-gray-100 overflow-hidden">
                 <div className="relative">
-                  <div className="absolute top-3 right-3 flex space-x-2 z-10">
-                    <button
-                      onClick={(e) => handleCopyLink(upload.id, upload.share_code, e)}
-                      className="p-2 text-gray-700 hover:bg-gray-200 rounded transition-colors"
-                      title="링크 복사"
-                    >
-                      {copiedFiles[upload.id] ? (
-                        <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                      ) : (
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.057 1.123-.08M15.75 18H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08M15.75 18.75v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5A3.375 3.375 0 006.375 7.5H5.25m11.9-3.664A2.251 2.251 0 0015 2.25h-1.5a2.251 2.251 0 00-2.15 1.586m5.8 0c.065.21.1.433.1.664v.75h-6V4.5c0-.231.035-.454.1-.664M6.75 7.5H4.875c-.621 0-1.125.504-1.125 1.125v12c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V16.5a9 9 0 00-9-9z" />
-                        </svg>
-                      )}
-                    </button>
+                  <div className="absolute top-3 right-3 flex gap-0.5 z-10">
                     {!isExpired(upload.expires_at) && (
                       <button
                         onClick={(e) => handleShowQRCode(upload.share_code, e)}
@@ -999,6 +974,30 @@ const UploadHistoryPage: React.FC = () => {
                 includeMargin={true}
               />
             </div>
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                공유 링크
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={`${window.location.origin}/download/${selectedShareCode}`}
+                  readOnly
+                  className="w-full px-4 py-3 pr-12 bg-gray-50 border border-gray-300 rounded-lg text-sm text-gray-700"
+                />
+                <button
+                  onClick={handleCopyLink}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-300 rounded-lg transition-colors"
+                  title="링크 복사"
+                >
+                  {copiedLink ? (
+                    <CheckIcon className="w-5 h-5 text-green-600" />
+                  ) : (
+                    <ClipboardDocumentIcon className="w-5 h-5 text-gray-600" />
+                  )}
+                </button>
+              </div>
+            </div>
             <p className="text-sm text-gray-500 text-center mt-4">
               QR 코드를 스캔하여 파일을 다운로드하세요.
             </p>
@@ -1009,34 +1008,30 @@ const UploadHistoryPage: React.FC = () => {
       <style>{`
         @keyframes expandDown {
           from {
-            opacity: 0;
             max-height: 0;
             overflow: hidden;
           }
           to {
-            opacity: 1;
             max-height: 2000px;
           }
         }
 
         @keyframes collapseUp {
           from {
-            opacity: 1;
             max-height: 2000px;
           }
           to {
-            opacity: 0;
             max-height: 0;
             overflow: hidden;
           }
         }
 
         .animate-expand-down {
-          animation: expandDown 0.4s ease-in-out forwards;
+          animation: expandDown 0.3s ease-out forwards;
         }
 
         .animate-collapse-up {
-          animation: collapseUp 0.4s ease-in-out forwards;
+          animation: collapseUp 0.3s ease-in forwards;
         }
       `}</style>
     </div>
