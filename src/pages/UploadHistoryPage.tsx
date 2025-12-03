@@ -455,9 +455,9 @@ const UploadHistoryPage: React.FC = () => {
                           <td colSpan={7} className="px-6" style={{ backgroundColor: '#F9FAFB' }}>
                             <div className={`py-6 ${closingRow === upload.id ? 'animate-collapse-up' : 'animate-expand-down'}`}>
                               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                                <div className="flex flex-col">
+                                <div className="flex flex-col min-h-0">
                                   <h3 className="text-lg font-semibold text-gray-900 mb-4">미리보기</h3>
-                                  <div className="bg-white rounded-lg border border-gray-200 overflow-hidden w-full aspect-square max-w-md">
+                                  <div className="bg-white rounded-lg border border-gray-200 overflow-hidden w-full flex-1 max-w-md">
                                     {isExpired(upload.expires_at) ? (
                                       <div className="flex items-center justify-center h-full bg-gray-50">
                                         <p className="text-sm text-gray-500 text-center px-4">만료된 파일입니다.</p>
@@ -624,7 +624,7 @@ const UploadHistoryPage: React.FC = () => {
             {uploads.map((upload) => (
               <div key={upload.id} className="bg-white rounded-xl border-[3px] border-gray-100 overflow-hidden">
                 <div className="relative">
-                  <div className="absolute top-3 right-3 flex gap-0.5 z-10">
+                  <div className="absolute top-1/2 -translate-y-1/2 right-3 flex gap-0.5 z-10">
                     {!isExpired(upload.expires_at) && (
                       <button
                         onClick={(e) => handleShowQRCode(upload.share_code, e)}
@@ -652,7 +652,7 @@ const UploadHistoryPage: React.FC = () => {
                     onClick={() => handleRowClick(upload.id)}
                     className={`p-4 cursor-pointer ${expandedRow === upload.id ? 'bg-blue-50' : ''}`}
                   >
-                    <div className="flex items-start space-x-3 pr-20">
+                    <div className="flex items-center space-x-3 pr-20">
                     <div className="flex-shrink-0 w-16 h-16 rounded overflow-hidden bg-gray-100 flex items-center justify-center">
                       {isImageFileByType(upload.file_type) && !isExpired(upload.expires_at) ? (
                         loadingPreviews[`mobile_${upload.id}`] ? (
