@@ -49,7 +49,7 @@ const OAuthCallbackPage: React.FC = () => {
           navigate('/', { replace: true });
           return;
         } catch (err) {
-          setError('사용자 정보 파싱에 실패했습니다.');
+          setError('사용자 정보 파싱에 실패하였습니다.');
           setTimeout(() => navigate('/login', { replace: true }), 2000);
           return;
         }
@@ -62,7 +62,7 @@ const OAuthCallbackPage: React.FC = () => {
       }
 
       if (!code) {
-        setError('인증 코드를 받지 못했습니다.');
+        setError('인증 코드를 받지 못하였습니다.');
         setTimeout(() => navigate('/login', { replace: true }), 3000);
         return;
       }
@@ -83,11 +83,11 @@ const OAuthCallbackPage: React.FC = () => {
           toast.success('로그인되었습니다.');
           navigate('/', { replace: true });
         } else {
-          toast.error('로그인 정보를 받지 못했습니다.');
+          toast.error('로그인 정보를 받지 못하였습니다.');
           setTimeout(() => navigate('/login', { replace: true }), 3000);
         }
       } catch (err: any) {
-        const errorMessage = err.response?.data?.message || err.message || '로그인에 실패했습니다.';
+        const errorMessage = err.response?.data?.message || err.message || '로그인에 실패하였습니다.';
         toast.error(errorMessage);
         setTimeout(() => navigate('/login', { replace: true }), 3000);
       }

@@ -65,7 +65,7 @@ const UploadHistoryPage: React.FC = () => {
       setTotal(response.total);
     } catch (error: any) {
       console.error('Failed to fetch uploads:', error);
-      toast.error('업로드 기록을 불러오는데 실패했습니다.');
+      toast.error('업로드 기록 조회에 실패하였습니다.');
     } finally {
       setLoading(false);
     }
@@ -82,7 +82,7 @@ const UploadHistoryPage: React.FC = () => {
       setDownloadLogs({ ...downloadLogs, [fileId]: logs });
     } catch (error: any) {
       console.error('Failed to fetch download logs:', error);
-      toast.error('다운로드 기록을 불러오는데 실패했습니다.');
+      toast.error('다운로드 기록 조회에 실패하였습니다.');
     } finally {
       setLoadingLogs({ ...loadingLogs, [fileId]: false });
     }
@@ -160,7 +160,7 @@ const UploadHistoryPage: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Failed to delete file:', error);
-      toast.error('삭제에 실패했습니다.');
+      toast.error('삭제에 실패하였습니다.');
     }
   };
 
@@ -286,7 +286,7 @@ const UploadHistoryPage: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-32">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">업로드 기록</h1>
-        <p className="text-gray-600 mt-2">활성 파일이 총 {total}개 있습니다.</p>
+        <p className="text-gray-600 mt-2">활성 파일이 총 {uploads.filter(u => !isExpired(u.expires_at)).length}개 있습니다.</p>
       </div>
 
       {uploads.length === 0 ? (
@@ -434,25 +434,29 @@ const UploadHistoryPage: React.FC = () => {
                         <tr>
                           <td colSpan={7} className="px-6" style={{ backgroundColor: '#F9FAFB' }}>
                             <div className={`py-6 ${closingRow === upload.id ? 'animate-collapse-up' : 'animate-expand-down'}`}>
-                              <div className="space-y-6">
+                              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                 <div>
                                   <h3 className="text-lg font-semibold text-gray-900 mb-4">미리보기</h3>
-                                  <div className="bg-white rounded-lg border-2 border-gray-200 overflow-hidden">
-                                    {loadingFilePreviews[upload.id] ? (
-                                      <div className="flex flex-col items-center justify-center h-64 bg-gray-100">
+                                  <div className="bg-white rounded-lg border-2 border-gray-200 overflow-hidden aspect-square">
+                                    {isExpired(upload.expires_at) ? (
+                                      <div className="flex items-center justify-center h-full bg-gray-50">
+                                        <p className="text-sm text-gray-500 text-center px-4">만료 기간이 지난 파일입니다.</p>
+                                      </div>
+                                    ) : loadingFilePreviews[upload.id] ? (
+                                      <div className="flex flex-col items-center justify-center h-full bg-gray-100">
                                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
                                         <p className="text-sm text-gray-500">로딩 중...</p>
                                       </div>
                                     ) : isImageFileByType(upload.file_type) ? (
                                       loadingPreviews[`expanded_${upload.id}`] ? (
-                                        <div className="flex items-center justify-center h-96 bg-gray-100">
+                                        <div className="flex items-center justify-center h-full bg-gray-100">
                                           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                                         </div>
                                       ) : (
                                         <img
                                           src={getPreviewUrl(upload.share_code, upload.id)}
                                           alt={upload.file_name}
-                                          className="w-full h-auto max-h-96 object-contain"
+                                          className="w-full h-full object-contain"
                                           onLoadStart={() => setLoadingPreviews({ ...loadingPreviews, [`expanded_${upload.id}`]: true })}
                                           onLoad={() => setLoadingPreviews({ ...loadingPreviews, [`expanded_${upload.id}`]: false })}
                                         />
@@ -461,12 +465,12 @@ const UploadHistoryPage: React.FC = () => {
                                       <video
                                         src={videoPreviews[upload.id]}
                                         controls
-                                        className="w-full max-h-96"
+                                        className="w-full h-full object-contain"
                                       >
                                         브라우저가 비디오 재생을 지원하지 않습니다.
                                       </video>
                                     ) : isAudioFile(upload.file_name) && audioPreviews[upload.id] ? (
-                                      <div className="p-8">
+                                      <div className="flex items-center justify-center h-full p-4">
                                         <audio
                                           src={audioPreviews[upload.id]}
                                           controls
@@ -476,20 +480,20 @@ const UploadHistoryPage: React.FC = () => {
                                         </audio>
                                       </div>
                                     ) : isTextFile(upload.file_name) && textPreviews[upload.id] ? (
-                                      <div className="max-h-96 overflow-auto bg-gray-50 p-6">
-                                        <pre className="text-sm text-gray-800 whitespace-pre-wrap break-words font-mono">
+                                      <div className="h-full overflow-auto bg-gray-50 p-4">
+                                        <pre className="text-xs text-gray-800 whitespace-pre-wrap break-words font-mono">
                                           {textPreviews[upload.id]}
                                         </pre>
                                       </div>
                                     ) : (
-                                      <div className="flex items-center justify-center h-64 bg-gray-100">
+                                      <div className="flex items-center justify-center h-full bg-gray-100">
                                         {getFileIcon(upload.file_type)}
                                       </div>
                                     )}
                                   </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                                <div className="lg:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-6">
                                   <div>
                                     <h3 className="text-lg font-semibold text-gray-900 mb-4">상세 정보</h3>
                                     <div className="bg-white rounded-lg border border-gray-200 p-4 grid grid-cols-2 gap-x-6 gap-y-3">
@@ -693,7 +697,11 @@ const UploadHistoryPage: React.FC = () => {
                       <div>
                         <h4 className="text-sm font-semibold text-gray-900 mb-2">미리보기</h4>
                         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                          {loadingFilePreviews[upload.id] ? (
+                          {isExpired(upload.expires_at) ? (
+                            <div className="flex items-center justify-center h-24 bg-gray-50">
+                              <p className="text-xs text-gray-500">만료 기간이 지난 파일입니다.</p>
+                            </div>
+                          ) : loadingFilePreviews[upload.id] ? (
                             <div className="flex flex-col items-center justify-center h-24 bg-gray-100">
                               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
                               <p className="text-xs text-gray-500">로딩 중...</p>

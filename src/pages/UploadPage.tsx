@@ -95,7 +95,7 @@ const UploadPage: React.FC = () => {
       if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') {
         toast.info('업로드가 취소되었습니다.');
       } else {
-        toast.error(err.response?.data?.message || '업로드에 실패했습니다.');
+        toast.error(err.response?.data?.message || '업로드에 실패하였습니다.');
       }
     } finally {
       setIsUploading(false);

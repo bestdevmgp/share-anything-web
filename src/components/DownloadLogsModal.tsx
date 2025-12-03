@@ -23,7 +23,7 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
       setLogs(data);
     } catch (error: any) {
       console.error('Failed to fetch download logs:', error);
-      toast.error('다운로드 기록을 불러오는데 실패했습니다.');
+      toast.error('다운로드 기록 조회에 실패하였습니다.');
     } finally {
       setLoading(false);
     }

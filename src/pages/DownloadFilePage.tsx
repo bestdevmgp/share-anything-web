@@ -175,7 +175,7 @@ const DownloadFilePage: React.FC = () => {
         setPassword('');
         setShowPassword(false);
       } else {
-        toast.error('비밀번호 확인에 실패했습니다.');
+        toast.error('비밀번호 확인에 실패하였습니다.');
       }
     } finally {
       setLoading(false);
