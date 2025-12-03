@@ -49,7 +49,6 @@ const DownloadFilePage: React.FC = () => {
 
       if (!list.has_password) {
         setPasswordVerified(true);
-        // Auto-select first file if single file
         if (list.files.length === 1) {
           setSelectedFiles(new Set([list.files[0].id]));
         }
@@ -76,7 +75,6 @@ const DownloadFilePage: React.FC = () => {
     loadFileList();
   }, [loadFileList]);
 
-  // Load preview for single files
   useEffect(() => {
     let imageUrl: string | null = null;
     let videoUrl: string | null = null;
@@ -116,7 +114,6 @@ const DownloadFilePage: React.FC = () => {
 
     loadFilePreview();
 
-    // Cleanup: revoke only URLs created in this effect
     return () => {
       if (imageUrl) URL.revokeObjectURL(imageUrl);
       if (videoUrl) URL.revokeObjectURL(videoUrl);
@@ -124,7 +121,6 @@ const DownloadFilePage: React.FC = () => {
     };
   }, [fileList, code, password]);
 
-  // Load previews for multiple image files
   useEffect(() => {
     const createdUrls: string[] = [];
 
@@ -147,7 +143,6 @@ const DownloadFilePage: React.FC = () => {
 
     loadMultipleImagePreviews();
 
-    // Cleanup: revoke only URLs created in this effect
     return () => {
       createdUrls.forEach(url => URL.revokeObjectURL(url));
     };
@@ -164,16 +159,13 @@ const DownloadFilePage: React.FC = () => {
     try {
       setLoading(true);
 
-      // 1. 비밀번호 사전 검증
       await fileAPI.verifyPassword(code, password);
 
-      // 2. 검증 성공 시 파일 목록 조회
       const list = await fileAPI.getFileList(code);
       setFileList(list);
       setPasswordVerified(true);
       toast.success('비밀번호가 확인되었습니다.');
 
-      // Auto-select first file if single file
       if (list.files.length === 1) {
         setSelectedFiles(new Set([list.files[0].id]));
       }
@@ -313,7 +305,6 @@ const DownloadFilePage: React.FC = () => {
     return null;
   }
 
-  // Password verification screen
   if (fileList.has_password && !passwordVerified) {
     return (
       <div className="flex items-center justify-center px-4 py-20">
@@ -367,7 +358,6 @@ const DownloadFilePage: React.FC = () => {
     );
   }
 
-  // Single file view (like Image #5)
   if (fileList.files.length === 1) {
     const file = fileList.files[0];
 
@@ -539,7 +529,6 @@ const DownloadFilePage: React.FC = () => {
     );
   }
 
-  // Multiple files view
   const toggleFileSelection = (fileId: string) => {
     setSelectedFiles(prev => {
       const newSet = new Set(prev);

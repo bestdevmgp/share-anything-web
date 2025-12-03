@@ -21,11 +21,9 @@ const UploadSuccessPage: React.FC = () => {
     return null;
   }
 
-  // 그룹 공유 코드와 다운로드 URL 생성
   const groupShareCode = uploadResult.share_code || uploadResult.files[0]?.share_code || '';
   const downloadUrl = `${window.location.origin}/download/${groupShareCode}`;
 
-  // 공유 코드를 3-3 형식으로 표시 (123456 → 123 456)
   const displayCode = groupShareCode.length === 6
     ? `${groupShareCode.slice(0, 3)} ${groupShareCode.slice(3)}`
     : groupShareCode;

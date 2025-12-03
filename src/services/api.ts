@@ -16,23 +16,19 @@ const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
-// Request interceptor to add auth token and handle content type
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('auth_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
-  // Set Content-Type to application/json by default, unless it's FormData
   if (!(config.data instanceof FormData)) {
     config.headers['Content-Type'] = 'application/json';
   }
-  // If it's FormData, let axios set the Content-Type automatically with boundary
 
   return config;
 });
 
-// Auth API
 export const authAPI = {
   getGoogleLoginUrl: () => {
     const callbackUrl = `${window.location.origin}/auth/callback/google`;
@@ -69,7 +65,6 @@ export const authAPI = {
   }
 };
 
-// File API
 export const fileAPI = {
   upload: async (
     files: File[],
@@ -145,7 +140,6 @@ export const fileAPI = {
     await api.post('/file/verify-password', { code, password });
   },
 
-  // ⭐ 새로운 API: 파일 목록 조회
   getFileList: async (code: string, password?: string): Promise<FileListResponse> => {
     const headers: Record<string, string> = {};
     if (password) {
@@ -235,7 +229,6 @@ export const fileAPI = {
   },
 };
 
-// User API
 export const userAPI = {
   getUploads: async (limit = 20, offset = 0): Promise<UploadHistoryResponse> => {
     const response = await api.get<UploadHistoryResponse>('/user/uploads', {

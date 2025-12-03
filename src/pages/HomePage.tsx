@@ -10,7 +10,6 @@ const HomePage: React.FC = () => {
 
   useEffect(() => {
     document.title = 'ShareAnything';
-    // Auto-focus on download code input only when coming from "Try Again" button
     if (location.state?.autoFocus) {
       downloadCodeInputRef.current?.focus();
     }

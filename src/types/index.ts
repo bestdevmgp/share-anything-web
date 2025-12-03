@@ -25,7 +25,7 @@ export interface FileShare {
 }
 
 export interface FileUploadResponse {
-  share_code: string;  // ⭐ 그룹 전체의 공유 코드
+  share_code: string;
   total_count: number;
   files: FileShare[];
 }
@@ -80,7 +80,6 @@ export interface UploadFormData {
   expiration: ExpirationOption;
 }
 
-// ⭐ 새로운 API: 파일 목록 조회 응답
 export interface FileListItem {
   id: string;
   file_name: string;
@@ -97,7 +96,6 @@ export interface FileListResponse {
   expires_at: string;
 }
 
-// ⭐ 새로운 API: Bulk 다운로드 요청
 export interface BulkDownloadRequest {
   code: string;
   file_ids: string[];

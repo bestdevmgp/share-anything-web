@@ -30,7 +30,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is already logged in
     const currentUser = authAPI.getCurrentUser();
     const isAuth = authAPI.isAuthenticated();
 

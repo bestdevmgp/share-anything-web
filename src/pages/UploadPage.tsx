@@ -31,12 +31,10 @@ const UploadPage: React.FC = () => {
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     setIsProcessingFiles(true);
 
-    // 로딩 UI가 표시되도록 약간의 딜레이
     await new Promise(resolve => setTimeout(resolve, 10));
 
     setFiles(prev => [...prev, ...acceptedFiles]);
 
-    // Generate previews for image files
     acceptedFiles.forEach(file => {
       if (isImageFile(file.name)) {
         const reader = new FileReader();

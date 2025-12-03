@@ -4,7 +4,6 @@ import { AuthProvider } from './context/AuthContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// Pages
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import UploadPage from './pages/UploadPage';

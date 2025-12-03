@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { userAPI } from '../services/api';
+import { userAPI, fileAPI } from '../services/api';
 import { UploadHistoryItem, DownloadLog } from '../types';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
+import { isVideoFile, isAudioFile, isTextFile } from '../utils/format';
 
 const UploadHistoryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -21,6 +22,9 @@ const UploadHistoryPage: React.FC = () => {
   const [loadingPreviews, setLoadingPreviews] = useState<{ [key: string]: boolean }>({});
   const [closingRow, setClosingRow] = useState<string | null>(null);
   const [copiedFiles, setCopiedFiles] = useState<{ [key: string]: boolean }>({});
+  const [videoPreviews, setVideoPreviews] = useState<{ [key: string]: string }>({});
+  const [audioPreviews, setAudioPreviews] = useState<{ [key: string]: string }>({});
+  const [textPreviews, setTextPreviews] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     if (authLoading) {
@@ -34,7 +38,6 @@ const UploadHistoryPage: React.FC = () => {
     fetchUploads();
   }, [offset, isAuthenticated, authLoading, navigate]);
 
-  // 모달이 열릴 때 body 스크롤 방지
   useEffect(() => {
     if (showAllLogsModal) {
       document.body.style.overflow = 'hidden';
@@ -46,7 +49,6 @@ const UploadHistoryPage: React.FC = () => {
     };
   }, [showAllLogsModal]);
 
-  // 브라우저 탭 제목 설정
   useEffect(() => {
     document.title = '업로드 기록';
     return () => {
@@ -85,16 +87,50 @@ const UploadHistoryPage: React.FC = () => {
     }
   };
 
+  const loadFilePreview = async (upload: UploadHistoryItem) => {
+    const fileName = upload.file_name;
+
+    if (isVideoFile(fileName) && !videoPreviews[upload.id]) {
+      try {
+        const blob = await fileAPI.previewFile(upload.share_code, upload.id);
+        const url = URL.createObjectURL(blob);
+        setVideoPreviews(prev => ({ ...prev, [upload.id]: url }));
+      } catch (err) {
+        console.error('Failed to load video preview:', err);
+      }
+    } else if (isAudioFile(fileName) && !audioPreviews[upload.id]) {
+      try {
+        const blob = await fileAPI.previewFile(upload.share_code, upload.id);
+        const url = URL.createObjectURL(blob);
+        setAudioPreviews(prev => ({ ...prev, [upload.id]: url }));
+      } catch (err) {
+        console.error('Failed to load audio preview:', err);
+      }
+    } else if (isTextFile(fileName) && !textPreviews[upload.id]) {
+      try {
+        const blob = await fileAPI.previewFile(upload.share_code, upload.id);
+        const text = await blob.text();
+        setTextPreviews(prev => ({ ...prev, [upload.id]: text }));
+      } catch (err) {
+        console.error('Failed to load text preview:', err);
+      }
+    }
+  };
+
   const handleRowClick = (fileId: string) => {
     if (expandedRow === fileId) {
       setClosingRow(fileId);
       setTimeout(() => {
         setExpandedRow(null);
         setClosingRow(null);
-      }, 300); // 애니메이션 시간과 맞춤
+      }, 300);
     } else {
       setExpandedRow(fileId);
       fetchDownloadLogs(fileId);
+      const upload = uploads.find(u => u.id === fileId);
+      if (upload) {
+        loadFilePreview(upload);
+      }
     }
   };
 
@@ -107,10 +143,8 @@ const UploadHistoryPage: React.FC = () => {
     try {
       await userAPI.deleteFile(fileId);
       toast.success('삭제되었습니다.');
-      // 새로고침 없이 state에서 직접 제거
       setUploads(uploads.filter(upload => upload.id !== fileId));
       setTotal(total - 1);
-      // 확장된 행이 삭제된 파일이면 초기화
       if (expandedRow === fileId) {
         setExpandedRow(null);
       }
@@ -153,8 +187,13 @@ const UploadHistoryPage: React.FC = () => {
     return new Date(expiresAt) < new Date();
   };
 
-  const isImageFile = (fileType: string) => {
+  const isImageFileByType = (fileType: string) => {
     return fileType.startsWith('image/');
+  };
+
+  const getPreviewUrl = (shareCode: string, fileId: string) => {
+    const apiUrl = process.env.REACT_APP_API_URL;
+    return `${apiUrl}/preview/file?code=${shareCode}&file_id=${fileId}`;
   };
 
   const getFileIcon = (fileType: string) => {
@@ -235,27 +274,27 @@ const UploadHistoryPage: React.FC = () => {
         </div>
       ) : (
         <>
-          <div className="hidden md:block bg-white rounded-lg shadow overflow-hidden">
+          <div className="hidden md:block bg-white rounded-lg border-[3px] border-gray-100 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
+                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       파일명
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
+                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       크기
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
+                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       업로드 일시
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
+                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       만료 기한
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
+                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       다운로드
                     </th>
-                    <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
+                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
                       상태
                     </th>
                     <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
@@ -273,12 +312,12 @@ const UploadHistoryPage: React.FC = () => {
                         <td className="px-6 py-4">
                           <div className="flex items-center space-x-3">
                             <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-gray-100 flex items-center justify-center">
-                              {isImageFile(upload.file_type) ? (
+                              {isImageFileByType(upload.file_type) ? (
                                 loadingPreviews[upload.id] ? (
                                   <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                                 ) : (
                                   <img
-                                    src={upload.download_url}
+                                    src={getPreviewUrl(upload.share_code, upload.id)}
                                     alt={upload.file_name}
                                     className="w-full h-full object-cover"
                                     onLoadStart={() => setLoadingPreviews({ ...loadingPreviews, [upload.id]: true })}
@@ -372,20 +411,44 @@ const UploadHistoryPage: React.FC = () => {
                                 <div>
                                   <h3 className="text-lg font-semibold text-gray-900 mb-4">미리보기</h3>
                                   <div className="bg-white rounded-lg border-2 border-gray-200 overflow-hidden">
-                                    {isImageFile(upload.file_type) ? (
+                                    {isImageFileByType(upload.file_type) ? (
                                       loadingPreviews[`expanded_${upload.id}`] ? (
                                         <div className="flex items-center justify-center h-96 bg-gray-100">
                                           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                                         </div>
                                       ) : (
                                         <img
-                                          src={upload.download_url}
+                                          src={getPreviewUrl(upload.share_code, upload.id)}
                                           alt={upload.file_name}
                                           className="w-full h-auto max-h-96 object-contain"
                                           onLoadStart={() => setLoadingPreviews({ ...loadingPreviews, [`expanded_${upload.id}`]: true })}
                                           onLoad={() => setLoadingPreviews({ ...loadingPreviews, [`expanded_${upload.id}`]: false })}
                                         />
                                       )
+                                    ) : isVideoFile(upload.file_name) && videoPreviews[upload.id] ? (
+                                      <video
+                                        src={videoPreviews[upload.id]}
+                                        controls
+                                        className="w-full max-h-96"
+                                      >
+                                        브라우저가 비디오 재생을 지원하지 않습니다.
+                                      </video>
+                                    ) : isAudioFile(upload.file_name) && audioPreviews[upload.id] ? (
+                                      <div className="p-8">
+                                        <audio
+                                          src={audioPreviews[upload.id]}
+                                          controls
+                                          className="w-full"
+                                        >
+                                          브라우저가 오디오 재생을 지원하지 않습니다.
+                                        </audio>
+                                      </div>
+                                    ) : isTextFile(upload.file_name) && textPreviews[upload.id] ? (
+                                      <div className="max-h-96 overflow-auto bg-gray-50 p-6">
+                                        <pre className="text-sm text-gray-800 whitespace-pre-wrap break-words font-mono">
+                                          {textPreviews[upload.id]}
+                                        </pre>
+                                      </div>
                                     ) : (
                                       <div className="flex items-center justify-center h-64 bg-gray-100">
                                         {getFileIcon(upload.file_type)}
@@ -414,10 +477,6 @@ const UploadHistoryPage: React.FC = () => {
                                         <span className="text-sm font-medium text-gray-500">공유 코드</span>
                                         <p className="text-sm text-gray-900 font-mono">{upload.share_code}</p>
                                       </div>
-                                      <div className="col-span-2">
-                                        <span className="text-sm font-medium text-gray-500">설명</span>
-                                        <p className="text-sm text-gray-900">{upload.description || '없음'}</p>
-                                      </div>
                                       <div>
                                         <span className="text-sm font-medium text-gray-500">비밀번호</span>
                                         <p className="text-sm text-gray-900">{upload.has_password ? '있음' : '없음'}</p>
@@ -438,10 +497,14 @@ const UploadHistoryPage: React.FC = () => {
                                         <span className="text-sm font-medium text-gray-500">만료 날짜</span>
                                         <p className="text-sm text-gray-900">{formatDate(upload.expires_at)}</p>
                                       </div>
+                                      <div className="col-span-2">
+                                        <span className="text-sm font-medium text-gray-500">설명</span>
+                                        <p className="text-sm text-gray-900">{upload.description || '없음'}</p>
+                                      </div>
                                     </div>
                                   </div>
 
-                                  <div>
+                                  <div className="h-full flex flex-col">
                                     <div className="flex items-center justify-between mb-4">
                                       <h3 className="text-lg font-semibold text-gray-900">다운로드 기록</h3>
                                       {downloadLogs[upload.id]?.length > 3 && (
@@ -453,11 +516,11 @@ const UploadHistoryPage: React.FC = () => {
                                         </button>
                                       )}
                                     </div>
-                                    <div className="bg-white rounded-lg border border-gray-200 p-4">
+                                    <div className="bg-white rounded-lg border border-gray-200 p-4 flex-1 flex flex-col">
                                       {loadingLogs[upload.id] ? (
-                                        <div className="text-sm text-gray-500 text-center py-4">로딩 중...</div>
+                                        <div className="text-sm text-gray-500 text-center py-4 flex-1 flex items-center justify-center">로딩 중...</div>
                                       ) : downloadLogs[upload.id]?.length > 0 ? (
-                                        <div className="space-y-4 overflow-y-auto pr-2" style={{
+                                        <div className="space-y-4 overflow-y-auto pr-2 flex-1" style={{
                                           maxHeight: downloadLogs[upload.id].length <= 3 ? 'none' : '240px'
                                         }}>
                                           {downloadLogs[upload.id].map((log) => (
@@ -482,7 +545,7 @@ const UploadHistoryPage: React.FC = () => {
                                           ))}
                                         </div>
                                       ) : (
-                                        <div className="text-sm text-gray-500 text-center py-4">
+                                        <div className="text-sm text-gray-500 text-center py-4 flex-1 flex items-center justify-center">
                                           아직 다운로드 기록이 없습니다.
                                         </div>
                                       )}
@@ -516,7 +579,7 @@ const UploadHistoryPage: React.FC = () => {
 
           <div className="md:hidden space-y-4">
             {uploads.map((upload) => (
-              <div key={upload.id} className="bg-white rounded-lg shadow overflow-hidden">
+              <div key={upload.id} className="bg-white rounded-lg border-[3px] border-gray-100 overflow-hidden">
                 <div className="relative">
                   <div className="absolute top-3 right-3 flex space-x-2 z-10">
                     <button
@@ -551,12 +614,12 @@ const UploadHistoryPage: React.FC = () => {
                   >
                     <div className="flex items-start space-x-3 pr-20">
                     <div className="flex-shrink-0 w-16 h-16 rounded overflow-hidden bg-gray-100 flex items-center justify-center">
-                      {isImageFile(upload.file_type) ? (
+                      {isImageFileByType(upload.file_type) ? (
                         loadingPreviews[`mobile_${upload.id}`] ? (
                           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                         ) : (
                           <img
-                            src={upload.download_url}
+                            src={getPreviewUrl(upload.share_code, upload.id)}
                             alt={upload.file_name}
                             className="w-full h-full object-cover"
                             onLoadStart={() => setLoadingPreviews({ ...loadingPreviews, [`mobile_${upload.id}`]: true })}
@@ -598,12 +661,36 @@ const UploadHistoryPage: React.FC = () => {
                       <div>
                         <h4 className="text-sm font-semibold text-gray-900 mb-2">미리보기</h4>
                         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-                          {isImageFile(upload.file_type) ? (
+                          {isImageFileByType(upload.file_type) ? (
                             <img
-                              src={upload.download_url}
+                              src={getPreviewUrl(upload.share_code, upload.id)}
                               alt={upload.file_name}
                               className="w-full h-auto max-h-32 object-contain"
                             />
+                          ) : isVideoFile(upload.file_name) && videoPreviews[upload.id] ? (
+                            <video
+                              src={videoPreviews[upload.id]}
+                              controls
+                              className="w-full max-h-48"
+                            >
+                              브라우저가 비디오 재생을 지원하지 않습니다.
+                            </video>
+                          ) : isAudioFile(upload.file_name) && audioPreviews[upload.id] ? (
+                            <div className="p-4">
+                              <audio
+                                src={audioPreviews[upload.id]}
+                                controls
+                                className="w-full"
+                              >
+                                브라우저가 오디오 재생을 지원하지 않습니다.
+                              </audio>
+                            </div>
+                          ) : isTextFile(upload.file_name) && textPreviews[upload.id] ? (
+                            <div className="max-h-48 overflow-auto bg-gray-50 p-3">
+                              <pre className="text-xs text-gray-800 whitespace-pre-wrap break-words font-mono">
+                                {textPreviews[upload.id]}
+                              </pre>
+                            </div>
                           ) : (
                             <div className="flex items-center justify-center h-24 bg-gray-100">
                               {getFileIcon(upload.file_type)}
@@ -615,10 +702,6 @@ const UploadHistoryPage: React.FC = () => {
                       <div>
                         <h4 className="text-sm font-semibold text-gray-900 mb-2">상세 정보</h4>
                         <div className="bg-white rounded-lg border border-gray-200 p-3 space-y-2 text-xs">
-                          <div>
-                            <span className="text-gray-500">설명:</span>
-                            <span className="ml-2 text-gray-900">{upload.description || '없음'}</span>
-                          </div>
                           <div>
                             <span className="text-gray-500">파일 타입:</span>
                             <span className="ml-2 text-gray-900">{upload.file_type}</span>
@@ -634,6 +717,10 @@ const UploadHistoryPage: React.FC = () => {
                           <div>
                             <span className="text-gray-500">일회용 공유:</span>
                             <span className="ml-2 text-gray-900">{upload.is_one_time ? '예' : '아니요'}</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-500">설명:</span>
+                            <span className="ml-2 text-gray-900">{upload.description || '없음'}</span>
                           </div>
                           <div>
                             <span className="text-gray-500">업로드:</span>
@@ -699,7 +786,7 @@ const UploadHistoryPage: React.FC = () => {
           </div>
 
           {totalPages > 1 && (
-            <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6 mt-4 rounded-lg shadow">
+            <div className="flex items-center justify-between px-4 py-3 bg-white sm:px-6 mt-4 rounded-lg border-[3px] border-gray-100">
               <div className="flex-1 flex justify-between sm:hidden">
                 <button
                   onClick={handlePreviousPage}
@@ -776,16 +863,16 @@ const UploadHistoryPage: React.FC = () => {
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50 sticky top-0">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                         다운로더
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                         플랫폼
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                         IP 주소
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                         다운로드 시간
                       </th>
                     </tr>

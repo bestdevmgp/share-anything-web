@@ -24,25 +24,21 @@ const OAuthCallbackPage: React.FC = () => {
         return;
       }
 
-      // OAuth 콜백에서 전달된 파라미터 가져오기
       const code = searchParams.get('code');
       const state = searchParams.get('state');
       const errorParam = searchParams.get('error');
       const token = searchParams.get('token');
       const userParam = searchParams.get('user');
 
-      // localStorage로 중복 실행 방지 (code 기반)
       const processedKey = `oauth_processed_${code}`;
       if (code && localStorage.getItem(processedKey)) {
         return;
       }
 
-      // useRef로 중복 실행 방지
       if (hasProcessed.current) {
         return;
       }
 
-      // 백엔드가 이미 처리를 완료하고 token과 user를 쿼리 파라미터로 전달한 경우
       if (token && userParam) {
         try {
           hasProcessed.current = true;
@@ -71,7 +67,6 @@ const OAuthCallbackPage: React.FC = () => {
         return;
       }
 
-      // 중복 실행 방지 플래그 설정 (code 사용 전에!)
       hasProcessed.current = true;
       localStorage.setItem(processedKey, 'true');
 
