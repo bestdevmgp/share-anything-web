@@ -298,7 +298,7 @@ const UploadHistoryPage: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-32">
-      <div className="mb-6">
+      <div className="mb-4 md:mb-6">
         <h1 className="text-3xl font-bold text-gray-900">업로드 기록</h1>
         <p className="text-gray-600 mt-2">활성 파일이 총 {uploads.filter(u => !isExpired(u.expires_at)).length}개 있습니다.</p>
       </div>
@@ -700,7 +700,7 @@ const UploadHistoryPage: React.FC = () => {
                     <div className="space-y-4">
                       <div>
                         <h4 className="text-sm font-semibold text-gray-900 mb-2">미리보기</h4>
-                        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden aspect-square">
+                        <div className={`bg-white rounded-lg border border-gray-200 overflow-hidden ${isExpired(upload.expires_at) ? 'h-20' : 'aspect-square'}`}>
                           {isExpired(upload.expires_at) ? (
                             <div className="flex items-center justify-center h-full bg-gray-50">
                               <p className="text-xs text-gray-500 text-center px-4">만료된 파일입니다.</p>
