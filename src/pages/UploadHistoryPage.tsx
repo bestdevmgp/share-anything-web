@@ -587,7 +587,7 @@ const UploadHistoryPage: React.FC = () => {
                                         </button>
                                       )}
                                     </div>
-                                    <div className="bg-white rounded-lg border border-gray-200 p-4 flex-1 flex flex-col">
+                                    <div className="bg-white rounded-lg border border-gray-200 p-4 flex-1 flex flex-col min-h-[300px]">
                                       {loadingLogs[upload.id] ? (
                                         <div className="text-sm text-gray-500 text-center py-4 flex-1 flex items-center justify-center">로딩 중...</div>
                                       ) : downloadLogs[upload.id]?.length > 0 ? (

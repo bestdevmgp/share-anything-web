@@ -449,7 +449,7 @@ const DownloadFilePage: React.FC = () => {
                 {file.file_name}
               </h2>
               {fileList.description && (
-                <p className="text-gray-600 text-center mb-6">
+                <p className="text-gray-600 text-center mb-6 break-words whitespace-pre-wrap">
                   {fileList.description}
                 </p>
               )}
@@ -565,7 +565,7 @@ const DownloadFilePage: React.FC = () => {
           {/* Description */}
           {fileList.description && (
             <div className="mb-8 p-4 bg-gray-50 rounded-lg">
-              <p className="text-gray-700">{fileList.description}</p>
+              <p className="text-gray-700 break-words whitespace-pre-wrap">{fileList.description}</p>
             </div>
           )}
 
