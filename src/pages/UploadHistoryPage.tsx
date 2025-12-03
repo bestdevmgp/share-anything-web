@@ -952,7 +952,7 @@ const UploadHistoryPage: React.FC = () => {
           onClick={() => setShowQRModal(false)}
         >
           <div
-            className="bg-white rounded-xl p-6 max-w-sm w-full"
+            className="bg-white rounded-xl p-6 max-w-lg w-full"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
@@ -966,15 +966,20 @@ const UploadHistoryPage: React.FC = () => {
                 </svg>
               </button>
             </div>
-            <div className="flex justify-center p-4 bg-white">
-              <QRCodeSVG
-                value={`${window.location.origin}/download/${selectedShareCode}`}
-                size={256}
-                level="H"
-                includeMargin={true}
-              />
+            <div className="flex flex-col items-center">
+              <div className="flex justify-center p-2 bg-white">
+                <QRCodeSVG
+                  value={`${window.location.origin}/download/${selectedShareCode}`}
+                  size={256}
+                  level="H"
+                  includeMargin={false}
+                />
+              </div>
+              <p className="text-sm text-gray-500 text-center mt-3">
+                QR 코드를 스캔하여 파일을 다운로드하세요.
+              </p>
             </div>
-            <div className="mt-4">
+            <div className="mt-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 공유 링크
               </label>
@@ -998,9 +1003,6 @@ const UploadHistoryPage: React.FC = () => {
                 </button>
               </div>
             </div>
-            <p className="text-sm text-gray-500 text-center mt-4">
-              QR 코드를 스캔하여 파일을 다운로드하세요.
-            </p>
           </div>
         </div>
       )}

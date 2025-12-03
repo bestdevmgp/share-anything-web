@@ -94,7 +94,7 @@ const OAuthCallbackPage: React.FC = () => {
     };
 
     handleCallback();
-  }, []); // 빈 배열로 최초 1회만 실행
+  }, []);
 
   if (error) {
     return (
