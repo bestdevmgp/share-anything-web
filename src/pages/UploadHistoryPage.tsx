@@ -315,7 +315,7 @@ const UploadHistoryPage: React.FC = () => {
         </div>
       ) : (
         <>
-          <div className="hidden md:block bg-white rounded-lg border-[3px] border-gray-100 overflow-hidden">
+          <div className="hidden md:block bg-white rounded-xl border-[3px] border-gray-100 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 table-fixed">
                 <colgroup>
@@ -419,7 +419,7 @@ const UploadHistoryPage: React.FC = () => {
                             </span>
                           ) : (
                             <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                              유효
+                              유효함
                             </span>
                           )}
                         </td>
@@ -457,7 +457,7 @@ const UploadHistoryPage: React.FC = () => {
                               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                                 <div className="flex flex-col">
                                   <h3 className="text-lg font-semibold text-gray-900 mb-4">미리보기</h3>
-                                  <div className="bg-white rounded-lg border-2 border-gray-200 overflow-hidden w-full aspect-square max-w-sm">
+                                  <div className="bg-white rounded-lg border border-gray-200 overflow-hidden w-full aspect-square max-w-md">
                                     {isExpired(upload.expires_at) ? (
                                       <div className="flex items-center justify-center h-full bg-gray-50">
                                         <p className="text-sm text-gray-500 text-center px-4">만료된 파일입니다.</p>
@@ -622,7 +622,7 @@ const UploadHistoryPage: React.FC = () => {
 
           <div className="md:hidden space-y-2">
             {uploads.map((upload) => (
-              <div key={upload.id} className="bg-white rounded-lg border-[3px] border-gray-100 overflow-hidden">
+              <div key={upload.id} className="bg-white rounded-xl border-[3px] border-gray-100 overflow-hidden">
                 <div className="relative">
                   <div className="absolute top-3 right-3 flex gap-0.5 z-10">
                     {!isExpired(upload.expires_at) && (
@@ -903,16 +903,16 @@ const UploadHistoryPage: React.FC = () => {
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50 sticky top-0">
                     <tr>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                         다운로더
                       </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                         플랫폼
                       </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                         IP 주소
                       </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                         다운로드 시간
                       </th>
                     </tr>
@@ -920,16 +920,16 @@ const UploadHistoryPage: React.FC = () => {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {downloadLogs[selectedFileForLogs].map((log) => (
                       <tr key={log.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
                           {log.downloader_name || '익명의 사용자'}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                           {log.device_platform}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                           {log.ip_address}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                           {formatDate(log.downloaded_at)}
                         </td>
                       </tr>
