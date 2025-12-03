@@ -26,6 +26,8 @@ const UploadHistoryPage: React.FC = () => {
   const [audioPreviews, setAudioPreviews] = useState<{ [key: string]: string }>({});
   const [textPreviews, setTextPreviews] = useState<{ [key: string]: string }>({});
   const [loadingFilePreviews, setLoadingFilePreviews] = useState<{ [key: string]: boolean }>({});
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [selectedQRCode, setSelectedQRCode] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) {
@@ -40,7 +42,7 @@ const UploadHistoryPage: React.FC = () => {
   }, [offset, isAuthenticated, authLoading, navigate]);
 
   useEffect(() => {
-    if (showAllLogsModal) {
+    if (showAllLogsModal || showQRModal) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
@@ -48,7 +50,7 @@ const UploadHistoryPage: React.FC = () => {
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [showAllLogsModal]);
+  }, [showAllLogsModal, showQRModal]);
 
   useEffect(() => {
     document.title = '업로드 기록';
@@ -178,6 +180,12 @@ const UploadHistoryPage: React.FC = () => {
     e.stopPropagation();
     setSelectedFileForLogs(fileId);
     setShowAllLogsModal(true);
+  };
+
+  const handleShowQRCode = (qrCode: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedQRCode(qrCode);
+    setShowQRModal(true);
   };
 
   const formatDate = (dateString: string) => {
@@ -417,6 +425,18 @@ const UploadHistoryPage: React.FC = () => {
                                 </svg>
                               )}
                             </button>
+                            {!isExpired(upload.expires_at) && (
+                              <button
+                                onClick={(e) => handleShowQRCode(upload.qr_code, e)}
+                                className="p-2 text-gray-700 hover:bg-gray-200 rounded transition-colors"
+                                title="QR 코드"
+                              >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z" />
+                                </svg>
+                              </button>
+                            )}
                             <button
                               onClick={(e) => handleDelete(upload.id, e)}
                               className="p-2 text-gray-700 hover:text-red-600 hover:bg-gray-200 rounded transition-colors"
@@ -434,7 +454,7 @@ const UploadHistoryPage: React.FC = () => {
                         <tr>
                           <td colSpan={7} className="px-6" style={{ backgroundColor: '#F9FAFB' }}>
                             <div className={`py-6 ${closingRow === upload.id ? 'animate-collapse-up' : 'animate-expand-down'}`}>
-                              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                                 <div>
                                   <h3 className="text-lg font-semibold text-gray-900 mb-4">미리보기</h3>
                                   <div className="bg-white rounded-lg border-2 border-gray-200 overflow-hidden aspect-square">
@@ -493,13 +513,17 @@ const UploadHistoryPage: React.FC = () => {
                                   </div>
                                 </div>
 
-                                <div className="lg:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div className="lg:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-4">
                                   <div>
                                     <h3 className="text-lg font-semibold text-gray-900 mb-4">상세 정보</h3>
                                     <div className="bg-white rounded-lg border border-gray-200 p-4 grid grid-cols-2 gap-x-6 gap-y-3">
-                                      <div>
+                                      <div className="col-span-2">
                                         <span className="text-sm font-medium text-gray-500">파일명</span>
                                         <p className="text-sm text-gray-900 break-all">{upload.file_name}</p>
+                                      </div>
+                                      <div className="col-span-2">
+                                        <span className="text-sm font-medium text-gray-500">설명</span>
+                                        <p className="text-sm text-gray-900">{upload.description || '없음'}</p>
                                       </div>
                                       <div>
                                         <span className="text-sm font-medium text-gray-500">파일 타입</span>
@@ -533,10 +557,6 @@ const UploadHistoryPage: React.FC = () => {
                                         <span className="text-sm font-medium text-gray-500">만료 날짜</span>
                                         <p className="text-sm text-gray-900">{formatDate(upload.expires_at)}</p>
                                       </div>
-                                      <div className="col-span-2">
-                                        <span className="text-sm font-medium text-gray-500">설명</span>
-                                        <p className="text-sm text-gray-900">{upload.description || '없음'}</p>
-                                      </div>
                                     </div>
                                   </div>
 
@@ -557,7 +577,7 @@ const UploadHistoryPage: React.FC = () => {
                                         <div className="text-sm text-gray-500 text-center py-4 flex-1 flex items-center justify-center">로딩 중...</div>
                                       ) : downloadLogs[upload.id]?.length > 0 ? (
                                         <div className="space-y-4 overflow-y-auto pr-2 flex-1" style={{
-                                          maxHeight: downloadLogs[upload.id].length <= 3 ? 'none' : '240px'
+                                          maxHeight: downloadLogs[upload.id].length <= 3 ? 'none' : '360px'
                                         }}>
                                           {downloadLogs[upload.id].map((log) => (
                                             <div
@@ -588,19 +608,6 @@ const UploadHistoryPage: React.FC = () => {
                                     </div>
                                   </div>
                                 </div>
-
-                                {!isExpired(upload.expires_at) && (
-                                  <div>
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">QR 코드</h3>
-                                    <div className="bg-white rounded-lg border border-gray-200 p-4 inline-block">
-                                      <img
-                                        src={upload.qr_code}
-                                        alt="QR Code"
-                                        className="w-32 h-32"
-                                      />
-                                    </div>
-                                  </div>
-                                )}
                               </div>
                             </div>
                           </td>
@@ -633,6 +640,18 @@ const UploadHistoryPage: React.FC = () => {
                         </svg>
                       )}
                     </button>
+                    {!isExpired(upload.expires_at) && (
+                      <button
+                        onClick={(e) => handleShowQRCode(upload.qr_code, e)}
+                        className="p-2 text-gray-700 hover:bg-gray-200 rounded transition-colors"
+                        title="QR 코드"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z" />
+                        </svg>
+                      </button>
+                    )}
                     <button
                       onClick={(e) => handleDelete(upload.id, e)}
                       className="p-2 text-gray-700 hover:text-red-600 hover:bg-gray-200 rounded transition-colors"
@@ -696,13 +715,13 @@ const UploadHistoryPage: React.FC = () => {
                     <div className="space-y-4">
                       <div>
                         <h4 className="text-sm font-semibold text-gray-900 mb-2">미리보기</h4>
-                        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden aspect-square">
                           {isExpired(upload.expires_at) ? (
-                            <div className="flex items-center justify-center h-24 bg-gray-50">
-                              <p className="text-xs text-gray-500">만료 기간이 지난 파일입니다.</p>
+                            <div className="flex items-center justify-center h-full bg-gray-50">
+                              <p className="text-xs text-gray-500 text-center px-4">만료 기간이 지난 파일입니다.</p>
                             </div>
                           ) : loadingFilePreviews[upload.id] ? (
-                            <div className="flex flex-col items-center justify-center h-24 bg-gray-100">
+                            <div className="flex flex-col items-center justify-center h-full bg-gray-100">
                               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
                               <p className="text-xs text-gray-500">로딩 중...</p>
                             </div>
@@ -710,18 +729,18 @@ const UploadHistoryPage: React.FC = () => {
                             <img
                               src={getPreviewUrl(upload.share_code, upload.id)}
                               alt={upload.file_name}
-                              className="w-full h-auto max-h-32 object-contain"
+                              className="w-full h-full object-contain"
                             />
                           ) : isVideoFile(upload.file_name) && videoPreviews[upload.id] ? (
                             <video
                               src={videoPreviews[upload.id]}
                               controls
-                              className="w-full max-h-48"
+                              className="w-full h-full object-contain"
                             >
                               브라우저가 비디오 재생을 지원하지 않습니다.
                             </video>
                           ) : isAudioFile(upload.file_name) && audioPreviews[upload.id] ? (
-                            <div className="p-4">
+                            <div className="flex items-center justify-center h-full p-4">
                               <audio
                                 src={audioPreviews[upload.id]}
                                 controls
@@ -731,13 +750,13 @@ const UploadHistoryPage: React.FC = () => {
                               </audio>
                             </div>
                           ) : isTextFile(upload.file_name) && textPreviews[upload.id] ? (
-                            <div className="max-h-48 overflow-auto bg-gray-50 p-3">
+                            <div className="h-full overflow-auto bg-gray-50 p-3">
                               <pre className="text-xs text-gray-800 whitespace-pre-wrap break-words font-mono">
                                 {textPreviews[upload.id]}
                               </pre>
                             </div>
                           ) : (
-                            <div className="flex items-center justify-center h-24 bg-gray-100">
+                            <div className="flex items-center justify-center h-full bg-gray-100">
                               {getFileIcon(upload.file_type)}
                             </div>
                           )}
@@ -778,15 +797,6 @@ const UploadHistoryPage: React.FC = () => {
                         </div>
                       </div>
 
-                      {!isExpired(upload.expires_at) && (
-                        <div>
-                          <h4 className="text-sm font-semibold text-gray-900 mb-2">QR 코드</h4>
-                          <div className="bg-white rounded-lg border border-gray-200 p-3 inline-block">
-                            <img src={upload.qr_code} alt="QR Code" className="w-24 h-24" />
-                          </div>
-                        </div>
-                      )}
-
                       <div>
                         <div className="flex items-center justify-between mb-2">
                           <h4 className="text-sm font-semibold text-gray-900">다운로드 기록</h4>
@@ -804,7 +814,7 @@ const UploadHistoryPage: React.FC = () => {
                             <div className="text-xs text-gray-500 text-center py-3">로딩 중...</div>
                           ) : downloadLogs[upload.id]?.length > 0 ? (
                             <div className="space-y-4 overflow-y-auto pr-1" style={{
-                              maxHeight: downloadLogs[upload.id].length <= 2 ? 'none' : '180px'
+                              maxHeight: downloadLogs[upload.id].length <= 2 ? 'none' : '240px'
                             }}>
                               {downloadLogs[upload.id].map((log) => (
                                 <div key={log.id} className="text-xs border-b border-gray-100 pb-4 last:border-0 last:pb-0">
@@ -947,6 +957,40 @@ const UploadHistoryPage: React.FC = () => {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {showQRModal && selectedQRCode && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => setShowQRModal(false)}
+        >
+          <div
+            className="bg-white rounded-xl p-6 max-w-sm w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-900">QR 코드</h2>
+              <button
+                onClick={() => setShowQRModal(false)}
+                className="p-1 hover:bg-gray-100 rounded"
+              >
+                <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="flex justify-center">
+              <img
+                src={selectedQRCode}
+                alt="QR Code"
+                className="w-64 h-64"
+              />
+            </div>
+            <p className="text-sm text-gray-500 text-center mt-4">
+              QR 코드를 스캔하여 파일에 접근하세요
+            </p>
           </div>
         </div>
       )}
