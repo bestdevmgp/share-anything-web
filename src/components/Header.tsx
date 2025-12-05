@@ -31,18 +31,20 @@ const Header: React.FC = () => {
           <div className="flex items-center space-x-4">
             {isAuthenticated && user ? (
               <Menu as="div" className="relative">
-                <Menu.Button className="flex items-center space-x-2 hover:bg-gray-50 rounded-lg px-3 py-2 transition-colors">
-                  {user.profile_image && (
-                    <img
-                      src={user.profile_image}
-                      alt={user.name}
-                      className="w-8 h-8 rounded-full"
-                    />
-                  )}
-                  <span className="text-sm text-gray-700">{user.name}</span>
-                  <ChevronDownIcon className="w-4 h-4 text-gray-500" />
-                </Menu.Button>
-                <Menu.Items className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 focus:outline-none z-50">
+                {({ open }) => (
+                  <>
+                    <Menu.Button className="flex items-center space-x-2 hover:bg-gray-50 rounded-lg px-3 py-2 transition-colors">
+                      {user.profile_image && (
+                        <img
+                          src={user.profile_image}
+                          alt={user.name}
+                          className="w-8 h-8 rounded-full"
+                        />
+                      )}
+                      <span className="text-sm text-gray-700">{user.name}</span>
+                      <ChevronDownIcon className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+                    </Menu.Button>
+                    <Menu.Items className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 focus:outline-none z-50">
                   <Menu.Item>
                     {({ active }) => (
                       <button
@@ -67,7 +69,9 @@ const Header: React.FC = () => {
                       </button>
                     )}
                   </Menu.Item>
-                </Menu.Items>
+                    </Menu.Items>
+                  </>
+                )}
               </Menu>
             ) : (
               <Link

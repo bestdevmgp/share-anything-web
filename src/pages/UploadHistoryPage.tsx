@@ -688,7 +688,7 @@ const UploadHistoryPage: React.FC = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-sm font-medium text-gray-900" title={upload.file_name}>
-                        {truncateFileName(upload.file_name, 15)}
+                        {truncateFileName(upload.file_name, 25)}
                       </h3>
                       <div className="mt-1 flex items-center space-x-2 text-xs text-gray-500">
                         <span>{formatFileSize(upload.file_size)}</span>
