@@ -31,7 +31,14 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleString('ko-KR', { hour12: false });
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${year}년 ${month}월 ${day}일 ${hours}:${minutes}:${seconds}`;
   };
 
   return (
