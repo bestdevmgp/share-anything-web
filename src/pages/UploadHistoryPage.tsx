@@ -212,7 +212,7 @@ const UploadHistoryPage: React.FC = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleString('ko-KR');
+    return date.toLocaleString('ko-KR', { hour12: false });
   };
 
   const formatFileSize = (bytes: number) => {

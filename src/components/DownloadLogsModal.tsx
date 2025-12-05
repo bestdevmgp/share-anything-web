@@ -31,7 +31,7 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleString('ko-KR');
+    return date.toLocaleString('ko-KR', { hour12: false });
   };
 
   return (
