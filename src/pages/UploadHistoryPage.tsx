@@ -369,7 +369,7 @@ const UploadHistoryPage: React.FC = () => {
                       상태
                     </th>
                     <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
-                      동작
+                      작업
                     </th>
                   </tr>
                 </thead>
