@@ -243,7 +243,7 @@ const UploadHistoryPage: React.FC = () => {
     return `${apiUrl}/preview/file?code=${shareCode}&file_id=${fileId}`;
   };
 
-  const truncateFileName = (fileName: string, maxLength: number = 30) => {
+  const truncateFileName = (fileName: string, maxLength: number = 50) => {
     if (fileName.length <= maxLength) return fileName;
 
     const lastDotIndex = fileName.lastIndexOf('.');
