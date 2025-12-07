@@ -166,7 +166,7 @@ const UploadHistoryPage: React.FC = () => {
 
   const handleDelete = async (fileId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!window.confirm('정말 삭제하시겠습니까?')) {
+    if (!window.confirm('정말 삭제하시겠습니까? 삭제된 파일은 더 이상 다운로드할 수 없습니다.')) {
       return;
     }
 
