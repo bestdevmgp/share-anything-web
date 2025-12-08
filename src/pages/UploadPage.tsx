@@ -347,23 +347,8 @@ const UploadPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Turnstile Widget */}
-        <div className="mb-8">
-          <h3 className="text-base font-semibold text-gray-900 mb-4">보안 확인</h3>
-          <TurnstileWidget
-            onVerify={(token) => setTurnstileToken(token)}
-            onError={() => {
-              setTurnstileToken('');
-              toast.error('보안 확인에 실패했습니다. 다시 시도해주세요.');
-            }}
-            onExpire={() => {
-              setTurnstileToken('');
-            }}
-          />
-        </div>
-
-        {/* Submit Button */}
-        <div className="-mt-4">
+        {/* Turnstile Widget & Submit Button */}
+        <div className="mt-4 md:mt-8">
           {isUploading ? (
             <div className="bg-blue-50 rounded-xl px-4 py-4">
               <div className="flex items-center gap-2">
@@ -393,14 +378,31 @@ const UploadPage: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="flex justify-end">
-              <button
-                onClick={handleUpload}
-                disabled={files.length === 0 || !turnstileToken}
-                className="w-full md:w-auto px-10 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-              >
-                업로드
-              </button>
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              {/* Turnstile Widget */}
+              <div>
+                <TurnstileWidget
+                  onVerify={(token) => setTurnstileToken(token)}
+                  onError={() => {
+                    setTurnstileToken('');
+                    toast.error('보안 확인에 실패했습니다. 다시 시도해주세요.');
+                  }}
+                  onExpire={() => {
+                    setTurnstileToken('');
+                  }}
+                />
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex justify-center md:justify-end">
+                <button
+                  onClick={handleUpload}
+                  disabled={files.length === 0 || !turnstileToken}
+                  className="w-full md:w-auto px-10 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                >
+                  업로드
+                </button>
+              </div>
             </div>
           )}
         </div>

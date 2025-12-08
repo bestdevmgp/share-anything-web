@@ -490,7 +490,7 @@ const DownloadFilePage: React.FC = () => {
             </div>
 
             {/* Turnstile Widget */}
-            <div className="mb-6">
+            <div className="mb-8">
               <TurnstileWidget
                 onVerify={(token) => setTurnstileToken(token)}
                 onError={() => {
@@ -504,7 +504,7 @@ const DownloadFilePage: React.FC = () => {
             </div>
 
             {/* Download Button */}
-            <div className="-mt-4">
+            <div className="">
               {downloading ? (
                 <div className="bg-blue-50 rounded-xl px-4 py-4">
                   <div className="flex items-center gap-2">
@@ -685,7 +685,7 @@ const DownloadFilePage: React.FC = () => {
           </div>
 
           {/* Turnstile Widget */}
-          <div className="mb-6">
+          <div className="mb-8">
             <TurnstileWidget
               onVerify={(token) => setTurnstileToken(token)}
               onError={() => {
@@ -699,7 +699,7 @@ const DownloadFilePage: React.FC = () => {
           </div>
 
           {/* Download Button */}
-          <div className="-mt-4">
+          <div className="">
             {downloading ? (
               <div className="bg-blue-50 rounded-xl px-4 py-4">
                 <div className="flex items-center gap-2">
