@@ -137,7 +137,7 @@ const UploadPage: React.FC = () => {
 
   return (
     <div>
-      <div className="max-w-4xl mx-auto px-4 py-12">
+      <div className="max-w-4xl mx-auto px-4 py-12 md:pb-40">
         {/* Header */}
         <div className="mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-3">파일 전송</h1>
@@ -348,7 +348,7 @@ const UploadPage: React.FC = () => {
         </div>
 
         {/* Turnstile Widget & Submit Button */}
-        <div className="mt-4 md:mt-8">
+        <div className="mt-3 md:mt-8">
           {isUploading ? (
             <div className="bg-blue-50 rounded-xl px-4 py-4">
               <div className="flex items-center gap-2">
@@ -378,7 +378,7 @@ const UploadPage: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 md:gap-4">
               {/* Turnstile Widget */}
               <div>
                 <TurnstileWidget

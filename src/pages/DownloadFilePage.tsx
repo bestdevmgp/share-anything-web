@@ -490,7 +490,7 @@ const DownloadFilePage: React.FC = () => {
             </div>
 
             {/* Turnstile Widget */}
-            <div className="mb-8">
+            <div className="mb-6 md:mb-8">
               <TurnstileWidget
                 onVerify={(token) => setTurnstileToken(token)}
                 onError={() => {
