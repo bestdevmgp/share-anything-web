@@ -378,7 +378,7 @@ const UploadPage: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 md:gap-4">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-[22px] md:gap-4">
               {/* Turnstile Widget */}
               <div>
                 <TurnstileWidget
