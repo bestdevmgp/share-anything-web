@@ -100,4 +100,5 @@ export interface BulkDownloadRequest {
   code: string;
   file_ids: string[];
   password?: string;
+  turnstile_token?: string;
 }

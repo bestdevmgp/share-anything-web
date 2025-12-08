@@ -5,6 +5,7 @@ import { FileListResponse } from '../types';
 import { formatFileSize, downloadFile, formatDateTime, isImageFile, isVideoFile, isAudioFile, isTextFile } from '../utils/format';
 import { DocumentIcon, LockClosedIcon, CheckIcon, ArrowDownTrayIcon, EyeIcon, EyeSlashIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
+import TurnstileWidget from '../components/TurnstileWidget';
 
 const DownloadFilePage: React.FC = () => {
   const { code } = useParams<{ code: string }>();
@@ -35,6 +36,7 @@ const DownloadFilePage: React.FC = () => {
   const [loadingPreview, setLoadingPreview] = useState(false);
 
   const [imagePreviews, setImagePreviews] = useState<Map<string, string>>(new Map());
+  const [turnstileToken, setTurnstileToken] = useState<string>('');
 
   const loadFileList = useCallback(async () => {
     if (!code) {
@@ -185,6 +187,11 @@ const DownloadFilePage: React.FC = () => {
   const handleDownload = async () => {
     if (!code || !fileList || selectedFiles.size === 0) return;
 
+    if (!turnstileToken) {
+      toast.error('로봇이 아닌지 확인해주세요.');
+      return;
+    }
+
     const abortController = new AbortController();
     setDownloadAbortController(abortController);
 
@@ -202,6 +209,7 @@ const DownloadFilePage: React.FC = () => {
           code,
           fileId,
           password || undefined,
+          turnstileToken,
           (progressEvent) => {
             setDownloadProgress(progressEvent.percentage);
           },
@@ -214,7 +222,8 @@ const DownloadFilePage: React.FC = () => {
           {
             code,
             file_ids: selectedFileIds,
-            password: password || undefined
+            password: password || undefined,
+            turnstile_token: turnstileToken
           },
           (progressEvent) => {
             setDownloadProgress(progressEvent.percentage);
@@ -227,16 +236,23 @@ const DownloadFilePage: React.FC = () => {
     } catch (err: any) {
       if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') {
         toast.info('다운로드가 취소되었습니다.');
+      } else if (err.response?.status === 400) {
+        toast.error(err.response?.data?.message || '보안 확인이 필요합니다.');
+        setTurnstileToken('');
+      } else if (err.response?.status === 403) {
+        toast.error(err.response?.data?.message || '보안 확인에 실패했습니다. 다시 시도해주세요.');
+        setTurnstileToken('');
       } else if (err.response?.status === 401) {
         toast.error('비밀번호가 올바르지 않습니다.');
         setPasswordVerified(false);
       } else {
-        toast.error('다운로드에 실패했습니다');
+        toast.error(err.response?.data?.message || '다운로드에 실패했습니다.');
       }
     } finally {
       setDownloading(false);
       setDownloadProgress(0);
       setDownloadAbortController(null);
+      setTurnstileToken('');
     }
   };
 
@@ -473,6 +489,21 @@ const DownloadFilePage: React.FC = () => {
               </div>
             </div>
 
+            {/* Turnstile Widget */}
+            <div className="mb-6">
+              <TurnstileWidget
+                onVerify={(token) => setTurnstileToken(token)}
+                onError={() => {
+                  setTurnstileToken('');
+                  toast.error('보안 확인에 실패했습니다. 다시 시도해주세요.');
+                }}
+                onExpire={() => {
+                  setTurnstileToken('');
+                  toast.warning('보안 확인이 만료되었습니다. 다시 확인해주세요.');
+                }}
+              />
+            </div>
+
             {/* Download Button */}
             <div className="-mt-4">
               {downloading ? (
@@ -506,7 +537,8 @@ const DownloadFilePage: React.FC = () => {
               ) : (
                 <button
                   onClick={handleDownload}
-                  className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-base md:text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+                  disabled={!turnstileToken}
+                  className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-base md:text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
                 >
                   <ArrowDownTrayIcon className="w-5 h-5" />
                   <span>파일 다운로드</span>
@@ -653,6 +685,21 @@ const DownloadFilePage: React.FC = () => {
             ))}
           </div>
 
+          {/* Turnstile Widget */}
+          <div className="mb-6">
+            <TurnstileWidget
+              onVerify={(token) => setTurnstileToken(token)}
+              onError={() => {
+                setTurnstileToken('');
+                toast.error('보안 확인에 실패했습니다. 다시 시도해주세요.');
+              }}
+              onExpire={() => {
+                setTurnstileToken('');
+                toast.warning('보안 확인이 만료되었습니다. 다시 확인해주세요.');
+              }}
+            />
+          </div>
+
           {/* Download Button */}
           <div className="-mt-4">
             {downloading ? (
@@ -687,7 +734,7 @@ const DownloadFilePage: React.FC = () => {
               <div className="space-y-4">
                 <button
                   onClick={handleDownload}
-                  disabled={selectedFiles.size === 0}
+                  disabled={selectedFiles.size === 0 || !turnstileToken}
                   className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                 >
                   {selectedFiles.size === 0

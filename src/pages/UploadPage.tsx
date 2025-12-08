@@ -7,6 +7,7 @@ import { ExpirationOption } from '../types';
 import { formatFileSize, isImageFile, isVideoFile, isAudioFile, isTextFile } from '../utils/format';
 import { DocumentIcon, XMarkIcon, EyeIcon, EyeSlashIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
+import TurnstileWidget from '../components/TurnstileWidget';
 
 const UploadPage: React.FC = () => {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ const UploadPage: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadAbortController, setUploadAbortController] = useState<AbortController | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string>('');
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     setIsProcessingFiles(true);
@@ -71,6 +73,11 @@ const UploadPage: React.FC = () => {
       return;
     }
 
+    if (!turnstileToken) {
+      toast.error('로봇이 아닌지 확인해주세요');
+      return;
+    }
+
     const abortController = new AbortController();
     setUploadAbortController(abortController);
 
@@ -84,6 +91,7 @@ const UploadPage: React.FC = () => {
         isAuthenticated && password ? password : undefined,
         isAuthenticated ? expiration : undefined,
         isAuthenticated ? isOneTime : undefined,
+        turnstileToken,
         (progressEvent) => {
           setUploadProgress(progressEvent.percentage);
         },
@@ -94,6 +102,12 @@ const UploadPage: React.FC = () => {
     } catch (err: any) {
       if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') {
         toast.info('업로드가 취소되었습니다.');
+      } else if (err.response?.status === 400) {
+        toast.error(err.response?.data?.message || '보안 확인이 필요합니다.');
+        setTurnstileToken('');
+      } else if (err.response?.status === 403) {
+        toast.error(err.response?.data?.message || '보안 확인에 실패했습니다. 다시 시도해주세요.');
+        setTurnstileToken('');
       } else {
         toast.error(err.response?.data?.message || '업로드에 실패하였습니다.');
       }
@@ -101,6 +115,7 @@ const UploadPage: React.FC = () => {
       setIsUploading(false);
       setUploadProgress(0);
       setUploadAbortController(null);
+      setTurnstileToken('');
     }
   };
 
@@ -332,6 +347,22 @@ const UploadPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Turnstile Widget */}
+        <div className="mb-8">
+          <h3 className="text-base font-semibold text-gray-900 mb-4">보안 확인</h3>
+          <TurnstileWidget
+            onVerify={(token) => setTurnstileToken(token)}
+            onError={() => {
+              setTurnstileToken('');
+              toast.error('보안 확인에 실패했습니다. 다시 시도해주세요.');
+            }}
+            onExpire={() => {
+              setTurnstileToken('');
+              toast.warning('보안 확인이 만료되었습니다. 다시 확인해주세요.');
+            }}
+          />
+        </div>
+
         {/* Submit Button */}
         <div className="-mt-4">
           {isUploading ? (
@@ -366,7 +397,7 @@ const UploadPage: React.FC = () => {
             <div className="flex justify-end">
               <button
                 onClick={handleUpload}
-                disabled={files.length === 0}
+                disabled={files.length === 0 || !turnstileToken}
                 className="w-full md:w-auto px-10 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
               >
                 업로드

@@ -72,6 +72,7 @@ export const fileAPI = {
     password?: string,
     expiration?: ExpirationOption,
     isOneTime?: boolean,
+    turnstileToken?: string,
     onUploadProgress?: (progressEvent: { loaded: number; total: number; percentage: number }) => void,
     signal?: AbortSignal
   ): Promise<FileUploadResponse> => {
@@ -95,6 +96,10 @@ export const fileAPI = {
 
     if (isOneTime !== undefined) {
       formData.append('is_one_time', String(isOneTime));
+    }
+
+    if (turnstileToken) {
+      formData.append('turnstile_token', turnstileToken);
     }
 
     const response = await api.post<FileUploadResponse>('/file/upload', formData, {
@@ -157,12 +162,16 @@ export const fileAPI = {
     code: string,
     fileId: string,
     password?: string,
+    turnstileToken?: string,
     onDownloadProgress?: (progressEvent: { loaded: number; total: number; percentage: number }) => void,
     signal?: AbortSignal
   ): Promise<Blob> => {
     const headers: Record<string, string> = {};
     if (password) {
       headers['X-File-Password'] = password;
+    }
+    if (turnstileToken) {
+      headers['X-Turnstile-Token'] = turnstileToken;
     }
 
     const response = await api.get('/download/file', {
