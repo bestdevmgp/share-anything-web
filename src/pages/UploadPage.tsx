@@ -358,7 +358,6 @@ const UploadPage: React.FC = () => {
             }}
             onExpire={() => {
               setTurnstileToken('');
-              toast.warning('보안 확인이 만료되었습니다. 다시 확인해주세요.');
             }}
           />
         </div>
