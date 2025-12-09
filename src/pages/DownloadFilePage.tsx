@@ -37,8 +37,9 @@ const DownloadFilePage: React.FC = () => {
 
   const [imagePreviews, setImagePreviews] = useState<Map<string, string>>(new Map());
   const [turnstileToken, setTurnstileToken] = useState<string>('');
+  const [turnstileVerified, setTurnstileVerified] = useState(false);
 
-  const loadFileList = useCallback(async () => {
+  const loadFileList = useCallback(async (token: string) => {
     if (!code) {
       navigate('/');
       return;
@@ -46,7 +47,7 @@ const DownloadFilePage: React.FC = () => {
 
     try {
       setLoading(true);
-      const list = await fileAPI.getFileList(code);
+      const list = await fileAPI.getFileList(code, token);
       setFileList(list);
 
       if (!list.has_password) {
@@ -73,9 +74,15 @@ const DownloadFilePage: React.FC = () => {
     }
   }, [code, navigate]);
 
-  useEffect(() => {
-    loadFileList();
+  const handleTurnstileVerify = useCallback(async (token: string) => {
+    setTurnstileToken(token);
+    await loadFileList(token);
+    setTurnstileVerified(true);
   }, [loadFileList]);
+
+  useEffect(() => {
+    // Turnstile 검증 후 자동으로 loadFileList가 호출됨
+  }, []);
 
   useEffect(() => {
     let imageUrl: string | null = null;
@@ -163,7 +170,7 @@ const DownloadFilePage: React.FC = () => {
 
       await fileAPI.verifyPassword(code, password);
 
-      const list = await fileAPI.getFileList(code);
+      const list = await fileAPI.getFileList(code, turnstileToken);
       setFileList(list);
       setPasswordVerified(true);
       toast.success('비밀번호가 확인되었습니다.');
@@ -187,11 +194,6 @@ const DownloadFilePage: React.FC = () => {
   const handleDownload = async () => {
     if (!code || !fileList || selectedFiles.size === 0) return;
 
-    if (!turnstileToken) {
-      toast.error('로봇이 아닌지 확인해주세요.');
-      return;
-    }
-
     const abortController = new AbortController();
     setDownloadAbortController(abortController);
 
@@ -209,7 +211,6 @@ const DownloadFilePage: React.FC = () => {
           code,
           fileId,
           password || undefined,
-          turnstileToken,
           (progressEvent) => {
             setDownloadProgress(progressEvent.percentage);
           },
@@ -222,8 +223,7 @@ const DownloadFilePage: React.FC = () => {
           {
             code,
             file_ids: selectedFileIds,
-            password: password || undefined,
-            turnstile_token: turnstileToken
+            password: password || undefined
           },
           (progressEvent) => {
             setDownloadProgress(progressEvent.percentage);
@@ -236,12 +236,6 @@ const DownloadFilePage: React.FC = () => {
     } catch (err: any) {
       if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') {
         toast.info('다운로드가 취소되었습니다.');
-      } else if (err.response?.status === 400) {
-        toast.error(err.response?.data?.message || '보안 확인이 필요합니다.');
-        setTurnstileToken('');
-      } else if (err.response?.status === 403) {
-        toast.error(err.response?.data?.message || '보안 확인에 실패했습니다. 다시 시도해주세요.');
-        setTurnstileToken('');
       } else if (err.response?.status === 401) {
         toast.error('비밀번호가 올바르지 않습니다.');
         setPasswordVerified(false);
@@ -252,7 +246,6 @@ const DownloadFilePage: React.FC = () => {
       setDownloading(false);
       setDownloadProgress(0);
       setDownloadAbortController(null);
-      setTurnstileToken('');
     }
   };
 
@@ -262,6 +255,28 @@ const DownloadFilePage: React.FC = () => {
     }
   };
 
+
+  if (!turnstileVerified) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 mb-8 text-gray-600">
+            {loading ? '파일 정보를 불러오는 중...' : '보안 확인을 기다리는 중...'}
+          </p>
+          <TurnstileWidget
+            onVerify={handleTurnstileVerify}
+            onError={() => {
+              toast.error('보안 확인에 실패했습니다. 페이지를 새로고침해주세요.');
+            }}
+            onExpire={() => {
+              toast.error('보안 확인이 만료되었습니다. 페이지를 새로고침해주세요.');
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -489,20 +504,6 @@ const DownloadFilePage: React.FC = () => {
               </div>
             </div>
 
-            {/* Turnstile Widget */}
-            <div className="mb-6 md:mb-8">
-              <TurnstileWidget
-                onVerify={(token) => setTurnstileToken(token)}
-                onError={() => {
-                  setTurnstileToken('');
-                  toast.error('보안 확인에 실패했습니다. 다시 시도해주세요.');
-                }}
-                onExpire={() => {
-                  setTurnstileToken('');
-                }}
-              />
-            </div>
-
             {/* Download Button */}
             <div className="">
               {downloading ? (
@@ -536,8 +537,7 @@ const DownloadFilePage: React.FC = () => {
               ) : (
                 <button
                   onClick={handleDownload}
-                  disabled={!turnstileToken}
-                  className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-base md:text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
+                  className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-base md:text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
                 >
                   <ArrowDownTrayIcon className="w-5 h-5" />
                   <span>파일 다운로드</span>
@@ -684,20 +684,6 @@ const DownloadFilePage: React.FC = () => {
             ))}
           </div>
 
-          {/* Turnstile Widget */}
-          <div className="mb-8">
-            <TurnstileWidget
-              onVerify={(token) => setTurnstileToken(token)}
-              onError={() => {
-                setTurnstileToken('');
-                toast.error('보안 확인에 실패했습니다. 다시 시도해주세요.');
-              }}
-              onExpire={() => {
-                setTurnstileToken('');
-              }}
-            />
-          </div>
-
           {/* Download Button */}
           <div className="">
             {downloading ? (
@@ -732,7 +718,7 @@ const DownloadFilePage: React.FC = () => {
               <div className="space-y-4">
                 <button
                   onClick={handleDownload}
-                  disabled={selectedFiles.size === 0 || !turnstileToken}
+                  disabled={selectedFiles.size === 0}
                   className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                 >
                   {selectedFiles.size === 0

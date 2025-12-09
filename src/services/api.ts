@@ -8,7 +8,6 @@ import type {
   FileListResponse,
   BulkDownloadRequest
 } from '../types';
-import {env} from "@headlessui/react/dist/utils/env";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 
@@ -119,9 +118,15 @@ export const fileAPI = {
     return response.data;
   },
 
-  getFileInfo: async (code: string): Promise<FileInfo> => {
+  getFileInfo: async (code: string, turnstileToken?: string): Promise<FileInfo> => {
+    const headers: Record<string, string> = {};
+    if (turnstileToken) {
+      headers['X-Turnstile-Token'] = turnstileToken;
+    }
+
     const response = await api.get<FileInfo>('/file/info', {
-      params: { code }
+      params: { code },
+      headers
     });
     return response.data;
   },
@@ -145,8 +150,11 @@ export const fileAPI = {
     await api.post('/file/verify-password', { code, password });
   },
 
-  getFileList: async (code: string, password?: string): Promise<FileListResponse> => {
+  getFileList: async (code: string, turnstileToken?: string, password?: string): Promise<FileListResponse> => {
     const headers: Record<string, string> = {};
+    if (turnstileToken) {
+      headers['X-Turnstile-Token'] = turnstileToken;
+    }
     if (password) {
       headers['X-File-Password'] = password;
     }
@@ -162,16 +170,12 @@ export const fileAPI = {
     code: string,
     fileId: string,
     password?: string,
-    turnstileToken?: string,
     onDownloadProgress?: (progressEvent: { loaded: number; total: number; percentage: number }) => void,
     signal?: AbortSignal
   ): Promise<Blob> => {
     const headers: Record<string, string> = {};
     if (password) {
       headers['X-File-Password'] = password;
-    }
-    if (turnstileToken) {
-      headers['X-Turnstile-Token'] = turnstileToken;
     }
 
     const response = await api.get('/download/file', {
