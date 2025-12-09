@@ -16,7 +16,7 @@ const DownloadFilePage: React.FC = () => {
   const navigate = useNavigate();
 
   const [fileList, setFileList] = useState<FileListResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [errorTitle, setErrorTitle] = useState('잘못된 코드');
 
@@ -260,7 +260,7 @@ const DownloadFilePage: React.FC = () => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 mb-8 text-gray-600">
-            {loading ? '파일 정보를 불러오는 중...' : '보안 확인을 기다리는 중...'}
+            {loading ? '파일 정보를 불러오는 중...' : '요청을 검사하는 중...'}
           </p>
           <TurnstileWidget
             onVerify={handleTurnstileVerify}
