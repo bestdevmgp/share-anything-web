@@ -80,9 +80,7 @@ const DownloadFilePage: React.FC = () => {
     setTurnstileVerified(true);
   }, [loadFileList]);
 
-  useEffect(() => {
-    // Turnstile 검증 후 자동으로 loadFileList가 호출됨
-  }, []);
+  useEffect(() => {}, []);
 
   useEffect(() => {
     let imageUrl: string | null = null;
