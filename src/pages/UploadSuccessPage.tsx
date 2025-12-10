@@ -54,12 +54,12 @@ const UploadSuccessPage: React.FC = () => {
         <div className="text-center mb-12">
           <div className="flex justify-center mb-5">
             <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-              p2pStatus === 'completed' ? 'bg-green-100' : 'bg-blue-100'
+              !isP2PTransfer || p2pStatus === 'completed' ? 'bg-green-100' : 'bg-blue-100'
             }`}>
               {isP2PTransfer && p2pStatus !== 'completed' ? (
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
               ) : (
-                <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke={p2pStatus === 'completed' ? '#16a34a' : '#2563eb'} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M5 13l4 4L19 7" className="upload-checkmark-path" />
                 </svg>
               )}
