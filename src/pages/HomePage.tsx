@@ -22,7 +22,7 @@ const HomePage: React.FC = () => {
   };
 
   const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const value = e.target.value.replace(/[^0-9]/g, '');
     if (value.length <= 6) {
       setDownloadCode(value);
     }
@@ -73,6 +73,8 @@ const HomePage: React.FC = () => {
               <input
                 ref={downloadCodeInputRef}
                 type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={downloadCode}
                 onChange={handleCodeChange}
                 onKeyDown={(e) => {
@@ -81,7 +83,7 @@ const HomePage: React.FC = () => {
                   }
                 }}
                 placeholder="123456"
-                className="w-full px-5 py-3 md:px-6 md:py-3 pr-12 border border-gray-300 rounded-xl text-center font-mono text-base md:text-lg uppercase focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-5 py-3 md:px-6 md:py-3 pr-12 border border-gray-300 rounded-xl text-center font-mono text-base md:text-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 maxLength={6}
               />
               <button
