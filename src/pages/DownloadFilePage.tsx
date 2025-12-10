@@ -6,6 +6,7 @@ import { formatFileSize, downloadFile, formatDateTime, isImageFile, isVideoFile,
 import { DocumentIcon, LockClosedIcon, CheckIcon, ArrowDownTrayIcon, EyeIcon, EyeSlashIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 import TurnstileWidget from '../components/TurnstileWidget';
+import { useP2PDownloader } from '../hooks/useP2PDownloader';
 
 const DownloadFilePage: React.FC = () => {
   const { code } = useParams<{ code: string }>();
@@ -39,6 +40,41 @@ const DownloadFilePage: React.FC = () => {
   const [turnstileToken, setTurnstileToken] = useState<string>('');
   const [turnstileVerified, setTurnstileVerified] = useState(false);
 
+  const [isP2PDownload, setIsP2PDownload] = useState(false);
+  const [p2pEnabled, setP2pEnabled] = useState(false);
+
+  const handleP2PDownloadComplete = useCallback((blob: Blob, fileName: string) => {
+    downloadFile(blob, fileName);
+    toast.success('파일 다운로드가 완료되었습니다.');
+  }, []);
+
+  const singleFile = fileList?.files?.length === 1 ? fileList.files[0] : null;
+
+  const { status: p2pStatus, progress: p2pProgress } = useP2PDownloader({
+    shareCode: code || '',
+    fileInfo: singleFile ? {
+      share_code: code || '',
+      file_name: singleFile.file_name,
+      file_size: singleFile.file_size,
+      file_type: singleFile.file_type,
+      transfer_type: singleFile.transfer_type,
+      has_password: fileList?.has_password || false,
+      expires_at: fileList?.expires_at || '',
+      uploader_online: singleFile.uploader_online
+    } : {
+      share_code: '',
+      file_name: '',
+      file_size: 0,
+      file_type: '',
+      transfer_type: 'server',
+      has_password: false,
+      expires_at: '',
+      uploader_online: null
+    },
+    enabled: p2pEnabled && !!singleFile,
+    onComplete: (blob) => handleP2PDownloadComplete(blob, singleFile?.file_name || 'file')
+  });
+
   const loadFileList = useCallback(async (token: string) => {
     if (!code) {
       navigate('/');
@@ -49,6 +85,16 @@ const DownloadFilePage: React.FC = () => {
       setLoading(true);
       const list = await fileAPI.getFileList(code, token);
       setFileList(list);
+
+      if (list.files.length > 0 && list.files[0].transfer_type === 'p2p') {
+        setIsP2PDownload(true);
+
+        if (list.files[0].uploader_online === false) {
+          setErrorTitle('업로더 오프라인');
+          setError('업로더가 현재 오프라인입니다. 나중에 다시 시도해주세요.');
+          return;
+        }
+      }
 
       if (!list.has_password) {
         setPasswordVerified(true);
@@ -396,15 +442,32 @@ const DownloadFilePage: React.FC = () => {
           {/* Header */}
           <div className="text-center mb-10">
             <div className="flex justify-center mb-5">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 13l4 4L19 7" className="download-checkmark-path" />
-                </svg>
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                isP2PDownload && p2pStatus === 'downloading' ? 'bg-blue-100' : 'bg-green-100'
+              }`}>
+                {isP2PDownload && p2pStatus === 'downloading' ? (
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+                ) : (
+                  <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke={isP2PDownload && p2pStatus === 'completed' ? '#16a34a' : '#16a34a'} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 13l4 4L19 7" className="download-checkmark-path" />
+                  </svg>
+                )}
               </div>
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-3">다운로드 준비 완료</h1>
+            <h1 className="text-4xl font-bold text-gray-900 mb-3">
+              {isP2PDownload ? (
+                p2pStatus === 'waiting' || p2pStatus === 'connecting' ? 'P2P 연결 중...' :
+                p2pStatus === 'downloading' ? '파일 다운로드 중...' :
+                p2pStatus === 'completed' ? '다운로드 완료!' :
+                '다운로드 준비 완료'
+              ) : '다운로드 준비 완료'}
+            </h1>
             <p className="text-gray-600">
-              다운로드를 시작하기 전에 아래 파일 정보를 확인하세요.
+              {isP2PDownload ? (
+                p2pStatus === 'downloading' ? '파일을 받는 중입니다. 잠시만 기다려주세요.' :
+                p2pStatus === 'completed' ? '파일이 성공적으로 다운로드되었습니다!' :
+                'P2P 연결을 준비하고 있습니다...'
+              ) : '다운로드를 시작하기 전에 아래 파일 정보를 확인하세요.'}
             </p>
           </div>
           <style>{`
@@ -504,7 +567,44 @@ const DownloadFilePage: React.FC = () => {
 
             {/* Download Button */}
             <div className="">
-              {downloading ? (
+              {isP2PDownload ? (
+                p2pStatus === 'downloading' || p2pStatus === 'connecting' ? (
+                  <div className="bg-blue-50 rounded-xl px-4 py-4">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 pl-2">
+                        <div className="flex justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-700 self-start">
+                            {p2pStatus === 'connecting' ? '연결 중...' : `다운로드 중... ${p2pProgress}%`}
+                          </span>
+                          {p2pStatus === 'downloading' && (
+                            <span className="text-xs font-semibold text-blue-600 self-end">{p2pProgress}%</span>
+                          )}
+                        </div>
+                        {p2pStatus === 'downloading' && (
+                          <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                            <div
+                              className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
+                              style={{ width: `${p2pProgress}%` }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : p2pStatus === 'completed' ? (
+                  <div className="text-center py-4 text-green-600 font-semibold">
+                    ✓ 다운로드 완료
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setP2pEnabled(true)}
+                    className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-base md:text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+                  >
+                    <ArrowDownTrayIcon className="w-5 h-5" />
+                    <span>P2P 다운로드 시작</span>
+                  </button>
+                )
+              ) : downloading ? (
                 <div className="bg-blue-50 rounded-xl px-4 py-4">
                   <div className="flex items-center gap-2">
                     <div className="flex-1 pl-2">

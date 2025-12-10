@@ -4,6 +4,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { FileUploadResponse } from '../types';
 import { copyToClipboard, formatDateTime } from '../utils/format';
 import { CheckIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
+import { useP2PUploader } from '../hooks/useP2PUploader';
 
 const UploadSuccessPage: React.FC = () => {
   const location = useLocation();
@@ -12,16 +13,26 @@ const UploadSuccessPage: React.FC = () => {
   useEffect(() => {
     document.title = '업로드 완료';
   }, []);
+
   const uploadResult = location.state?.uploadResult as FileUploadResponse | undefined;
+  const uploadedFile = location.state?.uploadedFile as File | undefined;
 
   const [copiedField, setCopiedField] = useState<'code' | 'link' | null>(null);
+
+  const isP2PTransfer = uploadResult?.files?.[0]?.transfer_type === 'p2p';
+  const groupShareCode = uploadResult?.share_code || uploadResult?.files?.[0]?.share_code || '';
+
+  const { status: p2pStatus, progress: transferProgress } = useP2PUploader({
+    shareCode: groupShareCode,
+    file: uploadedFile!,
+    enabled: isP2PTransfer && !!uploadedFile && !!uploadResult
+  });
 
   if (!uploadResult) {
     navigate('/upload');
     return null;
   }
 
-  const groupShareCode = uploadResult.share_code || uploadResult.files[0]?.share_code || '';
   const downloadUrl = `${window.location.origin}/download/${groupShareCode}`;
 
   const displayCode = groupShareCode.length === 6
@@ -42,15 +53,32 @@ const UploadSuccessPage: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex justify-center mb-5">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-              <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 13l4 4L19 7" className="upload-checkmark-path" />
-              </svg>
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+              p2pStatus === 'completed' ? 'bg-green-100' : 'bg-blue-100'
+            }`}>
+              {isP2PTransfer && p2pStatus !== 'completed' ? (
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+              ) : (
+                <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke={p2pStatus === 'completed' ? '#16a34a' : '#2563eb'} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 13l4 4L19 7" className="upload-checkmark-path" />
+                </svg>
+              )}
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">업로드 완료</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-3">
+            {isP2PTransfer ? (
+              p2pStatus === 'waiting' ? '다운로더 대기 중...' :
+              p2pStatus === 'connected' ? '다운로더 연결됨!' :
+              p2pStatus === 'transferring' ? '파일 전송 중...' :
+              '전송 완료!'
+            ) : '업로드 완료'}
+          </h1>
           <p className="text-lg text-gray-600">
-            코드를 공유하거나 아래 링크를 통해 파일을 다운로드하세요.
+            {isP2PTransfer ? (
+              p2pStatus === 'waiting' ? '다운로더가 연결될 때까지 이 페이지를 닫지 마세요.' :
+              p2pStatus === 'completed' ? '파일이 성공적으로 전송되었습니다!' :
+              '파일을 전송 중입니다. 잠시만 기다려주세요.'
+            ) : '코드를 공유하거나 아래 링크를 통해 파일을 다운로드하세요.'}
           </p>
         </div>
         <style>{`
@@ -121,6 +149,22 @@ const UploadSuccessPage: React.FC = () => {
               </button>
             </div>
           </div>
+
+          {/* P2P Transfer Progress */}
+          {isP2PTransfer && (p2pStatus === 'transferring' || p2pStatus === 'connected') && (
+            <div className="mb-8">
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                전송 진행률
+              </label>
+              <div className="bg-gray-200 rounded-full h-3 overflow-hidden">
+                <div
+                  className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
+                  style={{ width: `${transferProgress}%` }}
+                />
+              </div>
+              <p className="text-sm text-gray-500 text-center mt-2">{transferProgress}%</p>
+            </div>
+          )}
 
           {/* QR Code */}
           <div className="flex flex-col items-center">

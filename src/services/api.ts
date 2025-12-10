@@ -6,7 +6,8 @@ import type {
   DownloadLog,
   ExpirationOption,
   FileListResponse,
-  BulkDownloadRequest
+  BulkDownloadRequest,
+  P2PStatusResponse
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
@@ -72,6 +73,7 @@ export const fileAPI = {
     expiration?: ExpirationOption,
     isOneTime?: boolean,
     turnstileToken?: string,
+    transferType?: 'server' | 'p2p',
     onUploadProgress?: (progressEvent: { loaded: number; total: number; percentage: number }) => void,
     signal?: AbortSignal
   ): Promise<FileUploadResponse> => {
@@ -99,6 +101,10 @@ export const fileAPI = {
 
     if (turnstileToken) {
       formData.append('turnstile_token', turnstileToken);
+    }
+
+    if (transferType) {
+      formData.append('transfer_type', transferType);
     }
 
     const response = await api.post<FileUploadResponse>('/file/upload', formData, {
@@ -238,6 +244,13 @@ export const fileAPI = {
       }
     });
 
+    return response.data;
+  },
+
+  getP2PStatus: async (code: string): Promise<P2PStatusResponse> => {
+    const response = await api.get<P2PStatusResponse>('/p2p/status', {
+      params: { code }
+    });
     return response.data;
   },
 };

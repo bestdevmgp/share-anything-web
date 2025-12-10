@@ -29,6 +29,7 @@ const UploadPage: React.FC = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadAbortController, setUploadAbortController] = useState<AbortController | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string>('');
+  const [transferType, setTransferType] = useState<'server' | 'p2p'>('server');
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     setIsProcessingFiles(true);
@@ -90,15 +91,21 @@ const UploadPage: React.FC = () => {
         description || undefined,
         isAuthenticated && password ? password : undefined,
         isAuthenticated ? expiration : undefined,
-        isAuthenticated ? isOneTime : undefined,
+        transferType === 'p2p' ? true : (isAuthenticated ? isOneTime : undefined),
         turnstileToken,
+        transferType,
         (progressEvent) => {
           setUploadProgress(progressEvent.percentage);
         },
         abortController.signal
       );
 
-      navigate('/upload/success', { state: { uploadResult: response } });
+      navigate('/upload/success', {
+        state: {
+          uploadResult: response,
+          uploadedFile: transferType === 'p2p' ? files[0] : undefined
+        }
+      });
     } catch (err: any) {
       if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') {
         toast.info('업로드가 취소되었습니다.');
@@ -125,6 +132,13 @@ const UploadPage: React.FC = () => {
     }
   };
 
+  const handleTransferTypeChange = (type: 'server' | 'p2p') => {
+    setTransferType(type);
+    if (type === 'p2p') {
+      setIsOneTime(true);
+    }
+  };
+
   const expirationOptions: { value: ExpirationOption; label: string }[] = [
     { value: 'five_minutes', label: '5분' },
     { value: 'thirty_minutes', label: '30분' },
@@ -139,9 +153,54 @@ const UploadPage: React.FC = () => {
     <div>
       <div className="max-w-4xl mx-auto px-4 py-12 md:pb-32">
         {/* Header */}
-        <div className="mb-12">
+        <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-3">파일 전송</h1>
           <p className="text-lg text-gray-600">파일과 비밀번호는 암호화되어 보관되며 유효 기간이 지나면 즉시 폐기됩니다.</p>
+        </div>
+
+        {/* Transfer Type Selector */}
+        <div className="mb-10">
+          <div className="relative flex gap-1 w-full max-w-md bg-gray-100 rounded-full p-1.5">
+            {/* Sliding Background */}
+            <div
+              className="absolute top-1.5 h-[calc(100%-12px)] bg-white rounded-full transition-all duration-200 ease-out"
+              style={{
+                width: 'calc(50% - 8px)',
+                left: transferType === 'server' ? '6px' : 'calc(50% + 2px)',
+              }}
+            />
+
+            {/* Buttons */}
+            <button
+              type="button"
+              onClick={() => handleTransferTypeChange('server')}
+              className={`relative z-10 flex-1 px-6 py-3 rounded-full text-sm font-semibold transition-all duration-200 ${
+                transferType === 'server'
+                  ? 'text-gray-900'
+                  : 'text-gray-600 hover:bg-gray-200/50 hover:text-gray-800'
+              }`}
+            >
+              일반 전송
+            </button>
+            <button
+              type="button"
+              onClick={() => handleTransferTypeChange('p2p')}
+              className={`relative z-10 flex-1 px-6 py-3 rounded-full text-sm font-semibold transition-all duration-200 ${
+                transferType === 'p2p'
+                  ? 'text-gray-900'
+                  : 'text-gray-600 hover:bg-gray-200/50 hover:text-gray-800'
+              }`}
+            >
+              보안 전송
+            </button>
+          </div>
+          {transferType === 'p2p' && (
+            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl text-sm text-gray-700">
+              <p className="font-semibold text-blue-900 mb-1">보안 전송 안내</p>
+              <p>• WebRTC를 사용한 1:1 직접 전송으로 파일이 서버에 저장되지 않습니다.</p>
+              <p>• 일회성 전송만 가능하며, 업로더와 다운로더가 동시에 온라인이어야 합니다.</p>
+            </div>
+          )}
         </div>
 
         {/* File Drop Zone */}
@@ -261,39 +320,42 @@ const UploadPage: React.FC = () => {
             </div>
 
             {/* One Time Download Checkbox */}
-            <div className="mt-4">
-              <div className="flex items-center">
-                <div className="relative">
-                  <input
-                    type="checkbox"
-                    checked={isOneTime}
-                    onChange={(e) => setIsOneTime(e.target.checked)}
-                    disabled={!isAuthenticated}
-                    className="sr-only"
-                  />
-                  <div
-                    onClick={() => isAuthenticated && setIsOneTime(!isOneTime)}
-                    className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors ${
-                      isOneTime
-                        ? 'bg-blue-600 border-blue-600'
-                        : 'border-gray-300 bg-white'
-                    } ${
-                      isAuthenticated ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'
-                    }`}
-                  >
-                    {isOneTime && (
-                      <CheckIcon className="w-4 h-4 text-white" strokeWidth={3} />
-                    )}
+            {isAuthenticated && (
+              <div className="mt-4">
+                <div className="flex items-center">
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      checked={isOneTime}
+                      onChange={(e) => setIsOneTime(e.target.checked)}
+                      disabled={transferType === 'p2p'}
+                      className="sr-only"
+                    />
+                    <div
+                      onClick={() => transferType !== 'p2p' && setIsOneTime(!isOneTime)}
+                      className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors ${
+                        isOneTime
+                          ? 'bg-blue-600 border-blue-600'
+                          : 'border-gray-300 bg-white'
+                      } ${
+                        transferType !== 'p2p' ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'
+                      }`}
+                    >
+                      {isOneTime && (
+                        <CheckIcon className="w-4 h-4 text-white" strokeWidth={3} />
+                      )}
+                    </div>
                   </div>
+                  <span
+                    onClick={() => transferType !== 'p2p' && setIsOneTime(!isOneTime)}
+                    className={`ml-2.5 text-base font-medium ${transferType !== 'p2p' ? 'cursor-pointer' : 'cursor-not-allowed'} ${transferType === 'p2p' ? 'text-gray-400' : 'text-gray-900'}`}
+                  >
+                    일회용 다운로드
+                    {transferType === 'p2p' && <span className="text-xs ml-1">(보안 전송 필수)</span>}
+                  </span>
                 </div>
-                <span
-                  onClick={() => isAuthenticated && setIsOneTime(!isOneTime)}
-                  className={`ml-2.5 text-base font-medium ${isAuthenticated ? 'cursor-pointer' : 'cursor-not-allowed'} ${!isAuthenticated ? 'text-gray-400' : 'text-gray-900'}`}
-                >
-                  일회용 다운로드
-                </span>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Password */}

@@ -16,12 +16,14 @@ export interface FileShare {
   file_name: string;
   file_size: number;
   file_type: string;
+  transfer_type: 'server' | 'p2p';
   description?: string;
   has_password: boolean;
   expires_at: string;
   created_at: string;
   download_url: string;
   qr_code: string;
+  uploader_online: boolean | null;
 }
 
 export interface FileUploadResponse {
@@ -31,13 +33,16 @@ export interface FileUploadResponse {
 }
 
 export interface FileInfo {
+  share_code: string;
   file_name: string;
   file_size: number;
   file_type: string;
+  transfer_type: 'server' | 'p2p';
   description?: string;
   has_password: boolean;
   expires_at: string;
   uploader_name?: string;
+  uploader_online: boolean | null;
 }
 
 export interface DownloadLog {
@@ -85,6 +90,8 @@ export interface FileListItem {
   file_name: string;
   file_size: number;
   file_type: string;
+  transfer_type: 'server' | 'p2p';
+  uploader_online: boolean | null;
 }
 
 export interface FileListResponse {
@@ -100,4 +107,34 @@ export interface BulkDownloadRequest {
   code: string;
   file_ids: string[];
   password?: string;
+}
+
+export type TransferType = 'server' | 'p2p';
+
+export interface P2PStatusResponse {
+  share_code: string;
+  uploader_online: boolean;
+}
+
+export type SignalingMessageType =
+  | 'uploader_ready'
+  | 'downloader_join'
+  | 'peer_matched'
+  | 'offer'
+  | 'answer'
+  | 'ice_candidate'
+  | 'transfer_complete'
+  | 'error'
+  | 'uploader_offline';
+
+export interface SignalingMessage {
+  type: SignalingMessageType;
+  share_code?: string;
+  peer_id?: string;
+  role?: 'uploader' | 'downloader';
+  sdp?: string;
+  candidate?: string;
+  sdp_mid?: string | null;
+  sdp_m_line_index?: number | null;
+  message?: string;
 }
