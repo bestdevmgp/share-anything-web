@@ -21,7 +21,12 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
   const receivedSizeRef = useRef<number>(0);
 
   useEffect(() => {
-    if (!enabled || !shareCode || !fileInfo) return;
+    if (!enabled || !shareCode || !fileInfo) {
+      console.log('[useP2PDownloader] Not enabled or missing data:', { enabled, shareCode, hasFileInfo: !!fileInfo });
+      return;
+    }
+
+    console.log('[useP2PDownloader] Setting up P2P connection for downloader');
 
     const setupP2PConnection = async () => {
       try {
@@ -34,6 +39,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
         wsRef.current = ws;
 
         ws.onopen = () => {
+          console.log('[useP2PDownloader] WebSocket connected, sending downloader_join');
           sendSignalingMessage(ws, {
             type: 'downloader_join',
             share_code: shareCode,
@@ -123,10 +129,13 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
       const pc = pcRef.current;
       const ws = wsRef.current;
 
+      console.log('[useP2PDownloader] Received signaling message:', message.type);
+
       if (!pc || !ws) return;
 
       switch (message.type) {
         case 'peer_matched':
+          console.log('[useP2PDownloader] Peer matched! Creating offer...');
           const offer = await pc.createOffer();
           await pc.setLocalDescription(offer);
 

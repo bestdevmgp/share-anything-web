@@ -19,7 +19,12 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
   const peerIdRef = useRef<string>(generatePeerId());
 
   useEffect(() => {
-    if (!enabled || !shareCode || !file) return;
+    if (!enabled || !shareCode || !file) {
+      console.log('[useP2PUploader] Not enabled or missing data:', { enabled, shareCode, hasFile: !!file });
+      return;
+    }
+
+    console.log('[useP2PUploader] Setting up P2P connection for uploader');
 
     const setupP2PConnection = async () => {
       try {
@@ -30,6 +35,7 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
         wsRef.current = ws;
 
         ws.onopen = () => {
+          console.log('[useP2PUploader] WebSocket connected, sending uploader_ready');
           sendSignalingMessage(ws, {
             type: 'uploader_ready',
             share_code: shareCode,
@@ -95,10 +101,13 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
       const pc = pcRef.current;
       const ws = wsRef.current;
 
+      console.log('[useP2PUploader] Received signaling message:', message.type);
+
       if (!pc || !ws) return;
 
       switch (message.type) {
         case 'peer_matched':
+          console.log('[useP2PUploader] Peer matched!');
           setStatus('connected');
           break;
 

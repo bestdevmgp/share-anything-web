@@ -44,6 +44,7 @@ const DownloadFilePage: React.FC = () => {
   const [p2pEnabled, setP2pEnabled] = useState(false);
 
   const handleP2PDownloadComplete = useCallback((blob: Blob, fileName: string) => {
+    console.log('[DownloadFilePage] P2P download completed:', { fileName, blobSize: blob.size });
     downloadFile(blob, fileName);
     toast.success('파일 다운로드가 완료되었습니다.');
   }, []);
@@ -86,7 +87,15 @@ const DownloadFilePage: React.FC = () => {
       const list = await fileAPI.getFileList(code, token);
       setFileList(list);
 
+      console.log('[DownloadFilePage] File list loaded:', {
+        files: list.files,
+        firstFile: list.files[0],
+        transferType: list.files[0]?.transfer_type,
+        uploaderOnline: list.files[0]?.uploader_online
+      });
+
       if (list.files.length > 0 && list.files[0].transfer_type === 'p2p') {
+        console.log('[DownloadFilePage] P2P file detected');
         setIsP2PDownload(true);
 
         if (list.files[0].uploader_online === false) {
@@ -94,6 +103,8 @@ const DownloadFilePage: React.FC = () => {
           setError('업로더가 현재 오프라인입니다. 나중에 다시 시도해주세요.');
           return;
         }
+      } else {
+        console.log('[DownloadFilePage] Regular file (not P2P)');
       }
 
       if (!list.has_password) {
