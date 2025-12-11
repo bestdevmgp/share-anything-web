@@ -46,6 +46,9 @@ export const generatePeerId = (): string => {
 
 export const sendSignalingMessage = (ws: WebSocket, message: SignalingMessage): void => {
   if (ws.readyState === WebSocket.OPEN) {
+    console.log('[WebRTC] Sending signaling message:', message.type, 'to share_code:', message.share_code);
     ws.send(JSON.stringify(message));
+  } else {
+    console.error('[WebRTC] Cannot send message - WebSocket not open. State:', ws.readyState, 'Message type:', message.type);
   }
 };
