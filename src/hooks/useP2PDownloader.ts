@@ -63,7 +63,17 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
         pcRef.current = pc;
 
         pc.ondatachannel = (event) => {
+          console.log('[useP2PDownloader] DataChannel received');
           const dataChannel = event.channel;
+
+          dataChannel.onopen = () => {
+            console.log('[useP2PDownloader] DataChannel opened');
+            setStatus('downloading');
+          };
+
+          dataChannel.onclose = () => {
+            console.log('[useP2PDownloader] DataChannel closed');
+          };
 
           dataChannel.onmessage = (event) => {
             const chunk = event.data as ArrayBuffer;
@@ -110,9 +120,12 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
         };
 
         pc.oniceconnectionstatechange = () => {
-          if (pc.iceConnectionState === 'connected') {
+          console.log('[useP2PDownloader] ICE connection state:', pc.iceConnectionState);
+          if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
+            console.log('[useP2PDownloader] ICE connection established');
             setStatus('downloading');
-          } else if (pc.iceConnectionState === 'failed') {
+          } else if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected') {
+            console.log('[useP2PDownloader] ICE connection failed/disconnected');
             setStatus('error');
             toast.error('P2P 연결에 실패했습니다. 네트워크를 확인해주세요.');
           }
@@ -192,7 +205,8 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
     return () => {
       cleanup();
     };
-  }, [enabled, shareCode, fileInfo, onComplete, status]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, shareCode]);
 
   return { status, progress };
 };

@@ -63,12 +63,17 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
         dataChannelRef.current = dataChannel;
 
         dataChannel.onopen = () => {
+          console.log('[useP2PUploader] DataChannel opened');
           setStatus('transferring');
           sendFile(file, dataChannel);
         };
 
+        dataChannel.onclose = () => {
+          console.log('[useP2PUploader] DataChannel closed');
+        };
+
         dataChannel.onerror = (error) => {
-          console.error('DataChannel error:', error);
+          console.error('[useP2PUploader] DataChannel error:', error);
           toast.error('파일 전송 중 오류가 발생했습니다.');
         };
 
@@ -86,7 +91,12 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
         };
 
         pc.oniceconnectionstatechange = () => {
-          if (pc.iceConnectionState === 'failed') {
+          console.log('[useP2PUploader] ICE connection state:', pc.iceConnectionState);
+          if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
+            console.log('[useP2PUploader] ICE connection established');
+            setStatus('connected');
+          } else if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected') {
+            console.log('[useP2PUploader] ICE connection failed/disconnected');
             toast.error('P2P 연결에 실패했습니다. 네트워크를 확인해주세요.');
           }
         };
@@ -206,7 +216,8 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
         wsRef.current.close();
       }
     };
-  }, [enabled, shareCode, file, status]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, shareCode]);
 
   return { status, progress };
 };
