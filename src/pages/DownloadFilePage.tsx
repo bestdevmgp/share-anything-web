@@ -87,18 +87,16 @@ const DownloadFilePage: React.FC = () => {
       const list = await fileAPI.getFileList(code, token);
       setFileList(list);
 
-      console.log('[DownloadFilePage] File list loaded:', {
-        files: list.files,
-        firstFile: list.files[0],
-        transferType: list.files[0]?.transfer_type,
-        uploaderOnline: list.files[0]?.uploader_online
-      });
+      console.log('[DownloadFilePage] File list loaded:');
+      console.log('  - Full list:', list);
+      console.log('  - Transfer type (group level):', list.transfer_type);
+      console.log('  - Uploader online (group level):', list.uploader_online);
 
-      if (list.files.length > 0 && list.files[0].transfer_type === 'p2p') {
+      if (list.transfer_type === 'p2p') {
         console.log('[DownloadFilePage] P2P file detected');
         setIsP2PDownload(true);
 
-        if (list.files[0].uploader_online === false) {
+        if (list.uploader_online === false) {
           setErrorTitle('업로더 오프라인');
           setError('업로더가 현재 오프라인입니다. 나중에 다시 시도해주세요.');
           return;

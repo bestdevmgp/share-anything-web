@@ -90,8 +90,6 @@ export interface FileListItem {
   file_name: string;
   file_size: number;
   file_type: string;
-  transfer_type: 'server' | 'p2p';
-  uploader_online: boolean | null;
 }
 
 export interface FileListResponse {
@@ -101,6 +99,8 @@ export interface FileListResponse {
   description?: string;
   has_password: boolean;
   expires_at: string;
+  transfer_type: 'server' | 'p2p';
+  uploader_online: boolean | null;
 }
 
 export interface BulkDownloadRequest {
