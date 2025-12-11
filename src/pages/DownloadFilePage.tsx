@@ -58,10 +58,10 @@ const DownloadFilePage: React.FC = () => {
       file_name: singleFile.file_name,
       file_size: singleFile.file_size,
       file_type: singleFile.file_type,
-      transfer_type: singleFile.transfer_type,
+      transfer_type: fileList?.transfer_type || 'server',
       has_password: fileList?.has_password || false,
       expires_at: fileList?.expires_at || '',
-      uploader_online: singleFile.uploader_online
+      uploader_online: fileList?.uploader_online ?? null
     } : {
       share_code: '',
       file_name: '',
