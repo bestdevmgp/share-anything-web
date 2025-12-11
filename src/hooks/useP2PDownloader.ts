@@ -108,6 +108,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
 
         pc.onicecandidate = (event) => {
           if (event.candidate && wsRef.current) {
+            console.log('[useP2PDownloader] ICE candidate gathered:', event.candidate.type);
             sendSignalingMessage(wsRef.current, {
               type: 'ice_candidate',
               share_code: shareCode,
@@ -116,7 +117,13 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
               sdp_m_line_index: event.candidate.sdpMLineIndex,
               peer_id: peerIdRef.current
             });
+          } else if (!event.candidate) {
+            console.log('[useP2PDownloader] ICE gathering completed');
           }
+        };
+
+        pc.onicegatheringstatechange = () => {
+          console.log('[useP2PDownloader] ICE gathering state:', pc.iceGatheringState);
         };
 
         pc.oniceconnectionstatechange = () => {
@@ -151,6 +158,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           console.log('[useP2PDownloader] Peer matched! Creating offer...');
           const offer = await pc.createOffer();
           await pc.setLocalDescription(offer);
+          console.log('[useP2PDownloader] Local description set (offer)');
 
           sendSignalingMessage(ws, {
             type: 'offer',
@@ -158,22 +166,25 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
             sdp: offer.sdp,
             peer_id: peerIdRef.current
           });
+          console.log('[useP2PDownloader] Offer sent to uploader');
           break;
 
         case 'answer':
+          console.log('[useP2PDownloader] Received answer from uploader');
           if (message.sdp) {
             await pc.setRemoteDescription(new RTCSessionDescription({
               type: 'answer',
               sdp: message.sdp
             }));
+            console.log('[useP2PDownloader] Remote description set (answer)');
           }
           break;
 
         case 'ice_candidate':
           if (message.candidate) {
-            await pc.addIceCandidate(new RTCIceCandidate(
-              JSON.parse(message.candidate)
-            ));
+            const candidate = JSON.parse(message.candidate);
+            console.log('[useP2PDownloader] Received ICE candidate:', candidate.type);
+            await pc.addIceCandidate(new RTCIceCandidate(candidate));
           }
           break;
 
