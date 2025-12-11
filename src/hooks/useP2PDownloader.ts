@@ -63,6 +63,8 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
         const pc = createPeerConnection();
         pcRef.current = pc;
 
+        console.log('[useP2PDownloader] Registering event handlers...');
+
         pc.ondatachannel = (event) => {
           console.log('[useP2PDownloader] DataChannel received');
           const dataChannel = event.channel;
@@ -108,6 +110,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
         };
 
         pc.onicecandidate = (event) => {
+          console.log('[useP2PDownloader] onicecandidate event fired!', event.candidate ? 'Candidate found' : 'No more candidates');
           if (event.candidate && wsRef.current) {
             console.log('[useP2PDownloader] ICE candidate gathered:', event.candidate.type);
             sendSignalingMessage(wsRef.current, {
@@ -124,8 +127,14 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
         };
 
         pc.onicegatheringstatechange = () => {
-          console.log('[useP2PDownloader] ICE gathering state:', pc.iceGatheringState);
+          console.log('[useP2PDownloader] onicegatheringstatechange event fired! New state:', pc.iceGatheringState);
         };
+
+        console.log('[useP2PDownloader] Event handlers registered. Current state:', {
+          signaling: pc.signalingState,
+          iceGathering: pc.iceGatheringState,
+          iceConnection: pc.iceConnectionState
+        });
 
         pc.oniceconnectionstatechange = () => {
           console.log('[useP2PDownloader] ICE connection state:', pc.iceConnectionState);

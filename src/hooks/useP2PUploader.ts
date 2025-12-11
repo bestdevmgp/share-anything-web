@@ -58,6 +58,8 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
         const pc = createPeerConnection();
         pcRef.current = pc;
 
+        console.log('[useP2PUploader] Registering event handlers...');
+
         const dataChannel = pc.createDataChannel('file-transfer', {
           ordered: true
         });
@@ -79,6 +81,7 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
         };
 
         pc.onicecandidate = (event) => {
+          console.log('[useP2PUploader] onicecandidate event fired!', event.candidate ? 'Candidate found' : 'No more candidates');
           if (event.candidate && wsRef.current) {
             console.log('[useP2PUploader] ICE candidate gathered:', event.candidate.type);
             sendSignalingMessage(wsRef.current, {
@@ -95,8 +98,14 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
         };
 
         pc.onicegatheringstatechange = () => {
-          console.log('[useP2PUploader] ICE gathering state:', pc.iceGatheringState);
+          console.log('[useP2PUploader] onicegatheringstatechange event fired! New state:', pc.iceGatheringState);
         };
+
+        console.log('[useP2PUploader] Event handlers registered. Current state:', {
+          signaling: pc.signalingState,
+          iceGathering: pc.iceGatheringState,
+          iceConnection: pc.iceConnectionState
+        });
 
         pc.oniceconnectionstatechange = () => {
           console.log('[useP2PUploader] ICE connection state:', pc.iceConnectionState);

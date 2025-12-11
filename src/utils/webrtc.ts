@@ -19,7 +19,9 @@ export const createWebSocketConnection = (onMessage: (message: SignalingMessage)
 };
 
 export const createPeerConnection = (): RTCPeerConnection => {
-  return new RTCPeerConnection({
+  console.log('[WebRTC] Creating PeerConnection with STUN/TURN servers...');
+
+  const config = {
     iceServers: [
       // STUN 서버 (공인 IP 확인용)
       { urls: 'stun:stun.l.google.com:19302' },
@@ -37,7 +39,17 @@ export const createPeerConnection = (): RTCPeerConnection => {
         credential: 'openrelayproject'
       }
     ]
+  };
+
+  const pc = new RTCPeerConnection(config);
+
+  console.log('[WebRTC] PeerConnection created:', {
+    signalingState: pc.signalingState,
+    iceGatheringState: pc.iceGatheringState,
+    iceConnectionState: pc.iceConnectionState
   });
+
+  return pc;
 };
 
 export const generatePeerId = (): string => {
