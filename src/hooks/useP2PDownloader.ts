@@ -53,9 +53,10 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           toast.error('연결 오류가 발생했습니다.');
         };
 
-        ws.onclose = () => {
+        ws.onclose = (event) => {
+          console.log('[useP2PDownloader] WebSocket closed - Code:', event.code, 'Reason:', event.reason, 'Clean:', event.wasClean);
           if (status !== 'completed') {
-            console.log('WebSocket closed');
+            console.log('[useP2PDownloader] WebSocket closed before completion');
           }
         };
 
@@ -177,6 +178,9 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
               sdp: message.sdp
             }));
             console.log('[useP2PDownloader] Remote description set (answer)');
+            console.log('[useP2PDownloader] Signaling state:', pc.signalingState);
+            console.log('[useP2PDownloader] ICE gathering state:', pc.iceGatheringState);
+            console.log('[useP2PDownloader] ICE connection state:', pc.iceConnectionState);
           }
           break;
 

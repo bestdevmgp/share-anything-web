@@ -48,9 +48,10 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
           toast.error('연결 오류가 발생했습니다.');
         };
 
-        ws.onclose = () => {
+        ws.onclose = (event) => {
+          console.log('[useP2PUploader] WebSocket closed - Code:', event.code, 'Reason:', event.reason, 'Clean:', event.wasClean);
           if (status !== 'completed') {
-            console.log('WebSocket closed');
+            console.log('[useP2PUploader] WebSocket closed before completion');
           }
         };
 
@@ -148,6 +149,9 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
               peer_id: peerIdRef.current
             });
             console.log('[useP2PUploader] Answer sent to downloader');
+            console.log('[useP2PUploader] Signaling state:', pc.signalingState);
+            console.log('[useP2PUploader] ICE gathering state:', pc.iceGatheringState);
+            console.log('[useP2PUploader] ICE connection state:', pc.iceConnectionState);
           }
           break;
 
