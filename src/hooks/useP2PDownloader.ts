@@ -157,9 +157,13 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
       switch (message.type) {
         case 'peer_matched':
           console.log('[useP2PDownloader] Peer matched! Creating offer...');
-          const offer = await pc.createOffer();
+          const offer = await pc.createOffer({
+            offerToReceiveAudio: false,
+            offerToReceiveVideo: false
+          });
           await pc.setLocalDescription(offer);
           console.log('[useP2PDownloader] Local description set (offer)');
+          console.log('[useP2PDownloader] Waiting for ICE gathering...');
 
           sendSignalingMessage(ws, {
             type: 'offer',
