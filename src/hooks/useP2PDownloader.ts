@@ -170,9 +170,11 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
             offerToReceiveAudio: false,
             offerToReceiveVideo: false
           });
+          console.log('[useP2PDownloader] Offer SDP:', offer.sdp?.substring(0, 200) + '...');
           await pc.setLocalDescription(offer);
           console.log('[useP2PDownloader] Local description set (offer)');
           console.log('[useP2PDownloader] Waiting for ICE gathering...');
+          console.log('[useP2PDownloader] Current ICE gathering state after setLocalDescription:', pc.iceGatheringState);
 
           sendSignalingMessage(ws, {
             type: 'offer',

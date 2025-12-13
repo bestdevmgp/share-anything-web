@@ -140,6 +140,7 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
 
         case 'offer':
           console.log('[useP2PUploader] Received offer from downloader');
+          console.log('[useP2PUploader] Offer SDP:', message.sdp?.substring(0, 200) + '...');
           if (message.sdp) {
             await pc.setRemoteDescription(new RTCSessionDescription({
               type: 'offer',
@@ -148,8 +149,10 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
             console.log('[useP2PUploader] Remote description set (offer)');
 
             const answer = await pc.createAnswer();
+            console.log('[useP2PUploader] Answer SDP:', answer.sdp?.substring(0, 200) + '...');
             await pc.setLocalDescription(answer);
             console.log('[useP2PUploader] Local description set (answer)');
+            console.log('[useP2PUploader] Current ICE gathering state after setLocalDescription:', pc.iceGatheringState);
 
             sendSignalingMessage(ws, {
               type: 'answer',
