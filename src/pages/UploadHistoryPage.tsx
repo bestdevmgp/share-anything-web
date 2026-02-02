@@ -41,6 +41,7 @@ const UploadHistoryPage: React.FC = () => {
       return;
     }
     fetchUploads();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [offset, isAuthenticated, authLoading, navigate]);
 
   useEffect(() => {

@@ -94,6 +94,7 @@ const OAuthCallbackPage: React.FC = () => {
     };
 
     handleCallback();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (error) {
