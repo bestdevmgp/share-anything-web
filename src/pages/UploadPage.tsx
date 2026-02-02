@@ -82,6 +82,10 @@ const UploadPage: React.FC = () => {
     const abortController = new AbortController();
     setUploadAbortController(abortController);
 
+    // Multipart upload settings
+    const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB per chunk
+    const MAX_CONCURRENT_UPLOADS = 4; // Upload 4 chunks in parallel
+
     try {
       setIsUploading(true);
       setUploadProgress(0);
@@ -111,9 +115,9 @@ const UploadPage: React.FC = () => {
         return;
       }
 
-      // Server transfer uses presigned URL method
-      // Step 1: Request presigned URLs
-      const presignedResponse = await fileAPI.requestPresignedUpload({
+      // Server transfer uses multipart upload for parallel chunk uploads
+      // Step 1: Initialize multipart upload
+      const initResponse = await fileAPI.initMultipartUpload({
         files: files.map(file => ({
           file_name: file.name,
           file_size: file.size,
@@ -123,48 +127,94 @@ const UploadPage: React.FC = () => {
         password: isAuthenticated && password ? password : undefined,
         expiration: isAuthenticated ? expiration : undefined,
         is_one_time: isAuthenticated ? isOneTime : undefined,
-        turnstile_token: turnstileToken
+        turnstile_token: turnstileToken,
+        chunk_size: CHUNK_SIZE
       });
 
-      // Step 2: Upload files directly to R2 using presigned URLs
       const totalSize = files.reduce((sum, file) => sum + file.size, 0);
-      let uploadedSize = 0;
 
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const urlInfo = presignedResponse.urls[i];
+      // Track completed parts for each file
+      const completedFileParts: { [key: string]: { part_number: number; etag: string }[] } = {};
 
-        if (abortController.signal.aborted) {
-          throw new Error('Upload cancelled');
-        }
+      // Step 2: Upload each file using multipart upload
+      for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
+        const file = files[fileIndex];
+        const fileInit = initResponse.files[fileIndex];
+        const totalParts = fileInit.total_parts;
 
-        const fileStartSize = uploadedSize;
+        completedFileParts[fileInit.storage_key] = [];
 
-        await fileAPI.uploadToPresignedUrl(
-          urlInfo.presigned_url,
-          file,
-          (progressEvent) => {
-            const currentFileProgress = progressEvent.loaded;
-            const totalProgress = ((fileStartSize + currentFileProgress) / totalSize) * 100;
-            setUploadProgress(Math.round(totalProgress));
-          },
-          abortController.signal
+        // Get presigned URLs for all parts (in batches if needed)
+        const allPartNumbers = Array.from({ length: totalParts }, (_, i) => i + 1);
+
+        const partUrlsResponse = await fileAPI.getPartPresignedUrls({
+          upload_session_id: initResponse.upload_session_id,
+          storage_key: fileInit.storage_key,
+          upload_id: fileInit.upload_id,
+          part_numbers: allPartNumbers
+        });
+
+        // Create a map of part number to presigned URL
+        const partUrlMap = new Map(
+          partUrlsResponse.urls.map(u => [u.part_number, u.presigned_url])
         );
 
-        uploadedSize += file.size;
+        // Upload parts in parallel with concurrency limit
+        const uploadPartWithProgress = async (partNumber: number): Promise<{ part_number: number; etag: string }> => {
+          if (abortController.signal.aborted) {
+            throw new Error('Upload cancelled');
+          }
+
+          const start = (partNumber - 1) * CHUNK_SIZE;
+          const end = Math.min(start + CHUNK_SIZE, file.size);
+          const chunk = file.slice(start, end);
+          const presignedUrl = partUrlMap.get(partNumber)!;
+
+          const etag = await fileAPI.uploadPart(
+            presignedUrl,
+            chunk,
+            (loaded) => {
+              // Update progress - this is called per chunk
+              const chunkProgress = loaded;
+              const baseProgress = (partNumber - 1) * CHUNK_SIZE;
+              const fileBaseProgress = files.slice(0, fileIndex).reduce((sum, f) => sum + f.size, 0);
+              const currentTotal = fileBaseProgress + baseProgress + chunkProgress;
+              const percentage = Math.round((currentTotal / totalSize) * 100);
+              setUploadProgress(Math.min(percentage, 99)); // Cap at 99% until complete
+            },
+            abortController.signal
+          );
+
+          return { part_number: partNumber, etag };
+        };
+
+        // Process parts with concurrency limit
+        const results: { part_number: number; etag: string }[] = [];
+        for (let i = 0; i < allPartNumbers.length; i += MAX_CONCURRENT_UPLOADS) {
+          const batch = allPartNumbers.slice(i, i + MAX_CONCURRENT_UPLOADS);
+          const batchResults = await Promise.all(batch.map(uploadPartWithProgress));
+          results.push(...batchResults);
+        }
+
+        // Sort by part number and store
+        completedFileParts[fileInit.storage_key] = results.sort((a, b) => a.part_number - b.part_number);
       }
 
-      // Step 3: Notify server that upload is complete
-      const response = await fileAPI.completePresignedUpload({
-        upload_session_id: presignedResponse.upload_session_id,
-        share_code: presignedResponse.share_code,
-        files: presignedResponse.urls.map((urlInfo, i) => ({
-          file_name: urlInfo.file_name,
-          storage_key: urlInfo.storage_key,
+      // Step 3: Complete multipart upload
+      const response = await fileAPI.completeMultipartUpload({
+        upload_session_id: initResponse.upload_session_id,
+        share_code: initResponse.share_code,
+        files: initResponse.files.map((fileInit, i) => ({
+          file_name: fileInit.file_name,
+          storage_key: fileInit.storage_key,
+          upload_id: fileInit.upload_id,
           file_size: files[i].size,
-          content_type: files[i].type || 'application/octet-stream'
+          content_type: files[i].type || 'application/octet-stream',
+          parts: completedFileParts[fileInit.storage_key]
         }))
       });
+
+      setUploadProgress(100);
 
       navigate('/upload/success', {
         state: {

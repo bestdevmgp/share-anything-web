@@ -180,3 +180,72 @@ export interface CompleteUploadRequest {
   share_code: string;
   files: CompleteUploadFile[];
 }
+
+// Multipart Upload Types
+export interface MultipartUploadFileInfo {
+  file_name: string;
+  file_size: number;
+  content_type: string;
+}
+
+export interface InitMultipartUploadRequest {
+  files: MultipartUploadFileInfo[];
+  description?: string;
+  password?: string;
+  expiration?: ExpirationOption;
+  is_one_time?: boolean;
+  turnstile_token: string;
+  chunk_size: number;
+}
+
+export interface MultipartUploadFileInit {
+  file_name: string;
+  storage_key: string;
+  upload_id: string;
+  total_parts: number;
+}
+
+export interface InitMultipartUploadResponse {
+  upload_session_id: string;
+  share_code: string;
+  files: MultipartUploadFileInit[];
+  chunk_size: number;
+}
+
+export interface GetPartUrlsRequest {
+  upload_session_id: string;
+  storage_key: string;
+  upload_id: string;
+  part_numbers: number[];
+}
+
+export interface PartPresignedUrl {
+  part_number: number;
+  presigned_url: string;
+}
+
+export interface GetPartUrlsResponse {
+  storage_key: string;
+  urls: PartPresignedUrl[];
+  expires_in_secs: number;
+}
+
+export interface CompletedPart {
+  part_number: number;
+  etag: string;
+}
+
+export interface CompleteMultipartFileInfo {
+  file_name: string;
+  storage_key: string;
+  upload_id: string;
+  file_size: number;
+  content_type: string;
+  parts: CompletedPart[];
+}
+
+export interface CompleteMultipartUploadRequest {
+  upload_session_id: string;
+  share_code: string;
+  files: CompleteMultipartFileInfo[];
+}

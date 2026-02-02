@@ -10,7 +10,12 @@ import type {
   P2PStatusResponse,
   PresignedUploadRequest,
   PresignedUploadResponse,
-  CompleteUploadRequest
+  CompleteUploadRequest,
+  InitMultipartUploadRequest,
+  InitMultipartUploadResponse,
+  GetPartUrlsRequest,
+  GetPartUrlsResponse,
+  CompleteMultipartUploadRequest
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
@@ -289,6 +294,44 @@ export const fileAPI = {
 
   completePresignedUpload: async (request: CompleteUploadRequest): Promise<FileUploadResponse> => {
     const response = await api.post<FileUploadResponse>('/file/complete', request);
+    return response.data;
+  },
+
+  // Multipart Upload APIs
+  initMultipartUpload: async (request: InitMultipartUploadRequest): Promise<InitMultipartUploadResponse> => {
+    const response = await api.post<InitMultipartUploadResponse>('/file/multipart/init', request);
+    return response.data;
+  },
+
+  getPartPresignedUrls: async (request: GetPartUrlsRequest): Promise<GetPartUrlsResponse> => {
+    const response = await api.post<GetPartUrlsResponse>('/file/multipart/presign-parts', request);
+    return response.data;
+  },
+
+  uploadPart: async (
+    presignedUrl: string,
+    chunk: Blob,
+    onUploadProgress?: (loaded: number, total: number) => void,
+    signal?: AbortSignal
+  ): Promise<string> => {
+    const response = await axios.put(presignedUrl, chunk, {
+      headers: {
+        'Content-Type': 'application/octet-stream',
+      },
+      signal,
+      onUploadProgress: (progressEvent) => {
+        if (onUploadProgress && progressEvent.total) {
+          onUploadProgress(progressEvent.loaded, progressEvent.total);
+        }
+      }
+    });
+    // ETag is returned in the response headers
+    const etag = response.headers['etag'] || response.headers['ETag'];
+    return etag ? etag.replace(/"/g, '') : '';
+  },
+
+  completeMultipartUpload: async (request: CompleteMultipartUploadRequest): Promise<FileUploadResponse> => {
+    const response = await api.post<FileUploadResponse>('/file/multipart/complete', request);
     return response.data;
   },
 };
