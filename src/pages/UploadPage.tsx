@@ -86,28 +86,94 @@ const UploadPage: React.FC = () => {
       setIsUploading(true);
       setUploadProgress(0);
 
-      const response = await fileAPI.upload(
-        files,
-        description || undefined,
-        isAuthenticated && password ? password : undefined,
-        isAuthenticated ? expiration : undefined,
-        transferType === 'p2p' ? true : (isAuthenticated ? isOneTime : undefined),
-        turnstileToken,
-        transferType,
-        (progressEvent) => {
-          setUploadProgress(progressEvent.percentage);
-        },
-        abortController.signal
-      );
+      // P2P transfer uses the original upload method
+      if (transferType === 'p2p') {
+        const response = await fileAPI.upload(
+          files,
+          description || undefined,
+          isAuthenticated && password ? password : undefined,
+          isAuthenticated ? expiration : undefined,
+          true,
+          turnstileToken,
+          transferType,
+          (progressEvent) => {
+            setUploadProgress(progressEvent.percentage);
+          },
+          abortController.signal
+        );
+
+        navigate('/upload/success', {
+          state: {
+            uploadResult: response,
+            uploadedFile: files[0]
+          }
+        });
+        return;
+      }
+
+      // Server transfer uses presigned URL method
+      // Step 1: Request presigned URLs
+      const presignedResponse = await fileAPI.requestPresignedUpload({
+        files: files.map(file => ({
+          file_name: file.name,
+          file_size: file.size,
+          content_type: file.type || 'application/octet-stream'
+        })),
+        description: description || undefined,
+        password: isAuthenticated && password ? password : undefined,
+        expiration: isAuthenticated ? expiration : undefined,
+        is_one_time: isAuthenticated ? isOneTime : undefined,
+        turnstile_token: turnstileToken
+      });
+
+      // Step 2: Upload files directly to R2 using presigned URLs
+      const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+      let uploadedSize = 0;
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const urlInfo = presignedResponse.urls[i];
+
+        if (abortController.signal.aborted) {
+          throw new Error('Upload cancelled');
+        }
+
+        const fileStartSize = uploadedSize;
+
+        await fileAPI.uploadToPresignedUrl(
+          urlInfo.presigned_url,
+          file,
+          (progressEvent) => {
+            const currentFileProgress = progressEvent.loaded;
+            const totalProgress = ((fileStartSize + currentFileProgress) / totalSize) * 100;
+            setUploadProgress(Math.round(totalProgress));
+          },
+          abortController.signal
+        );
+
+        uploadedSize += file.size;
+      }
+
+      // Step 3: Notify server that upload is complete
+      const response = await fileAPI.completePresignedUpload({
+        upload_session_id: presignedResponse.upload_session_id,
+        share_code: presignedResponse.share_code,
+        files: presignedResponse.urls.map((urlInfo, i) => ({
+          file_name: urlInfo.file_name,
+          storage_key: urlInfo.storage_key,
+          file_size: files[i].size,
+          content_type: files[i].type || 'application/octet-stream'
+        }))
+      });
 
       navigate('/upload/success', {
         state: {
           uploadResult: response,
-          uploadedFile: transferType === 'p2p' ? files[0] : undefined
+          uploadedFile: undefined
         }
       });
     } catch (err: any) {
-      if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') {
+      if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED' || err.message === 'Upload cancelled') {
         toast.info('업로드가 취소되었습니다.');
       } else if (err.response?.status === 400) {
         toast.error(err.response?.data?.message || '보안 확인이 필요합니다.');

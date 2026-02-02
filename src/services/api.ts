@@ -7,7 +7,10 @@ import type {
   ExpirationOption,
   FileListResponse,
   BulkDownloadRequest,
-  P2PStatusResponse
+  P2PStatusResponse,
+  PresignedUploadRequest,
+  PresignedUploadResponse,
+  CompleteUploadRequest
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
@@ -251,6 +254,41 @@ export const fileAPI = {
     const response = await api.get<P2PStatusResponse>('/p2p/status', {
       params: { code }
     });
+    return response.data;
+  },
+
+  // Presigned Upload APIs
+  requestPresignedUpload: async (request: PresignedUploadRequest): Promise<PresignedUploadResponse> => {
+    const response = await api.post<PresignedUploadResponse>('/file/presign', request);
+    return response.data;
+  },
+
+  uploadToPresignedUrl: async (
+    presignedUrl: string,
+    file: File,
+    onUploadProgress?: (progressEvent: { loaded: number; total: number; percentage: number }) => void,
+    signal?: AbortSignal
+  ): Promise<void> => {
+    await axios.put(presignedUrl, file, {
+      headers: {
+        'Content-Type': file.type || 'application/octet-stream',
+      },
+      signal,
+      onUploadProgress: (progressEvent) => {
+        if (onUploadProgress && progressEvent.total) {
+          const percentage = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          onUploadProgress({
+            loaded: progressEvent.loaded,
+            total: progressEvent.total,
+            percentage
+          });
+        }
+      }
+    });
+  },
+
+  completePresignedUpload: async (request: CompleteUploadRequest): Promise<FileUploadResponse> => {
+    const response = await api.post<FileUploadResponse>('/file/complete', request);
     return response.data;
   },
 };

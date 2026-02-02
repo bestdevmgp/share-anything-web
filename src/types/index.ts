@@ -138,3 +138,45 @@ export interface SignalingMessage {
   sdp_m_line_index?: number | null;
   message?: string;
 }
+
+// Presigned Upload Types
+export interface PresignedUploadFileInfo {
+  file_name: string;
+  file_size: number;
+  content_type: string;
+}
+
+export interface PresignedUploadRequest {
+  files: PresignedUploadFileInfo[];
+  description?: string;
+  password?: string;
+  expiration?: ExpirationOption;
+  is_one_time?: boolean;
+  turnstile_token: string;
+}
+
+export interface PresignedUploadUrl {
+  file_name: string;
+  storage_key: string;
+  presigned_url: string;
+}
+
+export interface PresignedUploadResponse {
+  upload_session_id: string;
+  share_code: string;
+  urls: PresignedUploadUrl[];
+  expires_in_secs: number;
+}
+
+export interface CompleteUploadFile {
+  file_name: string;
+  storage_key: string;
+  file_size: number;
+  content_type: string;
+}
+
+export interface CompleteUploadRequest {
+  upload_session_id: string;
+  share_code: string;
+  files: CompleteUploadFile[];
+}
