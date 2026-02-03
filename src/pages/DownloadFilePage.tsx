@@ -287,9 +287,9 @@ const DownloadFilePage: React.FC = () => {
 
         setDownloadProgress(50 + Math.round(((i + 1) / downloadUrls.length) * 50)); // 50-100% for downloads
 
-        // Small delay between downloads to avoid browser blocking multiple downloads
+        // Longer delay between downloads to avoid browser blocking multiple downloads
         if (i < downloadUrls.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 300));
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
       }
 

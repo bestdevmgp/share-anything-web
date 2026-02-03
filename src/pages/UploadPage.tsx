@@ -82,9 +82,10 @@ const UploadPage: React.FC = () => {
     const abortController = new AbortController();
     setUploadAbortController(abortController);
 
-    // Multipart upload settings
+    // Upload settings
     const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB per chunk
     const MAX_CONCURRENT_UPLOADS = 6; // Upload 6 chunks in parallel (Worker handles all S3 ops)
+    const DIRECT_UPLOAD_THRESHOLD = 50 * 1024 * 1024; // 50MB - use direct upload
 
     try {
       setIsUploading(true);
@@ -152,74 +153,104 @@ const UploadPage: React.FC = () => {
       for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
         const file = files[fileIndex];
         const fileInit = initResponse.files[fileIndex];
-        const totalParts = fileInit.total_parts;
         const contentType = file.type || 'application/octet-stream';
 
         completedFileParts[fileInit.storage_key] = [];
 
-        // Create multipart upload on Worker (not backend)
-        const workerMultipart = await workerAPI.createMultipartUpload(
-          fileInit.storage_key,
-          contentType
-        );
-        workerUploadIds[fileInit.storage_key] = workerMultipart.uploadId;
+        // Use direct upload for small files (faster, less overhead)
+        const useDirectUpload = file.size < DIRECT_UPLOAD_THRESHOLD;
 
-        const allPartNumbers = Array.from({ length: totalParts }, (_, i) => i + 1);
+        if (useDirectUpload) {
+          // Direct upload - single request, no multipart overhead
+          const progressKey = `${fileIndex}-direct`;
+          partProgress[progressKey] = 0;
 
-        // Upload parts directly to Worker with concurrency limit
-        // eslint-disable-next-line no-loop-func
-        const uploadPartWithProgress = async (partNumber: number): Promise<{ part_number: number; etag: string }> => {
-          if (abortController.signal.aborted) {
-            throw new Error('Upload cancelled');
-          }
-
-          const start = (partNumber - 1) * CHUNK_SIZE;
-          const end = Math.min(start + CHUNK_SIZE, file.size);
-          const chunk = file.slice(start, end);
-          const chunkSize = end - start;
-          const partKey = `${fileIndex}-${partNumber}`;
-
-          // Initialize this part's progress
-          partProgress[partKey] = 0;
-
-          const result = await workerAPI.uploadPart(
+          // eslint-disable-next-line no-loop-func
+          const result = await workerAPI.directUpload(
             fileInit.storage_key,
-            workerMultipart.uploadId,
-            partNumber,
-            chunk,
+            file,
             (loaded) => {
-              // Update only this part's progress
-              partProgress[partKey] = loaded;
+              partProgress[progressKey] = loaded;
               updateTotalProgress();
             },
             abortController.signal
           );
 
-          // Part completed - move from in-progress to completed
-          delete partProgress[partKey];
-          completedBytes += chunkSize;
+          delete partProgress[progressKey];
+          completedBytes += file.size;
           updateTotalProgress();
 
-          return { part_number: result.partNumber, etag: result.etag };
-        };
+          // For direct upload, use 'direct' as upload ID and single part with etag
+          workerUploadIds[fileInit.storage_key] = 'direct';
+          completedFileParts[fileInit.storage_key] = [{ part_number: 1, etag: result.etag }];
+        } else {
+          // Multipart upload for large files
+          const totalParts = fileInit.total_parts;
 
-        // Process parts with concurrency limit
-        const results: { part_number: number; etag: string }[] = [];
-        for (let i = 0; i < allPartNumbers.length; i += MAX_CONCURRENT_UPLOADS) {
-          const batch = allPartNumbers.slice(i, i + MAX_CONCURRENT_UPLOADS);
-          const batchResults = await Promise.all(batch.map(uploadPartWithProgress));
-          results.push(...batchResults);
+          // Create multipart upload on Worker (not backend)
+          const workerMultipart = await workerAPI.createMultipartUpload(
+            fileInit.storage_key,
+            contentType
+          );
+          workerUploadIds[fileInit.storage_key] = workerMultipart.uploadId;
+
+          const allPartNumbers = Array.from({ length: totalParts }, (_, i) => i + 1);
+
+          // Upload parts directly to Worker with concurrency limit
+          // eslint-disable-next-line no-loop-func
+          const uploadPartWithProgress = async (partNumber: number): Promise<{ part_number: number; etag: string }> => {
+            if (abortController.signal.aborted) {
+              throw new Error('Upload cancelled');
+            }
+
+            const start = (partNumber - 1) * CHUNK_SIZE;
+            const end = Math.min(start + CHUNK_SIZE, file.size);
+            const chunk = file.slice(start, end);
+            const chunkSize = end - start;
+            const partKey = `${fileIndex}-${partNumber}`;
+
+            // Initialize this part's progress
+            partProgress[partKey] = 0;
+
+            const result = await workerAPI.uploadPart(
+              fileInit.storage_key,
+              workerMultipart.uploadId,
+              partNumber,
+              chunk,
+              (loaded) => {
+                // Update only this part's progress
+                partProgress[partKey] = loaded;
+                updateTotalProgress();
+              },
+              abortController.signal
+            );
+
+            // Part completed - move from in-progress to completed
+            delete partProgress[partKey];
+            completedBytes += chunkSize;
+            updateTotalProgress();
+
+            return { part_number: result.partNumber, etag: result.etag };
+          };
+
+          // Process parts with concurrency limit
+          const results: { part_number: number; etag: string }[] = [];
+          for (let i = 0; i < allPartNumbers.length; i += MAX_CONCURRENT_UPLOADS) {
+            const batch = allPartNumbers.slice(i, i + MAX_CONCURRENT_UPLOADS);
+            const batchResults = await Promise.all(batch.map(uploadPartWithProgress));
+            results.push(...batchResults);
+          }
+
+          // Sort by part number and store
+          completedFileParts[fileInit.storage_key] = results.sort((a, b) => a.part_number - b.part_number);
+
+          // Complete multipart upload on Worker
+          await workerAPI.completeMultipartUpload(
+            fileInit.storage_key,
+            workerMultipart.uploadId,
+            completedFileParts[fileInit.storage_key].map(p => ({ partNumber: p.part_number, etag: p.etag }))
+          );
         }
-
-        // Sort by part number and store
-        completedFileParts[fileInit.storage_key] = results.sort((a, b) => a.part_number - b.part_number);
-
-        // Complete multipart upload on Worker
-        await workerAPI.completeMultipartUpload(
-          fileInit.storage_key,
-          workerMultipart.uploadId,
-          completedFileParts[fileInit.storage_key].map(p => ({ partNumber: p.part_number, etag: p.etag }))
-        );
       }
 
       // Step 3: Finalize on backend (DB records only - no S3 calls)
