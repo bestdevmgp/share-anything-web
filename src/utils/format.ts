@@ -101,3 +101,37 @@ export const isTextFile = (filename: string): boolean => {
   const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
   return textExtensions.includes(extension);
 };
+
+export const formatTimeRemaining = (remainingSeconds: number): string => {
+  if (remainingSeconds <= 0 || !isFinite(remainingSeconds)) {
+    return '계산 중...';
+  }
+
+  if (remainingSeconds < 60) {
+    return `${Math.ceil(remainingSeconds)}초 남음`;
+  } else if (remainingSeconds < 3600) {
+    const minutes = Math.ceil(remainingSeconds / 60);
+    return `${minutes}분 남음`;
+  } else {
+    const hours = Math.floor(remainingSeconds / 3600);
+    const minutes = Math.ceil((remainingSeconds % 3600) / 60);
+    return `${hours}시간 ${minutes}분 남음`;
+  }
+};
+
+export const calculateTimeRemaining = (
+  startTime: number,
+  loadedBytes: number,
+  totalBytes: number
+): number => {
+  const elapsedMs = Date.now() - startTime;
+  if (elapsedMs < 500 || loadedBytes === 0) {
+    return Infinity; // Not enough data to estimate
+  }
+
+  const bytesPerMs = loadedBytes / elapsedMs;
+  const remainingBytes = totalBytes - loadedBytes;
+  const remainingMs = remainingBytes / bytesPerMs;
+
+  return remainingMs / 1000; // Convert to seconds
+};

@@ -4,7 +4,7 @@ import { useDropzone } from 'react-dropzone';
 import { useAuth } from '../context/AuthContext';
 import { fileAPI, workerAPI } from '../services/api';
 import { ExpirationOption } from '../types';
-import { formatFileSize, isImageFile, isVideoFile, isAudioFile, isTextFile } from '../utils/format';
+import { formatFileSize, isImageFile, isVideoFile, isAudioFile, isTextFile, formatTimeRemaining, calculateTimeRemaining } from '../utils/format';
 import { DocumentIcon, XMarkIcon, EyeIcon, EyeSlashIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 import TurnstileWidget from '../components/TurnstileWidget';
@@ -27,6 +27,7 @@ const UploadPage: React.FC = () => {
   const [isOneTime, setIsOneTime] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadTimeRemaining, setUploadTimeRemaining] = useState<string>('');
   const [uploadAbortController, setUploadAbortController] = useState<AbortController | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string>('');
   const [transferType, setTransferType] = useState<'server' | 'p2p'>('server');
@@ -133,6 +134,7 @@ const UploadPage: React.FC = () => {
       });
 
       const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+      const uploadStartTime = Date.now();
 
       // Track completed parts and upload IDs for each file
       const completedFileParts: { [key: string]: { part_number: number; etag: string }[] } = {};
@@ -146,7 +148,11 @@ const UploadPage: React.FC = () => {
         const inProgressBytes = Object.values(partProgress).reduce((sum, bytes) => sum + bytes, 0);
         const totalUploaded = completedBytes + inProgressBytes;
         const percentage = Math.round((totalUploaded / totalSize) * 100);
-        setUploadProgress(Math.min(percentage, 99)); // Cap at 99% until complete
+        setUploadProgress(percentage);
+
+        // Calculate and update time remaining
+        const remainingSeconds = calculateTimeRemaining(uploadStartTime, totalUploaded, totalSize);
+        setUploadTimeRemaining(formatTimeRemaining(remainingSeconds));
       };
 
       // Step 2: Upload all files in PARALLEL via Worker
@@ -266,7 +272,10 @@ const UploadPage: React.FC = () => {
         await Promise.all(batch.map(uploadFile));
       }
 
-      // Step 3: Finalize on backend (DB records only - no S3 calls)
+      // All uploads complete - show 100% with "잠시만 기다려주세요..." message
+      setUploadProgress(100);
+
+      // Step 3: Finalize on backend (creates DB records and completes R2 multipart)
       const response = await fileAPI.completeMultipartUpload({
         upload_session_id: initResponse.upload_session_id,
         share_code: initResponse.share_code,
@@ -279,8 +288,6 @@ const UploadPage: React.FC = () => {
           parts: completedFileParts[fileInit.storage_key]
         }))
       });
-
-      setUploadProgress(100);
 
       navigate('/upload/success', {
         state: {
@@ -602,7 +609,12 @@ const UploadPage: React.FC = () => {
                       {uploadProgress === 100 ? '잠시만 기다려주세요...' : '업로드 중...'}
                     </span>
                     {uploadProgress < 100 && (
-                      <span className="text-xs font-semibold text-blue-600 self-end">{uploadProgress}%</span>
+                      <div className="flex items-center gap-2 self-end">
+                        {uploadTimeRemaining && (
+                          <span className="text-xs text-gray-500">{uploadTimeRemaining}</span>
+                        )}
+                        <span className="text-xs font-semibold text-blue-600">{uploadProgress}%</span>
+                      </div>
                     )}
                   </div>
                   <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">

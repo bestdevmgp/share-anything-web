@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fileAPI } from '../services/api';
 import { FileListResponse } from '../types';
-import { formatFileSize, downloadFile, formatDateTime, isImageFile, isVideoFile, isAudioFile, isTextFile } from '../utils/format';
+import { formatFileSize, downloadFile, formatDateTime, isImageFile, isVideoFile, isAudioFile, isTextFile, formatTimeRemaining, calculateTimeRemaining } from '../utils/format';
 import { DocumentIcon, LockClosedIcon, CheckIcon, ArrowDownTrayIcon, EyeIcon, EyeSlashIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 import TurnstileWidget from '../components/TurnstileWidget';
@@ -28,7 +28,9 @@ const DownloadFilePage: React.FC = () => {
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [downloading, setDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
+  const [downloadTimeRemaining, setDownloadTimeRemaining] = useState<string>('');
   const [downloadAbortController, setDownloadAbortController] = useState<AbortController | null>(null);
+  const [downloadAsZip, setDownloadAsZip] = useState(false);
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
@@ -135,7 +137,18 @@ const DownloadFilePage: React.FC = () => {
     setTurnstileVerified(true);
   }, [loadFileList]);
 
-  useEffect(() => {}, []);
+  // Reset downloadAsZip if selected files exceed 500MB
+  useEffect(() => {
+    if (!fileList) return;
+    const selectedTotalSize = fileList.files
+      .filter(f => selectedFiles.has(f.id))
+      .reduce((sum, f) => sum + f.file_size, 0);
+    const ZIP_SIZE_LIMIT = 500 * 1024 * 1024; // 500MB
+
+    if (selectedTotalSize >= ZIP_SIZE_LIMIT) {
+      setDownloadAsZip(false);
+    }
+  }, [selectedFiles, fileList]);
 
   useEffect(() => {
     let imageUrl: string | null = null;
@@ -249,13 +262,44 @@ const DownloadFilePage: React.FC = () => {
 
     const abortController = new AbortController();
     setDownloadAbortController(abortController);
+    const downloadStartTime = Date.now();
 
     try {
       setDownloading(true);
       setDownloadProgress(0);
+      setDownloadTimeRemaining('');
       const selectedFileIds = Array.from(selectedFiles);
 
-      // Get all download URLs first
+      // ZIP download for multiple files
+      if (downloadAsZip && selectedFileIds.length > 1) {
+        const totalSize = fileList.files
+          .filter(f => selectedFiles.has(f.id))
+          .reduce((sum, f) => sum + f.file_size, 0);
+
+        const blob = await fileAPI.downloadBulk(
+          {
+            code,
+            file_ids: selectedFileIds,
+            password: password || undefined
+          },
+          (progressEvent) => {
+            setDownloadProgress(progressEvent.percentage);
+            const remainingSeconds = calculateTimeRemaining(
+              downloadStartTime,
+              progressEvent.loaded,
+              totalSize
+            );
+            setDownloadTimeRemaining(formatTimeRemaining(remainingSeconds));
+          },
+          abortController.signal
+        );
+
+        downloadFile(blob, `${code}.zip`);
+        toast.success('ZIP 파일 다운로드가 완료되었습니다.');
+        return;
+      }
+
+      // Individual file downloads
       const downloadUrls: { url: string; fileName: string }[] = [];
 
       for (let i = 0; i < selectedFileIds.length; i++) {
@@ -310,6 +354,7 @@ const DownloadFilePage: React.FC = () => {
     } finally {
       setDownloading(false);
       setDownloadProgress(0);
+      setDownloadTimeRemaining('');
       setDownloadAbortController(null);
     }
   };
@@ -634,7 +679,12 @@ const DownloadFilePage: React.FC = () => {
                           {downloadProgress === 100 ? '잠시만 기다려주세요...' : '다운로드 중...'}
                         </span>
                         {downloadProgress < 100 && (
-                          <span className="text-xs font-semibold text-blue-600 self-end">{downloadProgress}%</span>
+                          <div className="flex items-center gap-2 self-end">
+                            {downloadTimeRemaining && (
+                              <span className="text-xs text-gray-500">{downloadTimeRemaining}</span>
+                            )}
+                            <span className="text-xs font-semibold text-blue-600">{downloadProgress}%</span>
+                          </div>
                         )}
                       </div>
                       <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">
@@ -803,6 +853,43 @@ const DownloadFilePage: React.FC = () => {
             ))}
           </div>
 
+          {/* ZIP Download Option - only show if total size < 500MB */}
+          {(() => {
+            const selectedTotalSize = fileList.files
+              .filter(f => selectedFiles.has(f.id))
+              .reduce((sum, f) => sum + f.file_size, 0);
+            const ZIP_SIZE_LIMIT = 500 * 1024 * 1024; // 500MB
+
+            return selectedFiles.size > 1 && !downloading && selectedTotalSize < ZIP_SIZE_LIMIT && (
+              <div className="mb-4">
+                <label className="flex items-center cursor-pointer">
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      checked={downloadAsZip}
+                      onChange={(e) => setDownloadAsZip(e.target.checked)}
+                      className="sr-only"
+                    />
+                    <div
+                      className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors ${
+                        downloadAsZip
+                          ? 'bg-blue-600 border-blue-600'
+                          : 'border-gray-300 bg-white'
+                      }`}
+                    >
+                      {downloadAsZip && (
+                        <CheckIcon className="w-4 h-4 text-white" strokeWidth={3} />
+                      )}
+                    </div>
+                  </div>
+                  <span className="ml-2.5 text-base font-medium text-gray-900">
+                    ZIP 파일로 다운로드
+                  </span>
+                </label>
+              </div>
+            );
+          })()}
+
           {/* Download Button */}
           <div className="">
             {downloading ? (
@@ -811,10 +898,15 @@ const DownloadFilePage: React.FC = () => {
                   <div className="flex-1 pl-2">
                     <div className="flex justify-between mb-2">
                       <span className="text-sm font-medium text-gray-700 self-start">
-                        {downloadProgress === 100 ? '잠시만 기다려주세요...' : '다운로드 중...'}
+                        {downloadProgress === 100 ? '잠시만 기다려주세요...' : (downloadAsZip ? 'ZIP 생성 중...' : '다운로드 중...')}
                       </span>
                       {downloadProgress < 100 && (
-                        <span className="text-xs font-semibold text-blue-600 self-end">{downloadProgress}%</span>
+                        <div className="flex items-center gap-2 self-end">
+                          {downloadTimeRemaining && (
+                            <span className="text-xs text-gray-500">{downloadTimeRemaining}</span>
+                          )}
+                          <span className="text-xs font-semibold text-blue-600">{downloadProgress}%</span>
+                        </div>
                       )}
                     </div>
                     <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">
@@ -844,13 +936,15 @@ const DownloadFilePage: React.FC = () => {
                     ? '파일을 선택하세요'
                     : selectedFiles.size === 1
                     ? '다운로드'
+                    : downloadAsZip
+                    ? `${selectedFiles.size}개 파일 ZIP 다운로드`
                     : `${selectedFiles.size}개 파일 다운로드`
                   }
                 </button>
 
-                {selectedFiles.size > 1 && (
+                {selectedFiles.size > 1 && !downloadAsZip && (
                   <p className="text-center text-sm text-gray-500">
-                    각 파일이 개별적으로 다운로드됩니다.
+                    각 파일이 개별적으로 다운로드됩니다. ZIP으로 받으려면 위 옵션을 체크하세요.
                   </p>
                 )}
               </div>
