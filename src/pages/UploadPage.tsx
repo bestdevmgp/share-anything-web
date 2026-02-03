@@ -160,7 +160,6 @@ const UploadPage: React.FC = () => {
 
         const file = files[fileIndex];
         const fileInit = initResponse.files[fileIndex];
-        const contentType = file.type || 'application/octet-stream';
 
         // Use direct upload for small files (faster, less overhead)
         const useDirectUpload = file.size < DIRECT_UPLOAD_THRESHOLD;
