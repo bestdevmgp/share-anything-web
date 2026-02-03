@@ -941,12 +941,6 @@ const DownloadFilePage: React.FC = () => {
                     : `${selectedFiles.size}개 파일 다운로드`
                   }
                 </button>
-
-                {selectedFiles.size > 1 && !downloadAsZip && (
-                  <p className="text-center text-sm text-gray-500">
-                    각 파일이 개별적으로 다운로드됩니다. ZIP으로 받으려면 위 옵션을 체크하세요.
-                  </p>
-                )}
               </div>
             )}
           </div>
