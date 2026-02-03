@@ -84,7 +84,7 @@ const UploadPage: React.FC = () => {
 
     // Multipart upload settings
     const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB per chunk
-    const MAX_CONCURRENT_UPLOADS = 4; // Upload 4 chunks in parallel
+    const MAX_CONCURRENT_UPLOADS = 6; // Upload 6 chunks in parallel (Worker handles all S3 ops)
 
     try {
       setIsUploading(true);
@@ -116,7 +116,7 @@ const UploadPage: React.FC = () => {
       }
 
       // Server transfer uses Worker-based multipart upload for edge performance
-      // Step 1: Initialize multipart upload on backend (creates session, storage keys, and S3 multipart uploads)
+      // Step 1: Initialize upload session on backend (creates session and storage keys only - no S3 calls)
       const initResponse = await fileAPI.initMultipartUpload({
         files: files.map(file => ({
           file_name: file.name,
@@ -133,8 +133,9 @@ const UploadPage: React.FC = () => {
 
       const totalSize = files.reduce((sum, file) => sum + file.size, 0);
 
-      // Track completed parts for each file
+      // Track completed parts and upload IDs for each file
       const completedFileParts: { [key: string]: { part_number: number; etag: string }[] } = {};
+      const workerUploadIds: { [key: string]: string } = {};
 
       // Track upload progress per part to avoid progress jumping
       const partProgress: { [key: string]: number } = {};
@@ -147,19 +148,25 @@ const UploadPage: React.FC = () => {
         setUploadProgress(Math.min(percentage, 99)); // Cap at 99% until complete
       };
 
-      // Step 2: Upload each file's parts via Worker (streaming to R2 at edge)
-      // The multipart upload was already created by the backend, we just use its upload_id
+      // Step 2: Upload each file via Worker (all S3/R2 operations happen on Worker)
       for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
         const file = files[fileIndex];
         const fileInit = initResponse.files[fileIndex];
         const totalParts = fileInit.total_parts;
+        const contentType = file.type || 'application/octet-stream';
 
         completedFileParts[fileInit.storage_key] = [];
+
+        // Create multipart upload on Worker (not backend)
+        const workerMultipart = await workerAPI.createMultipartUpload(
+          fileInit.storage_key,
+          contentType
+        );
+        workerUploadIds[fileInit.storage_key] = workerMultipart.uploadId;
 
         const allPartNumbers = Array.from({ length: totalParts }, (_, i) => i + 1);
 
         // Upload parts directly to Worker with concurrency limit
-        // Worker uses resumeMultipartUpload to attach to the backend-created upload
         // eslint-disable-next-line no-loop-func
         const uploadPartWithProgress = async (partNumber: number): Promise<{ part_number: number; etag: string }> => {
           if (abortController.signal.aborted) {
@@ -177,7 +184,7 @@ const UploadPage: React.FC = () => {
 
           const result = await workerAPI.uploadPart(
             fileInit.storage_key,
-            fileInit.upload_id, // Use upload_id from backend init
+            workerMultipart.uploadId,
             partNumber,
             chunk,
             (loaded) => {
@@ -206,16 +213,23 @@ const UploadPage: React.FC = () => {
 
         // Sort by part number and store
         completedFileParts[fileInit.storage_key] = results.sort((a, b) => a.part_number - b.part_number);
+
+        // Complete multipart upload on Worker
+        await workerAPI.completeMultipartUpload(
+          fileInit.storage_key,
+          workerMultipart.uploadId,
+          completedFileParts[fileInit.storage_key].map(p => ({ partNumber: p.part_number, etag: p.etag }))
+        );
       }
 
-      // Step 3: Complete multipart upload on backend (finalizes S3 upload and creates DB records)
+      // Step 3: Finalize on backend (DB records only - no S3 calls)
       const response = await fileAPI.completeMultipartUpload({
         upload_session_id: initResponse.upload_session_id,
         share_code: initResponse.share_code,
         files: initResponse.files.map((fileInit, i) => ({
           file_name: fileInit.file_name,
           storage_key: fileInit.storage_key,
-          upload_id: fileInit.upload_id,
+          upload_id: workerUploadIds[fileInit.storage_key],
           file_size: files[i].size,
           content_type: files[i].type || 'application/octet-stream',
           parts: completedFileParts[fileInit.storage_key]
