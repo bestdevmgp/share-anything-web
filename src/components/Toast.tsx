@@ -92,7 +92,7 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
       }}
     >
       <div
-        className="bg-white rounded-full pl-2.5 pr-4 py-2 flex items-center gap-2"
+        className="bg-white rounded-full pl-2.5 pr-4 py-2 flex items-center gap-2.5"
         style={{
           boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.12), 0 2px 8px -2px rgba(0, 0, 0, 0.08)',
         }}
