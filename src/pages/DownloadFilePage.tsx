@@ -853,43 +853,6 @@ const DownloadFilePage: React.FC = () => {
             ))}
           </div>
 
-          {/* ZIP Download Option - only show if total size < 500MB */}
-          {(() => {
-            const selectedTotalSize = fileList.files
-              .filter(f => selectedFiles.has(f.id))
-              .reduce((sum, f) => sum + f.file_size, 0);
-            const ZIP_SIZE_LIMIT = 500 * 1024 * 1024; // 500MB
-
-            return selectedFiles.size > 1 && !downloading && selectedTotalSize < ZIP_SIZE_LIMIT && (
-              <div className="mb-4">
-                <label className="flex items-center cursor-pointer">
-                  <div className="relative">
-                    <input
-                      type="checkbox"
-                      checked={downloadAsZip}
-                      onChange={(e) => setDownloadAsZip(e.target.checked)}
-                      className="sr-only"
-                    />
-                    <div
-                      className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors ${
-                        downloadAsZip
-                          ? 'bg-blue-600 border-blue-600'
-                          : 'border-gray-300 bg-white'
-                      }`}
-                    >
-                      {downloadAsZip && (
-                        <CheckIcon className="w-4 h-4 text-white" strokeWidth={3} />
-                      )}
-                    </div>
-                  </div>
-                  <span className="ml-2.5 text-base font-medium text-gray-900">
-                    ZIP 파일로 다운로드
-                  </span>
-                </label>
-              </div>
-            );
-          })()}
-
           {/* Download Button */}
           <div className="">
             {downloading ? (
@@ -926,22 +889,51 @@ const DownloadFilePage: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="space-y-4">
-                <button
-                  onClick={handleDownload}
-                  disabled={selectedFiles.size === 0}
-                  className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-                >
-                  {selectedFiles.size === 0
-                    ? '파일을 선택하세요'
-                    : selectedFiles.size === 1
-                    ? '다운로드'
-                    : downloadAsZip
-                    ? `${selectedFiles.size}개 파일 ZIP 다운로드`
-                    : `${selectedFiles.size}개 파일 다운로드`
-                  }
-                </button>
-              </div>
+              (() => {
+                const selectedTotalSize = fileList.files
+                  .filter(f => selectedFiles.has(f.id))
+                  .reduce((sum, f) => sum + f.file_size, 0);
+                const ZIP_SIZE_LIMIT = 500 * 1024 * 1024; // 500MB
+                const canDownloadAsZip = selectedFiles.size > 1 && selectedTotalSize < ZIP_SIZE_LIMIT;
+
+                return canDownloadAsZip ? (
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        setDownloadAsZip(true);
+                        setTimeout(() => handleDownload(), 0);
+                      }}
+                      disabled={selectedFiles.size === 0}
+                      className="flex-1 px-4 py-3 md:py-4 bg-gray-100 text-gray-700 text-base font-semibold rounded-xl hover:bg-gray-200 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                    >
+                      ZIP 다운로드
+                    </button>
+                    <button
+                      onClick={() => {
+                        setDownloadAsZip(false);
+                        setTimeout(() => handleDownload(), 0);
+                      }}
+                      disabled={selectedFiles.size === 0}
+                      className="flex-1 px-4 py-3 md:py-4 bg-blue-600 text-white text-base font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                    >
+                      다운로드
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleDownload}
+                    disabled={selectedFiles.size === 0}
+                    className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                  >
+                    {selectedFiles.size === 0
+                      ? '파일을 선택하세요'
+                      : selectedFiles.size === 1
+                      ? '다운로드'
+                      : `${selectedFiles.size}개 파일 다운로드`
+                    }
+                  </button>
+                );
+              })()
             )}
           </div>
 
