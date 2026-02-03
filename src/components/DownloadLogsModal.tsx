@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { userAPI } from '../services/api';
 import { DownloadLog } from '../types';
-import { toast } from 'react-toastify';
+import { toast } from '../context/ToastContext';
 
 interface DownloadLogsModalProps {
   fileId: string;

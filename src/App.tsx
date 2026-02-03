@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { ToastProvider } from './context/ToastContext';
+import ToastContainer from './components/Toast';
 
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
@@ -21,17 +21,7 @@ const AppContent: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#F9FAFB] flex flex-col">
       <Header />
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+      <ToastContainer />
       <div className="flex-1">
         <ScrollToTop />
         <Routes>
@@ -54,9 +44,11 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
+      <ToastProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </ToastProvider>
     </AuthProvider>
   );
 };

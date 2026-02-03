@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userAPI, fileAPI } from '../services/api';
 import { UploadHistoryItem, DownloadLog } from '../types';
-import { toast } from 'react-toastify';
+import { toast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { isVideoFile, isAudioFile, isTextFile } from '../utils/format';
 import { QRCodeSVG } from 'qrcode.react';

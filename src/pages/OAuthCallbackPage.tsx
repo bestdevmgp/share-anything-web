@@ -3,7 +3,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../services/api';
 import { AuthResponse } from '../types';
-import { toast } from 'react-toastify';
+import { toast } from '../context/ToastContext';
 
 const OAuthCallbackPage: React.FC = () => {
   const navigate = useNavigate();

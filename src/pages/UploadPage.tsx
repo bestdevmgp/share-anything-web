@@ -6,7 +6,7 @@ import { fileAPI, workerAPI } from '../services/api';
 import { ExpirationOption } from '../types';
 import { formatFileSize, isImageFile, isVideoFile, isAudioFile, isTextFile, formatTimeRemaining, calculateTimeRemaining } from '../utils/format';
 import { DocumentIcon, XMarkIcon, EyeIcon, EyeSlashIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon, CheckIcon } from '@heroicons/react/24/outline';
-import { toast } from 'react-toastify';
+import { toast } from '../context/ToastContext';
 import TurnstileWidget from '../components/TurnstileWidget';
 
 const UploadPage: React.FC = () => {

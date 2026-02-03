@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { SignalingMessage } from '../types';
 import { createWebSocketConnection, createPeerConnection, generatePeerId, sendSignalingMessage } from '../utils/webrtc';
-import { toast } from 'react-toastify';
+import { toast } from '../context/ToastContext';
 
 interface UseP2PUploaderProps {
   shareCode: string;
