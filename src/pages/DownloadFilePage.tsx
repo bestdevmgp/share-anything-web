@@ -257,12 +257,13 @@ const DownloadFilePage: React.FC = () => {
     }
   };
 
-  const handleDownload = async () => {
+  const handleDownload = async (asZip: boolean = false) => {
     if (!code || !fileList || selectedFiles.size === 0) return;
 
     const abortController = new AbortController();
     setDownloadAbortController(abortController);
     const downloadStartTime = Date.now();
+    setDownloadAsZip(asZip); // Update state for UI display during download
 
     try {
       setDownloading(true);
@@ -271,7 +272,7 @@ const DownloadFilePage: React.FC = () => {
       const selectedFileIds = Array.from(selectedFiles);
 
       // ZIP download for multiple files
-      if (downloadAsZip && selectedFileIds.length > 1) {
+      if (asZip && selectedFileIds.length > 1) {
         const totalSize = fileList.files
           .filter(f => selectedFiles.has(f.id))
           .reduce((sum, f) => sum + f.file_size, 0);
@@ -705,7 +706,7 @@ const DownloadFilePage: React.FC = () => {
                 </div>
               ) : (
                 <button
-                  onClick={handleDownload}
+                  onClick={() => handleDownload(false)}
                   className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-base md:text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
                 >
                   <ArrowDownTrayIcon className="w-5 h-5" />
@@ -899,20 +900,14 @@ const DownloadFilePage: React.FC = () => {
                 return canDownloadAsZip ? (
                   <div className="flex gap-3">
                     <button
-                      onClick={() => {
-                        setDownloadAsZip(true);
-                        setTimeout(() => handleDownload(), 0);
-                      }}
+                      onClick={() => handleDownload(true)}
                       disabled={selectedFiles.size === 0}
                       className="flex-1 px-4 py-3 md:py-4 bg-gray-100 text-gray-700 text-base font-semibold rounded-xl hover:bg-gray-200 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
                     >
                       ZIP 다운로드
                     </button>
                     <button
-                      onClick={() => {
-                        setDownloadAsZip(false);
-                        setTimeout(() => handleDownload(), 0);
-                      }}
+                      onClick={() => handleDownload(false)}
                       disabled={selectedFiles.size === 0}
                       className="flex-1 px-4 py-3 md:py-4 bg-blue-600 text-white text-base font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                     >
@@ -921,7 +916,7 @@ const DownloadFilePage: React.FC = () => {
                   </div>
                 ) : (
                   <button
-                    onClick={handleDownload}
+                    onClick={() => handleDownload(false)}
                     disabled={selectedFiles.size === 0}
                     className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                   >
