@@ -82,10 +82,10 @@ const UploadPage: React.FC = () => {
     const abortController = new AbortController();
     setUploadAbortController(abortController);
 
-    // Upload settings
-    const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB per chunk
-    const MAX_CONCURRENT_UPLOADS = 6; // Upload 6 chunks in parallel (Worker handles all S3 ops)
-    const DIRECT_UPLOAD_THRESHOLD = 50 * 1024 * 1024; // 50MB - use direct upload
+    // Upload settings - optimized for speed
+    const CHUNK_SIZE = 50 * 1024 * 1024; // 50MB per chunk (larger = fewer HTTP requests)
+    const MAX_CONCURRENT_UPLOADS = 10; // Upload 10 chunks in parallel
+    const DIRECT_UPLOAD_THRESHOLD = 100 * 1024 * 1024; // 100MB - use direct upload for files under this
 
     try {
       setIsUploading(true);
@@ -149,13 +149,18 @@ const UploadPage: React.FC = () => {
         setUploadProgress(Math.min(percentage, 99)); // Cap at 99% until complete
       };
 
-      // Step 2: Upload each file via Worker (all S3/R2 operations happen on Worker)
-      for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
+      // Step 2: Upload all files in PARALLEL via Worker
+      const MAX_CONCURRENT_FILES = 4; // Upload up to 4 files simultaneously
+
+      // Create upload task for each file
+      const uploadFile = async (fileIndex: number): Promise<void> => {
+        if (abortController.signal.aborted) {
+          throw new Error('Upload cancelled');
+        }
+
         const file = files[fileIndex];
         const fileInit = initResponse.files[fileIndex];
         const contentType = file.type || 'application/octet-stream';
-
-        completedFileParts[fileInit.storage_key] = [];
 
         // Use direct upload for small files (faster, less overhead)
         const useDirectUpload = file.size < DIRECT_UPLOAD_THRESHOLD;
@@ -165,7 +170,6 @@ const UploadPage: React.FC = () => {
           const progressKey = `${fileIndex}-direct`;
           partProgress[progressKey] = 0;
 
-          // eslint-disable-next-line no-loop-func
           const result = await workerAPI.directUpload(
             fileInit.storage_key,
             file,
@@ -184,20 +188,27 @@ const UploadPage: React.FC = () => {
           workerUploadIds[fileInit.storage_key] = 'direct';
           completedFileParts[fileInit.storage_key] = [{ part_number: 1, etag: result.etag }];
         } else {
-          // Multipart upload for large files
+          // Multipart upload for large files - use presigned URLs for direct R2 upload (fastest)
           const totalParts = fileInit.total_parts;
+          const uploadId = fileInit.upload_id; // Backend already created multipart upload
 
-          // Create multipart upload on Worker (not backend)
-          const workerMultipart = await workerAPI.createMultipartUpload(
-            fileInit.storage_key,
-            contentType
-          );
-          workerUploadIds[fileInit.storage_key] = workerMultipart.uploadId;
+          workerUploadIds[fileInit.storage_key] = uploadId;
 
           const allPartNumbers = Array.from({ length: totalParts }, (_, i) => i + 1);
 
-          // Upload parts directly to Worker with concurrency limit
-          // eslint-disable-next-line no-loop-func
+          // Get presigned URLs for all parts at once
+          const presignedUrlsResponse = await fileAPI.getPartPresignedUrls({
+            upload_session_id: initResponse.upload_session_id,
+            storage_key: fileInit.storage_key,
+            upload_id: uploadId,
+            part_numbers: allPartNumbers
+          });
+
+          // Create a map of part number to presigned URL
+          const presignedUrlMap = new Map<number, string>();
+          presignedUrlsResponse.urls.forEach(u => presignedUrlMap.set(u.part_number, u.presigned_url));
+
+          // Upload parts directly to R2 using presigned URLs (bypasses Worker completely)
           const uploadPartWithProgress = async (partNumber: number): Promise<{ part_number: number; etag: string }> => {
             if (abortController.signal.aborted) {
               throw new Error('Upload cancelled');
@@ -212,13 +223,16 @@ const UploadPage: React.FC = () => {
             // Initialize this part's progress
             partProgress[partKey] = 0;
 
-            const result = await workerAPI.uploadPart(
-              fileInit.storage_key,
-              workerMultipart.uploadId,
-              partNumber,
+            const presignedUrl = presignedUrlMap.get(partNumber);
+            if (!presignedUrl) {
+              throw new Error(`No presigned URL for part ${partNumber}`);
+            }
+
+            // Upload directly to R2 using presigned URL
+            const etag = await fileAPI.uploadPart(
+              presignedUrl,
               chunk,
               (loaded) => {
-                // Update only this part's progress
                 partProgress[partKey] = loaded;
                 updateTotalProgress();
               },
@@ -230,7 +244,7 @@ const UploadPage: React.FC = () => {
             completedBytes += chunkSize;
             updateTotalProgress();
 
-            return { part_number: result.partNumber, etag: result.etag };
+            return { part_number: partNumber, etag };
           };
 
           // Process parts with concurrency limit
@@ -241,16 +255,16 @@ const UploadPage: React.FC = () => {
             results.push(...batchResults);
           }
 
-          // Sort by part number and store
+          // Sort by part number and store (R2 complete will be called in backend)
           completedFileParts[fileInit.storage_key] = results.sort((a, b) => a.part_number - b.part_number);
-
-          // Complete multipart upload on Worker
-          await workerAPI.completeMultipartUpload(
-            fileInit.storage_key,
-            workerMultipart.uploadId,
-            completedFileParts[fileInit.storage_key].map(p => ({ partNumber: p.part_number, etag: p.etag }))
-          );
         }
+      };
+
+      // Upload files in parallel with concurrency limit
+      const fileIndices = Array.from({ length: files.length }, (_, i) => i);
+      for (let i = 0; i < fileIndices.length; i += MAX_CONCURRENT_FILES) {
+        const batch = fileIndices.slice(i, i + MAX_CONCURRENT_FILES);
+        await Promise.all(batch.map(uploadFile));
       }
 
       // Step 3: Finalize on backend (DB records only - no S3 calls)
