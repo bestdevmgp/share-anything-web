@@ -287,6 +287,24 @@ export const fileAPI = {
     return response.data;
   },
 
+  getDownloadUrl: async (
+    code: string,
+    fileId: string,
+    password?: string
+  ): Promise<{ download_url: string; expires_in_secs: number }> => {
+    const headers: Record<string, string> = {};
+    if (password) {
+      headers['X-File-Password'] = password;
+    }
+
+    const response = await api.get<{ download_url: string; expires_in_secs: number }>('/download/url', {
+      params: { code, file_id: fileId },
+      headers
+    });
+
+    return response.data;
+  },
+
 
   previewFile: async (
     code: string,

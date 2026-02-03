@@ -255,37 +255,49 @@ const DownloadFilePage: React.FC = () => {
       setDownloadProgress(0);
       const selectedFileIds = Array.from(selectedFiles);
 
-      if (selectedFileIds.length === 1) {
-        const fileId = selectedFileIds[0];
-        const file = fileList.files.find(f => f.id === fileId);
-        if (!file) return;
+      // Get all download URLs first
+      const downloadUrls: { url: string; fileName: string }[] = [];
 
-        const blob = await fileAPI.downloadFile(
+      for (let i = 0; i < selectedFileIds.length; i++) {
+        const fileId = selectedFileIds[i];
+        const file = fileList.files.find(f => f.id === fileId);
+        if (!file) continue;
+
+        const { download_url } = await fileAPI.getDownloadUrl(
           code,
           fileId,
-          password || undefined,
-          (progressEvent) => {
-            setDownloadProgress(progressEvent.percentage);
-          },
-          abortController.signal
+          password || undefined
         );
-        downloadFile(blob, file.file_name);
-        toast.success('파일 다운로드가 완료되었습니다.');
-      } else {
-        const blob = await fileAPI.downloadBulk(
-          {
-            code,
-            file_ids: selectedFileIds,
-            password: password || undefined
-          },
-          (progressEvent) => {
-            setDownloadProgress(progressEvent.percentage);
-          },
-          abortController.signal
-        );
-        downloadFile(blob, `files_${code}.zip`);
-        toast.success(`${selectedFileIds.length}개 파일 다운로드가 완료되었습니다.`);
+
+        downloadUrls.push({ url: download_url, fileName: file.file_name });
+        setDownloadProgress(Math.round(((i + 1) / selectedFileIds.length) * 50)); // 0-50% for URL fetching
       }
+
+      // Trigger all downloads using invisible anchor tags
+      for (let i = 0; i < downloadUrls.length; i++) {
+        const { url, fileName } = downloadUrls[i];
+
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        setDownloadProgress(50 + Math.round(((i + 1) / downloadUrls.length) * 50)); // 50-100% for downloads
+
+        // Small delay between downloads to avoid browser blocking multiple downloads
+        if (i < downloadUrls.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
+      }
+
+      toast.success(
+        selectedFileIds.length === 1
+          ? '다운로드가 시작되었습니다.'
+          : `${selectedFileIds.length}개 파일 다운로드가 시작되었습니다.`
+      );
     } catch (err: any) {
       if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') {
         toast.info('다운로드가 취소되었습니다.');
@@ -832,13 +844,13 @@ const DownloadFilePage: React.FC = () => {
                     ? '파일을 선택하세요'
                     : selectedFiles.size === 1
                     ? '다운로드'
-                    : `${selectedFiles.size}개 파일 ZIP으로 다운로드`
+                    : `${selectedFiles.size}개 파일 다운로드`
                   }
                 </button>
 
                 {selectedFiles.size > 1 && (
                   <p className="text-center text-sm text-gray-500">
-                    ZIP 파일로 압축되어 다운로드됩니다.
+                    각 파일이 개별적으로 다운로드됩니다.
                   </p>
                 )}
               </div>
