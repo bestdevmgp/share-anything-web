@@ -136,6 +136,17 @@ const UploadPage: React.FC = () => {
       // Track completed parts for each file
       const completedFileParts: { [key: string]: { part_number: number; etag: string }[] } = {};
 
+      // Track upload progress per part to avoid progress jumping
+      const partProgress: { [key: string]: number } = {};
+      let completedBytes = 0; // Bytes from fully completed parts
+
+      const updateTotalProgress = () => {
+        const inProgressBytes = Object.values(partProgress).reduce((sum, bytes) => sum + bytes, 0);
+        const totalUploaded = completedBytes + inProgressBytes;
+        const percentage = Math.round((totalUploaded / totalSize) * 100);
+        setUploadProgress(Math.min(percentage, 99)); // Cap at 99% until complete
+      };
+
       // Step 2: Upload each file's parts via Worker (streaming to R2 at edge)
       // The multipart upload was already created by the backend, we just use its upload_id
       for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
@@ -149,6 +160,7 @@ const UploadPage: React.FC = () => {
 
         // Upload parts directly to Worker with concurrency limit
         // Worker uses resumeMultipartUpload to attach to the backend-created upload
+        // eslint-disable-next-line no-loop-func
         const uploadPartWithProgress = async (partNumber: number): Promise<{ part_number: number; etag: string }> => {
           if (abortController.signal.aborted) {
             throw new Error('Upload cancelled');
@@ -157,6 +169,11 @@ const UploadPage: React.FC = () => {
           const start = (partNumber - 1) * CHUNK_SIZE;
           const end = Math.min(start + CHUNK_SIZE, file.size);
           const chunk = file.slice(start, end);
+          const chunkSize = end - start;
+          const partKey = `${fileIndex}-${partNumber}`;
+
+          // Initialize this part's progress
+          partProgress[partKey] = 0;
 
           const result = await workerAPI.uploadPart(
             fileInit.storage_key,
@@ -164,16 +181,17 @@ const UploadPage: React.FC = () => {
             partNumber,
             chunk,
             (loaded) => {
-              // Update progress - this is called per chunk
-              const chunkProgress = loaded;
-              const baseProgress = (partNumber - 1) * CHUNK_SIZE;
-              const fileBaseProgress = files.slice(0, fileIndex).reduce((sum, f) => sum + f.size, 0);
-              const currentTotal = fileBaseProgress + baseProgress + chunkProgress;
-              const percentage = Math.round((currentTotal / totalSize) * 100);
-              setUploadProgress(Math.min(percentage, 99)); // Cap at 99% until complete
+              // Update only this part's progress
+              partProgress[partKey] = loaded;
+              updateTotalProgress();
             },
             abortController.signal
           );
+
+          // Part completed - move from in-progress to completed
+          delete partProgress[partKey];
+          completedBytes += chunkSize;
+          updateTotalProgress();
 
           return { part_number: result.partNumber, etag: result.etag };
         };
