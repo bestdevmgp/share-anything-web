@@ -19,6 +19,81 @@ import type {
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
+const WORKER_URL = 'https://share-anything-upload.pmg3858.workers.dev';
+
+// Worker API for direct edge uploads
+export const workerAPI = {
+  // Create multipart upload on Worker
+  createMultipartUpload: async (storageKey: string, contentType: string): Promise<{ uploadId: string; key: string }> => {
+    const response = await axios.post(`${WORKER_URL}/multipart/create`, {
+      storageKey,
+      contentType
+    });
+    return response.data;
+  },
+
+  // Upload a part directly to Worker (streams to R2)
+  uploadPart: async (
+    storageKey: string,
+    uploadId: string,
+    partNumber: number,
+    chunk: Blob,
+    onUploadProgress?: (loaded: number, total: number) => void,
+    signal?: AbortSignal
+  ): Promise<{ partNumber: number; etag: string }> => {
+    const response = await axios.put(`${WORKER_URL}/multipart/upload-part`, chunk, {
+      headers: {
+        'Content-Type': 'application/octet-stream',
+        'X-Storage-Key': storageKey,
+        'X-Upload-Id': uploadId,
+        'X-Part-Number': partNumber.toString()
+      },
+      signal,
+      onUploadProgress: (progressEvent) => {
+        if (onUploadProgress && progressEvent.total) {
+          onUploadProgress(progressEvent.loaded, progressEvent.total);
+        }
+      }
+    });
+    return response.data;
+  },
+
+  // Complete multipart upload on Worker
+  completeMultipartUpload: async (
+    storageKey: string,
+    uploadId: string,
+    parts: { partNumber: number; etag: string }[]
+  ): Promise<{ success: boolean; etag: string; key: string }> => {
+    const response = await axios.post(`${WORKER_URL}/multipart/complete`, {
+      storageKey,
+      uploadId,
+      parts
+    });
+    return response.data;
+  },
+
+  // Direct upload for small files
+  directUpload: async (
+    storageKey: string,
+    file: File,
+    onUploadProgress?: (loaded: number, total: number) => void,
+    signal?: AbortSignal
+  ): Promise<{ success: boolean; etag: string; key: string }> => {
+    const response = await axios.put(`${WORKER_URL}/upload`, file, {
+      headers: {
+        'Content-Type': file.type || 'application/octet-stream',
+        'X-Storage-Key': storageKey
+      },
+      signal,
+      onUploadProgress: (progressEvent) => {
+        if (onUploadProgress && progressEvent.total) {
+          onUploadProgress(progressEvent.loaded, progressEvent.total);
+        }
+      }
+    });
+    return response.data;
+  }
+};
 
 const api = axios.create({
   baseURL: API_BASE_URL,

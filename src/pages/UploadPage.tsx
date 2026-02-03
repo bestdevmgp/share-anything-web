@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import { useAuth } from '../context/AuthContext';
-import { fileAPI } from '../services/api';
+import { fileAPI, workerAPI } from '../services/api';
 import { ExpirationOption } from '../types';
 import { formatFileSize, isImageFile, isVideoFile, isAudioFile, isTextFile } from '../utils/format';
 import { DocumentIcon, XMarkIcon, EyeIcon, EyeSlashIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon, CheckIcon } from '@heroicons/react/24/outline';
@@ -83,8 +83,8 @@ const UploadPage: React.FC = () => {
     setUploadAbortController(abortController);
 
     // Multipart upload settings
-    const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB per chunk
-    const MAX_CONCURRENT_UPLOADS = 4; // Upload 4 chunks in parallel
+    const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB per chunk
+    const MAX_CONCURRENT_UPLOADS = 6; // Upload 6 chunks in parallel
 
     try {
       setIsUploading(true);
@@ -115,8 +115,8 @@ const UploadPage: React.FC = () => {
         return;
       }
 
-      // Server transfer uses multipart upload for parallel chunk uploads
-      // Step 1: Initialize multipart upload
+      // Server transfer uses Worker-based multipart upload for edge performance
+      // Step 1: Initialize multipart upload on backend (creates session, storage keys, and S3 multipart uploads)
       const initResponse = await fileAPI.initMultipartUpload({
         files: files.map(file => ({
           file_name: file.name,
@@ -136,7 +136,8 @@ const UploadPage: React.FC = () => {
       // Track completed parts for each file
       const completedFileParts: { [key: string]: { part_number: number; etag: string }[] } = {};
 
-      // Step 2: Upload each file using multipart upload
+      // Step 2: Upload each file's parts via Worker (streaming to R2 at edge)
+      // The multipart upload was already created by the backend, we just use its upload_id
       for (let fileIndex = 0; fileIndex < files.length; fileIndex++) {
         const file = files[fileIndex];
         const fileInit = initResponse.files[fileIndex];
@@ -144,22 +145,10 @@ const UploadPage: React.FC = () => {
 
         completedFileParts[fileInit.storage_key] = [];
 
-        // Get presigned URLs for all parts (in batches if needed)
         const allPartNumbers = Array.from({ length: totalParts }, (_, i) => i + 1);
 
-        const partUrlsResponse = await fileAPI.getPartPresignedUrls({
-          upload_session_id: initResponse.upload_session_id,
-          storage_key: fileInit.storage_key,
-          upload_id: fileInit.upload_id,
-          part_numbers: allPartNumbers
-        });
-
-        // Create a map of part number to presigned URL
-        const partUrlMap = new Map(
-          partUrlsResponse.urls.map(u => [u.part_number, u.presigned_url])
-        );
-
-        // Upload parts in parallel with concurrency limit
+        // Upload parts directly to Worker with concurrency limit
+        // Worker uses resumeMultipartUpload to attach to the backend-created upload
         const uploadPartWithProgress = async (partNumber: number): Promise<{ part_number: number; etag: string }> => {
           if (abortController.signal.aborted) {
             throw new Error('Upload cancelled');
@@ -168,10 +157,11 @@ const UploadPage: React.FC = () => {
           const start = (partNumber - 1) * CHUNK_SIZE;
           const end = Math.min(start + CHUNK_SIZE, file.size);
           const chunk = file.slice(start, end);
-          const presignedUrl = partUrlMap.get(partNumber)!;
 
-          const etag = await fileAPI.uploadPart(
-            presignedUrl,
+          const result = await workerAPI.uploadPart(
+            fileInit.storage_key,
+            fileInit.upload_id, // Use upload_id from backend init
+            partNumber,
             chunk,
             (loaded) => {
               // Update progress - this is called per chunk
@@ -185,7 +175,7 @@ const UploadPage: React.FC = () => {
             abortController.signal
           );
 
-          return { part_number: partNumber, etag };
+          return { part_number: result.partNumber, etag: result.etag };
         };
 
         // Process parts with concurrency limit
@@ -200,7 +190,7 @@ const UploadPage: React.FC = () => {
         completedFileParts[fileInit.storage_key] = results.sort((a, b) => a.part_number - b.part_number);
       }
 
-      // Step 3: Complete multipart upload
+      // Step 3: Complete multipart upload on backend (finalizes S3 upload and creates DB records)
       const response = await fileAPI.completeMultipartUpload({
         upload_session_id: initResponse.upload_session_id,
         share_code: initResponse.share_code,
