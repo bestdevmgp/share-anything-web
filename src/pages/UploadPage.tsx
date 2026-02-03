@@ -84,7 +84,7 @@ const UploadPage: React.FC = () => {
 
     // Multipart upload settings
     const CHUNK_SIZE = 10 * 1024 * 1024; // 10MB per chunk
-    const MAX_CONCURRENT_UPLOADS = 6; // Upload 6 chunks in parallel
+    const MAX_CONCURRENT_UPLOADS = 4; // Upload 4 chunks in parallel
 
     try {
       setIsUploading(true);
