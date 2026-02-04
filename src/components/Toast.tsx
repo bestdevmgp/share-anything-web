@@ -140,6 +140,7 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
           : isVisible && !isLeaving
             ? 'all 500ms cubic-bezier(0.34, 1.56, 0.64, 1)'
             : 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+        touchAction: 'none',
       }}
       onClick={dismiss}
       onTouchStart={handleTouchStart}
