@@ -51,10 +51,12 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
   const [isLeaving, setIsLeaving] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [isSwipeDismissing, setIsSwipeDismissing] = useState(false);
+  const swipeStartOffset = useRef(0);
   const touchStartY = useRef<number | null>(null);
 
   const dismiss = () => {
-    if (!isLeaving) {
+    if (!isLeaving && !isSwipeDismissing) {
       setIsLeaving(true);
     }
   };
@@ -65,14 +67,16 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
 
     // Start exit animation before removal
     const exitTimer = setTimeout(() => {
-      setIsLeaving(true);
+      if (!isSwipeDismissing) {
+        setIsLeaving(true);
+      }
     }, 2700);
 
     return () => {
       clearTimeout(enterTimer);
       clearTimeout(exitTimer);
     };
-  }, []);
+  }, [isSwipeDismissing]);
 
   useEffect(() => {
     if (isLeaving) {
@@ -82,6 +86,15 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
       return () => clearTimeout(removeTimer);
     }
   }, [isLeaving, onRemove, toast.id]);
+
+  useEffect(() => {
+    if (isSwipeDismissing) {
+      const removeTimer = setTimeout(() => {
+        onRemove(toast.id);
+      }, 250);
+      return () => clearTimeout(removeTimer);
+    }
+  }, [isSwipeDismissing, onRemove, toast.id]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
@@ -103,13 +116,16 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
     if (touchStartY.current === null) return;
 
     if (dragOffset < -30) {
-      dismiss();
+      // Save current offset for smooth animation continuation
+      swipeStartOffset.current = dragOffset;
+      setIsDragging(false);
+      setIsSwipeDismissing(true);
     } else {
       setDragOffset(0);
+      setIsDragging(false);
     }
 
     touchStartY.current = null;
-    setIsDragging(false);
   };
 
   const dragOpacity = isDragging && dragOffset < 0
@@ -120,6 +136,10 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
     if (isDragging && dragOffset < 0) {
       return `translateY(${dragOffset}px) scale(${0.95 + 0.05 * dragOpacity})`;
     }
+    if (isSwipeDismissing) {
+      // Continue from current position and go further up
+      return `translateY(${swipeStartOffset.current - 40}px) scale(0.9)`;
+    }
     if (isLeaving) {
       return 'translateY(-16px) scale(0.95)';
     }
@@ -129,17 +149,27 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
     return 'translateY(0) scale(1)';
   };
 
+  const getOpacity = () => {
+    if (isSwipeDismissing) return 0;
+    if (isLeaving) return 0;
+    if (!isVisible) return 0;
+    return dragOpacity;
+  };
+
+  const getTransition = () => {
+    if (isDragging) return 'none';
+    if (isSwipeDismissing) return 'all 200ms cubic-bezier(0.4, 0, 1, 1)';
+    if (isVisible && !isLeaving) return 'all 500ms cubic-bezier(0.34, 1.56, 0.64, 1)';
+    return 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)';
+  };
+
   return (
     <div
       className="pointer-events-auto cursor-pointer select-none"
       style={{
         transform: getTransform(),
-        opacity: isLeaving ? 0 : !isVisible ? 0 : dragOpacity,
-        transition: isDragging
-          ? 'none'
-          : isVisible && !isLeaving
-            ? 'all 500ms cubic-bezier(0.34, 1.56, 0.64, 1)'
-            : 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+        opacity: getOpacity(),
+        transition: getTransition(),
         touchAction: 'none',
       }}
       onClick={dismiss}
