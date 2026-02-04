@@ -137,7 +137,6 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
       return `translateY(${dragOffset}px) scale(${0.95 + 0.05 * dragOpacity})`;
     }
     if (isSwipeDismissing) {
-      // Continue from current position and go further up
       return `translateY(${swipeStartOffset.current - 40}px) scale(0.9)`;
     }
     if (isLeaving) {

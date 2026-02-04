@@ -64,7 +64,7 @@ const Footer: React.FC = () => {
         {/* Copyright */}
         <div className="text-center">
           <p className="text-sm text-gray-500">
-            © 2025 ShareAnything. All rights reserved.
+            © 2026 ShareAnything. All rights reserved.
           </p>
         </div>
       </div>
