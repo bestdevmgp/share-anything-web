@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useToast, setToastFunctions, Toast as ToastType } from '../context/ToastContext';
 
 const ToastIcon: React.FC<{ type: ToastType['type'] }> = ({ type }) => {
@@ -49,6 +49,15 @@ const ToastIcon: React.FC<{ type: ToastType['type'] }> = ({ type }) => {
 const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> = ({ toast, onRemove }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const touchStartY = useRef<number | null>(null);
+
+  const dismiss = () => {
+    if (!isLeaving) {
+      setIsLeaving(true);
+    }
+  };
 
   useEffect(() => {
     // Trigger enter animation
@@ -74,22 +83,68 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
     }
   }, [isLeaving, onRemove, toast.id]);
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartY.current === null) return;
+
+    const currentY = e.touches[0].clientY;
+    const diff = currentY - touchStartY.current;
+
+    if (diff < 0) {
+      setDragOffset(diff);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartY.current === null) return;
+
+    if (dragOffset < -30) {
+      dismiss();
+    } else {
+      setDragOffset(0);
+    }
+
+    touchStartY.current = null;
+    setIsDragging(false);
+  };
+
+  const dragOpacity = isDragging && dragOffset < 0
+    ? Math.max(0.3, 1 + dragOffset / 100)
+    : 1;
+
+  const getTransform = () => {
+    if (isDragging && dragOffset < 0) {
+      return `translateY(${dragOffset}px) scale(${0.95 + 0.05 * dragOpacity})`;
+    }
+    if (isLeaving) {
+      return 'translateY(-16px) scale(0.95)';
+    }
+    if (!isVisible) {
+      return 'translateY(-32px) scale(0.95)';
+    }
+    return 'translateY(0) scale(1)';
+  };
+
   return (
     <div
-      className={`
-        transform transition-all ease-out
-        ${isVisible && !isLeaving
-          ? 'translate-y-0 opacity-100 scale-100 duration-500'
-          : isLeaving
-            ? '-translate-y-4 opacity-0 scale-95 duration-300'
-            : '-translate-y-8 opacity-0 scale-95 duration-300'
-        }
-      `}
+      className="pointer-events-auto cursor-pointer select-none"
       style={{
-        transitionTimingFunction: isVisible && !isLeaving
-          ? 'cubic-bezier(0.34, 1.56, 0.64, 1)'
-          : 'cubic-bezier(0.4, 0, 0.2, 1)'
+        transform: getTransform(),
+        opacity: isLeaving ? 0 : !isVisible ? 0 : dragOpacity,
+        transition: isDragging
+          ? 'none'
+          : isVisible && !isLeaving
+            ? 'all 500ms cubic-bezier(0.34, 1.56, 0.64, 1)'
+            : 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
       }}
+      onClick={dismiss}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       <div
         className="bg-white rounded-full pl-2.5 pr-4 py-2 flex items-center gap-2.5"
