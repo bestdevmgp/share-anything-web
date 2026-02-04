@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fileAPI } from '../services/api';
 import { FileListResponse } from '../types';
@@ -31,6 +31,7 @@ const DownloadFilePage: React.FC = () => {
   const [downloadTimeRemaining, setDownloadTimeRemaining] = useState<string>('');
   const [downloadAbortController, setDownloadAbortController] = useState<AbortController | null>(null);
   const [downloadAsZip, setDownloadAsZip] = useState(false);
+  const lastDownloadTimeUpdateRef = useRef<number>(0);
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
@@ -59,7 +60,7 @@ const DownloadFilePage: React.FC = () => {
   const singleFile = fileList?.files?.length === 1 ? fileList.files[0] : null;
   const p2pActiveFile = p2pActiveFileId ? fileList?.files?.find(f => f.id === p2pActiveFileId) : singleFile;
 
-  const { status: p2pStatus, progress: p2pProgress, timeRemaining: p2pTimeRemaining, reset: resetP2P } = useP2PDownloader({
+  const { status: p2pStatus, progress: p2pProgress, timeRemaining: p2pTimeRemaining, peerDeviceInfo: p2pPeerDeviceInfo, reset: resetP2P } = useP2PDownloader({
     shareCode: code || '',
     fileInfo: p2pActiveFile ? {
       share_code: code || '',
@@ -295,12 +296,16 @@ const DownloadFilePage: React.FC = () => {
           },
           (progressEvent) => {
             setDownloadProgress(progressEvent.percentage);
-            const remainingSeconds = calculateTimeRemaining(
-              downloadStartTime,
-              progressEvent.loaded,
-              totalSize
-            );
-            setDownloadTimeRemaining(formatTimeRemaining(remainingSeconds));
+            const now = Date.now();
+            if (now - lastDownloadTimeUpdateRef.current >= 1000) {
+              const remainingSeconds = calculateTimeRemaining(
+                downloadStartTime,
+                progressEvent.loaded,
+                totalSize
+              );
+              setDownloadTimeRemaining(formatTimeRemaining(remainingSeconds));
+              lastDownloadTimeUpdateRef.current = now;
+            }
           },
           abortController.signal
         );
@@ -537,9 +542,9 @@ const DownloadFilePage: React.FC = () => {
             </h1>
             <p className="text-gray-600">
               {isP2PDownload ? (
-                p2pStatus === 'downloading' ? '파일을 받는 중입니다. 잠시만 기다려주세요.' :
+                p2pStatus === 'downloading' ? (p2pPeerDeviceInfo ? `${p2pPeerDeviceInfo}에서 파일을 받는 중입니다.` : '파일을 받는 중입니다. 잠시만 기다려주세요.') :
                 p2pStatus === 'completed' ? '파일이 성공적으로 다운로드되었습니다.' :
-                '발신자 연결에 성공하였습니다.'
+                p2pPeerDeviceInfo ? `${p2pPeerDeviceInfo}에 연결되었습니다.` : '발신자 연결에 성공하였습니다.'
               ) : '다운로드를 시작하기 전에 아래 파일 정보를 확인하세요.'}
             </p>
           </div>
@@ -759,7 +764,7 @@ const DownloadFilePage: React.FC = () => {
           <div className="text-center mb-10">
             <h1 className="text-4xl font-bold text-gray-900 mb-3">파일 다운로드</h1>
             <p className="text-gray-600">
-              보안 전송은 파일을 개별적으로 다운로드합니다.
+              {p2pPeerDeviceInfo ? `${p2pPeerDeviceInfo}에 연결되었습니다. ` : ''}다운로드할 파일을 선택해 주세요.
             </p>
           </div>
 

@@ -137,3 +137,5 @@ export const calculateTimeRemaining = (
 
   return remainingMs / 1000;
 };
+
+export const getDeviceInfo = (): string => navigator.userAgent;

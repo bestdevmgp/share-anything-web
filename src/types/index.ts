@@ -138,6 +138,8 @@ export interface SignalingMessage {
   sdp_mid?: string | null;
   sdp_m_line_index?: number | null;
   message?: string;
+  file_name?: string;
+  device_info?: string;
 }
 
 // Presigned Upload Types

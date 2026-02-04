@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import { SignalingMessage, FileInfo } from '../types';
 import { createWebSocketConnection, createPeerConnection, generatePeerId, sendSignalingMessage } from '../utils/webrtc';
 import { toast } from '../context/ToastContext';
+import { getDeviceInfo } from '../utils/format';
 
 interface UseP2PDownloaderProps {
   shareCode: string;
@@ -14,6 +15,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
   const [status, setStatus] = useState<'waiting' | 'connecting' | 'downloading' | 'completed' | 'error'>('waiting');
   const [progress, setProgress] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState<string>('');
+  const [peerDeviceInfo, setPeerDeviceInfo] = useState<string | null>(null);
 
   const wsRef = useRef<WebSocket | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
@@ -65,11 +67,13 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
         wsRef.current = ws;
 
         ws.onopen = () => {
-          console.log('[useP2PDownloader] WebSocket connected, sending downloader_join');
+          console.log('[useP2PDownloader] WebSocket connected, sending downloader_join for file:', fileInfo.file_name);
           sendSignalingMessage(ws, {
             type: 'downloader_join',
             share_code: shareCode,
-            peer_id: peerIdRef.current
+            peer_id: peerIdRef.current,
+            file_name: fileInfo.file_name,
+            device_info: getDeviceInfo()
           });
         };
 
@@ -201,7 +205,10 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
 
       switch (message.type) {
         case 'peer_matched':
-          console.log('[useP2PDownloader] Peer matched! Waiting for offer...');
+          console.log('[useP2PDownloader] Peer matched! Device:', message.device_info, 'Waiting for offer...');
+          if (message.device_info) {
+            setPeerDeviceInfo(message.device_info);
+          }
           break;
 
         case 'offer':
@@ -272,8 +279,9 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
     setStatus('waiting');
     setProgress(0);
     setTimeRemaining('');
+    setPeerDeviceInfo(null);
     fileIdRef.current = '';
   }, []);
 
-  return { status, progress, timeRemaining, reset };
+  return { status, progress, timeRemaining, peerDeviceInfo, reset };
 };

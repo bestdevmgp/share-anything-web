@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import { useAuth } from '../context/AuthContext';
@@ -31,6 +31,7 @@ const UploadPage: React.FC = () => {
   const [uploadAbortController, setUploadAbortController] = useState<AbortController | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string>('');
   const [transferType, setTransferType] = useState<'server' | 'p2p'>('server');
+  const lastTimeUpdateRef = useRef<number>(0);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     setIsProcessingFiles(true);
@@ -104,7 +105,7 @@ const UploadPage: React.FC = () => {
         navigate('/upload/success', {
           state: {
             uploadResult: response,
-            uploadedFile: files[0]
+            uploadedFiles: files
           }
         });
         return;
@@ -138,8 +139,12 @@ const UploadPage: React.FC = () => {
         const percentage = Math.round((totalUploaded / totalSize) * 100);
         setUploadProgress(percentage);
 
-        const remainingSeconds = calculateTimeRemaining(uploadStartTime, totalUploaded, totalSize);
-        setUploadTimeRemaining(formatTimeRemaining(remainingSeconds));
+        const now = Date.now();
+        if (now - lastTimeUpdateRef.current >= 1000) {
+          const remainingSeconds = calculateTimeRemaining(uploadStartTime, totalUploaded, totalSize);
+          setUploadTimeRemaining(formatTimeRemaining(remainingSeconds));
+          lastTimeUpdateRef.current = now;
+        }
       };
 
       const MAX_CONCURRENT_FILES = 4;
