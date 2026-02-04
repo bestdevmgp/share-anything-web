@@ -13,12 +13,14 @@ interface UseP2PDownloaderProps {
 export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: UseP2PDownloaderProps) => {
   const [status, setStatus] = useState<'waiting' | 'connecting' | 'downloading' | 'completed' | 'error'>('waiting');
   const [progress, setProgress] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState<string>('');
 
   const wsRef = useRef<WebSocket | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const peerIdRef = useRef<string>(generatePeerId());
   const receivedChunksRef = useRef<ArrayBuffer[]>([]);
   const receivedSizeRef = useRef<number>(0);
+  const downloadStartTimeRef = useRef<number>(0);
 
   useEffect(() => {
     if (!enabled || !shareCode || !fileInfo) {
@@ -69,6 +71,12 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
         let actualFileSize = fileInfo.file_size;
         let actualFileType = fileInfo.file_type;
 
+        const formatTime = (seconds: number): string => {
+          if (seconds < 60) return `${Math.ceil(seconds)}초`;
+          if (seconds < 3600) return `${Math.floor(seconds / 60)}분 ${Math.ceil(seconds % 60)}초`;
+          return `${Math.floor(seconds / 3600)}시간 ${Math.floor((seconds % 3600) / 60)}분`;
+        };
+
         pc.ondatachannel = (event) => {
           console.log('[useP2PDownloader] DataChannel received');
           const dataChannel = event.channel;
@@ -76,6 +84,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           dataChannel.onopen = () => {
             console.log('[useP2PDownloader] DataChannel opened');
             setStatus('downloading');
+            downloadStartTimeRef.current = Date.now();
           };
 
           dataChannel.onclose = () => {
@@ -92,6 +101,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
                   actualFileSize = metadata.fileSize;
                   actualFileType = metadata.fileType;
                   metadataReceived = true;
+                  downloadStartTimeRef.current = Date.now();
                   return;
                 }
               } catch {
@@ -107,9 +117,19 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
             const progressPercent = (receivedSizeRef.current / actualFileSize) * 100;
             setProgress(Math.round(progressPercent));
 
+            // 남은 시간 계산
+            const elapsedMs = Date.now() - downloadStartTimeRef.current;
+            if (elapsedMs > 500 && receivedSizeRef.current > 0) {
+              const bytesPerMs = receivedSizeRef.current / elapsedMs;
+              const remainingBytes = actualFileSize - receivedSizeRef.current;
+              const remainingSeconds = remainingBytes / bytesPerMs / 1000;
+              setTimeRemaining(formatTime(remainingSeconds));
+            }
+
             if (receivedSizeRef.current >= actualFileSize) {
               const blob = new Blob(receivedChunksRef.current, { type: actualFileType });
               setStatus('completed');
+              setTimeRemaining('');
               onComplete(blob);
 
               if (wsRef.current) {
@@ -260,5 +280,5 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, shareCode]);
 
-  return { status, progress };
+  return { status, progress, timeRemaining };
 };

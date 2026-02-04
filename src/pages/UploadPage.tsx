@@ -94,6 +94,9 @@ const UploadPage: React.FC = () => {
 
       // P2P transfer uses the original upload method
       if (transferType === 'p2p') {
+        const totalSize = files.reduce((sum, file) => sum + file.size, 0);
+        const uploadStartTime = Date.now();
+
         const response = await fileAPI.upload(
           files,
           description || undefined,
@@ -104,6 +107,9 @@ const UploadPage: React.FC = () => {
           transferType,
           (progressEvent) => {
             setUploadProgress(progressEvent.percentage);
+            const uploadedBytes = (progressEvent.percentage / 100) * totalSize;
+            const remainingSeconds = calculateTimeRemaining(uploadStartTime, uploadedBytes, totalSize);
+            setUploadTimeRemaining(formatTimeRemaining(remainingSeconds));
           },
           abortController.signal
         );

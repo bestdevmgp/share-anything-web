@@ -22,7 +22,7 @@ const UploadSuccessPage: React.FC = () => {
   const isP2PTransfer = uploadResult?.files?.[0]?.transfer_type === 'p2p';
   const groupShareCode = uploadResult?.share_code || uploadResult?.files?.[0]?.share_code || '';
 
-  const { status: p2pStatus, progress: transferProgress } = useP2PUploader({
+  const { status: p2pStatus, progress: transferProgress, timeRemaining } = useP2PUploader({
     shareCode: groupShareCode,
     file: uploadedFile!,
     enabled: isP2PTransfer && !!uploadedFile && !!uploadResult
@@ -162,7 +162,9 @@ const UploadSuccessPage: React.FC = () => {
                   style={{ width: `${transferProgress}%` }}
                 />
               </div>
-              <p className="text-sm text-gray-500 text-center mt-2">{transferProgress}%</p>
+              <p className="text-sm text-gray-500 text-center mt-2">
+                {transferProgress}%{timeRemaining && ` · ${timeRemaining} 남음`}
+              </p>
             </div>
           )}
 

@@ -53,7 +53,7 @@ const DownloadFilePage: React.FC = () => {
 
   const singleFile = fileList?.files?.length === 1 ? fileList.files[0] : null;
 
-  const { status: p2pStatus, progress: p2pProgress } = useP2PDownloader({
+  const { status: p2pStatus, progress: p2pProgress, timeRemaining: p2pTimeRemaining } = useP2PDownloader({
     shareCode: code || '',
     fileInfo: singleFile ? {
       share_code: code || '',
@@ -641,10 +641,12 @@ const DownloadFilePage: React.FC = () => {
                       <div className="flex-1 pl-2">
                         <div className="flex justify-between mb-2">
                           <span className="text-sm font-medium text-gray-700 self-start">
-                            {p2pStatus === 'connecting' ? '연결 중...' : `다운로드 중... ${p2pProgress}%`}
+                            {p2pStatus === 'connecting' ? '연결 중...' : `다운로드 중...`}
                           </span>
                           {p2pStatus === 'downloading' && (
-                            <span className="text-xs font-semibold text-blue-600 self-end">{p2pProgress}%</span>
+                            <span className="text-xs font-semibold text-blue-600 self-end">
+                              {p2pProgress}%{p2pTimeRemaining && ` · ${p2pTimeRemaining} 남음`}
+                            </span>
                           )}
                         </div>
                         {p2pStatus === 'downloading' && (

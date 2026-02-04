@@ -12,11 +12,14 @@ interface UseP2PUploaderProps {
 export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps) => {
   const [status, setStatus] = useState<'waiting' | 'connected' | 'transferring' | 'completed'>('waiting');
   const [progress, setProgress] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState<string>('');
 
   const wsRef = useRef<WebSocket | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
   const peerIdRef = useRef<string>(generatePeerId());
+  const isCompletedRef = useRef<boolean>(false);
+  const transferStartTimeRef = useRef<number>(0);
 
   useEffect(() => {
     if (!enabled || !shareCode || !file) {
@@ -87,7 +90,9 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
 
         dataChannel.onerror = (error) => {
           console.error('[useP2PUploader] DataChannel error:', error);
-          toast.error('파일 전송 중 오류가 발생했습니다.');
+          if (!isCompletedRef.current) {
+            toast.error('파일 전송 중 오류가 발생했습니다.');
+          }
         };
 
         pc.onicecandidate = (event) => {
@@ -190,8 +195,10 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
 
         case 'downloader_offline':
           console.log('[useP2PUploader] Downloader went offline');
-          toast.warning('다운로더가 연결을 종료하였습니다.');
-          setStatus('waiting');
+          if (!isCompletedRef.current) {
+            toast.warning('다운로더가 연결을 종료하였습니다.');
+            setStatus('waiting');
+          }
           break;
 
         case 'error':
@@ -205,6 +212,13 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
       const reader = new FileReader();
       const chunkSize = 16384;
       let offset = 0;
+      transferStartTimeRef.current = Date.now();
+
+      const formatTime = (seconds: number): string => {
+        if (seconds < 60) return `${Math.ceil(seconds)}초`;
+        if (seconds < 3600) return `${Math.floor(seconds / 60)}분 ${Math.ceil(seconds % 60)}초`;
+        return `${Math.floor(seconds / 3600)}시간 ${Math.floor((seconds % 3600) / 60)}분`;
+      };
 
       reader.onload = (e) => {
         if (!e.target?.result) return;
@@ -213,8 +227,10 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
 
         const sendChunk = () => {
           if (offset >= buffer.byteLength) {
+            isCompletedRef.current = true;
             setStatus('completed');
             setProgress(100);
+            setTimeRemaining('');
 
             if (wsRef.current) {
               sendSignalingMessage(wsRef.current, {
@@ -239,6 +255,15 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
 
           const progressPercent = Math.min((offset / buffer.byteLength) * 100, 100);
           setProgress(Math.round(progressPercent));
+
+          // 남은 시간 계산
+          const elapsedMs = Date.now() - transferStartTimeRef.current;
+          if (elapsedMs > 500 && offset > 0) {
+            const bytesPerMs = offset / elapsedMs;
+            const remainingBytes = buffer.byteLength - offset;
+            const remainingSeconds = remainingBytes / bytesPerMs / 1000;
+            setTimeRemaining(formatTime(remainingSeconds));
+          }
 
           setTimeout(sendChunk, 0);
         };
@@ -265,5 +290,5 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, shareCode]);
 
-  return { status, progress };
+  return { status, progress, timeRemaining };
 };

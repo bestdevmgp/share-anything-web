@@ -110,8 +110,9 @@ export const formatTimeRemaining = (remainingSeconds: number): string => {
   if (remainingSeconds < 60) {
     return `${Math.ceil(remainingSeconds)}초 남음`;
   } else if (remainingSeconds < 3600) {
-    const minutes = Math.ceil(remainingSeconds / 60);
-    return `${minutes}분 남음`;
+    const minutes = Math.floor(remainingSeconds / 60);
+    const seconds = Math.ceil(remainingSeconds % 60);
+    return `${minutes}분 ${seconds}초 남음`;
   } else {
     const hours = Math.floor(remainingSeconds / 3600);
     const minutes = Math.ceil((remainingSeconds % 3600) / 60);
