@@ -190,7 +190,7 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
 
         case 'downloader_offline':
           console.log('[useP2PUploader] Downloader went offline');
-          toast.warning('다운로더가 연결을 종료했습니다.');
+          toast.warning('다운로더가 연결을 종료하였습니다.');
           setStatus('waiting');
           break;
 

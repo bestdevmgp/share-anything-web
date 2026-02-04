@@ -99,7 +99,7 @@ const UploadPage: React.FC = () => {
           description || undefined,
           isAuthenticated && password ? password : undefined,
           isAuthenticated ? expiration : undefined,
-          true,
+          undefined,
           turnstileToken,
           transferType,
           (progressEvent) => {
