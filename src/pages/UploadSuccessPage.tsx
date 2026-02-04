@@ -114,7 +114,7 @@ const UploadSuccessPage: React.FC = () => {
                 )}
               </button>
             </div>
-            {uploadResult.files[0]?.expires_at && (
+            {!isP2PTransfer && uploadResult.files[0]?.expires_at && (
               <p className="text-sm text-gray-500 text-center">
                 만료: {formatDateTime(uploadResult.files[0].expires_at)}
               </p>
