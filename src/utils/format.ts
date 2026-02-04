@@ -138,4 +138,25 @@ export const calculateTimeRemaining = (
   return remainingMs / 1000;
 };
 
-export const getDeviceInfo = (): string => navigator.userAgent;
+export const getDeviceInfo = (): string => {
+  const ua = navigator.userAgent;
+
+  if (/iPhone/.test(ua)) return 'iPhone';
+  if (/iPad/.test(ua)) return 'iPad';
+
+  if (/Android/.test(ua)) {
+    const match = ua.match(/\(Linux; Android [^;]+; ([^)]+?)(?:\s*Build\/|\))/i);
+    if (match?.[1]) {
+      const model = match[1].trim();
+      if (model && model !== 'K') return model;
+    }
+    return /Mobile/.test(ua) ? 'Android' : 'Android Tablet';
+  }
+
+  if (/Macintosh/.test(ua)) return 'Mac';
+  if (/Windows/.test(ua)) return 'Windows';
+  if (/Linux/.test(ua)) return 'Linux';
+  if (/CrOS/.test(ua)) return 'Chromebook';
+
+  return 'Unknown';
+};
