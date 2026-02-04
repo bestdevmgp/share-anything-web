@@ -44,22 +44,26 @@ const DownloadFilePage: React.FC = () => {
 
   const [isP2PDownload, setIsP2PDownload] = useState(false);
   const [p2pEnabled, setP2pEnabled] = useState(false);
+  const [p2pActiveFileId, setP2pActiveFileId] = useState<string | null>(null);
 
   const handleP2PDownloadComplete = useCallback((blob: Blob, fileName: string) => {
     console.log('[DownloadFilePage] P2P download completed:', { fileName, blobSize: blob.size });
     downloadFile(blob, fileName);
     toast.success('파일 다운로드가 완료되었습니다.');
+    setP2pActiveFileId(null);
+    setP2pEnabled(false);
   }, []);
 
   const singleFile = fileList?.files?.length === 1 ? fileList.files[0] : null;
+  const p2pActiveFile = p2pActiveFileId ? fileList?.files?.find(f => f.id === p2pActiveFileId) : singleFile;
 
   const { status: p2pStatus, progress: p2pProgress, timeRemaining: p2pTimeRemaining } = useP2PDownloader({
     shareCode: code || '',
-    fileInfo: singleFile ? {
+    fileInfo: p2pActiveFile ? {
       share_code: code || '',
-      file_name: singleFile.file_name,
-      file_size: singleFile.file_size,
-      file_type: singleFile.file_type,
+      file_name: p2pActiveFile.file_name,
+      file_size: p2pActiveFile.file_size,
+      file_type: p2pActiveFile.file_type,
       transfer_type: fileList?.transfer_type || 'server',
       has_password: fileList?.has_password || false,
       expires_at: fileList?.expires_at || '',
@@ -74,9 +78,14 @@ const DownloadFilePage: React.FC = () => {
       expires_at: '',
       uploader_online: null
     },
-    enabled: p2pEnabled && !!singleFile,
-    onComplete: (blob) => handleP2PDownloadComplete(blob, singleFile?.file_name || 'file')
+    enabled: p2pEnabled && !!p2pActiveFile,
+    onComplete: (blob) => handleP2PDownloadComplete(blob, p2pActiveFile?.file_name || 'file')
   });
+
+  const startP2PDownload = useCallback((fileId: string) => {
+    setP2pActiveFileId(fileId);
+    setP2pEnabled(true);
+  }, []);
 
   const loadFileList = useCallback(async (token: string) => {
     if (!code) {
@@ -99,8 +108,8 @@ const DownloadFilePage: React.FC = () => {
         setIsP2PDownload(true);
 
         if (list.uploader_online === false) {
-          setErrorTitle('업로더 오프라인');
-          setError('업로더가 현재 오프라인입니다. 나중에 다시 시도해주세요.');
+          setErrorTitle('발신자 오프라인');
+          setError('발신자가 현재 오프라인입니다. 나중에 다시 시도해주세요.');
           return;
         }
       } else {
@@ -345,7 +354,7 @@ const DownloadFilePage: React.FC = () => {
         toast.error('비밀번호가 올바르지 않습니다.');
         setPasswordVerified(false);
       } else {
-        toast.error(err.response?.data?.message || '다운로드에 실패했습니다.');
+        toast.error(err.response?.data?.message || '다운로드에 실패하였습니다.');
       }
     } finally {
       setDownloading(false);
@@ -373,7 +382,7 @@ const DownloadFilePage: React.FC = () => {
           <TurnstileWidget
             onVerify={handleTurnstileVerify}
             onError={() => {
-              toast.error('보안 확인에 실패했습니다. 페이지를 새로고침해주세요.');
+              toast.error('보안 확인에 실패하였습니다. 페이지를 새로고침해주세요.');
             }}
             onExpire={() => {
               toast.error('보안 확인이 만료되었습니다. 페이지를 새로고침해주세요.');
@@ -517,17 +526,17 @@ const DownloadFilePage: React.FC = () => {
             </div>
             <h1 className="text-4xl font-bold text-gray-900 mb-3">
               {isP2PDownload ? (
-                p2pStatus === 'waiting' || p2pStatus === 'connecting' ? 'P2P 연결 중...' :
+                p2pStatus === 'waiting' || p2pStatus === 'connecting' ? '수신 준비 완료' :
                 p2pStatus === 'downloading' ? '파일 다운로드 중...' :
-                p2pStatus === 'completed' ? '다운로드 완료!' :
+                p2pStatus === 'completed' ? '다운로드 완료' :
                 '다운로드 준비 완료'
               ) : '다운로드 준비 완료'}
             </h1>
             <p className="text-gray-600">
               {isP2PDownload ? (
                 p2pStatus === 'downloading' ? '파일을 받는 중입니다. 잠시만 기다려주세요.' :
-                p2pStatus === 'completed' ? '파일이 성공적으로 다운로드되었습니다!' :
-                'P2P 연결을 준비하고 있습니다...'
+                p2pStatus === 'completed' ? '파일이 성공적으로 다운로드되었습니다.' :
+                '발신자 연결에 성공하였습니다.'
               ) : '다운로드를 시작하기 전에 아래 파일 정보를 확인하세요.'}
             </p>
           </div>
@@ -659,7 +668,7 @@ const DownloadFilePage: React.FC = () => {
                     className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-base md:text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
                   >
                     <ArrowDownTrayIcon className="w-5 h-5" />
-                    <span>P2P 다운로드 시작</span>
+                    <span>다운로드 시작</span>
                   </button>
                 )
               ) : downloading ? (
@@ -739,6 +748,128 @@ const DownloadFilePage: React.FC = () => {
   const deselectAllFiles = () => {
     setSelectedFiles(new Set());
   };
+
+  if (isP2PDownload && fileList.files.length > 1) {
+    return (
+      <div className="py-12 px-4">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-10">
+            <h1 className="text-4xl font-bold text-gray-900 mb-3">파일 다운로드</h1>
+            <p className="text-gray-600">
+              보안 전송은 파일을 개별적으로 다운로드합니다.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-3xl border-2 border-gray-200 p-10">
+            {fileList.description && (
+              <div className="mb-8 p-4 bg-gray-50 rounded-lg">
+                <p className="text-gray-700 break-words whitespace-pre-wrap">{fileList.description}</p>
+              </div>
+            )}
+
+            <div className="mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                파일 목록 ({fileList.total_count}개)
+              </h3>
+            </div>
+
+            <div className="space-y-3 mb-8">
+              {fileList.files.map((file) => {
+                const isActive = p2pActiveFileId === file.id;
+                const isDownloading = isActive && (p2pStatus === 'downloading' || p2pStatus === 'connecting');
+                const isCompleted = isActive && p2pStatus === 'completed';
+
+                return (
+                  <div
+                    key={file.id}
+                    className={`p-4 rounded-xl border-2 transition-all ${
+                      isActive ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-transparent'
+                    }`}
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className="flex-shrink-0">
+                        {isImageFile(file.file_name) && imagePreviews.get(file.id) ? (
+                          <img
+                            src={imagePreviews.get(file.id)}
+                            alt={file.file_name}
+                            className="w-12 h-12 object-cover rounded"
+                          />
+                        ) : isVideoFile(file.file_name) ? (
+                          <div className="w-12 h-12 bg-purple-50 rounded flex items-center justify-center">
+                            <FilmIcon className="w-7 h-7 text-purple-600" />
+                          </div>
+                        ) : isAudioFile(file.file_name) ? (
+                          <div className="w-12 h-12 bg-green-50 rounded flex items-center justify-center">
+                            <MusicalNoteIcon className="w-7 h-7 text-green-600" />
+                          </div>
+                        ) : isTextFile(file.file_name) ? (
+                          <div className="w-12 h-12 bg-yellow-50 rounded flex items-center justify-center">
+                            <DocumentTextIcon className="w-7 h-7 text-yellow-600" />
+                          </div>
+                        ) : (
+                          <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center">
+                            <DocumentIcon className="w-7 h-7 text-gray-400" />
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-base font-semibold text-gray-900 truncate">
+                          {file.file_name}
+                        </h4>
+                        <p className="text-sm text-gray-500">{formatFileSize(file.file_size)}</p>
+                      </div>
+
+                      {isCompleted ? (
+                        <span className="flex-shrink-0 px-4 py-2 text-green-600 text-sm font-medium">
+                          ✓ 완료
+                        </span>
+                      ) : isDownloading ? (
+                        <span className="flex-shrink-0 px-4 py-2 text-blue-600 text-sm font-medium">
+                          {p2pProgress}%
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => startP2PDownload(file.id)}
+                          disabled={p2pEnabled && !isActive}
+                          className="flex-shrink-0 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                        >
+                          다운로드
+                        </button>
+                      )}
+                    </div>
+
+                    {isDownloading && (
+                      <div className="mt-3">
+                        <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                          <div
+                            className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
+                            style={{ width: `${p2pProgress}%` }}
+                          />
+                        </div>
+                        {p2pTimeRemaining && (
+                          <p className="text-xs text-gray-500 mt-1">{p2pTimeRemaining} 남음</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => navigate('/')}
+                className="text-sm text-gray-500 hover:text-gray-700"
+              >
+                돌아가기
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="py-12 px-4">

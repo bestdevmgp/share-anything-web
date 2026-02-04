@@ -56,7 +56,7 @@ const OAuthCallbackPage: React.FC = () => {
       }
 
       if (errorParam) {
-        setError(`로그인이 취소되었거나 오류가 발생했습니다: ${errorParam}`);
+        setError(`로그인이 취소되었거나 오류가 발생하였습니다: ${errorParam}`);
         setTimeout(() => navigate('/login', { replace: true }), 3000);
         return;
       }

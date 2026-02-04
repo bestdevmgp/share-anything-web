@@ -935,7 +935,7 @@ const UploadHistoryPage: React.FC = () => {
                   <thead className="bg-gray-50 sticky top-0">
                     <tr>
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                        다운로더
+                        수신자
                       </th>
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                         플랫폼

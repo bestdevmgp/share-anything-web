@@ -66,15 +66,15 @@ const UploadSuccessPage: React.FC = () => {
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-3">
             {isP2PTransfer ? (
-              p2pStatus === 'waiting' ? '다운로더 대기 중...' :
-              p2pStatus === 'connected' ? '다운로더 연결됨' :
+              p2pStatus === 'waiting' ? '수신자 대기 중...' :
+              p2pStatus === 'connected' ? '수신자 연결됨' :
               p2pStatus === 'transferring' ? '파일 전송 중...' :
               '전송 완료!'
             ) : '업로드 완료'}
           </h1>
           <p className="text-lg text-gray-600">
             {isP2PTransfer ? (
-              p2pStatus === 'waiting' ? '다운로더가 연결될 때까지 이 페이지를 닫지 마세요.' :
+              p2pStatus === 'waiting' ? '수신자가 연결될 때까지 이 페이지를 닫지 마세요.' :
               p2pStatus === 'completed' ? '파일이 성공적으로 전송되었습니다!' :
               '파일을 전송 중입니다. 잠시만 기다려주세요.'
             ) : '코드를 공유하거나 아래 링크를 통해 파일을 다운로드하세요.'}

@@ -272,7 +272,7 @@ const UploadPage: React.FC = () => {
         toast.error(err.response?.data?.message || '보안 확인이 필요합니다.');
         setTurnstileToken('');
       } else if (err.response?.status === 403) {
-        toast.error(err.response?.data?.message || '보안 확인에 실패했습니다. 다시 시도해주세요.');
+        toast.error(err.response?.data?.message || '보안 확인에 실패하였습니다. 다시 시도해주세요.');
         setTurnstileToken('');
       } else {
         toast.error(err.response?.data?.message || '업로드에 실패하였습니다.');
@@ -353,7 +353,7 @@ const UploadPage: React.FC = () => {
             <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl text-sm text-gray-700">
               <p className="font-semibold text-blue-900 mb-1">보안 전송 안내</p>
               <p>• WebRTC를 사용한 1:1 직접 전송으로 파일이 서버에 저장되지 않습니다.</p>
-              <p>• 일회성 전송만 가능하며, 업로더와 다운로더가 동시에 온라인이어야 합니다.</p>
+              <p>• 일회성 전송만 가능하며, 발신자와 수신자가 동시에 온라인이어야 합니다.</p>
             </div>
           )}
         </div>
@@ -372,11 +372,14 @@ const UploadPage: React.FC = () => {
               <DocumentIcon className="w-7 h-7 md:w-10 md:h-10 text-blue-600" />
             </div>
             <p className="text-sm md:text-xl font-semibold text-gray-900 mb-1 md:mb-2">
-              여기에 파일을 드래그하거나 클릭하여 업로드하세요.
+              여기에 파일을 드래그하거나 클릭하여 {transferType === 'p2p' ? '전송' : '업로드'}하세요.
             </p>
-            <p className="text-xs md:text-sm text-gray-500 mb-3 md:mb-6">
-              로그인 시 최대 3GB까지 업로드할 수 있습니다.
-            </p>
+            {transferType !== 'p2p' && (
+              <p className="text-xs md:text-sm text-gray-500 mb-3 md:mb-6">
+                로그인 시 최대 3GB까지 업로드할 수 있습니다.
+              </p>
+            )}
+            {transferType === 'p2p' && <div className="mb-3 md:mb-6" />}
             <button
               type="button"
               className="px-6 py-2 md:px-8 md:py-3 bg-gray-100 text-gray-700 text-sm md:text-base font-medium rounded-lg hover:bg-gray-200 transition-colors"
@@ -555,7 +558,7 @@ const UploadPage: React.FC = () => {
         </div>
 
         <div className="mt-7">
-          {isUploading ? (
+          {isUploading && transferType !== 'p2p' ? (
             <div className="bg-blue-50 rounded-xl px-4 py-4">
               <div className="flex items-center gap-2">
                 <div className="flex-1 pl-2">
@@ -595,7 +598,7 @@ const UploadPage: React.FC = () => {
                   onVerify={(token) => setTurnstileToken(token)}
                   onError={() => {
                     setTurnstileToken('');
-                    toast.error('보안 확인에 실패했습니다. 다시 시도해주세요.');
+                    toast.error('보안 확인에 실패하였습니다. 다시 시도해주세요.');
                   }}
                   onExpire={() => {
                     setTurnstileToken('');
@@ -606,10 +609,10 @@ const UploadPage: React.FC = () => {
               <div className="flex justify-center md:justify-end">
                 <button
                   onClick={handleUpload}
-                  disabled={files.length === 0 || !turnstileToken}
-                  className="w-full md:w-auto px-10 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                  disabled={files.length === 0 || !turnstileToken || (isUploading && transferType === 'p2p')}
+                  className="w-full md:w-auto min-w-[120px] px-10 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                 >
-                  업로드
+                  {isUploading && transferType === 'p2p' ? '전송 준비 중...' : (transferType === 'p2p' ? '전송' : '업로드')}
                 </button>
               </div>
             </div>

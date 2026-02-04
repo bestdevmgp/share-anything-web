@@ -48,7 +48,7 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
 
         ws.onerror = (error) => {
           console.error('WebSocket error:', error);
-          toast.error('연결 오류가 발생했습니다.');
+          toast.error('연결 오류가 발생하였습니다.');
         };
 
         ws.onclose = (event) => {
@@ -91,7 +91,7 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
         dataChannel.onerror = (error) => {
           console.error('[useP2PUploader] DataChannel error:', error);
           if (!isCompletedRef.current) {
-            toast.error('파일 전송 중 오류가 발생했습니다.');
+            toast.error('파일 전송 중 오류가 발생하였습니다.');
           }
         };
 
@@ -129,13 +129,15 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
             setStatus('connected');
           } else if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected') {
             console.log('[useP2PUploader] ICE connection failed/disconnected');
-            toast.error('P2P 연결에 실패했습니다. 네트워크를 확인해주세요.');
+            if (!isCompletedRef.current) {
+              toast.error('P2P 연결에 실패하였습니다. 네트워크를 확인해주세요.');
+            }
           }
         };
 
       } catch (error) {
         console.error('Failed to setup P2P connection:', error);
-        toast.error('P2P 연결 설정에 실패했습니다.');
+        toast.error('P2P 연결 설정에 실패하였습니다.');
       }
     };
 
@@ -196,14 +198,14 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
         case 'downloader_offline':
           console.log('[useP2PUploader] Downloader went offline');
           if (!isCompletedRef.current) {
-            toast.warning('다운로더가 연결을 종료하였습니다.');
+            toast.warning('수신자가 연결을 종료하였습니다.');
             setStatus('waiting');
           }
           break;
 
         case 'error':
           console.error('Signaling error:', message.message);
-          toast.error(message.message || '연결 오류가 발생했습니다.');
+          toast.error(message.message || '연결 오류가 발생하였습니다.');
           break;
       }
     };

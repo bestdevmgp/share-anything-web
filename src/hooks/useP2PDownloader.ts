@@ -52,7 +52,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
         ws.onerror = (error) => {
           console.error('WebSocket error:', error);
           setStatus('error');
-          toast.error('연결 오류가 발생했습니다.');
+          toast.error('연결 오류가 발생하였습니다.');
         };
 
         ws.onclose = (event) => {
@@ -142,7 +142,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           dataChannel.onerror = (error) => {
             console.error('DataChannel error:', error);
             setStatus('error');
-            toast.error('파일 수신 중 오류가 발생했습니다.');
+            toast.error('파일 수신 중 오류가 발생하였습니다.');
           };
         };
 
@@ -181,14 +181,14 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           } else if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected') {
             console.log('[useP2PDownloader] ICE connection failed/disconnected');
             setStatus('error');
-            toast.error('P2P 연결에 실패했습니다. 네트워크를 확인해주세요.');
+            toast.error('P2P 연결에 실패하였습니다. 네트워크를 확인해주세요.');
           }
         };
 
       } catch (error) {
         console.error('Failed to setup P2P connection:', error);
         setStatus('error');
-        toast.error('P2P 연결 설정에 실패했습니다.');
+        toast.error('P2P 연결 설정에 실패하였습니다.');
       }
     };
 
@@ -247,14 +247,14 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
 
         case 'uploader_offline':
           setStatus('error');
-          toast.error('업로더가 연결을 종료했습니다.');
+          toast.error('발신자가 연결을 종료하였습니다.');
           cleanup();
           break;
 
         case 'error':
           console.error('Signaling error:', message.message);
           setStatus('error');
-          toast.error(message.message || '연결 오류가 발생했습니다.');
+          toast.error(message.message || '연결 오류가 발생하였습니다.');
           break;
       }
     };
