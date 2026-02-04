@@ -91,13 +91,13 @@ const UploadSuccessPage: React.FC = () => {
               overallStatus === 'waiting' ? '수신자 대기 중...' :
               overallStatus === 'connected' ? '수신자 연결됨' :
               overallStatus === 'transferring' ? '파일 전송 중...' :
-              '전송 완료!'
+              '전송 완료'
             ) : '업로드 완료'}
           </h1>
           <p className="text-lg text-gray-600">
             {isP2PTransfer ? (
               overallStatus === 'waiting' ? '수신자가 연결될 때까지 이 페이지를 닫지 마세요.' :
-              allFilesCompleted ? '모든 파일이 성공적으로 전송되었습니다!' :
+              allFilesCompleted ? '모든 파일이 성공적으로 전송되었습니다.' :
               peerDeviceInfo ? `${peerDeviceInfo}에 연결되었습니다. 파일을 전송 중입니다.` :
               '파일을 전송 중입니다. 잠시만 기다려주세요.'
             ) : '코드를 공유하거나 아래 링크를 통해 파일을 다운로드하세요.'}

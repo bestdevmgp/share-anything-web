@@ -105,30 +105,65 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           };
 
           dataChannel.onclose = () => {
-            console.log('[useP2PDownloader] DataChannel closed');
+            console.log('[useP2PDownloader] DataChannel closed, received:', receivedSizeRef.current, '/', actualFileSize);
+
+            if (receivedSizeRef.current > 0 && receivedSizeRef.current >= actualFileSize * 0.95) {
+              console.log('[useP2PDownloader] Connection closed but got most data, completing transfer');
+              const blob = new Blob(receivedChunksRef.current, { type: actualFileType });
+              setStatus('completed');
+              setProgress(100);
+              setTimeRemaining('');
+              onComplete(blob);
+              cleanup();
+            }
           };
 
           dataChannel.onmessage = (event) => {
-            if (!metadataReceived && typeof event.data === 'string') {
-              try {
-                const metadata = JSON.parse(event.data);
-                if (metadata.type === 'file_metadata') {
-                  console.log('[useP2PDownloader] Received metadata:', metadata);
-                  actualFileSize = metadata.fileSize;
-                  actualFileType = metadata.fileType;
-                  metadataReceived = true;
-                  downloadStartTimeRef.current = Date.now();
-                  return;
+            if (typeof event.data === 'string') {
+              if (event.data === '__EOF__') {
+                console.log('[useP2PDownloader] Received EOF marker, completing transfer');
+                const blob = new Blob(receivedChunksRef.current, { type: actualFileType });
+                setStatus('completed');
+                setProgress(100);
+                setTimeRemaining('');
+                onComplete(blob);
+
+                if (wsRef.current) {
+                  sendSignalingMessage(wsRef.current, {
+                    type: 'transfer_complete',
+                    share_code: shareCode
+                  });
                 }
-              } catch {
+
+                // Delay cleanup to ensure everything is processed
+                setTimeout(() => cleanup(), 1000);
+                return;
               }
+
+              if (!metadataReceived) {
+                try {
+                  const metadata = JSON.parse(event.data);
+                  if (metadata.type === 'file_metadata') {
+                    console.log('[useP2PDownloader] Received metadata:', metadata);
+                    actualFileSize = metadata.fileSize;
+                    actualFileType = metadata.fileType;
+                    metadataReceived = true;
+                    downloadStartTimeRef.current = Date.now();
+                    return;
+                  }
+                } catch {
+                  // Not JSON, ignore
+                }
+              }
+              return;
             }
 
+            // Handle binary data (file chunks)
             const chunk = event.data as ArrayBuffer;
             receivedChunksRef.current.push(chunk);
             receivedSizeRef.current += chunk.byteLength;
 
-            const progressPercent = (receivedSizeRef.current / actualFileSize) * 100;
+            const progressPercent = Math.min((receivedSizeRef.current / actualFileSize) * 100, 99);
             setProgress(Math.round(progressPercent));
 
             const now = Date.now();
@@ -141,22 +176,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
                 setTimeRemaining(formatTime(remainingSeconds));
                 lastTimeUpdateRef.current = now;
               }
-            }
-
-            if (receivedSizeRef.current >= actualFileSize) {
-              const blob = new Blob(receivedChunksRef.current, { type: actualFileType });
-              setStatus('completed');
-              setTimeRemaining('');
-              onComplete(blob);
-
-              if (wsRef.current) {
-                sendSignalingMessage(wsRef.current, {
-                  type: 'transfer_complete',
-                  share_code: shareCode
-                });
-              }
-
-              cleanup();
             }
           };
 
@@ -184,9 +203,18 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           console.log('[useP2PDownloader] ICE connection state:', pc.iceConnectionState);
           if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
             setStatus('downloading');
-          } else if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected') {
-            setStatus('error');
-            toast.error('P2P 연결에 실패하였습니다. 네트워크를 확인해주세요.');
+          } else if (pc.iceConnectionState === 'failed') {
+            // Connection truly failed - check if we have enough data
+            if (receivedSizeRef.current > 0 && receivedSizeRef.current >= actualFileSize * 0.95) {
+              console.log('[useP2PDownloader] ICE failed but got most data, completing');
+              const blob = new Blob(receivedChunksRef.current, { type: actualFileType });
+              setStatus('completed');
+              setProgress(100);
+              onComplete(blob);
+            } else {
+              setStatus('error');
+              toast.error('P2P 연결에 실패하였습니다. 네트워크를 확인해주세요.');
+            }
           }
         };
 

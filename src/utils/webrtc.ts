@@ -21,10 +21,11 @@ export const createWebSocketConnection = (onMessage: (message: SignalingMessage)
 export const createPeerConnection = (): RTCPeerConnection => {
   console.log('[WebRTC] Creating PeerConnection with STUN/TURN servers...');
 
-  const config = {
+  const config: RTCConfiguration = {
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun2.l.google.com:19302' },
       {
         urls: [
           'turn:a.relay.metered.ca:80',
@@ -34,8 +35,22 @@ export const createPeerConnection = (): RTCPeerConnection => {
         ],
         username: 'openrelayproject',
         credential: 'openrelayproject'
+      },
+      // Backup TURN servers
+      {
+        urls: 'turn:openrelay.metered.ca:80',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      },
+      {
+        urls: 'turn:openrelay.metered.ca:443?transport=tcp',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
       }
-    ]
+    ],
+    iceCandidatePoolSize: 10,
+    bundlePolicy: 'max-bundle',
+    rtcpMuxPolicy: 'require'
   };
 
   const pc = new RTCPeerConnection(config);

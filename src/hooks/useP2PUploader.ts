@@ -62,6 +62,60 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     transferStartTimeRef.current = Date.now();
     lastTimeUpdateRef.current = 0;
 
+    const finishTransfer = () => {
+      isTransferringRef.current = false;
+      setFileProgresses(prev => {
+        const newMap = new Map(prev);
+        const fileProgress = newMap.get(file.name);
+        if (fileProgress) {
+          newMap.set(file.name, {
+            ...fileProgress,
+            progress: 100,
+            status: 'completed',
+            timeRemaining: ''
+          });
+        }
+        return newMap;
+      });
+
+      setStatus('waiting');
+      setCurrentFileName('');
+
+      if (wsRef.current) {
+        sendSignalingMessage(wsRef.current, {
+          type: 'transfer_complete',
+          share_code: shareCode
+        });
+      }
+
+      toast.success(`${file.name} 전송 완료!`);
+
+      setTimeout(() => {
+        if (pcRef.current) {
+          pcRef.current.close();
+          pcRef.current = null;
+        }
+        if (dataChannelRef.current) {
+          dataChannelRef.current = null;
+        }
+      }, 2000);
+    };
+
+    const waitForBufferDrain = () => {
+      if (dataChannel.bufferedAmount === 0) {
+        try {
+          dataChannel.send('__EOF__');
+          console.log('[useP2PUploader] EOF marker sent, buffer drained');
+        } catch (err) {
+          console.warn('[useP2PUploader] Failed to send EOF marker:', err);
+        }
+        finishTransfer();
+      } else {
+        console.log('[useP2PUploader] Waiting for buffer to drain:', dataChannel.bufferedAmount);
+        setTimeout(waitForBufferDrain, 50);
+      }
+    };
+
     reader.onload = (e) => {
       if (!e.target?.result) return;
 
@@ -69,41 +123,8 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
 
       const sendChunk = () => {
         if (offset >= buffer.byteLength) {
-          isTransferringRef.current = false;
-          setFileProgresses(prev => {
-            const newMap = new Map(prev);
-            const fileProgress = newMap.get(file.name);
-            if (fileProgress) {
-              newMap.set(file.name, {
-                ...fileProgress,
-                progress: 100,
-                status: 'completed',
-                timeRemaining: ''
-              });
-            }
-            return newMap;
-          });
-
-          setStatus('waiting');
-          setCurrentFileName('');
-
-          if (wsRef.current) {
-            sendSignalingMessage(wsRef.current, {
-              type: 'transfer_complete',
-              share_code: shareCode
-            });
-          }
-
-          toast.success(`${file.name} 전송 완료!`);
-
-          if (pcRef.current) {
-            pcRef.current.close();
-            pcRef.current = null;
-          }
-          if (dataChannelRef.current) {
-            dataChannelRef.current = null;
-          }
-
+          console.log('[useP2PUploader] All chunks queued, waiting for buffer drain...');
+          waitForBufferDrain();
           return;
         }
 
@@ -233,11 +254,14 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       console.log('[useP2PUploader] ICE connection state:', pc.iceConnectionState);
       if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
         setStatus('connected');
-      } else if (pc.iceConnectionState === 'failed' || pc.iceConnectionState === 'disconnected') {
+      } else if (pc.iceConnectionState === 'failed') {
+        // Only show error if we're still actively transferring
         if (isTransferringRef.current) {
           toast.error('P2P 연결에 실패하였습니다.');
+          setStatus('waiting');
         }
       }
+      // 'disconnected' state is often temporary during transfer, don't show error
     };
 
     return pc;
