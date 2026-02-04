@@ -612,7 +612,7 @@ const UploadPage: React.FC = () => {
                   disabled={files.length === 0 || !turnstileToken || (isUploading && transferType === 'p2p')}
                   className="w-full md:w-auto min-w-[120px] px-10 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                 >
-                  {isUploading && transferType === 'p2p' ? '전송 준비 중...' : (transferType === 'p2p' ? '전송' : '업로드')}
+                  {isUploading && transferType === 'p2p' ? '연결 중...' : (transferType === 'p2p' ? '전송' : '업로드')}
                 </button>
               </div>
             </div>
