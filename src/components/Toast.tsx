@@ -62,10 +62,8 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
   };
 
   useEffect(() => {
-    // Trigger enter animation
     const enterTimer = setTimeout(() => setIsVisible(true), 10);
 
-    // Start exit animation before removal
     const exitTimer = setTimeout(() => {
       if (!isSwipeDismissing) {
         setIsLeaving(true);
@@ -116,7 +114,6 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
     if (touchStartY.current === null) return;
 
     if (dragOffset < -30) {
-      // Save current offset for smooth animation continuation
       swipeStartOffset.current = dragOffset;
       setIsDragging(false);
       setIsSwipeDismissing(true);

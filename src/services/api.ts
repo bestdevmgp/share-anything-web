@@ -21,9 +21,7 @@ import type {
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 const WORKER_URL = 'https://share-anything-upload.pmg3858.workers.dev';
 
-// Worker API for direct edge uploads
 export const workerAPI = {
-  // Create multipart upload on Worker
   createMultipartUpload: async (storageKey: string, contentType: string): Promise<{ uploadId: string; key: string }> => {
     const response = await axios.post(`${WORKER_URL}/multipart/create`, {
       storageKey,
@@ -32,7 +30,6 @@ export const workerAPI = {
     return response.data;
   },
 
-  // Upload a part directly to Worker (streams to R2)
   uploadPart: async (
     storageKey: string,
     uploadId: string,
@@ -58,7 +55,6 @@ export const workerAPI = {
     return response.data;
   },
 
-  // Complete multipart upload on Worker
   completeMultipartUpload: async (
     storageKey: string,
     uploadId: string,
@@ -72,7 +68,6 @@ export const workerAPI = {
     return response.data;
   },
 
-  // Direct upload for small files
   directUpload: async (
     storageKey: string,
     file: File,
@@ -204,6 +199,17 @@ export const fileAPI = {
       }
     });
 
+    return response.data;
+  },
+
+  createP2PSession: async (
+    files: { name: string; size: number; type: string }[],
+    turnstileToken: string
+  ): Promise<FileUploadResponse> => {
+    const response = await api.post<FileUploadResponse>('/file/p2p/create', {
+      files,
+      turnstile_token: turnstileToken
+    });
     return response.data;
   },
 
@@ -355,7 +361,6 @@ export const fileAPI = {
     return response.data;
   },
 
-  // Presigned Upload APIs
   requestPresignedUpload: async (request: PresignedUploadRequest): Promise<PresignedUploadResponse> => {
     const response = await api.post<PresignedUploadResponse>('/file/presign', request);
     return response.data;
@@ -390,7 +395,6 @@ export const fileAPI = {
     return response.data;
   },
 
-  // Multipart Upload APIs
   initMultipartUpload: async (request: InitMultipartUploadRequest): Promise<InitMultipartUploadResponse> => {
     const response = await api.post<InitMultipartUploadResponse>('/file/multipart/init', request);
     return response.data;
@@ -418,7 +422,6 @@ export const fileAPI = {
         }
       }
     });
-    // ETag is returned in the response headers
     const etag = response.headers['etag'] || response.headers['ETag'];
     return etag ? etag.replace(/"/g, '') : '';
   },

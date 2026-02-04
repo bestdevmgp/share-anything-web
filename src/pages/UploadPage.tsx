@@ -83,35 +83,22 @@ const UploadPage: React.FC = () => {
     const abortController = new AbortController();
     setUploadAbortController(abortController);
 
-    // Upload settings - optimized for speed
-    const CHUNK_SIZE = 50 * 1024 * 1024; // 50MB per chunk (larger = fewer HTTP requests)
-    const MAX_CONCURRENT_UPLOADS = 10; // Upload 10 chunks in parallel
-    const DIRECT_UPLOAD_THRESHOLD = 100 * 1024 * 1024; // 100MB - use direct upload for files under this
+    const CHUNK_SIZE = 50 * 1024 * 1024;
+    const MAX_CONCURRENT_UPLOADS = 10;
+    const DIRECT_UPLOAD_THRESHOLD = 100 * 1024 * 1024;
 
     try {
       setIsUploading(true);
       setUploadProgress(0);
 
-      // P2P transfer uses the original upload method
       if (transferType === 'p2p') {
-        const totalSize = files.reduce((sum, file) => sum + file.size, 0);
-        const uploadStartTime = Date.now();
-
-        const response = await fileAPI.upload(
-          files,
-          description || undefined,
-          isAuthenticated && password ? password : undefined,
-          isAuthenticated ? expiration : undefined,
-          undefined,
-          turnstileToken,
-          transferType,
-          (progressEvent) => {
-            setUploadProgress(progressEvent.percentage);
-            const uploadedBytes = (progressEvent.percentage / 100) * totalSize;
-            const remainingSeconds = calculateTimeRemaining(uploadStartTime, uploadedBytes, totalSize);
-            setUploadTimeRemaining(formatTimeRemaining(remainingSeconds));
-          },
-          abortController.signal
+        const response = await fileAPI.createP2PSession(
+          files.map(file => ({
+            name: file.name,
+            size: file.size,
+            type: file.type || 'application/octet-stream'
+          })),
+          turnstileToken
         );
 
         navigate('/upload/success', {
@@ -123,8 +110,6 @@ const UploadPage: React.FC = () => {
         return;
       }
 
-      // Server transfer uses Worker-based multipart upload for edge performance
-      // Step 1: Initialize upload session on backend (creates session and storage keys only - no S3 calls)
       const initResponse = await fileAPI.initMultipartUpload({
         files: files.map(file => ({
           file_name: file.name,
@@ -142,13 +127,10 @@ const UploadPage: React.FC = () => {
       const totalSize = files.reduce((sum, file) => sum + file.size, 0);
       const uploadStartTime = Date.now();
 
-      // Track completed parts and upload IDs for each file
       const completedFileParts: { [key: string]: { part_number: number; etag: string }[] } = {};
       const workerUploadIds: { [key: string]: string } = {};
-
-      // Track upload progress per part to avoid progress jumping
       const partProgress: { [key: string]: number } = {};
-      let completedBytes = 0; // Bytes from fully completed parts
+      let completedBytes = 0;
 
       const updateTotalProgress = () => {
         const inProgressBytes = Object.values(partProgress).reduce((sum, bytes) => sum + bytes, 0);
@@ -156,15 +138,12 @@ const UploadPage: React.FC = () => {
         const percentage = Math.round((totalUploaded / totalSize) * 100);
         setUploadProgress(percentage);
 
-        // Calculate and update time remaining
         const remainingSeconds = calculateTimeRemaining(uploadStartTime, totalUploaded, totalSize);
         setUploadTimeRemaining(formatTimeRemaining(remainingSeconds));
       };
 
-      // Step 2: Upload all files in PARALLEL via Worker
-      const MAX_CONCURRENT_FILES = 4; // Upload up to 4 files simultaneously
+      const MAX_CONCURRENT_FILES = 4;
 
-      // Create upload task for each file
       const uploadFile = async (fileIndex: number): Promise<void> => {
         if (abortController.signal.aborted) {
           throw new Error('Upload cancelled');
@@ -173,11 +152,9 @@ const UploadPage: React.FC = () => {
         const file = files[fileIndex];
         const fileInit = initResponse.files[fileIndex];
 
-        // Use direct upload for small files (faster, less overhead)
         const useDirectUpload = file.size < DIRECT_UPLOAD_THRESHOLD;
 
         if (useDirectUpload) {
-          // Direct upload - single request, no multipart overhead
           const progressKey = `${fileIndex}-direct`;
           partProgress[progressKey] = 0;
 
@@ -195,19 +172,16 @@ const UploadPage: React.FC = () => {
           completedBytes += file.size;
           updateTotalProgress();
 
-          // For direct upload, use 'direct' as upload ID and single part with etag
           workerUploadIds[fileInit.storage_key] = 'direct';
           completedFileParts[fileInit.storage_key] = [{ part_number: 1, etag: result.etag }];
         } else {
-          // Multipart upload for large files - use presigned URLs for direct R2 upload (fastest)
           const totalParts = fileInit.total_parts;
-          const uploadId = fileInit.upload_id; // Backend already created multipart upload
+          const uploadId = fileInit.upload_id;
 
           workerUploadIds[fileInit.storage_key] = uploadId;
 
           const allPartNumbers = Array.from({ length: totalParts }, (_, i) => i + 1);
 
-          // Get presigned URLs for all parts at once
           const presignedUrlsResponse = await fileAPI.getPartPresignedUrls({
             upload_session_id: initResponse.upload_session_id,
             storage_key: fileInit.storage_key,
@@ -215,11 +189,9 @@ const UploadPage: React.FC = () => {
             part_numbers: allPartNumbers
           });
 
-          // Create a map of part number to presigned URL
           const presignedUrlMap = new Map<number, string>();
           presignedUrlsResponse.urls.forEach(u => presignedUrlMap.set(u.part_number, u.presigned_url));
 
-          // Upload parts directly to R2 using presigned URLs (bypasses Worker completely)
           const uploadPartWithProgress = async (partNumber: number): Promise<{ part_number: number; etag: string }> => {
             if (abortController.signal.aborted) {
               throw new Error('Upload cancelled');
@@ -231,7 +203,6 @@ const UploadPage: React.FC = () => {
             const chunkSize = end - start;
             const partKey = `${fileIndex}-${partNumber}`;
 
-            // Initialize this part's progress
             partProgress[partKey] = 0;
 
             const presignedUrl = presignedUrlMap.get(partNumber);
@@ -239,7 +210,6 @@ const UploadPage: React.FC = () => {
               throw new Error(`No presigned URL for part ${partNumber}`);
             }
 
-            // Upload directly to R2 using presigned URL
             const etag = await fileAPI.uploadPart(
               presignedUrl,
               chunk,
@@ -250,7 +220,6 @@ const UploadPage: React.FC = () => {
               abortController.signal
             );
 
-            // Part completed - move from in-progress to completed
             delete partProgress[partKey];
             completedBytes += chunkSize;
             updateTotalProgress();
@@ -258,7 +227,6 @@ const UploadPage: React.FC = () => {
             return { part_number: partNumber, etag };
           };
 
-          // Process parts with concurrency limit
           const results: { part_number: number; etag: string }[] = [];
           for (let i = 0; i < allPartNumbers.length; i += MAX_CONCURRENT_UPLOADS) {
             const batch = allPartNumbers.slice(i, i + MAX_CONCURRENT_UPLOADS);
@@ -266,22 +234,18 @@ const UploadPage: React.FC = () => {
             results.push(...batchResults);
           }
 
-          // Sort by part number and store (R2 complete will be called in backend)
           completedFileParts[fileInit.storage_key] = results.sort((a, b) => a.part_number - b.part_number);
         }
       };
 
-      // Upload files in parallel with concurrency limit
       const fileIndices = Array.from({ length: files.length }, (_, i) => i);
       for (let i = 0; i < fileIndices.length; i += MAX_CONCURRENT_FILES) {
         const batch = fileIndices.slice(i, i + MAX_CONCURRENT_FILES);
         await Promise.all(batch.map(uploadFile));
       }
 
-      // All uploads complete - show 100% with "잠시만 기다려주세요..." message
       setUploadProgress(100);
 
-      // Step 3: Finalize on backend (creates DB records and completes R2 multipart)
       const response = await fileAPI.completeMultipartUpload({
         upload_session_id: initResponse.upload_session_id,
         share_code: initResponse.share_code,
@@ -347,16 +311,13 @@ const UploadPage: React.FC = () => {
   return (
     <div>
       <div className="max-w-4xl mx-auto px-4 py-12 md:pb-32">
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-3">파일 전송</h1>
           <p className="text-lg text-gray-600">파일과 비밀번호는 암호화되어 보관되며 유효 기간이 지나면 즉시 폐기됩니다.</p>
         </div>
 
-        {/* Transfer Type Selector */}
         <div className="mb-10">
           <div className="relative flex gap-1 w-full max-w-md bg-gray-100 rounded-full p-1.5">
-            {/* Sliding Background */}
             <div
               className="absolute top-1.5 h-[calc(100%-12px)] bg-white rounded-full transition-all duration-200 ease-out"
               style={{
@@ -365,7 +326,6 @@ const UploadPage: React.FC = () => {
               }}
             />
 
-            {/* Buttons */}
             <button
               type="button"
               onClick={() => handleTransferTypeChange('server')}
@@ -398,7 +358,6 @@ const UploadPage: React.FC = () => {
           )}
         </div>
 
-        {/* File Drop Zone */}
         <div className="mb-10">
           <div
             {...getRootProps()}
@@ -427,14 +386,12 @@ const UploadPage: React.FC = () => {
           </div>
         </div>
 
-        {/* File Processing */}
         {isProcessingFiles && (
           <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
             <p className="text-sm font-medium text-gray-700">파일 처리 중...</p>
           </div>
         )}
 
-        {/* Selected Files */}
         {files.length > 0 && (
           <div className="mb-10">
             <h3 className="font-semibold text-gray-900 mb-4">선택된 파일 ({files.length})</h3>
@@ -485,75 +442,69 @@ const UploadPage: React.FC = () => {
           </div>
         )}
 
-        {/* Transfer Settings */}
         <div>
           <h2 className="text-2xl font-bold text-gray-900 mb-8">전송 설정</h2>
 
-          {/* Expiration */}
-          <div className="mb-8">
-            <h3 className={`text-base font-semibold text-gray-900 ${!isAuthenticated ? 'mb-1' : 'mb-4'}`}>유효 기간</h3>
-            {!isAuthenticated && (
-              <p className="mb-4 text-sm text-gray-500">
-                로그인 후 사용 가능합니다.
-              </p>
-            )}
-            <div className="flex flex-wrap gap-2 md:gap-3 mb-4">
-              {expirationOptions.map(option => (
-                <button
-                  key={option.value}
-                  onClick={() => setExpiration(option.value)}
-                  disabled={!isAuthenticated && option.value !== 'five_minutes'}
-                  className={`px-4 py-2 md:px-6 md:py-3 rounded-xl text-sm md:text-base font-medium transition-colors ${
-                    expiration === option.value
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  } ${!isAuthenticated && option.value !== 'five_minutes' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-
-            {/* One Time Download Checkbox */}
-            {isAuthenticated && (
-              <div className="mt-4">
-                <div className="flex items-center">
-                  <div className="relative">
-                    <input
-                      type="checkbox"
-                      checked={isOneTime}
-                      onChange={(e) => setIsOneTime(e.target.checked)}
-                      disabled={transferType === 'p2p'}
-                      className="sr-only"
-                    />
-                    <div
-                      onClick={() => transferType !== 'p2p' && setIsOneTime(!isOneTime)}
-                      className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors ${
-                        isOneTime
-                          ? 'bg-blue-600 border-blue-600'
-                          : 'border-gray-300 bg-white'
-                      } ${
-                        transferType !== 'p2p' ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'
-                      }`}
-                    >
-                      {isOneTime && (
-                        <CheckIcon className="w-4 h-4 text-white" strokeWidth={3} />
-                      )}
-                    </div>
-                  </div>
-                  <span
-                    onClick={() => transferType !== 'p2p' && setIsOneTime(!isOneTime)}
-                    className={`ml-2.5 text-base font-medium ${transferType !== 'p2p' ? 'cursor-pointer' : 'cursor-not-allowed'} ${transferType === 'p2p' ? 'text-gray-400' : 'text-gray-900'}`}
+          {transferType !== 'p2p' && (
+            <div className="mb-8">
+              <h3 className={`text-base font-semibold text-gray-900 ${!isAuthenticated ? 'mb-1' : 'mb-4'}`}>유효 기간</h3>
+              {!isAuthenticated && (
+                <p className="mb-4 text-sm text-gray-500">
+                  로그인 후 사용 가능합니다.
+                </p>
+              )}
+              <div className="flex flex-wrap gap-2 md:gap-3 mb-4">
+                {expirationOptions.map(option => (
+                  <button
+                    key={option.value}
+                    onClick={() => setExpiration(option.value)}
+                    disabled={!isAuthenticated && option.value !== 'five_minutes'}
+                    className={`px-4 py-2 md:px-6 md:py-3 rounded-xl text-sm md:text-base font-medium transition-colors ${
+                      expiration === option.value
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    } ${!isAuthenticated && option.value !== 'five_minutes' ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    일회용 다운로드
-                    {transferType === 'p2p' && <span className="text-xs ml-1">(보안 전송 필수)</span>}
-                  </span>
-                </div>
+                    {option.label}
+                  </button>
+                ))}
               </div>
-            )}
-          </div>
 
-          {/* Password */}
+              {isAuthenticated && (
+                <div className="mt-4">
+                  <div className="flex items-center">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={isOneTime}
+                        onChange={(e) => setIsOneTime(e.target.checked)}
+                        className="sr-only"
+                      />
+                      <div
+                        onClick={() => setIsOneTime(!isOneTime)}
+                        className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors cursor-pointer ${
+                          isOneTime
+                            ? 'bg-blue-600 border-blue-600'
+                            : 'border-gray-300 bg-white'
+                        }`}
+                      >
+                        {isOneTime && (
+                          <CheckIcon className="w-4 h-4 text-white" strokeWidth={3} />
+                        )}
+                      </div>
+                    </div>
+                    <span
+                      onClick={() => setIsOneTime(!isOneTime)}
+                      className="ml-2.5 text-base font-medium cursor-pointer text-gray-900"
+                    >
+                      일회용 다운로드
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="mb-8">
             <h3 className="text-base font-semibold text-gray-900 mb-4">
               비밀번호 <span className="text-sm text-gray-400 font-normal">선택</span>
@@ -589,7 +540,6 @@ const UploadPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Description */}
           <div>
             <h3 className="text-base font-semibold text-gray-900 mb-4">
               설명 <span className="text-sm text-gray-400 font-normal">선택</span>
@@ -604,7 +554,6 @@ const UploadPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Turnstile Widget & Submit Button */}
         <div className="mt-7">
           {isUploading ? (
             <div className="bg-blue-50 rounded-xl px-4 py-4">
@@ -641,7 +590,6 @@ const UploadPage: React.FC = () => {
             </div>
           ) : (
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-[22px] md:gap-4">
-              {/* Turnstile Widget */}
               <div>
                 <TurnstileWidget
                   onVerify={(token) => setTurnstileToken(token)}
@@ -655,7 +603,6 @@ const UploadPage: React.FC = () => {
                 />
               </div>
 
-              {/* Submit Button */}
               <div className="flex justify-center md:justify-end">
                 <button
                   onClick={handleUpload}

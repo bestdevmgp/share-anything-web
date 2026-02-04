@@ -137,13 +137,12 @@ const DownloadFilePage: React.FC = () => {
     setTurnstileVerified(true);
   }, [loadFileList]);
 
-  // Reset downloadAsZip if selected files exceed 500MB
   useEffect(() => {
     if (!fileList) return;
     const selectedTotalSize = fileList.files
       .filter(f => selectedFiles.has(f.id))
       .reduce((sum, f) => sum + f.file_size, 0);
-    const ZIP_SIZE_LIMIT = 500 * 1024 * 1024; // 500MB
+    const ZIP_SIZE_LIMIT = 500 * 1024 * 1024;
 
     if (selectedTotalSize >= ZIP_SIZE_LIMIT) {
       setDownloadAsZip(false);
@@ -263,7 +262,7 @@ const DownloadFilePage: React.FC = () => {
     const abortController = new AbortController();
     setDownloadAbortController(abortController);
     const downloadStartTime = Date.now();
-    setDownloadAsZip(asZip); // Update state for UI display during download
+    setDownloadAsZip(asZip);
 
     try {
       setDownloading(true);
@@ -271,7 +270,6 @@ const DownloadFilePage: React.FC = () => {
       setDownloadTimeRemaining('');
       const selectedFileIds = Array.from(selectedFiles);
 
-      // ZIP download for multiple files
       if (asZip && selectedFileIds.length > 1) {
         const totalSize = fileList.files
           .filter(f => selectedFiles.has(f.id))
@@ -300,7 +298,6 @@ const DownloadFilePage: React.FC = () => {
         return;
       }
 
-      // Individual file downloads
       const downloadUrls: { url: string; fileName: string }[] = [];
 
       for (let i = 0; i < selectedFileIds.length; i++) {
@@ -315,10 +312,9 @@ const DownloadFilePage: React.FC = () => {
         );
 
         downloadUrls.push({ url: download_url, fileName: file.file_name });
-        setDownloadProgress(Math.round(((i + 1) / selectedFileIds.length) * 50)); // 0-50% for URL fetching
+        setDownloadProgress(Math.round(((i + 1) / selectedFileIds.length) * 50));
       }
 
-      // Trigger all downloads using invisible anchor tags
       for (let i = 0; i < downloadUrls.length; i++) {
         const { url, fileName } = downloadUrls[i];
 
@@ -330,9 +326,8 @@ const DownloadFilePage: React.FC = () => {
         link.click();
         document.body.removeChild(link);
 
-        setDownloadProgress(50 + Math.round(((i + 1) / downloadUrls.length) * 50)); // 50-100% for downloads
+        setDownloadProgress(50 + Math.round(((i + 1) / downloadUrls.length) * 50));
 
-        // Longer delay between downloads to avoid browser blocking multiple downloads
         if (i < downloadUrls.length - 1) {
           await new Promise(resolve => setTimeout(resolve, 1000));
         }
@@ -506,7 +501,6 @@ const DownloadFilePage: React.FC = () => {
     return (
       <div className="flex items-center justify-center px-4 py-12">
     <div className="max-w-2xl w-full">
-          {/* Header */}
           <div className="text-center mb-10">
             <div className="flex justify-center mb-5">
               <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
@@ -550,9 +544,7 @@ const DownloadFilePage: React.FC = () => {
             }
           `}</style>
 
-          {/* File Card */}
           <div className="bg-white rounded-3xl border-2 border-gray-200 p-6 md:p-10">
-            {/* File Preview */}
             <div className="flex justify-center mb-8">
               {loadingPreview ? (
                 <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center">
@@ -602,7 +594,6 @@ const DownloadFilePage: React.FC = () => {
               )}
             </div>
 
-            {/* File Info */}
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center break-all">
                 {file.file_name}
@@ -614,7 +605,6 @@ const DownloadFilePage: React.FC = () => {
               )}
             </div>
 
-            {/* File Details */}
             <div className="space-y-3 mb-8">
               <div className="flex justify-between py-2 border-b border-gray-200">
                 <span className="text-gray-600">파일 크기</span>
@@ -632,7 +622,6 @@ const DownloadFilePage: React.FC = () => {
               </div>
             </div>
 
-            {/* Download Button */}
             <div className="">
               {isP2PDownload ? (
                 p2pStatus === 'downloading' || p2pStatus === 'connecting' ? (
@@ -717,7 +706,6 @@ const DownloadFilePage: React.FC = () => {
               )}
             </div>
 
-            {/* Back Button */}
             <div className="mt-4 text-center">
               <button
                 onClick={() => navigate('/')}
@@ -755,7 +743,6 @@ const DownloadFilePage: React.FC = () => {
   return (
     <div className="py-12 px-4">
       <div className="max-w-3xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-10">
           <h1 className="text-4xl font-bold text-gray-900 mb-3">파일 다운로드</h1>
           <p className="text-gray-600">
@@ -763,16 +750,13 @@ const DownloadFilePage: React.FC = () => {
           </p>
         </div>
 
-        {/* Card */}
         <div className="bg-white rounded-3xl border-2 border-gray-200 p-10">
-          {/* Description */}
           {fileList.description && (
             <div className="mb-8 p-4 bg-gray-50 rounded-lg">
               <p className="text-gray-700 break-words whitespace-pre-wrap">{fileList.description}</p>
             </div>
           )}
 
-          {/* Selection Controls */}
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-gray-900">
               파일 목록 ({selectedFiles.size}/{fileList.total_count} 선택됨)
@@ -793,7 +777,6 @@ const DownloadFilePage: React.FC = () => {
             </div>
           </div>
 
-          {/* File List */}
           <div className="space-y-3 mb-8">
             {fileList.files.map((file) => (
               <div
@@ -805,7 +788,6 @@ const DownloadFilePage: React.FC = () => {
                     : 'bg-gray-50 border-2 border-transparent hover:bg-gray-100'
                 }`}
               >
-                {/* Checkbox */}
                 <div className="flex-shrink-0">
                   <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center ${
                     selectedFiles.has(file.id)
@@ -818,7 +800,6 @@ const DownloadFilePage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* File Icon or Image Preview */}
                 <div className="flex-shrink-0">
                   {isImageFile(file.file_name) && imagePreviews.get(file.id) ? (
                     <img
@@ -845,7 +826,6 @@ const DownloadFilePage: React.FC = () => {
                   )}
                 </div>
 
-                {/* File Info */}
                 <div className="flex-1 min-w-0">
                   <h4 className="text-base font-semibold text-gray-900 truncate">
                     {file.file_name}
@@ -856,7 +836,6 @@ const DownloadFilePage: React.FC = () => {
             ))}
           </div>
 
-          {/* Download Button */}
           <div className="">
             {downloading ? (
               <div className="bg-blue-50 rounded-xl px-4 py-4">
@@ -896,7 +875,7 @@ const DownloadFilePage: React.FC = () => {
                 const selectedTotalSize = fileList.files
                   .filter(f => selectedFiles.has(f.id))
                   .reduce((sum, f) => sum + f.file_size, 0);
-                const ZIP_SIZE_LIMIT = 500 * 1024 * 1024; // 500MB
+                const ZIP_SIZE_LIMIT = 500 * 1024 * 1024;
                 const canDownloadAsZip = selectedFiles.size > 1 && selectedTotalSize < ZIP_SIZE_LIMIT;
 
                 return canDownloadAsZip ? (
@@ -934,7 +913,6 @@ const DownloadFilePage: React.FC = () => {
             )}
           </div>
 
-          {/* Back Button */}
           <div className="mt-4 text-center">
             <button
               onClick={() => navigate('/')}

@@ -50,7 +50,6 @@ const UploadSuccessPage: React.FC = () => {
   return (
     <div className="flex items-center justify-center px-4 py-12">
       <div className="max-w-2xl w-full">
-        {/* Header */}
         <div className="text-center mb-12">
           <div className="flex justify-center mb-5">
             <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
@@ -94,9 +93,7 @@ const UploadSuccessPage: React.FC = () => {
           }
         `}</style>
 
-        {/* Card */}
         <div className="bg-white rounded-3xl border-2 border-gray-200 p-8 md:p-12">
-          {/* Share Code */}
           <div className="mb-8">
             <label className="block text-sm font-medium text-gray-600 mb-3 text-center">
               전송 코드
@@ -124,7 +121,6 @@ const UploadSuccessPage: React.FC = () => {
             )}
           </div>
 
-          {/* Share Link */}
           <div className="mb-8">
             <label className="block text-sm font-medium text-gray-700 mb-3">
               공유 링크
@@ -150,7 +146,6 @@ const UploadSuccessPage: React.FC = () => {
             </div>
           </div>
 
-          {/* P2P Transfer Progress */}
           {isP2PTransfer && (p2pStatus === 'transferring' || p2pStatus === 'connected') && (
             <div className="mb-8">
               <label className="block text-sm font-medium text-gray-700 mb-3">
@@ -168,7 +163,6 @@ const UploadSuccessPage: React.FC = () => {
             </div>
           )}
 
-          {/* QR Code */}
           <div className="flex flex-col items-center">
             <label className="block text-sm font-medium text-gray-700 mb-3">
               QR 코드로 다운로드
@@ -183,7 +177,6 @@ const UploadSuccessPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Complete Button */}
         <div className="mt-10">
           <button
             onClick={() => navigate('/')}

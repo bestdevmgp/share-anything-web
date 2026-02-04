@@ -92,7 +92,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           };
 
           dataChannel.onmessage = (event) => {
-            // 첫 메시지는 메타데이터
             if (!metadataReceived && typeof event.data === 'string') {
               try {
                 const metadata = JSON.parse(event.data);
@@ -105,11 +104,9 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
                   return;
                 }
               } catch {
-                // 메타데이터 파싱 실패 - 바이너리 데이터로 처리
               }
             }
 
-            // 이후 메시지는 파일 청크
             const chunk = event.data as ArrayBuffer;
             receivedChunksRef.current.push(chunk);
             receivedSizeRef.current += chunk.byteLength;
@@ -117,7 +114,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
             const progressPercent = (receivedSizeRef.current / actualFileSize) * 100;
             setProgress(Math.round(progressPercent));
 
-            // 남은 시간 계산
             const elapsedMs = Date.now() - downloadStartTimeRef.current;
             if (elapsedMs > 500 && receivedSizeRef.current > 0) {
               const bytesPerMs = receivedSizeRef.current / elapsedMs;

@@ -127,12 +127,12 @@ export const calculateTimeRemaining = (
 ): number => {
   const elapsedMs = Date.now() - startTime;
   if (elapsedMs < 500 || loadedBytes === 0) {
-    return Infinity; // Not enough data to estimate
+    return Infinity;
   }
 
   const bytesPerMs = loadedBytes / elapsedMs;
   const remainingBytes = totalBytes - loadedBytes;
   const remainingMs = remainingBytes / bytesPerMs;
 
-  return remainingMs / 1000; // Convert to seconds
+  return remainingMs / 1000;
 };

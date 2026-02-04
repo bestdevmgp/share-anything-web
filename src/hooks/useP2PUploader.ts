@@ -256,7 +256,6 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
           const progressPercent = Math.min((offset / buffer.byteLength) * 100, 100);
           setProgress(Math.round(progressPercent));
 
-          // 남은 시간 계산
           const elapsedMs = Date.now() - transferStartTimeRef.current;
           if (elapsedMs > 500 && offset > 0) {
             const bytesPerMs = offset / elapsedMs;

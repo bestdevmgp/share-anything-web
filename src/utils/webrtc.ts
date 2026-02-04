@@ -23,11 +23,8 @@ export const createPeerConnection = (): RTCPeerConnection => {
 
   const config = {
     iceServers: [
-      // STUN 서버 (공인 IP 확인용)
       { urls: 'stun:stun.l.google.com:19302' },
       { urls: 'stun:stun1.l.google.com:19302' },
-
-      // TURN 서버 (NAT 통과용 - Metered.ca OpenRelay)
       {
         urls: [
           'turn:a.relay.metered.ca:80',
