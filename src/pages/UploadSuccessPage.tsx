@@ -148,9 +148,14 @@ const UploadSuccessPage: React.FC = () => {
 
           {isP2PTransfer && (p2pStatus === 'transferring' || p2pStatus === 'connected') && (
             <div className="mb-8">
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                전송 진행률
-              </label>
+              <div className="flex justify-between items-center mb-3">
+                <label className="text-sm font-medium text-gray-700">
+                  전송 진행률
+                </label>
+                {timeRemaining && (
+                  <span className="text-sm text-gray-500">{timeRemaining} 남음</span>
+                )}
+              </div>
               <div className="bg-gray-200 rounded-full h-3 overflow-hidden">
                 <div
                   className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
@@ -158,7 +163,7 @@ const UploadSuccessPage: React.FC = () => {
                 />
               </div>
               <p className="text-sm text-gray-500 text-center mt-2">
-                {transferProgress}%{timeRemaining && ` · ${timeRemaining} 남음`}
+                {transferProgress}%
               </p>
             </div>
           )}

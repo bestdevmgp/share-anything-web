@@ -20,6 +20,7 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
   const peerIdRef = useRef<string>(generatePeerId());
   const isCompletedRef = useRef<boolean>(false);
   const transferStartTimeRef = useRef<number>(0);
+  const lastTimeUpdateRef = useRef<number>(0);
 
   useEffect(() => {
     if (!enabled || !shareCode || !file) {
@@ -219,7 +220,10 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
       const formatTime = (seconds: number): string => {
         if (seconds < 60) return `${Math.ceil(seconds)}초`;
         if (seconds < 3600) return `${Math.floor(seconds / 60)}분 ${Math.ceil(seconds % 60)}초`;
-        return `${Math.floor(seconds / 3600)}시간 ${Math.floor((seconds % 3600) / 60)}분`;
+        const hours = Math.floor(seconds / 3600);
+        const mins = Math.floor((seconds % 3600) / 60);
+        const secs = Math.ceil(seconds % 60);
+        return `${hours}시간 ${mins}분 ${secs}초`;
       };
 
       reader.onload = (e) => {
@@ -258,12 +262,16 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
           const progressPercent = Math.min((offset / buffer.byteLength) * 100, 100);
           setProgress(Math.round(progressPercent));
 
-          const elapsedMs = Date.now() - transferStartTimeRef.current;
+          const now = Date.now();
+          const elapsedMs = now - transferStartTimeRef.current;
           if (elapsedMs > 500 && offset > 0) {
-            const bytesPerMs = offset / elapsedMs;
-            const remainingBytes = buffer.byteLength - offset;
-            const remainingSeconds = remainingBytes / bytesPerMs / 1000;
-            setTimeRemaining(formatTime(remainingSeconds));
+            if (now - lastTimeUpdateRef.current >= 1000) {
+              const bytesPerMs = offset / elapsedMs;
+              const remainingBytes = buffer.byteLength - offset;
+              const remainingSeconds = remainingBytes / bytesPerMs / 1000;
+              setTimeRemaining(formatTime(remainingSeconds));
+              lastTimeUpdateRef.current = now;
+            }
           }
 
           setTimeout(sendChunk, 0);

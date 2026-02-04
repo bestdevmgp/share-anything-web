@@ -45,19 +45,21 @@ const DownloadFilePage: React.FC = () => {
   const [isP2PDownload, setIsP2PDownload] = useState(false);
   const [p2pEnabled, setP2pEnabled] = useState(false);
   const [p2pActiveFileId, setP2pActiveFileId] = useState<string | null>(null);
+  const [p2pCompletedFileIds, setP2pCompletedFileIds] = useState<Set<string>>(new Set());
 
   const handleP2PDownloadComplete = useCallback((blob: Blob, fileName: string) => {
     console.log('[DownloadFilePage] P2P download completed:', { fileName, blobSize: blob.size });
     downloadFile(blob, fileName);
     toast.success('파일 다운로드가 완료되었습니다.');
+    setP2pCompletedFileIds(prev => new Set(prev).add(p2pActiveFileId || ''));
     setP2pActiveFileId(null);
     setP2pEnabled(false);
-  }, []);
+  }, [p2pActiveFileId]);
 
   const singleFile = fileList?.files?.length === 1 ? fileList.files[0] : null;
   const p2pActiveFile = p2pActiveFileId ? fileList?.files?.find(f => f.id === p2pActiveFileId) : singleFile;
 
-  const { status: p2pStatus, progress: p2pProgress, timeRemaining: p2pTimeRemaining } = useP2PDownloader({
+  const { status: p2pStatus, progress: p2pProgress, timeRemaining: p2pTimeRemaining, reset: resetP2P } = useP2PDownloader({
     shareCode: code || '',
     fileInfo: p2pActiveFile ? {
       share_code: code || '',
@@ -83,9 +85,10 @@ const DownloadFilePage: React.FC = () => {
   });
 
   const startP2PDownload = useCallback((fileId: string) => {
+    resetP2P();
     setP2pActiveFileId(fileId);
     setP2pEnabled(true);
-  }, []);
+  }, [resetP2P]);
 
   const loadFileList = useCallback(async (token: string) => {
     if (!code) {
@@ -777,7 +780,7 @@ const DownloadFilePage: React.FC = () => {
               {fileList.files.map((file) => {
                 const isActive = p2pActiveFileId === file.id;
                 const isDownloading = isActive && (p2pStatus === 'downloading' || p2pStatus === 'connecting');
-                const isCompleted = isActive && p2pStatus === 'completed';
+                const isCompleted = p2pCompletedFileIds.has(file.id);
 
                 return (
                   <div

@@ -115,8 +115,9 @@ export const formatTimeRemaining = (remainingSeconds: number): string => {
     return `${minutes}분 ${seconds}초 남음`;
   } else {
     const hours = Math.floor(remainingSeconds / 3600);
-    const minutes = Math.ceil((remainingSeconds % 3600) / 60);
-    return `${hours}시간 ${minutes}분 남음`;
+    const minutes = Math.floor((remainingSeconds % 3600) / 60);
+    const seconds = Math.ceil(remainingSeconds % 60);
+    return `${hours}시간 ${minutes}분 ${seconds}초 남음`;
   }
 };
 
