@@ -125,7 +125,8 @@ export type SignalingMessageType =
   | 'ice_candidate'
   | 'transfer_complete'
   | 'error'
-  | 'uploader_offline';
+  | 'uploader_offline'
+  | 'downloader_offline';
 
 export interface SignalingMessage {
   type: SignalingMessageType;

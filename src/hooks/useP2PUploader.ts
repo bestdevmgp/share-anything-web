@@ -68,6 +68,16 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
         dataChannel.onopen = () => {
           console.log('[useP2PUploader] DataChannel opened');
           setStatus('transferring');
+
+          const metadata = JSON.stringify({
+            type: 'file_metadata',
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type
+          });
+          dataChannel.send(metadata);
+          console.log('[useP2PUploader] Metadata sent:', metadata);
+
           sendFile(file, dataChannel);
         };
 
@@ -134,33 +144,32 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
 
       switch (message.type) {
         case 'peer_matched':
-          console.log('[useP2PUploader] Peer matched!');
+          console.log('[useP2PUploader] Peer matched! Creating offer...');
           setStatus('connected');
+
+          const offer = await pc.createOffer();
+          console.log('[useP2PUploader] Offer SDP:', offer.sdp?.substring(0, 200) + '...');
+          await pc.setLocalDescription(offer);
+          console.log('[useP2PUploader] Local description set (offer)');
+          console.log('[useP2PUploader] Current ICE gathering state after setLocalDescription:', pc.iceGatheringState);
+
+          sendSignalingMessage(ws, {
+            type: 'offer',
+            share_code: shareCode,
+            sdp: offer.sdp,
+            peer_id: peerIdRef.current
+          });
+          console.log('[useP2PUploader] Offer sent to downloader');
           break;
 
-        case 'offer':
-          console.log('[useP2PUploader] Received offer from downloader');
-          console.log('[useP2PUploader] Offer SDP:', message.sdp?.substring(0, 200) + '...');
+        case 'answer':
+          console.log('[useP2PUploader] Received answer from downloader');
           if (message.sdp) {
             await pc.setRemoteDescription(new RTCSessionDescription({
-              type: 'offer',
+              type: 'answer',
               sdp: message.sdp
             }));
-            console.log('[useP2PUploader] Remote description set (offer)');
-
-            const answer = await pc.createAnswer();
-            console.log('[useP2PUploader] Answer SDP:', answer.sdp?.substring(0, 200) + '...');
-            await pc.setLocalDescription(answer);
-            console.log('[useP2PUploader] Local description set (answer)');
-            console.log('[useP2PUploader] Current ICE gathering state after setLocalDescription:', pc.iceGatheringState);
-
-            sendSignalingMessage(ws, {
-              type: 'answer',
-              share_code: shareCode,
-              sdp: answer.sdp,
-              peer_id: peerIdRef.current
-            });
-            console.log('[useP2PUploader] Answer sent to downloader');
+            console.log('[useP2PUploader] Remote description set (answer)');
             console.log('[useP2PUploader] Signaling state:', pc.signalingState);
             console.log('[useP2PUploader] ICE gathering state:', pc.iceGatheringState);
             console.log('[useP2PUploader] ICE connection state:', pc.iceConnectionState);
@@ -169,10 +178,20 @@ export const useP2PUploader = ({ shareCode, file, enabled }: UseP2PUploaderProps
 
         case 'ice_candidate':
           if (message.candidate) {
-            const candidate = JSON.parse(message.candidate);
-            console.log('[useP2PUploader] Received ICE candidate:', candidate.type);
-            await pc.addIceCandidate(new RTCIceCandidate(candidate));
+            try {
+              const candidate = JSON.parse(message.candidate);
+              console.log('[useP2PUploader] Received ICE candidate:', candidate.type);
+              await pc.addIceCandidate(new RTCIceCandidate(candidate));
+            } catch (err) {
+              console.warn('[useP2PUploader] Failed to add ICE candidate:', err);
+            }
           }
+          break;
+
+        case 'downloader_offline':
+          console.log('[useP2PUploader] Downloader went offline');
+          toast.warning('다운로더가 연결을 종료했습니다.');
+          setStatus('waiting');
           break;
 
         case 'error':

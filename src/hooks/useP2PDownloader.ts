@@ -65,6 +65,10 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
 
         console.log('[useP2PDownloader] Registering event handlers...');
 
+        let metadataReceived = false;
+        let actualFileSize = fileInfo.file_size;
+        let actualFileType = fileInfo.file_type;
+
         pc.ondatachannel = (event) => {
           console.log('[useP2PDownloader] DataChannel received');
           const dataChannel = event.channel;
@@ -79,15 +83,32 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           };
 
           dataChannel.onmessage = (event) => {
+            // 첫 메시지는 메타데이터
+            if (!metadataReceived && typeof event.data === 'string') {
+              try {
+                const metadata = JSON.parse(event.data);
+                if (metadata.type === 'file_metadata') {
+                  console.log('[useP2PDownloader] Received metadata:', metadata);
+                  actualFileSize = metadata.fileSize;
+                  actualFileType = metadata.fileType;
+                  metadataReceived = true;
+                  return;
+                }
+              } catch {
+                // 메타데이터 파싱 실패 - 바이너리 데이터로 처리
+              }
+            }
+
+            // 이후 메시지는 파일 청크
             const chunk = event.data as ArrayBuffer;
             receivedChunksRef.current.push(chunk);
             receivedSizeRef.current += chunk.byteLength;
 
-            const progressPercent = (receivedSizeRef.current / fileInfo.file_size) * 100;
+            const progressPercent = (receivedSizeRef.current / actualFileSize) * 100;
             setProgress(Math.round(progressPercent));
 
-            if (receivedSizeRef.current >= fileInfo.file_size) {
-              const blob = new Blob(receivedChunksRef.current, { type: fileInfo.file_type });
+            if (receivedSizeRef.current >= actualFileSize) {
+              const blob = new Blob(receivedChunksRef.current, { type: actualFileType });
               setStatus('completed');
               onComplete(blob);
 
@@ -165,34 +186,31 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
 
       switch (message.type) {
         case 'peer_matched':
-          console.log('[useP2PDownloader] Peer matched! Creating offer...');
-          const offer = await pc.createOffer({
-            offerToReceiveAudio: false,
-            offerToReceiveVideo: false
-          });
-          console.log('[useP2PDownloader] Offer SDP:', offer.sdp?.substring(0, 200) + '...');
-          await pc.setLocalDescription(offer);
-          console.log('[useP2PDownloader] Local description set (offer)');
-          console.log('[useP2PDownloader] Waiting for ICE gathering...');
-          console.log('[useP2PDownloader] Current ICE gathering state after setLocalDescription:', pc.iceGatheringState);
-
-          sendSignalingMessage(ws, {
-            type: 'offer',
-            share_code: shareCode,
-            sdp: offer.sdp,
-            peer_id: peerIdRef.current
-          });
-          console.log('[useP2PDownloader] Offer sent to uploader');
+          console.log('[useP2PDownloader] Peer matched! Waiting for offer...');
           break;
 
-        case 'answer':
-          console.log('[useP2PDownloader] Received answer from uploader');
+        case 'offer':
+          console.log('[useP2PDownloader] Received offer from uploader');
           if (message.sdp) {
             await pc.setRemoteDescription(new RTCSessionDescription({
-              type: 'answer',
+              type: 'offer',
               sdp: message.sdp
             }));
-            console.log('[useP2PDownloader] Remote description set (answer)');
+            console.log('[useP2PDownloader] Remote description set (offer)');
+
+            const answer = await pc.createAnswer();
+            console.log('[useP2PDownloader] Answer SDP:', answer.sdp?.substring(0, 200) + '...');
+            await pc.setLocalDescription(answer);
+            console.log('[useP2PDownloader] Local description set (answer)');
+            console.log('[useP2PDownloader] Current ICE gathering state after setLocalDescription:', pc.iceGatheringState);
+
+            sendSignalingMessage(ws, {
+              type: 'answer',
+              share_code: shareCode,
+              sdp: answer.sdp,
+              peer_id: peerIdRef.current
+            });
+            console.log('[useP2PDownloader] Answer sent to uploader');
             console.log('[useP2PDownloader] Signaling state:', pc.signalingState);
             console.log('[useP2PDownloader] ICE gathering state:', pc.iceGatheringState);
             console.log('[useP2PDownloader] ICE connection state:', pc.iceConnectionState);
@@ -201,9 +219,13 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
 
         case 'ice_candidate':
           if (message.candidate) {
-            const candidate = JSON.parse(message.candidate);
-            console.log('[useP2PDownloader] Received ICE candidate:', candidate.type);
-            await pc.addIceCandidate(new RTCIceCandidate(candidate));
+            try {
+              const candidate = JSON.parse(message.candidate);
+              console.log('[useP2PDownloader] Received ICE candidate:', candidate.type);
+              await pc.addIceCandidate(new RTCIceCandidate(candidate));
+            } catch (err) {
+              console.warn('[useP2PDownloader] Failed to add ICE candidate:', err);
+            }
           }
           break;
 
