@@ -91,6 +91,20 @@ const DownloadFilePage: React.FC = () => {
     setP2pEnabled(true);
   }, [resetP2P]);
 
+  const handleCancelP2PDownload = useCallback(() => {
+    cancelDownload();
+    setP2pActiveFileId(null);
+    setP2pEnabled(false);
+  }, [cancelDownload]);
+
+  // Reset state when download fails or is cancelled
+  useEffect(() => {
+    if (p2pStatus === 'error' || p2pStatus === 'cancelled') {
+      setP2pActiveFileId(null);
+      setP2pEnabled(false);
+    }
+  }, [p2pStatus]);
+
   const loadFileList = useCallback(async (token: string) => {
     if (!code) {
       navigate('/');
@@ -633,10 +647,12 @@ const DownloadFilePage: React.FC = () => {
                   <span className="font-semibold text-gray-900">익명의 사용자</span>
                 </div>
               )}
-              <div className="flex justify-between py-2">
-                <span className="text-gray-600">만료 일시</span>
-                <span className="font-semibold text-gray-900">{formatDateTime(fileList.expires_at)}</span>
-              </div>
+              {!isP2PDownload && (
+                <div className="flex justify-between py-2">
+                  <span className="text-gray-600">만료 일시</span>
+                  <span className="font-semibold text-gray-900">{formatDateTime(fileList.expires_at)}</span>
+                </div>
+              )}
             </div>
 
             <div className="">
@@ -650,9 +666,12 @@ const DownloadFilePage: React.FC = () => {
                             {p2pStatus === 'connecting' ? '연결 중...' : `다운로드 중...`}
                           </span>
                           {p2pStatus === 'downloading' && (
-                            <span className="text-xs font-semibold text-blue-600 self-end">
-                              {p2pProgress}%{p2pTimeRemaining && ` · ${p2pTimeRemaining} 남음`}
-                            </span>
+                            <div className="flex items-center gap-2 self-end">
+                              {p2pTimeRemaining && (
+                                <span className="text-xs text-gray-500">{p2pTimeRemaining}</span>
+                              )}
+                              <span className="text-xs font-semibold text-blue-600">{p2pProgress}%</span>
+                            </div>
                           )}
                         </div>
                         {p2pStatus === 'downloading' && (
@@ -665,7 +684,7 @@ const DownloadFilePage: React.FC = () => {
                         )}
                       </div>
                       <button
-                        onClick={cancelDownload}
+                        onClick={handleCancelP2PDownload}
                         className="p-1 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
                         title="다운로드 취소"
                       >
@@ -680,7 +699,7 @@ const DownloadFilePage: React.FC = () => {
                 ) : (
                   <button
                     onClick={() => setP2pEnabled(true)}
-                    className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-base md:text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+                    className="w-full px-6 py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
                   >
                     <ArrowDownTrayIcon className="w-5 h-5" />
                     <span>다운로드 시작</span>
@@ -722,7 +741,7 @@ const DownloadFilePage: React.FC = () => {
               ) : (
                 <button
                   onClick={() => handleDownload(false)}
-                  className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-base md:text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+                  className="w-full px-6 py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
                 >
                   <ArrowDownTrayIcon className="w-5 h-5" />
                   <span>파일 다운로드</span>
@@ -859,7 +878,7 @@ const DownloadFilePage: React.FC = () => {
                             )}
                           </div>
                           <button
-                            onClick={cancelDownload}
+                            onClick={handleCancelP2PDownload}
                             className="p-1 hover:bg-blue-100 rounded transition-colors"
                             title="다운로드 취소"
                           >

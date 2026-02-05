@@ -249,12 +249,10 @@ const UploadSuccessPage: React.FC = () => {
                             <span className="text-sm text-green-600 font-medium">완료</span>
                           ) : isTransferring ? (
                             <div className="flex items-center gap-2">
-                              <div className="text-right">
-                                <span className="text-sm text-blue-600 font-medium">{progress?.progress || 0}%</span>
-                                {progress?.timeRemaining && (
-                                  <p className="text-xs text-gray-500">{progress.timeRemaining}</p>
-                                )}
-                              </div>
+                              {progress?.timeRemaining && (
+                                <span className="text-xs text-gray-500">{progress.timeRemaining}</span>
+                              )}
+                              <span className="text-xs font-semibold text-blue-600">{progress?.progress || 0}%</span>
                               <button
                                 onClick={() => cancelTransfer(file.name)}
                                 className="p-1 hover:bg-blue-100 rounded transition-colors"

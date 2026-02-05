@@ -34,6 +34,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
   const lastTimeUpdateRef = useRef<number>(0);
   const filesRef = useRef<File[]>(files);
   const cancelledRef = useRef<boolean>(false);
+  const isCleaningUpRef = useRef<boolean>(false);
 
   useEffect(() => {
     filesRef.current = files;
@@ -295,6 +296,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     }
 
     console.log('[useP2PUploader] Setting up WebSocket connection');
+    isCleaningUpRef.current = false;
 
     const ws = createWebSocketConnection((message: SignalingMessage) => {
       handleSignalingMessage(message);
@@ -314,7 +316,9 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
 
     ws.onerror = (error) => {
       console.error('WebSocket error:', error);
-      toast.error('연결 오류가 발생하였습니다.');
+      if (!isCleaningUpRef.current) {
+        toast.error('연결 오류가 발생하였습니다.');
+      }
     };
 
     ws.onclose = (event) => {
@@ -403,6 +407,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     };
 
     return () => {
+      isCleaningUpRef.current = true;
       if (dataChannelRef.current) {
         dataChannelRef.current.close();
       }
@@ -454,6 +459,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
 
   const retry = useCallback(() => {
     console.log('[useP2PUploader] Retrying P2P connection...');
+    isCleaningUpRef.current = true;
     if (dataChannelRef.current) {
       dataChannelRef.current.close();
       dataChannelRef.current = null;
@@ -466,6 +472,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       wsRef.current.close();
       wsRef.current = null;
     }
+    isCleaningUpRef.current = false;
     setConnectionFailed(false);
     setStatus('waiting');
     setPeerDeviceInfo(null);
