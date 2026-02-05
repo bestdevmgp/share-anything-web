@@ -93,7 +93,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           console.log('[useP2PDownloader] WebSocket closed - Code:', event.code, 'Reason:', event.reason);
         };
 
-        const pc = createPeerConnection();
+        const pc = await createPeerConnection();
         pcRef.current = pc;
 
         // Connection timeout - if not connected within 10 seconds, consider it failed
@@ -221,11 +221,29 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           }
         };
 
-        pc.oniceconnectionstatechange = () => {
+        pc.oniceconnectionstatechange = async () => {
           console.log('[useP2PDownloader] ICE connection state:', pc.iceConnectionState);
           if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
             clearTimeout(connectionTimeout);
             setStatus('downloading');
+
+            // Check if using TURN relay
+            try {
+              const stats = await pc.getStats();
+              stats.forEach((report) => {
+                if (report.type === 'candidate-pair' && report.state === 'succeeded') {
+                  const localCandidate = stats.get(report.localCandidateId);
+                  if (localCandidate?.candidateType === 'relay') {
+                    console.log('[useP2PDownloader] Connected via TURN relay');
+                    toast.info('P2P 연결에 실패하였습니다. TURN 서버에 접속합니다.');
+                  } else {
+                    console.log('[useP2PDownloader] Connected via direct P2P:', localCandidate?.candidateType);
+                  }
+                }
+              });
+            } catch (err) {
+              console.warn('[useP2PDownloader] Failed to check connection type:', err);
+            }
           } else if (pc.iceConnectionState === 'failed') {
             clearTimeout(connectionTimeout);
             // Connection truly failed - check if we have enough data

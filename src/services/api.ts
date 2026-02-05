@@ -15,7 +15,8 @@ import type {
   InitMultipartUploadResponse,
   GetPartUrlsRequest,
   GetPartUrlsResponse,
-  CompleteMultipartUploadRequest
+  CompleteMultipartUploadRequest,
+  TurnCredentialsResponse
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
@@ -430,6 +431,13 @@ export const fileAPI = {
     const response = await api.post<FileUploadResponse>('/file/multipart/complete', request);
     return response.data;
   },
+};
+
+export const turnAPI = {
+  getCredentials: async (): Promise<TurnCredentialsResponse> => {
+    const response = await api.get<TurnCredentialsResponse>('/turn/credentials');
+    return response.data;
+  }
 };
 
 export const userAPI = {

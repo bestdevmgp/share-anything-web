@@ -431,7 +431,7 @@ const UploadSuccessPage: React.FC = () => {
               P2P 연결 실패
             </h3>
             <p className="text-gray-600 text-center mb-6 text-sm leading-relaxed">
-              교육기관이나 기업 등 사설망에 연결 시 P2P 전송이 차단될 수 있습니다.
+              P2P 및 TURN 서버 연결에 모두 실패하였습니다.
               <br />
               일반 전송으로 전환하시겠습니까?
             </p>

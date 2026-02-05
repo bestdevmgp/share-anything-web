@@ -1,7 +1,13 @@
-import { SignalingMessage } from '../types';
+import { SignalingMessage, IceServer } from '../types';
+import { turnAPI } from '../services/api';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || '';
 const WS_URL = API_BASE_URL.replace(/^http/, 'ws');
+
+// Cache for ICE servers to avoid repeated API calls
+let cachedIceServers: RTCIceServer[] | null = null;
+let cacheExpiry: number = 0;
+const CACHE_DURATION_MS = 12 * 60 * 60 * 1000; // 12 hours (credentials valid for 24 hours)
 
 export const createWebSocketConnection = (onMessage: (message: SignalingMessage) => void): WebSocket => {
   const ws = new WebSocket(`${WS_URL}/ws/signaling`);
@@ -18,36 +24,61 @@ export const createWebSocketConnection = (onMessage: (message: SignalingMessage)
   return ws;
 };
 
-export const createPeerConnection = (): RTCPeerConnection => {
-  console.log('[WebRTC] Creating PeerConnection with STUN/TURN servers...');
+// Convert API response to RTCIceServer format
+const convertToRTCIceServers = (servers: IceServer[]): RTCIceServer[] => {
+  return servers.map(server => ({
+    urls: server.urls,
+    username: server.username,
+    credential: server.credential
+  }));
+};
+
+// Fallback ICE servers (Google STUN only - no TURN)
+const getFallbackIceServers = (): RTCIceServer[] => {
+  console.warn('[WebRTC] Using fallback STUN servers (no TURN)');
+  return [
+    { urls: 'stun:stun.cloudflare.com:3478' },
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' }
+  ];
+};
+
+// Fetch ICE servers from backend (with caching)
+export const getIceServers = async (): Promise<RTCIceServer[]> => {
+  const now = Date.now();
+
+  // Return cached servers if still valid
+  if (cachedIceServers && now < cacheExpiry) {
+    console.log('[WebRTC] Using cached ICE servers');
+    return cachedIceServers;
+  }
+
+  try {
+    console.log('[WebRTC] Fetching TURN credentials from server...');
+    const response = await turnAPI.getCredentials();
+    cachedIceServers = convertToRTCIceServers(response.ice_servers);
+    cacheExpiry = now + CACHE_DURATION_MS;
+    console.log('[WebRTC] TURN credentials fetched successfully:', cachedIceServers.length, 'servers');
+    return cachedIceServers;
+  } catch (error) {
+    console.error('[WebRTC] Failed to fetch TURN credentials:', error);
+    return getFallbackIceServers();
+  }
+};
+
+// Clear cached credentials (useful when refreshing)
+export const clearIceServerCache = (): void => {
+  cachedIceServers = null;
+  cacheExpiry = 0;
+};
+
+export const createPeerConnection = async (): Promise<RTCPeerConnection> => {
+  console.log('[WebRTC] Creating PeerConnection with Cloudflare TURN servers...');
+
+  const iceServers = await getIceServers();
 
   const config: RTCConfiguration = {
-    iceServers: [
-      { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:stun1.l.google.com:19302' },
-      { urls: 'stun:stun2.l.google.com:19302' },
-      {
-        urls: [
-          'turn:a.relay.metered.ca:80',
-          'turn:a.relay.metered.ca:80?transport=tcp',
-          'turn:a.relay.metered.ca:443',
-          'turn:a.relay.metered.ca:443?transport=tcp'
-        ],
-        username: 'openrelayproject',
-        credential: 'openrelayproject'
-      },
-      // Backup TURN servers
-      {
-        urls: 'turn:openrelay.metered.ca:80',
-        username: 'openrelayproject',
-        credential: 'openrelayproject'
-      },
-      {
-        urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-        username: 'openrelayproject',
-        credential: 'openrelayproject'
-      }
-    ],
+    iceServers,
     iceCandidatePoolSize: 10,
     bundlePolicy: 'max-bundle',
     rtcpMuxPolicy: 'require'

@@ -187,12 +187,12 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     reader.readAsArrayBuffer(file);
   }, [shareCode, formatTime]);
 
-  const setupPeerConnection = useCallback((requestedFileName: string) => {
+  const setupPeerConnection = useCallback(async (requestedFileName: string) => {
     const file = filesRef.current.find(f => f.name === requestedFileName);
     if (!file) {
       console.error('[useP2PUploader] Requested file not found:', requestedFileName);
       toast.error('요청된 파일을 찾을 수 없습니다.');
-      return;
+      return null;
     }
 
     console.log('[useP2PUploader] Setting up peer connection for file:', requestedFileName);
@@ -213,17 +213,18 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       return newMap;
     });
 
-    const pc = createPeerConnection();
+    const pc = await createPeerConnection();
     pcRef.current = pc;
 
-    // Connection timeout - if not connected within 10 seconds, consider it failed
+    // Connection timeout - if not connected within 30 seconds, consider it failed
+    // Increased timeout to allow TURN relay negotiation
     const connectionTimeout = setTimeout(() => {
       if (pc.iceConnectionState !== 'connected' && pc.iceConnectionState !== 'completed') {
         console.log('[useP2PUploader] Connection timeout - ICE state:', pc.iceConnectionState);
         setConnectionFailed(true);
         setStatus('waiting');
       }
-    }, 10000);
+    }, 30000);
 
     const dataChannel = pc.createDataChannel('file-transfer', {
       ordered: true
@@ -272,15 +273,32 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       }
     };
 
-    pc.oniceconnectionstatechange = () => {
+    pc.oniceconnectionstatechange = async () => {
       console.log('[useP2PUploader] ICE connection state:', pc.iceConnectionState);
       if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
         clearTimeout(connectionTimeout);
         setStatus('connected');
-        setConnectionFailed(false);
+
+        // Check if using TURN relay
+        try {
+          const stats = await pc.getStats();
+          stats.forEach((report) => {
+            if (report.type === 'candidate-pair' && report.state === 'succeeded') {
+              const localCandidate = stats.get(report.localCandidateId);
+              if (localCandidate?.candidateType === 'relay') {
+                console.log('[useP2PUploader] Connected via TURN relay');
+                toast.info('P2P 연결에 실패하였습니다. TURN 서버에 접속합니다.');
+              } else {
+                console.log('[useP2PUploader] Connected via direct P2P:', localCandidate?.candidateType);
+              }
+            }
+          });
+        } catch (err) {
+          console.warn('[useP2PUploader] Failed to check connection type:', err);
+        }
       } else if (pc.iceConnectionState === 'failed') {
         clearTimeout(connectionTimeout);
-        console.log('[useP2PUploader] ICE connection failed');
+        console.log('[useP2PUploader] ICE connection failed (including TURN)');
         setConnectionFailed(true);
         setStatus('waiting');
       }
@@ -340,7 +358,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
           }
 
           if (message.file_name) {
-            const pc = setupPeerConnection(message.file_name);
+            const pc = await setupPeerConnection(message.file_name);
             if (pc) {
               const offer = await pc.createOffer();
               await pc.setLocalDescription(offer);
@@ -353,7 +371,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
               });
             }
           } else if (files.length === 1) {
-            const pc = setupPeerConnection(files[0].name);
+            const pc = await setupPeerConnection(files[0].name);
             if (pc) {
               const offer = await pc.createOffer();
               await pc.setLocalDescription(offer);
@@ -435,42 +453,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, shareCode, retryCount]);
-
-  // Retry timeout - if connection doesn't succeed within 10 seconds after retry, show failure
-  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    if (retryCount === 0) return; // Skip initial load
-
-    // Clear any existing timeout
-    if (retryTimeoutRef.current) {
-      clearTimeout(retryTimeoutRef.current);
-    }
-
-    console.log('[useP2PUploader] Retry timeout started for attempt:', retryCount);
-    retryTimeoutRef.current = setTimeout(() => {
-      console.log('[useP2PUploader] Retry timeout fired, checking status...');
-      setConnectionFailed(true);
-    }, 10000);
-
-    return () => {
-      if (retryTimeoutRef.current) {
-        clearTimeout(retryTimeoutRef.current);
-      }
-    };
-  }, [retryCount]);
-
-  // Clear retry timeout when transfer actually starts
-  useEffect(() => {
-    const isTransferring = Array.from(fileProgresses.values()).some(
-      fp => fp.status === 'transferring' || fp.status === 'completed'
-    );
-    if (isTransferring && retryTimeoutRef.current) {
-      console.log('[useP2PUploader] Transfer started, clearing retry timeout');
-      clearTimeout(retryTimeoutRef.current);
-      retryTimeoutRef.current = null;
-    }
-  }, [fileProgresses]);
 
   const retry = useCallback(() => {
     console.log('[useP2PUploader] Retrying P2P connection...');

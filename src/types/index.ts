@@ -252,3 +252,14 @@ export interface CompleteMultipartUploadRequest {
   share_code: string;
   files: CompleteMultipartFileInfo[];
 }
+
+// TURN Credentials Types
+export interface IceServer {
+  urls: string[];
+  username?: string;
+  credential?: string;
+}
+
+export interface TurnCredentialsResponse {
+  ice_servers: IceServer[];
+}
