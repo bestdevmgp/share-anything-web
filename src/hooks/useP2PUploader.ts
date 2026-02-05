@@ -392,6 +392,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
         wsRef.current.close();
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, shareCode, retryCount]);
 
   const retry = useCallback(() => {
