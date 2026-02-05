@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { FileUploadResponse } from '../types';
@@ -18,7 +18,9 @@ const UploadSuccessPage: React.FC = () => {
   const uploadedFiles = location.state?.uploadedFiles as File[] | undefined;
   const uploadedFile = location.state?.uploadedFile as File | undefined;
 
-  const files = uploadedFiles || (uploadedFile ? [uploadedFile] : []);
+  const files = useMemo(() => {
+    return uploadedFiles || (uploadedFile ? [uploadedFile] : []);
+  }, [uploadedFiles, uploadedFile]);
 
   const [copiedField, setCopiedField] = useState<'code' | 'link' | null>(null);
 
@@ -294,13 +296,7 @@ const UploadSuccessPage: React.FC = () => {
 
         <div className="mt-10">
           <button
-            onClick={() => {
-              if (isP2PTransfer) {
-                navigate('/', { replace: true });
-              } else {
-                window.location.href = '/';
-              }
-            }}
+            onClick={() => navigate('/')}
             className="w-full px-8 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors"
           >
             완료
