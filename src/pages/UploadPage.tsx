@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useDropzone } from 'react-dropzone';
 import { useAuth } from '../context/AuthContext';
 import { fileAPI, workerAPI } from '../services/api';
@@ -11,11 +11,13 @@ import TurnstileWidget from '../components/TurnstileWidget';
 
 const UploadPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    document.title = '파일 업로드';
-  }, []);
+  // Check for P2P fallback files
+  const fallbackFiles = location.state?.fallbackFiles as File[] | undefined;
+  const fromP2PFallback = location.state?.fromP2PFallback as boolean | undefined;
+  const fallbackHandledRef = useRef(false);
 
   const [files, setFiles] = useState<File[]>([]);
   const [filePreviews, setFilePreviews] = useState<Map<string, string>>(new Map());
@@ -32,6 +34,31 @@ const UploadPage: React.FC = () => {
   const [turnstileToken, setTurnstileToken] = useState<string>('');
   const [transferType, setTransferType] = useState<'server' | 'p2p'>('server');
   const lastTimeUpdateRef = useRef<number>(0);
+
+  useEffect(() => {
+    document.title = '파일 업로드';
+  }, []);
+
+  useEffect(() => {
+    if (fromP2PFallback && fallbackFiles && fallbackFiles.length > 0 && !fallbackHandledRef.current) {
+      fallbackHandledRef.current = true;
+      setFiles(fallbackFiles);
+      setTransferType('server');
+      toast.info('일반 전송으로 전환되었습니다. 파일을 업로드해주세요.');
+
+      fallbackFiles.forEach(file => {
+        if (isImageFile(file.name)) {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            setFilePreviews(prev => new Map(prev).set(file.name + file.size, reader.result as string));
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      window.history.replaceState({}, document.title);
+    }
+  }, [fromP2PFallback, fallbackFiles]);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     setIsProcessingFiles(true);
@@ -358,6 +385,7 @@ const UploadPage: React.FC = () => {
             <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl text-sm text-gray-700">
               <p className="font-semibold text-blue-900 mb-1">보안 전송 안내</p>
               <p>• WebRTC를 사용한 1:1 직접 전송으로 파일이 서버에 저장되지 않습니다.</p>
+              <p>• 교육기관이나 기업 등 사설망에 연결 시 P2P 전송이 차단될 수 있습니다.</p>
               <p>• 일회성 전송만 가능하며, 발신자와 수신자가 동시에 온라인이어야 합니다.</p>
             </div>
           )}

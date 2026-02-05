@@ -22,6 +22,8 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
   const [fileProgresses, setFileProgresses] = useState<Map<string, FileProgress>>(new Map());
   const [currentFileName, setCurrentFileName] = useState<string>('');
   const [peerDeviceInfo, setPeerDeviceInfo] = useState<string | null>(null);
+  const [connectionFailed, setConnectionFailed] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   const wsRef = useRef<WebSocket | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
@@ -254,12 +256,11 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       console.log('[useP2PUploader] ICE connection state:', pc.iceConnectionState);
       if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
         setStatus('connected');
+        setConnectionFailed(false);
       } else if (pc.iceConnectionState === 'failed') {
-        // Only show error if we're still actively transferring
-        if (isTransferringRef.current) {
-          toast.error('P2P 연결에 실패하였습니다.');
-          setStatus('waiting');
-        }
+        console.log('[useP2PUploader] ICE connection failed');
+        setConnectionFailed(true);
+        setStatus('waiting');
       }
       // 'disconnected' state is often temporary during transfer, don't show error
     };
@@ -391,8 +392,28 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
         wsRef.current.close();
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, shareCode]);
+  }, [enabled, shareCode, retryCount]);
 
-  return { status, fileProgresses, currentFileName, peerDeviceInfo };
+  const retry = useCallback(() => {
+    console.log('[useP2PUploader] Retrying P2P connection...');
+    if (dataChannelRef.current) {
+      dataChannelRef.current.close();
+      dataChannelRef.current = null;
+    }
+    if (pcRef.current) {
+      pcRef.current.close();
+      pcRef.current = null;
+    }
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+    setConnectionFailed(false);
+    setStatus('waiting');
+    setPeerDeviceInfo(null);
+    peerIdRef.current = generatePeerId();
+    setRetryCount(prev => prev + 1);
+  }, []);
+
+  return { status, fileProgresses, currentFileName, peerDeviceInfo, connectionFailed, retry };
 };
