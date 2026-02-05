@@ -409,6 +409,42 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, shareCode, retryCount]);
 
+  // Retry timeout - if connection doesn't succeed within 10 seconds after retry, show failure
+  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (retryCount === 0) return; // Skip initial load
+
+    // Clear any existing timeout
+    if (retryTimeoutRef.current) {
+      clearTimeout(retryTimeoutRef.current);
+    }
+
+    console.log('[useP2PUploader] Retry timeout started for attempt:', retryCount);
+    retryTimeoutRef.current = setTimeout(() => {
+      console.log('[useP2PUploader] Retry timeout fired, checking status...');
+      setConnectionFailed(true);
+    }, 10000);
+
+    return () => {
+      if (retryTimeoutRef.current) {
+        clearTimeout(retryTimeoutRef.current);
+      }
+    };
+  }, [retryCount]);
+
+  // Clear retry timeout when transfer actually starts
+  useEffect(() => {
+    const isTransferring = Array.from(fileProgresses.values()).some(
+      fp => fp.status === 'transferring' || fp.status === 'completed'
+    );
+    if (isTransferring && retryTimeoutRef.current) {
+      console.log('[useP2PUploader] Transfer started, clearing retry timeout');
+      clearTimeout(retryTimeoutRef.current);
+      retryTimeoutRef.current = null;
+    }
+  }, [fileProgresses]);
+
   const retry = useCallback(() => {
     console.log('[useP2PUploader] Retrying P2P connection...');
     if (dataChannelRef.current) {

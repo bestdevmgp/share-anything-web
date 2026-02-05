@@ -174,7 +174,7 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
       onTouchEnd={handleTouchEnd}
     >
       <div
-        className="bg-white rounded-full pl-2.5 pr-4 py-2 flex items-center gap-2.5"
+        className="bg-white rounded-full pl-2.5 pr-4 py-2 flex items-center gap-2.5 max-w-[calc(100vw-32px)]"
         style={{
           boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.12), 0 2px 8px -2px rgba(0, 0, 0, 0.08)',
         }}
