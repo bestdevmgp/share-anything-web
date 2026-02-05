@@ -294,7 +294,13 @@ const UploadSuccessPage: React.FC = () => {
 
         <div className="mt-10">
           <button
-            onClick={() => navigate('/', { replace: true })}
+            onClick={() => {
+              if (isP2PTransfer) {
+                navigate('/', { replace: true });
+              } else {
+                window.location.href = '/';
+              }
+            }}
             className="w-full px-8 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors"
           >
             완료
