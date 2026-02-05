@@ -859,6 +859,7 @@ const DownloadFilePage: React.FC = () => {
                           다운로드
                         </button>
                       )}
+                    </div>
                   </div>
                 );
               })}
