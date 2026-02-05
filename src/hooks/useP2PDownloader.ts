@@ -26,6 +26,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
   const lastTimeUpdateRef = useRef<number>(0);
   const fileIdRef = useRef<string>('');
   const completedRef = useRef<boolean>(false);
+  const isCleaningUpRef = useRef<boolean>(false);
 
   const formatTime = useCallback((seconds: number): string => {
     if (seconds < 60) return `${Math.ceil(seconds)}초`;
@@ -59,6 +60,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
     peerIdRef.current = generatePeerId();
     fileIdRef.current = currentFileId;
     completedRef.current = false;
+    isCleaningUpRef.current = false;
 
     const setupP2PConnection = async () => {
       try {
@@ -81,8 +83,10 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
 
         ws.onerror = (error) => {
           console.error('WebSocket error:', error);
-          setStatus('error');
-          toast.error('연결 오류가 발생하였습니다.');
+          if (!isCleaningUpRef.current && !completedRef.current) {
+            setStatus('error');
+            toast.error('연결 오류가 발생하였습니다.');
+          }
         };
 
         ws.onclose = (event) => {
@@ -94,7 +98,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
 
         // Connection timeout - if not connected within 10 seconds, consider it failed
         const connectionTimeout = setTimeout(() => {
-          if (pc.iceConnectionState !== 'connected' && pc.iceConnectionState !== 'completed') {
+          if (!isCleaningUpRef.current && !completedRef.current && pc.iceConnectionState !== 'connected' && pc.iceConnectionState !== 'completed') {
             console.log('[useP2PDownloader] Connection timeout - ICE state:', pc.iceConnectionState);
             setStatus('error');
             toast.error('P2P 연결 시간이 초과되었습니다. 네트워크 환경을 확인해주세요.');
@@ -197,8 +201,10 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
 
           dataChannel.onerror = (error) => {
             console.error('DataChannel error:', error);
-            setStatus('error');
-            toast.error('파일 수신 중 오류가 발생하였습니다.');
+            if (!isCleaningUpRef.current && !completedRef.current) {
+              setStatus('error');
+              toast.error('파일 수신 중 오류가 발생하였습니다.');
+            }
           };
         };
 
@@ -230,7 +236,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
               setStatus('completed');
               setProgress(100);
               onComplete(blob);
-            } else if (!completedRef.current) {
+            } else if (!completedRef.current && !isCleaningUpRef.current) {
               setStatus('error');
               toast.error('P2P 연결에 실패하였습니다. 네트워크를 확인해주세요.');
             }
@@ -239,8 +245,10 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
 
       } catch (error) {
         console.error('Failed to setup P2P connection:', error);
-        setStatus('error');
-        toast.error('P2P 연결 설정에 실패하였습니다.');
+        if (!isCleaningUpRef.current) {
+          setStatus('error');
+          toast.error('P2P 연결 설정에 실패하였습니다.');
+        }
       }
     };
 
@@ -290,20 +298,25 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           break;
 
         case 'uploader_offline':
-          setStatus('error');
-          toast.error('발신자가 연결을 종료하였습니다.');
+          if (!isCleaningUpRef.current && !completedRef.current) {
+            setStatus('error');
+            toast.error('발신자가 연결을 종료하였습니다.');
+          }
           cleanup();
           break;
 
         case 'error':
           console.error('Signaling error:', message.message);
-          setStatus('error');
-          toast.error(message.message || '연결 오류가 발생하였습니다.');
+          if (!isCleaningUpRef.current && !completedRef.current) {
+            setStatus('error');
+            toast.error(message.message || '연결 오류가 발생하였습니다.');
+          }
           break;
       }
     };
 
     const cleanup = () => {
+      isCleaningUpRef.current = true;
       if (pcRef.current) {
         pcRef.current.close();
         pcRef.current = null;
@@ -317,6 +330,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
     setupP2PConnection();
 
     return () => {
+      isCleaningUpRef.current = true;
       cleanup();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -332,6 +346,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
 
   const cancelDownload = useCallback(() => {
     console.log('[useP2PDownloader] Cancelling download');
+    isCleaningUpRef.current = true;
     if (pcRef.current) {
       pcRef.current.close();
       pcRef.current = null;
