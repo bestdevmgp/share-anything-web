@@ -825,7 +825,18 @@ const DownloadFilePage: React.FC = () => {
                         <h4 className="text-base font-semibold text-gray-900 truncate">
                           {file.file_name}
                         </h4>
-                        <p className="text-sm text-gray-500">{formatFileSize(file.file_size)}</p>
+                        {isDownloading ? (
+                          <div className="mt-1.5">
+                            <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                              <div
+                                className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
+                                style={{ width: `${p2pProgress}%` }}
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-500">{formatFileSize(file.file_size)}</p>
+                        )}
                       </div>
 
                       {isCompleted ? (
@@ -833,9 +844,12 @@ const DownloadFilePage: React.FC = () => {
                           ✓ 완료
                         </span>
                       ) : isDownloading ? (
-                        <span className="flex-shrink-0 px-4 py-2 text-blue-600 text-sm font-medium">
-                          {p2pProgress}%
-                        </span>
+                        <div className="flex-shrink-0 px-4 py-2 text-right">
+                          <span className="text-blue-600 text-sm font-medium">{p2pProgress}%</span>
+                          {p2pTimeRemaining && (
+                            <p className="text-xs text-gray-500">{p2pTimeRemaining}</p>
+                          )}
+                        </div>
                       ) : (
                         <button
                           onClick={() => startP2PDownload(file.id)}
@@ -845,21 +859,6 @@ const DownloadFilePage: React.FC = () => {
                           다운로드
                         </button>
                       )}
-                    </div>
-
-                    {isDownloading && (
-                      <div className="mt-3">
-                        <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">
-                          <div
-                            className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
-                            style={{ width: `${p2pProgress}%` }}
-                          />
-                        </div>
-                        {p2pTimeRemaining && (
-                          <p className="text-xs text-gray-500 mt-1">{p2pTimeRemaining} 남음</p>
-                        )}
-                      </div>
-                    )}
                   </div>
                 );
               })}
