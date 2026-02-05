@@ -394,6 +394,21 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
           if (isTransferringRef.current) {
             toast.warning('수신자가 연결을 종료하였습니다.');
             isTransferringRef.current = false;
+            // Reset file progress to waiting
+            setFileProgresses(prev => {
+              const newMap = new Map(prev);
+              newMap.forEach((progress, fileName) => {
+                if (progress.status === 'transferring') {
+                  newMap.set(fileName, {
+                    ...progress,
+                    progress: 0,
+                    status: 'waiting',
+                    timeRemaining: ''
+                  });
+                }
+              });
+              return newMap;
+            });
           }
           setStatus('waiting');
           setCurrentFileName('');

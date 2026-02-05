@@ -25,6 +25,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
   const downloadStartTimeRef = useRef<number>(0);
   const lastTimeUpdateRef = useRef<number>(0);
   const fileIdRef = useRef<string>('');
+  const completedRef = useRef<boolean>(false);
 
   const formatTime = useCallback((seconds: number): string => {
     if (seconds < 60) return `${Math.ceil(seconds)}초`;
@@ -57,6 +58,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
     lastTimeUpdateRef.current = 0;
     peerIdRef.current = generatePeerId();
     fileIdRef.current = currentFileId;
+    completedRef.current = false;
 
     const setupP2PConnection = async () => {
       try {
@@ -118,8 +120,9 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           dataChannel.onclose = () => {
             console.log('[useP2PDownloader] DataChannel closed, received:', receivedSizeRef.current, '/', actualFileSize);
 
-            if (receivedSizeRef.current > 0 && receivedSizeRef.current >= actualFileSize * 0.95) {
+            if (!completedRef.current && receivedSizeRef.current > 0 && receivedSizeRef.current >= actualFileSize * 0.95) {
               console.log('[useP2PDownloader] Connection closed but got most data, completing transfer');
+              completedRef.current = true;
               const blob = new Blob(receivedChunksRef.current, { type: actualFileType });
               setStatus('completed');
               setProgress(100);
@@ -132,7 +135,9 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           dataChannel.onmessage = (event) => {
             if (typeof event.data === 'string') {
               if (event.data === '__EOF__') {
+                if (completedRef.current) return;
                 console.log('[useP2PDownloader] Received EOF marker, completing transfer');
+                completedRef.current = true;
                 const blob = new Blob(receivedChunksRef.current, { type: actualFileType });
                 setStatus('completed');
                 setProgress(100);
@@ -218,13 +223,14 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           } else if (pc.iceConnectionState === 'failed') {
             clearTimeout(connectionTimeout);
             // Connection truly failed - check if we have enough data
-            if (receivedSizeRef.current > 0 && receivedSizeRef.current >= actualFileSize * 0.95) {
+            if (!completedRef.current && receivedSizeRef.current > 0 && receivedSizeRef.current >= actualFileSize * 0.95) {
               console.log('[useP2PDownloader] ICE failed but got most data, completing');
+              completedRef.current = true;
               const blob = new Blob(receivedChunksRef.current, { type: actualFileType });
               setStatus('completed');
               setProgress(100);
               onComplete(blob);
-            } else {
+            } else if (!completedRef.current) {
               setStatus('error');
               toast.error('P2P 연결에 실패하였습니다. 네트워크를 확인해주세요.');
             }

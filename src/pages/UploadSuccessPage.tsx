@@ -227,7 +227,7 @@ const UploadSuccessPage: React.FC = () => {
                               </h4>
                               <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
                             </div>
-                            <div className="flex-shrink-0 text-right">
+                            <div className="flex-shrink-0 text-right mr-4">
                               <span className="text-sm text-green-600 font-medium">완료</span>
                             </div>
                           </div>
@@ -294,7 +294,7 @@ const UploadSuccessPage: React.FC = () => {
                             </h4>
                             <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
                           </div>
-                          <div className="flex-shrink-0 text-right mr-2">
+                          <div className="flex-shrink-0 text-right mr-4">
                             <span className="text-sm text-gray-400">대기 중</span>
                           </div>
                         </div>
@@ -358,9 +358,9 @@ const UploadSuccessPage: React.FC = () => {
 
                             <div className="flex-shrink-0 text-right">
                               {isCompleted ? (
-                                <span className="text-sm text-green-600 font-medium">완료</span>
+                                <span className="text-sm text-green-600 font-medium mr-4">완료</span>
                               ) : isTransferring ? (
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 mr-1">
                                   {progress?.timeRemaining && (
                                     <span className="text-xs text-gray-500">{progress.timeRemaining}</span>
                                   )}
@@ -374,7 +374,7 @@ const UploadSuccessPage: React.FC = () => {
                                   </button>
                                 </div>
                               ) : (
-                                <span className="text-sm text-gray-400 mr-2">대기 중</span>
+                                <span className="text-sm text-gray-400 mr-4">대기 중</span>
                               )}
                             </div>
                           </div>
