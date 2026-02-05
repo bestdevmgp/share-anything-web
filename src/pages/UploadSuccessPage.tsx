@@ -294,7 +294,7 @@ const UploadSuccessPage: React.FC = () => {
       {/* P2P Connection Failed Modal */}
       {showFailedModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 md:p-8 animate-modal-pop">
+          <div className="bg-white rounded-2xl max-w-[30rem] w-full p-6 md:p-8 animate-modal-pop">
             <div className="flex justify-center mb-4">
               <div className="w-14 h-14 bg-yellow-100 rounded-full flex items-center justify-center">
                 <ExclamationTriangleIcon className="w-8 h-8 text-yellow-600" />
