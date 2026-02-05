@@ -7,7 +7,7 @@ import { getDeviceInfo } from '../utils/format';
 interface FileProgress {
   fileName: string;
   progress: number;
-  status: 'waiting' | 'transferring' | 'completed';
+  status: 'waiting' | 'transferring' | 'completed' | 'cancelled';
   timeRemaining: string;
 }
 
@@ -33,6 +33,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
   const transferStartTimeRef = useRef<number>(0);
   const lastTimeUpdateRef = useRef<number>(0);
   const filesRef = useRef<File[]>(files);
+  const cancelledRef = useRef<boolean>(false);
 
   useEffect(() => {
     filesRef.current = files;
@@ -63,6 +64,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     let offset = 0;
     transferStartTimeRef.current = Date.now();
     lastTimeUpdateRef.current = 0;
+    cancelledRef.current = false;
 
     const finishTransfer = () => {
       isTransferringRef.current = false;
@@ -124,6 +126,11 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       const buffer = e.target.result as ArrayBuffer;
 
       const sendChunk = () => {
+        if (cancelledRef.current) {
+          console.log('[useP2PUploader] Transfer cancelled');
+          return;
+        }
+
         if (offset >= buffer.byteLength) {
           console.log('[useP2PUploader] All chunks queued, waiting for buffer drain...');
           waitForBufferDrain();
@@ -466,5 +473,38 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     setRetryCount(prev => prev + 1);
   }, []);
 
-  return { status, fileProgresses, currentFileName, peerDeviceInfo, connectionFailed, retry };
+  const cancelTransfer = useCallback((fileName: string) => {
+    console.log('[useP2PUploader] Cancelling transfer for:', fileName);
+    cancelledRef.current = true;
+    isTransferringRef.current = false;
+
+    if (dataChannelRef.current) {
+      dataChannelRef.current.close();
+      dataChannelRef.current = null;
+    }
+    if (pcRef.current) {
+      pcRef.current.close();
+      pcRef.current = null;
+    }
+
+    setFileProgresses(prev => {
+      const newMap = new Map(prev);
+      const fileProgress = newMap.get(fileName);
+      if (fileProgress) {
+        newMap.set(fileName, {
+          ...fileProgress,
+          progress: 0,
+          status: 'cancelled',
+          timeRemaining: ''
+        });
+      }
+      return newMap;
+    });
+
+    setStatus('waiting');
+    setCurrentFileName('');
+    toast.info('전송이 중단되었습니다.');
+  }, []);
+
+  return { status, fileProgresses, currentFileName, peerDeviceInfo, connectionFailed, retry, cancelTransfer };
 };

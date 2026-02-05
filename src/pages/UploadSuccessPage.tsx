@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { FileUploadResponse } from '../types';
 import { copyToClipboard, formatDateTime, formatFileSize } from '../utils/format';
-import { CheckIcon, ClipboardDocumentIcon, DocumentIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { CheckIcon, ClipboardDocumentIcon, DocumentIcon, ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useP2PUploader } from '../hooks/useP2PUploader';
 
 const UploadSuccessPage: React.FC = () => {
@@ -27,7 +27,7 @@ const UploadSuccessPage: React.FC = () => {
 
   const [showFailedModal, setShowFailedModal] = useState(false);
 
-  const { status: p2pStatus, fileProgresses, peerDeviceInfo, connectionFailed, retry } = useP2PUploader({
+  const { status: p2pStatus, fileProgresses, peerDeviceInfo, connectionFailed, retry, cancelTransfer } = useP2PUploader({
     shareCode: groupShareCode,
     files: files,
     enabled: isP2PTransfer && files.length > 0 && !!uploadResult
@@ -230,36 +230,44 @@ const UploadSuccessPage: React.FC = () => {
                           <h4 className="text-sm font-medium text-gray-900 truncate">
                             {file.name}
                           </h4>
-                          <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                          {isTransferring ? (
+                            <div className="mt-1.5">
+                              <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                                <div
+                                  className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
+                                  style={{ width: `${progress?.progress || 0}%` }}
+                                />
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                          )}
                         </div>
 
                         <div className="flex-shrink-0 text-right">
                           {isCompleted ? (
                             <span className="text-sm text-green-600 font-medium">완료</span>
                           ) : isTransferring ? (
-                            <span className="text-sm text-blue-600 font-medium">{progress?.progress || 0}%</span>
+                            <div className="flex items-center gap-2">
+                              <div className="text-right">
+                                <span className="text-sm text-blue-600 font-medium">{progress?.progress || 0}%</span>
+                                {progress?.timeRemaining && (
+                                  <p className="text-xs text-gray-500">{progress.timeRemaining}</p>
+                                )}
+                              </div>
+                              <button
+                                onClick={() => cancelTransfer(file.name)}
+                                className="p-1 hover:bg-blue-100 rounded transition-colors"
+                                title="전송 중단"
+                              >
+                                <XMarkIcon className="w-5 h-5 text-gray-500" />
+                              </button>
+                            </div>
                           ) : (
                             <span className="text-sm text-gray-400">대기 중</span>
                           )}
                         </div>
                       </div>
-
-                      {isTransferring && (
-                        <div className="mt-3">
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="text-xs text-gray-500">전송 중...</span>
-                            {progress?.timeRemaining && (
-                              <span className="text-xs text-gray-500">{progress.timeRemaining} 남음</span>
-                            )}
-                          </div>
-                          <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">
-                            <div
-                              className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
-                              style={{ width: `${progress?.progress || 0}%` }}
-                            />
-                          </div>
-                        </div>
-                      )}
                     </div>
                   );
                 })}
@@ -294,7 +302,14 @@ const UploadSuccessPage: React.FC = () => {
       {/* P2P Connection Failed Modal */}
       {showFailedModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-white rounded-2xl max-w-[30rem] w-full p-6 md:p-8 animate-modal-pop">
+          <div className="bg-white rounded-2xl max-w-[30rem] w-full p-6 md:p-8 animate-modal-pop relative">
+            <button
+              onClick={() => setShowFailedModal(false)}
+              className="absolute top-4 right-4 p-1 hover:bg-gray-100 rounded-lg transition-colors"
+              title="닫기"
+            >
+              <XMarkIcon className="w-6 h-6 text-gray-400" />
+            </button>
             <div className="flex justify-center mb-4">
               <div className="w-14 h-14 bg-yellow-100 rounded-full flex items-center justify-center">
                 <ExclamationTriangleIcon className="w-8 h-8 text-yellow-600" />

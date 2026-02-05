@@ -12,7 +12,7 @@ interface UseP2PDownloaderProps {
 }
 
 export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: UseP2PDownloaderProps) => {
-  const [status, setStatus] = useState<'waiting' | 'connecting' | 'downloading' | 'completed' | 'error'>('waiting');
+  const [status, setStatus] = useState<'waiting' | 'connecting' | 'downloading' | 'completed' | 'error' | 'cancelled'>('waiting');
   const [progress, setProgress] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState<string>('');
   const [peerDeviceInfo, setPeerDeviceInfo] = useState<string | null>(null);
@@ -324,5 +324,23 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
     fileIdRef.current = '';
   }, []);
 
-  return { status, progress, timeRemaining, peerDeviceInfo, reset };
+  const cancelDownload = useCallback(() => {
+    console.log('[useP2PDownloader] Cancelling download');
+    if (pcRef.current) {
+      pcRef.current.close();
+      pcRef.current = null;
+    }
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+    receivedChunksRef.current = [];
+    receivedSizeRef.current = 0;
+    setStatus('cancelled');
+    setProgress(0);
+    setTimeRemaining('');
+    toast.info('다운로드가 중단되었습니다.');
+  }, []);
+
+  return { status, progress, timeRemaining, peerDeviceInfo, reset, cancelDownload };
 };

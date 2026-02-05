@@ -60,7 +60,7 @@ const DownloadFilePage: React.FC = () => {
   const singleFile = fileList?.files?.length === 1 ? fileList.files[0] : null;
   const p2pActiveFile = p2pActiveFileId ? fileList?.files?.find(f => f.id === p2pActiveFileId) : singleFile;
 
-  const { status: p2pStatus, progress: p2pProgress, timeRemaining: p2pTimeRemaining, peerDeviceInfo: p2pPeerDeviceInfo, reset: resetP2P } = useP2PDownloader({
+  const { status: p2pStatus, progress: p2pProgress, timeRemaining: p2pTimeRemaining, peerDeviceInfo: p2pPeerDeviceInfo, reset: resetP2P, cancelDownload } = useP2PDownloader({
     shareCode: code || '',
     fileInfo: p2pActiveFile ? {
       share_code: code || '',
@@ -664,6 +664,13 @@ const DownloadFilePage: React.FC = () => {
                           </div>
                         )}
                       </div>
+                      <button
+                        onClick={cancelDownload}
+                        className="p-1 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
+                        title="다운로드 취소"
+                      >
+                        <XMarkIcon className="w-6 h-6 text-gray-600" />
+                      </button>
                     </div>
                   </div>
                 ) : p2pStatus === 'completed' ? (
@@ -844,11 +851,20 @@ const DownloadFilePage: React.FC = () => {
                           ✓ 완료
                         </span>
                       ) : isDownloading ? (
-                        <div className="flex-shrink-0 px-4 py-2 text-right">
-                          <span className="text-blue-600 text-sm font-medium">{p2pProgress}%</span>
-                          {p2pTimeRemaining && (
-                            <p className="text-xs text-gray-500">{p2pTimeRemaining}</p>
-                          )}
+                        <div className="flex-shrink-0 flex items-center gap-2">
+                          <div className="text-right">
+                            <span className="text-blue-600 text-sm font-medium">{p2pProgress}%</span>
+                            {p2pTimeRemaining && (
+                              <p className="text-xs text-gray-500">{p2pTimeRemaining}</p>
+                            )}
+                          </div>
+                          <button
+                            onClick={cancelDownload}
+                            className="p-1 hover:bg-blue-100 rounded transition-colors"
+                            title="다운로드 취소"
+                          >
+                            <XMarkIcon className="w-5 h-5 text-gray-500" />
+                          </button>
                         </div>
                       ) : (
                         <button
