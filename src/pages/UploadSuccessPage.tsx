@@ -200,83 +200,190 @@ const UploadSuccessPage: React.FC = () => {
 
           {isP2PTransfer && (
             <div className="mb-8">
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                파일 목록 ({files.length}개)
-              </label>
-              <div className="space-y-3">
-                {files.map((file) => {
+              {files.length === 1 ? (
+                // Single file - unified design with receiver
+                (() => {
+                  const file = files[0];
                   const progress = fileProgresses.get(file.name);
                   const isTransferring = progress?.status === 'transferring';
                   const isCompleted = progress?.status === 'completed';
 
-                  return (
-                    <div
-                      key={file.name}
-                      className={`p-4 rounded-xl border-2 transition-all ${
-                        isTransferring ? 'bg-blue-50 border-blue-200' :
-                        isCompleted ? 'bg-green-50 border-green-200' :
-                        'bg-gray-50 border-transparent'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className="flex-shrink-0">
-                          <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                            isCompleted ? 'bg-green-100' :
-                            isTransferring ? 'bg-blue-100' :
-                            'bg-gray-100'
-                          }`}>
-                            {isCompleted ? (
-                              <CheckIcon className="w-5 h-5 text-green-600" />
-                            ) : (
-                              <DocumentIcon className="w-5 h-5 text-gray-400" />
-                            )}
+                  if (isCompleted) {
+                    return (
+                      <>
+                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                          파일
+                        </label>
+                        <div className="p-4 rounded-xl border-2 bg-green-50 border-green-200">
+                          <div className="flex items-center space-x-3">
+                            <div className="flex-shrink-0">
+                              <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-green-100">
+                                <CheckIcon className="w-5 h-5 text-green-600" />
+                              </div>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-medium text-gray-900 truncate">
+                                {file.name}
+                              </h4>
+                              <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                            </div>
+                            <div className="flex-shrink-0 text-right">
+                              <span className="text-sm text-green-600 font-medium">완료</span>
+                            </div>
                           </div>
                         </div>
+                      </>
+                    );
+                  }
 
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-medium text-gray-900 truncate">
-                            {file.name}
-                          </h4>
-                          {isTransferring ? (
-                            <div className="mt-1.5">
+                  if (isTransferring || p2pStatus === 'connected') {
+                    return (
+                      <div className="bg-blue-50 rounded-xl px-4 py-4">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 pl-2">
+                            <div className="flex justify-between mb-2">
+                              <span className="text-sm font-medium text-gray-700 self-start">
+                                {isTransferring ? '전송 중...' : '연결 중...'}
+                              </span>
+                              {isTransferring && (
+                                <div className="flex items-center gap-2 self-end">
+                                  {progress?.timeRemaining && (
+                                    <span className="text-xs text-gray-500">{progress.timeRemaining}</span>
+                                  )}
+                                  <span className="text-xs font-semibold text-blue-600">{progress?.progress || 0}%</span>
+                                </div>
+                              )}
+                            </div>
+                            {isTransferring && (
                               <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">
                                 <div
                                   className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
                                   style={{ width: `${progress?.progress || 0}%` }}
                                 />
                               </div>
-                            </div>
-                          ) : (
-                            <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
-                          )}
-                        </div>
-
-                        <div className="flex-shrink-0 text-right">
-                          {isCompleted ? (
-                            <span className="text-sm text-green-600 font-medium">완료</span>
-                          ) : isTransferring ? (
-                            <div className="flex items-center gap-2">
-                              {progress?.timeRemaining && (
-                                <span className="text-xs text-gray-500">{progress.timeRemaining}</span>
-                              )}
-                              <span className="text-xs font-semibold text-blue-600">{progress?.progress || 0}%</span>
-                              <button
-                                onClick={() => cancelTransfer(file.name)}
-                                className="p-1 hover:bg-blue-100 rounded transition-colors"
-                                title="전송 중단"
-                              >
-                                <XMarkIcon className="w-5 h-5 text-gray-500" />
-                              </button>
-                            </div>
-                          ) : (
-                            <span className="text-sm text-gray-400">대기 중</span>
-                          )}
+                            )}
+                          </div>
+                          <button
+                            onClick={() => cancelTransfer(file.name)}
+                            className="p-1 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
+                            title="전송 중단"
+                          >
+                            <XMarkIcon className="w-6 h-6 text-gray-600" />
+                          </button>
                         </div>
                       </div>
-                    </div>
+                    );
+                  }
+
+                  // Waiting state
+                  return (
+                    <>
+                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                        파일
+                      </label>
+                      <div className="p-4 rounded-xl border-2 bg-gray-50 border-transparent">
+                        <div className="flex items-center space-x-3">
+                          <div className="flex-shrink-0">
+                            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-gray-100">
+                              <DocumentIcon className="w-5 h-5 text-gray-400" />
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-medium text-gray-900 truncate">
+                              {file.name}
+                            </h4>
+                            <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                          </div>
+                          <div className="flex-shrink-0 text-right">
+                            <span className="text-sm text-gray-400">대기 중</span>
+                          </div>
+                        </div>
+                      </div>
+                    </>
                   );
-                })}
-              </div>
+                })()
+              ) : (
+                // Multi-file - existing design
+                <>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    파일 목록 ({files.length}개)
+                  </label>
+                  <div className="space-y-3">
+                    {files.map((file) => {
+                      const progress = fileProgresses.get(file.name);
+                      const isTransferring = progress?.status === 'transferring';
+                      const isCompleted = progress?.status === 'completed';
+
+                      return (
+                        <div
+                          key={file.name}
+                          className={`p-4 rounded-xl border-2 transition-all ${
+                            isTransferring ? 'bg-blue-50 border-blue-200' :
+                            isCompleted ? 'bg-green-50 border-green-200' :
+                            'bg-gray-50 border-transparent'
+                          }`}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <div className="flex-shrink-0">
+                              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                                isCompleted ? 'bg-green-100' :
+                                isTransferring ? 'bg-blue-100' :
+                                'bg-gray-100'
+                              }`}>
+                                {isCompleted ? (
+                                  <CheckIcon className="w-5 h-5 text-green-600" />
+                                ) : (
+                                  <DocumentIcon className="w-5 h-5 text-gray-400" />
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-medium text-gray-900 truncate">
+                                {file.name}
+                              </h4>
+                              {isTransferring ? (
+                                <div className="mt-1.5">
+                                  <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                                    <div
+                                      className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
+                                      style={{ width: `${progress?.progress || 0}%` }}
+                                    />
+                                  </div>
+                                </div>
+                              ) : (
+                                <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                              )}
+                            </div>
+
+                            <div className="flex-shrink-0 text-right">
+                              {isCompleted ? (
+                                <span className="text-sm text-green-600 font-medium">완료</span>
+                              ) : isTransferring ? (
+                                <div className="flex items-center gap-2">
+                                  {progress?.timeRemaining && (
+                                    <span className="text-xs text-gray-500">{progress.timeRemaining}</span>
+                                  )}
+                                  <span className="text-xs font-semibold text-blue-600">{progress?.progress || 0}%</span>
+                                  <button
+                                    onClick={() => cancelTransfer(file.name)}
+                                    className="p-1 hover:bg-blue-100 rounded transition-colors"
+                                    title="전송 중단"
+                                  >
+                                    <XMarkIcon className="w-5 h-5 text-gray-500" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="text-sm text-gray-400">대기 중</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
             </div>
           )}
 
