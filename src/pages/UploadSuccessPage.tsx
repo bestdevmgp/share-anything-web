@@ -294,7 +294,7 @@ const UploadSuccessPage: React.FC = () => {
                             </h4>
                             <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
                           </div>
-                          <div className="flex-shrink-0 text-right">
+                          <div className="flex-shrink-0 text-right mr-2">
                             <span className="text-sm text-gray-400">대기 중</span>
                           </div>
                         </div>
@@ -374,7 +374,7 @@ const UploadSuccessPage: React.FC = () => {
                                   </button>
                                 </div>
                               ) : (
-                                <span className="text-sm text-gray-400">대기 중</span>
+                                <span className="text-sm text-gray-400 mr-2">대기 중</span>
                               )}
                             </div>
                           </div>
