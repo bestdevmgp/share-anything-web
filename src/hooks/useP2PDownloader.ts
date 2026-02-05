@@ -90,12 +90,23 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
         const pc = createPeerConnection();
         pcRef.current = pc;
 
+        // Connection timeout - if not connected within 10 seconds, consider it failed
+        const connectionTimeout = setTimeout(() => {
+          if (pc.iceConnectionState !== 'connected' && pc.iceConnectionState !== 'completed') {
+            console.log('[useP2PDownloader] Connection timeout - ICE state:', pc.iceConnectionState);
+            setStatus('error');
+            toast.error('P2P 연결 시간이 초과되었습니다. 네트워크 환경을 확인해주세요.');
+            cleanup();
+          }
+        }, 10000);
+
         let metadataReceived = false;
         let actualFileSize = fileInfo.file_size;
         let actualFileType = fileInfo.file_type;
 
         pc.ondatachannel = (event) => {
           console.log('[useP2PDownloader] DataChannel received');
+          clearTimeout(connectionTimeout);
           const dataChannel = event.channel;
 
           dataChannel.onopen = () => {
@@ -202,8 +213,10 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
         pc.oniceconnectionstatechange = () => {
           console.log('[useP2PDownloader] ICE connection state:', pc.iceConnectionState);
           if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
+            clearTimeout(connectionTimeout);
             setStatus('downloading');
           } else if (pc.iceConnectionState === 'failed') {
+            clearTimeout(connectionTimeout);
             // Connection truly failed - check if we have enough data
             if (receivedSizeRef.current > 0 && receivedSizeRef.current >= actualFileSize * 0.95) {
               console.log('[useP2PDownloader] ICE failed but got most data, completing');

@@ -208,6 +208,15 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     const pc = createPeerConnection();
     pcRef.current = pc;
 
+    // Connection timeout - if not connected within 10 seconds, consider it failed
+    const connectionTimeout = setTimeout(() => {
+      if (pc.iceConnectionState !== 'connected' && pc.iceConnectionState !== 'completed') {
+        console.log('[useP2PUploader] Connection timeout - ICE state:', pc.iceConnectionState);
+        setConnectionFailed(true);
+        setStatus('waiting');
+      }
+    }, 10000);
+
     const dataChannel = pc.createDataChannel('file-transfer', {
       ordered: true
     });
@@ -215,6 +224,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
 
     dataChannel.onopen = () => {
       console.log('[useP2PUploader] DataChannel opened for file:', requestedFileName);
+      clearTimeout(connectionTimeout);
       setStatus('transferring');
 
       const metadata = JSON.stringify({
@@ -230,10 +240,12 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
 
     dataChannel.onclose = () => {
       console.log('[useP2PUploader] DataChannel closed');
+      clearTimeout(connectionTimeout);
     };
 
     dataChannel.onerror = (error) => {
       console.error('[useP2PUploader] DataChannel error:', error);
+      clearTimeout(connectionTimeout);
       if (isTransferringRef.current) {
         toast.error('파일 전송 중 오류가 발생하였습니다.');
       }
@@ -255,9 +267,11 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     pc.oniceconnectionstatechange = () => {
       console.log('[useP2PUploader] ICE connection state:', pc.iceConnectionState);
       if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
+        clearTimeout(connectionTimeout);
         setStatus('connected');
         setConnectionFailed(false);
       } else if (pc.iceConnectionState === 'failed') {
+        clearTimeout(connectionTimeout);
         console.log('[useP2PUploader] ICE connection failed');
         setConnectionFailed(true);
         setStatus('waiting');
