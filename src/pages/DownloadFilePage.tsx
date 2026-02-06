@@ -2,11 +2,13 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fileAPI } from '../services/api';
 import { FileListResponse } from '../types';
-import { formatFileSize, downloadFile, formatDateTime, isImageFile, isVideoFile, isAudioFile, isTextFile, formatTimeRemaining, calculateTimeRemaining } from '../utils/format';
-import { DocumentIcon, LockClosedIcon, CheckIcon, ArrowDownTrayIcon, EyeIcon, EyeSlashIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { formatFileSize, downloadFile, formatDateTime, isImageFile, formatTimeRemaining, calculateTimeRemaining } from '../utils/format';
+import { DocumentIcon, LockClosedIcon, CheckIcon, ArrowDownTrayIcon, EyeIcon, EyeSlashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { toast } from '../context/ToastContext';
 import TurnstileWidget from '../components/TurnstileWidget';
 import { useP2PDownloader } from '../hooks/useP2PDownloader';
+import FileThumbnail from '../components/FileThumbnail';
+import FilePreviewModal from '../components/FilePreviewModal';
 
 const DownloadFilePage: React.FC = () => {
   const { code } = useParams<{ code: string }>();
@@ -33,13 +35,10 @@ const DownloadFilePage: React.FC = () => {
   const [downloadAsZip, setDownloadAsZip] = useState(false);
   const lastDownloadTimeUpdateRef = useRef<number>(0);
 
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const [videoPreview, setVideoPreview] = useState<string | null>(null);
-  const [audioPreview, setAudioPreview] = useState<string | null>(null);
-  const [textPreview, setTextPreview] = useState<string | null>(null);
+  const [previewFile, setPreviewFile] = useState<{ fileName: string; fileSize: number; source: string } | null>(null);
+  const [singleFilePreviewUrl, setSingleFilePreviewUrl] = useState<string | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
 
-  const [imagePreviews, setImagePreviews] = useState<Map<string, string>>(new Map());
   const [turnstileToken, setTurnstileToken] = useState<string>('');
   const [turnstileVerified, setTurnstileVerified] = useState(false);
 
@@ -97,7 +96,6 @@ const DownloadFilePage: React.FC = () => {
     setP2pEnabled(false);
   }, [cancelDownload]);
 
-  // Reset state when download fails or is cancelled
   useEffect(() => {
     if (p2pStatus === 'error' || p2pStatus === 'cancelled') {
       setP2pActiveFileId(null);
@@ -177,9 +175,7 @@ const DownloadFilePage: React.FC = () => {
   }, [selectedFiles, fileList]);
 
   useEffect(() => {
-    let imageUrl: string | null = null;
-    let videoUrl: string | null = null;
-    let audioUrl: string | null = null;
+    let blobUrl: string | null = null;
 
     const loadFilePreview = async () => {
       if (!fileList || !code || fileList.files.length !== 1) return;
@@ -189,23 +185,9 @@ const DownloadFilePage: React.FC = () => {
       try {
         setLoadingPreview(true);
         const blob = await fileAPI.previewFile(code, file.id, password || undefined);
-
-        if (isImageFile(file.file_name)) {
-          const url = URL.createObjectURL(blob);
-          imageUrl = url;
-          setImagePreview(url);
-        } else if (isVideoFile(file.file_name)) {
-          const url = URL.createObjectURL(blob);
-          videoUrl = url;
-          setVideoPreview(url);
-        } else if (isAudioFile(file.file_name)) {
-          const url = URL.createObjectURL(blob);
-          audioUrl = url;
-          setAudioPreview(url);
-        } else if (isTextFile(file.file_name)) {
-          const text = await blob.text();
-          setTextPreview(text);
-        }
+        const url = URL.createObjectURL(blob);
+        blobUrl = url;
+        setSingleFilePreviewUrl(url);
       } catch (err) {
         console.error('Failed to load preview:', err);
       } finally {
@@ -216,36 +198,7 @@ const DownloadFilePage: React.FC = () => {
     loadFilePreview();
 
     return () => {
-      if (imageUrl) URL.revokeObjectURL(imageUrl);
-      if (videoUrl) URL.revokeObjectURL(videoUrl);
-      if (audioUrl) URL.revokeObjectURL(audioUrl);
-    };
-  }, [fileList, code, password]);
-
-  useEffect(() => {
-    const createdUrls: string[] = [];
-
-    const loadMultipleImagePreviews = async () => {
-      if (!fileList || !code || fileList.files.length <= 1) return;
-
-      const imageFiles = fileList.files.filter(file => isImageFile(file.file_name));
-
-      for (const file of imageFiles) {
-        try {
-          const blob = await fileAPI.previewFile(code, file.id, password || undefined);
-          const url = URL.createObjectURL(blob);
-          createdUrls.push(url);
-          setImagePreviews(prev => new Map(prev).set(file.id, url));
-        } catch (err) {
-          console.error(`Failed to load preview for ${file.file_name}:`, err);
-        }
-      }
-    };
-
-    loadMultipleImagePreviews();
-
-    return () => {
-      createdUrls.forEach(url => URL.revokeObjectURL(url));
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
     };
   }, [fileList, code, password]);
 
@@ -581,42 +534,23 @@ const DownloadFilePage: React.FC = () => {
                 <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                 </div>
-              ) : imagePreview && isImageFile(file.file_name) ? (
-                <div className="max-w-full max-h-96 overflow-hidden rounded-2xl">
+              ) : singleFilePreviewUrl && isImageFile(file.file_name) ? (
+                <div
+                  className="max-w-full max-h-96 overflow-hidden rounded-2xl cursor-pointer"
+                  onClick={() => setPreviewFile({ fileName: file.file_name, fileSize: file.file_size, source: singleFilePreviewUrl! })}
+                >
                   <img
-                    src={imagePreview}
+                    src={singleFilePreviewUrl}
                     alt={file.file_name}
                     className="max-w-full max-h-96 object-contain"
                   />
                 </div>
-              ) : videoPreview && isVideoFile(file.file_name) ? (
-                <div className="max-w-full rounded-2xl overflow-hidden">
-                  <video
-                    src={videoPreview}
-                    controls
-                    className="max-w-full max-h-96"
-                  >
-                    브라우저가 비디오 재생을 지원하지 않습니다.
-                  </video>
-                </div>
-              ) : audioPreview && isAudioFile(file.file_name) ? (
-                <div className="w-full max-w-md">
-                  <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <MusicalNoteIcon className="w-12 h-12 text-green-600" />
-                  </div>
-                  <audio
-                    src={audioPreview}
-                    controls
-                    className="w-full"
-                  >
-                    브라우저가 오디오 재생을 지원하지 않습니다.
-                  </audio>
-                </div>
-              ) : textPreview && isTextFile(file.file_name) ? (
-                <div className="w-full max-w-2xl max-h-96 overflow-auto bg-gray-50 rounded-2xl p-6">
-                  <pre className="text-sm text-gray-800 whitespace-pre-wrap break-words font-mono">
-                    {textPreview}
-                  </pre>
+              ) : singleFilePreviewUrl ? (
+                <div
+                  className="cursor-pointer"
+                  onClick={() => setPreviewFile({ fileName: file.file_name, fileSize: file.file_size, source: singleFilePreviewUrl! })}
+                >
+                  <FileThumbnail source={singleFilePreviewUrl} fileName={file.file_name} size="md" />
                 </div>
               ) : (
                 <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center">
@@ -822,29 +756,7 @@ const DownloadFilePage: React.FC = () => {
                   >
                     <div className="flex items-center space-x-4">
                       <div className="flex-shrink-0">
-                        {isImageFile(file.file_name) && imagePreviews.get(file.id) ? (
-                          <img
-                            src={imagePreviews.get(file.id)}
-                            alt={file.file_name}
-                            className="w-12 h-12 object-cover rounded"
-                          />
-                        ) : isVideoFile(file.file_name) ? (
-                          <div className="w-12 h-12 bg-purple-50 rounded flex items-center justify-center">
-                            <FilmIcon className="w-7 h-7 text-purple-600" />
-                          </div>
-                        ) : isAudioFile(file.file_name) ? (
-                          <div className="w-12 h-12 bg-green-50 rounded flex items-center justify-center">
-                            <MusicalNoteIcon className="w-7 h-7 text-green-600" />
-                          </div>
-                        ) : isTextFile(file.file_name) ? (
-                          <div className="w-12 h-12 bg-yellow-50 rounded flex items-center justify-center">
-                            <DocumentTextIcon className="w-7 h-7 text-yellow-600" />
-                          </div>
-                        ) : (
-                          <div className="w-12 h-12 bg-gray-100 rounded flex items-center justify-center">
-                            <DocumentIcon className="w-7 h-7 text-gray-400" />
-                          </div>
-                        )}
+                        <FileThumbnail source={null} fileName={file.file_name} size="md" />
                       </div>
 
                       <div className="flex-1 min-w-0">
@@ -975,29 +887,7 @@ const DownloadFilePage: React.FC = () => {
                 </div>
 
                 <div className="flex-shrink-0">
-                  {isImageFile(file.file_name) && imagePreviews.get(file.id) ? (
-                    <img
-                      src={imagePreviews.get(file.id)}
-                      alt={file.file_name}
-                      className="w-12 h-12 object-cover rounded"
-                    />
-                  ) : isVideoFile(file.file_name) ? (
-                    <div className="w-12 h-12 bg-purple-50 rounded flex items-center justify-center">
-                      <FilmIcon className="w-7 h-7 text-purple-600" />
-                    </div>
-                  ) : isAudioFile(file.file_name) ? (
-                    <div className="w-12 h-12 bg-green-50 rounded flex items-center justify-center">
-                      <MusicalNoteIcon className="w-7 h-7 text-green-600" />
-                    </div>
-                  ) : isTextFile(file.file_name) ? (
-                    <div className="w-12 h-12 bg-yellow-50 rounded flex items-center justify-center">
-                      <DocumentTextIcon className="w-7 h-7 text-yellow-600" />
-                    </div>
-                  ) : (
-                    <div className="w-12 h-12 bg-gray-50 rounded flex items-center justify-center">
-                      <DocumentIcon className="w-7 h-7 text-gray-400" />
-                    </div>
-                  )}
+                  <FileThumbnail source={null} fileName={file.file_name} size="md" />
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -1097,6 +987,13 @@ const DownloadFilePage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {previewFile && (
+        <FilePreviewModal
+          file={previewFile}
+          onClose={() => setPreviewFile(null)}
+        />
+      )}
     </div>
   );
 };

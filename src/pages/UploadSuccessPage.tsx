@@ -3,8 +3,10 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { FileUploadResponse } from '../types';
 import { copyToClipboard, formatDateTime, formatFileSize } from '../utils/format';
-import { CheckIcon, ClipboardDocumentIcon, DocumentIcon, ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { CheckIcon, ClipboardDocumentIcon, ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useP2PUploader } from '../hooks/useP2PUploader';
+import FileThumbnail from '../components/FileThumbnail';
+import FilePreviewModal from '../components/FilePreviewModal';
 
 const UploadSuccessPage: React.FC = () => {
   const location = useLocation();
@@ -23,6 +25,7 @@ const UploadSuccessPage: React.FC = () => {
   }, [uploadedFiles, uploadedFile]);
 
   const [copiedField, setCopiedField] = useState<'code' | 'link' | null>(null);
+  const [previewFile, setPreviewFile] = useState<File | null>(null);
 
   const isP2PTransfer = uploadResult?.files?.[0]?.transfer_type === 'p2p';
   const groupShareCode = uploadResult?.share_code || uploadResult?.files?.[0]?.share_code || '';
@@ -201,7 +204,6 @@ const UploadSuccessPage: React.FC = () => {
           {isP2PTransfer && (
             <div className="mb-8">
               {files.length === 1 ? (
-                // Single file - unified design with receiver
                 (() => {
                   const file = files[0];
                   const progress = fileProgresses.get(file.name);
@@ -275,18 +277,18 @@ const UploadSuccessPage: React.FC = () => {
                     );
                   }
 
-                  // Waiting state
                   return (
                     <>
                       <label className="block text-sm font-medium text-gray-700 mb-3">
                         파일
                       </label>
-                      <div className="p-4 rounded-xl border-2 bg-gray-50 border-transparent">
+                      <div
+                        className="p-4 rounded-xl border-2 bg-gray-50 border-transparent cursor-pointer hover:bg-gray-100 transition-colors"
+                        onClick={() => setPreviewFile(file)}
+                      >
                         <div className="flex items-center space-x-3">
                           <div className="flex-shrink-0">
-                            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-gray-100">
-                              <DocumentIcon className="w-5 h-5 text-gray-400" />
-                            </div>
+                            <FileThumbnail source={file} fileName={file.name} size="sm" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <h4 className="text-sm font-medium text-gray-900 truncate">
@@ -303,7 +305,6 @@ const UploadSuccessPage: React.FC = () => {
                   );
                 })()
               ) : (
-                // Multi-file - existing design
                 <>
                   <label className="block text-sm font-medium text-gray-700 mb-3">
                     파일 목록 ({files.length}개)
@@ -320,22 +321,21 @@ const UploadSuccessPage: React.FC = () => {
                           className={`p-4 rounded-xl border-2 transition-all ${
                             isTransferring ? 'bg-blue-50 border-blue-200' :
                             isCompleted ? 'bg-green-50 border-green-200' :
-                            'bg-gray-50 border-transparent'
+                            'bg-gray-50 border-transparent cursor-pointer hover:bg-gray-100'
                           }`}
+                          onClick={() => {
+                            if (!isTransferring && !isCompleted) setPreviewFile(file);
+                          }}
                         >
                           <div className="flex items-center space-x-3">
                             <div className="flex-shrink-0">
-                              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                                isCompleted ? 'bg-green-100' :
-                                isTransferring ? 'bg-blue-100' :
-                                'bg-gray-100'
-                              }`}>
-                                {isCompleted ? (
+                              {isCompleted ? (
+                                <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-green-100">
                                   <CheckIcon className="w-5 h-5 text-green-600" />
-                                ) : (
-                                  <DocumentIcon className="w-5 h-5 text-gray-400" />
-                                )}
-                              </div>
+                                </div>
+                              ) : (
+                                <FileThumbnail source={file} fileName={file.name} size="sm" />
+                              )}
                             </div>
 
                             <div className="flex-1 min-w-0">
@@ -411,7 +411,6 @@ const UploadSuccessPage: React.FC = () => {
         </div>
       </div>
 
-      {/* P2P Connection Failed Modal */}
       {showFailedModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in">
           <div className="bg-white rounded-2xl max-w-[30rem] w-full p-6 md:p-8 animate-modal-pop relative">
@@ -474,6 +473,17 @@ const UploadSuccessPage: React.FC = () => {
           animation: modalPop 0.25s ease-out forwards;
         }
       `}</style>
+
+      {previewFile && (
+        <FilePreviewModal
+          file={{
+            fileName: previewFile.name,
+            fileSize: previewFile.size,
+            source: previewFile,
+          }}
+          onClose={() => setPreviewFile(null)}
+        />
+      )}
     </div>
   );
 };

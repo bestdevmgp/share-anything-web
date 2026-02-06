@@ -4,10 +4,12 @@ import { useDropzone } from 'react-dropzone';
 import { useAuth } from '../context/AuthContext';
 import { fileAPI, workerAPI } from '../services/api';
 import { ExpirationOption } from '../types';
-import { formatFileSize, isImageFile, isVideoFile, isAudioFile, isTextFile, formatTimeRemaining, calculateTimeRemaining } from '../utils/format';
-import { DocumentIcon, XMarkIcon, EyeIcon, EyeSlashIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon, CheckIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
+import { formatFileSize, formatTimeRemaining, calculateTimeRemaining } from '../utils/format';
+import { DocumentIcon, XMarkIcon, EyeIcon, EyeSlashIcon, CheckIcon, InformationCircleIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { toast } from '../context/ToastContext';
 import TurnstileWidget from '../components/TurnstileWidget';
+import FileThumbnail from '../components/FileThumbnail';
+import FilePreviewModal from '../components/FilePreviewModal';
 
 const UploadPage: React.FC = () => {
   const navigate = useNavigate();
@@ -20,7 +22,6 @@ const UploadPage: React.FC = () => {
   const fallbackHandledRef = useRef(false);
 
   const [files, setFiles] = useState<File[]>([]);
-  const [filePreviews, setFilePreviews] = useState<Map<string, string>>(new Map());
   const [isProcessingFiles, setIsProcessingFiles] = useState(false);
   const [description, setDescription] = useState('');
   const [password, setPassword] = useState('');
@@ -33,8 +34,10 @@ const UploadPage: React.FC = () => {
   const [uploadAbortController, setUploadAbortController] = useState<AbortController | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string>('');
   const [transferType, setTransferType] = useState<'server' | 'p2p'>('server');
+  const [previewFile, setPreviewFile] = useState<File | null>(null);
   const [p2pTooltipMounted, setP2PTooltipMounted] = useState(false);
   const [p2pTooltipVisible, setP2PTooltipVisible] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState<'right' | 'bottom'>('bottom');
   const p2pButtonRef = useRef<HTMLButtonElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const lastTimeUpdateRef = useRef<number>(0);
@@ -50,37 +53,14 @@ const UploadPage: React.FC = () => {
       setTransferType('server');
       toast.info('일반 전송으로 전환되었습니다. 파일을 업로드해주세요.');
 
-      fallbackFiles.forEach(file => {
-        if (isImageFile(file.name)) {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            setFilePreviews(prev => new Map(prev).set(file.name + file.size, reader.result as string));
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-
       window.history.replaceState({}, document.title);
     }
   }, [fromP2PFallback, fallbackFiles]);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     setIsProcessingFiles(true);
-
     await new Promise(resolve => setTimeout(resolve, 10));
-
     setFiles(prev => [...prev, ...acceptedFiles]);
-
-    acceptedFiles.forEach(file => {
-      if (isImageFile(file.name)) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setFilePreviews(prev => new Map(prev).set(file.name + file.size, reader.result as string));
-        };
-        reader.readAsDataURL(file);
-      }
-    });
-
     setIsProcessingFiles(false);
   }, []);
 
@@ -90,15 +70,7 @@ const UploadPage: React.FC = () => {
   });
 
   const removeFile = (index: number) => {
-    const fileToRemove = files[index];
-    const key = fileToRemove.name + fileToRemove.size;
-
     setFiles(prev => prev.filter((_, i) => i !== index));
-    setFilePreviews(prev => {
-      const newMap = new Map(prev);
-      newMap.delete(key);
-      return newMap;
-    });
   };
 
   const handleUpload = async () => {
@@ -361,7 +333,20 @@ const UploadPage: React.FC = () => {
     closeP2PTooltip();
   };
 
-  // Close tooltip on outside click
+  useEffect(() => {
+    if (!p2pTooltipMounted) return;
+    const checkPosition = () => {
+      const container = p2pButtonRef.current?.closest('.relative') as HTMLElement | null;
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      const tooltipWidth = 524;
+      setTooltipPosition(rect.right + tooltipWidth <= window.innerWidth ? 'right' : 'bottom');
+    };
+    checkPosition();
+    window.addEventListener('resize', checkPosition);
+    return () => window.removeEventListener('resize', checkPosition);
+  }, [p2pTooltipMounted]);
+
   useEffect(() => {
     if (!p2pTooltipMounted) return;
     const handleClickOutside = (e: MouseEvent) => {
@@ -432,15 +417,19 @@ const UploadPage: React.FC = () => {
               <div
                 ref={tooltipRef}
                 className={`absolute bg-white border border-gray-200 rounded-xl shadow-lg p-4 text-sm text-gray-700 z-50 transition-all duration-300
-                  top-full left-0 right-0 mt-3
-                  md:top-1/2 md:left-full md:right-auto md:w-[32rem] md:mt-0 md:ml-3 md:-translate-y-1/2
+                  ${tooltipPosition === 'bottom'
+                    ? 'top-full left-0 right-0 mt-3'
+                    : 'top-1/2 left-full w-[32rem] ml-3 -translate-y-1/2'
+                  }
                   ${p2pTooltipVisible ? 'opacity-100' : 'opacity-0'}
                 `}
               >
-                {/* Mobile: top arrow */}
-                <div className="absolute -top-[7px] right-[25%] w-3.5 h-3.5 bg-white border-l border-t border-gray-200 transform rotate-45 md:hidden" />
-                {/* PC: left arrow */}
-                <div className="hidden md:block absolute top-1/2 -left-[7px] -translate-y-1/2 w-3.5 h-3.5 bg-white border-l border-b border-gray-200 transform rotate-45" />
+                {tooltipPosition === 'bottom' && (
+                  <div className="absolute -top-[7px] right-[25%] w-3.5 h-3.5 bg-white border-l border-t border-gray-200 transform rotate-45" />
+                )}
+                {tooltipPosition === 'right' && (
+                  <div className="absolute top-1/2 -left-[7px] -translate-y-1/2 w-3.5 h-3.5 bg-white border-l border-b border-gray-200 transform rotate-45" />
+                )}
                 <p className="font-semibold text-blue-600 mb-2 flex items-center gap-1">
                   <InformationCircleIcon className="w-5 h-5 text-blue-600" />
                   안내
@@ -472,87 +461,78 @@ const UploadPage: React.FC = () => {
         <div className="mb-10">
           <div
             {...getRootProps()}
-            className={`border-2 border-dashed rounded-2xl p-6 md:p-16 text-center cursor-pointer transition-colors ${
+            className={`border-2 border-dashed rounded-2xl cursor-pointer transition-colors h-[calc(100vw-2rem)] md:h-[30rem] ${
               isDragActive
                 ? 'border-blue-500 bg-blue-50'
                 : 'border-gray-300 bg-white hover:border-gray-400'
-            }`}
+            } ${files.length > 0 ? 'p-4 md:p-6 flex flex-col' : 'p-6 md:p-16 text-center'}`}
           >
             <input {...getInputProps()} />
-            <div className="w-14 h-14 md:w-20 md:h-20 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-3 md:mb-6">
-              <DocumentIcon className="w-7 h-7 md:w-10 md:h-10 text-blue-600" />
-            </div>
-            <p className="text-sm md:text-xl font-semibold text-gray-900 mb-1 md:mb-2">
-              여기에 파일을 드래그하거나 클릭하여 {transferType === 'p2p' ? '전송' : '업로드'}하세요.
-            </p>
-            {transferType !== 'p2p' && (
-              <p className="text-xs md:text-sm text-gray-500 mb-3 md:mb-6">
-                로그인 시 최대 3GB까지 업로드할 수 있습니다.
-              </p>
+
+            {files.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full">
+                <div className="w-14 h-14 md:w-20 md:h-20 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-3 md:mb-6">
+                  <DocumentIcon className="w-7 h-7 md:w-10 md:h-10 text-blue-600" />
+                </div>
+                <p className="text-sm md:text-xl font-semibold text-gray-900 mb-1 md:mb-2">
+                  여기에 파일을 드래그하거나 클릭하여 {transferType === 'p2p' ? '전송' : '업로드'}하세요.
+                </p>
+                {transferType !== 'p2p' && (
+                  <p className="text-xs md:text-sm text-gray-500 mb-3 md:mb-6">
+                    로그인 시 최대 3GB까지 업로드할 수 있습니다.
+                  </p>
+                )}
+                {transferType === 'p2p' && <div className="mb-3 md:mb-6" />}
+                <button
+                  type="button"
+                  className="px-6 py-2 md:px-8 md:py-3 bg-gray-100 text-gray-700 text-sm md:text-base font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                >
+                  파일 선택
+                </button>
+              </div>
+            ) : (
+              <>
+                <h3 className="font-semibold text-gray-900 mt-0.5 md:mt-0 mb-3.5 md:mb-4 flex-shrink-0">선택된 파일 ({files.length})</h3>
+                <div className="flex-1 overflow-y-auto space-y-2 min-h-0">
+                  {files.map((file, index) => (
+                    <div
+                      key={index}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPreviewFile(file);
+                      }}
+                      className="flex items-center justify-between p-3.5 bg-gray-50 rounded-lg md:hover:bg-gray-100 transition-colors cursor-pointer"
+                    >
+                      <div className="flex items-center space-x-3 flex-1 min-w-0">
+                        <FileThumbnail source={file} fileName={file.name} size="sm" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
+                          <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); removeFile(index); }}
+                        className="ml-2 p-1 hover:bg-gray-200 rounded"
+                      >
+                        <XMarkIcon className="w-5 h-5 text-gray-500" />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    className="w-full p-3.5 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:border-gray-400 transition-colors"
+                  >
+                    <PlusIcon className="w-6 h-6" />
+                  </button>
+                </div>
+              </>
             )}
-            {transferType === 'p2p' && <div className="mb-3 md:mb-6" />}
-            <button
-              type="button"
-              className="px-6 py-2 md:px-8 md:py-3 bg-gray-100 text-gray-700 text-sm md:text-base font-medium rounded-lg hover:bg-gray-200 transition-colors"
-            >
-              파일 선택
-            </button>
           </div>
         </div>
 
         {isProcessingFiles && (
           <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
             <p className="text-sm font-medium text-gray-700">파일 처리 중...</p>
-          </div>
-        )}
-
-        {files.length > 0 && (
-          <div className="mb-10">
-            <h3 className="font-semibold text-gray-900 mb-4">선택된 파일 ({files.length})</h3>
-            <div className="space-y-2">
-              {files.map((file, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-4 bg-gray-100 rounded-lg"
-                >
-                  <div className="flex items-center space-x-3 flex-1 min-w-0">
-                    {isImageFile(file.name) && filePreviews.get(file.name + file.size) ? (
-                      <img
-                        src={filePreviews.get(file.name + file.size)}
-                        alt={file.name}
-                        className="w-12 h-12 object-cover rounded flex-shrink-0"
-                      />
-                    ) : isVideoFile(file.name) ? (
-                      <div className="w-12 h-12 flex-shrink-0 bg-purple-50 rounded flex items-center justify-center">
-                        <FilmIcon className="w-7 h-7 text-purple-600" />
-                      </div>
-                    ) : isAudioFile(file.name) ? (
-                      <div className="w-12 h-12 flex-shrink-0 bg-green-50 rounded flex items-center justify-center">
-                        <MusicalNoteIcon className="w-7 h-7 text-green-600" />
-                      </div>
-                    ) : isTextFile(file.name) ? (
-                      <div className="w-12 h-12 flex-shrink-0 bg-yellow-50 rounded flex items-center justify-center">
-                        <DocumentTextIcon className="w-7 h-7 text-yellow-600" />
-                      </div>
-                    ) : (
-                      <div className="w-12 h-12 flex-shrink-0 bg-gray-50 rounded flex items-center justify-center">
-                        <DocumentIcon className="w-7 h-7 text-gray-400" />
-                      </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
-                      <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => removeFile(index)}
-                    className="ml-2 p-1 hover:bg-gray-300 rounded"
-                  >
-                    <XMarkIcon className="w-5 h-5 text-gray-500" />
-                  </button>
-                </div>
-              ))}
-            </div>
           </div>
         )}
 
@@ -730,6 +710,17 @@ const UploadPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {previewFile && (
+        <FilePreviewModal
+          file={{
+            fileName: previewFile.name,
+            fileSize: previewFile.size,
+            source: previewFile,
+          }}
+          onClose={() => setPreviewFile(null)}
+        />
+      )}
     </div>
   );
 };

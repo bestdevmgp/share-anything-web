@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import ToastContainer from './components/Toast';
+import './utils/pdfWorkerSetup';
 
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';

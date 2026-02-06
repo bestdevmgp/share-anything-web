@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { userAPI, fileAPI } from '../services/api';
+import { userAPI } from '../services/api';
 import { UploadHistoryItem, DownloadLog } from '../types';
 import { toast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
-import { isVideoFile, isAudioFile, isTextFile } from '../utils/format';
 import { QRCodeSVG } from 'qrcode.react';
-import { CheckIcon, ClipboardDocumentIcon, DocumentIcon } from '@heroicons/react/24/outline';
+import { CheckIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
+import FileThumbnail from '../components/FileThumbnail';
+import FilePreviewModal from '../components/FilePreviewModal';
 
 const UploadHistoryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -23,10 +24,7 @@ const UploadHistoryPage: React.FC = () => {
   const [selectedFileForLogs, setSelectedFileForLogs] = useState<string | null>(null);
   const [loadingPreviews, setLoadingPreviews] = useState<{ [key: string]: boolean }>({});
   const [closingRow, setClosingRow] = useState<string | null>(null);
-  const [videoPreviews, setVideoPreviews] = useState<{ [key: string]: string }>({});
-  const [audioPreviews, setAudioPreviews] = useState<{ [key: string]: string }>({});
-  const [textPreviews, setTextPreviews] = useState<{ [key: string]: string }>({});
-  const [loadingFilePreviews, setLoadingFilePreviews] = useState<{ [key: string]: boolean }>({});
+  const [previewModalFile, setPreviewModalFile] = useState<{ fileName: string; fileSize: number; source: string } | null>(null);
   const [showQRModal, setShowQRModal] = useState(false);
   const [selectedShareCode, setSelectedShareCode] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -109,45 +107,6 @@ const UploadHistoryPage: React.FC = () => {
     }
   };
 
-  const loadFilePreview = async (upload: UploadHistoryItem) => {
-    const fileName = upload.file_name;
-
-    if (isVideoFile(fileName) && !videoPreviews[upload.id]) {
-      try {
-        setLoadingFilePreviews(prev => ({ ...prev, [upload.id]: true }));
-        const blob = await fileAPI.previewFile(upload.share_code, upload.id);
-        const url = URL.createObjectURL(blob);
-        setVideoPreviews(prev => ({ ...prev, [upload.id]: url }));
-      } catch (err) {
-        console.error('Failed to load video preview:', err);
-      } finally {
-        setLoadingFilePreviews(prev => ({ ...prev, [upload.id]: false }));
-      }
-    } else if (isAudioFile(fileName) && !audioPreviews[upload.id]) {
-      try {
-        setLoadingFilePreviews(prev => ({ ...prev, [upload.id]: true }));
-        const blob = await fileAPI.previewFile(upload.share_code, upload.id);
-        const url = URL.createObjectURL(blob);
-        setAudioPreviews(prev => ({ ...prev, [upload.id]: url }));
-      } catch (err) {
-        console.error('Failed to load audio preview:', err);
-      } finally {
-        setLoadingFilePreviews(prev => ({ ...prev, [upload.id]: false }));
-      }
-    } else if (isTextFile(fileName) && !textPreviews[upload.id]) {
-      try {
-        setLoadingFilePreviews(prev => ({ ...prev, [upload.id]: true }));
-        const blob = await fileAPI.previewFile(upload.share_code, upload.id);
-        const text = await blob.text();
-        setTextPreviews(prev => ({ ...prev, [upload.id]: text }));
-      } catch (err) {
-        console.error('Failed to load text preview:', err);
-      } finally {
-        setLoadingFilePreviews(prev => ({ ...prev, [upload.id]: false }));
-      }
-    }
-  };
-
   const handleRowClick = (fileId: string) => {
     if (expandedRow === fileId) {
       setExpandedRow(null);
@@ -158,11 +117,17 @@ const UploadHistoryPage: React.FC = () => {
     } else {
       setExpandedRow(fileId);
       fetchDownloadLogs(fileId);
-      const upload = uploads.find(u => u.id === fileId);
-      if (upload) {
-        loadFilePreview(upload);
-      }
     }
+  };
+
+  const openPreviewModal = (upload: UploadHistoryItem) => {
+    if (isExpired(upload.expires_at)) return;
+    const previewUrl = getPreviewUrl(upload.share_code, upload.id);
+    setPreviewModalFile({
+      fileName: upload.file_name,
+      fileSize: upload.file_size,
+      source: previewUrl,
+    });
   };
 
   const handleDelete = async (fileId: string, e: React.MouseEvent) => {
@@ -261,35 +226,12 @@ const UploadHistoryPage: React.FC = () => {
     return nameWithoutExt.substring(0, maxNameLength) + '...' + extension;
   };
 
-  const getFileIcon = (fileType: string) => {
-    const colorClass = fileType.startsWith('image/') ? 'text-blue-500' :
-      fileType.startsWith('video/') ? 'text-purple-500' :
-      fileType.includes('pdf') ? 'text-red-500' : 'text-gray-500';
-
-    if (fileType.startsWith('image/')) {
-      return (
-        <svg className={`w-6 h-6 ${colorClass}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
-        </svg>
-      );
-    } else if (fileType.startsWith('video/')) {
-      return (
-        <svg className={`w-6 h-6 ${colorClass}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z" />
-        </svg>
-      );
-    } else if (fileType.includes('pdf')) {
-      return (
-        <svg className={`w-6 h-6 ${colorClass}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-        </svg>
-      );
-    } else {
-      return (
-        <DocumentIcon className={`w-6 h-6 ${colorClass}`} />
-      );
+  const getThumbnailSource = (upload: UploadHistoryItem): string | null => {
+    if (isExpired(upload.expires_at)) return null;
+    if (isImageFileByType(upload.file_type)) {
+      return getPreviewUrl(upload.share_code, upload.id);
     }
+    return null;
   };
 
   const totalPages = Math.ceil(total / limit);
@@ -383,33 +325,7 @@ const UploadHistoryPage: React.FC = () => {
                       >
                         <td className="px-6 py-4 max-w-0">
                           <div className="flex items-center space-x-3 overflow-hidden">
-                            <div className="flex-shrink-0 w-12 h-12 rounded overflow-hidden bg-gray-100 flex items-center justify-center">
-                              {isImageFileByType(upload.file_type) && !isExpired(upload.expires_at) ? (
-                                loadingPreviews[upload.id] ? (
-                                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                                ) : (
-                                  <img
-                                    src={getPreviewUrl(upload.share_code, upload.id)}
-                                    alt={upload.file_name}
-                                    className="w-full h-full object-cover"
-                                    onLoadStart={() => setLoadingPreviews({ ...loadingPreviews, [upload.id]: true })}
-                                    onLoad={() => setLoadingPreviews({ ...loadingPreviews, [upload.id]: false })}
-                                    onError={(e) => {
-                                      setLoadingPreviews({ ...loadingPreviews, [upload.id]: false });
-                                      e.currentTarget.style.display = 'none';
-                                      const parent = e.currentTarget.parentElement;
-                                      if (parent) {
-                                        parent.innerHTML = '';
-                                        const icon = getFileIcon(upload.file_type);
-                                        parent.appendChild(document.createRange().createContextualFragment(icon.props.children));
-                                      }
-                                    }}
-                                  />
-                                )
-                              ) : (
-                                getFileIcon(upload.file_type)
-                              )}
-                            </div>
+                            <FileThumbnail source={getThumbnailSource(upload)} fileName={upload.file_name} size="md" />
                             <div className="min-w-0 flex-1">
                               <div className="text-sm font-medium text-gray-900" title={upload.file_name}>
                                 {truncateFileName(upload.file_name)}
@@ -479,15 +395,13 @@ const UploadHistoryPage: React.FC = () => {
                               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                                 <div className="h-0 min-h-full flex flex-col overflow-hidden">
                                   <h3 className="text-lg font-semibold text-gray-900 mb-4 flex-shrink-0">미리보기</h3>
-                                  <div className="bg-white rounded-lg border border-gray-200 overflow-hidden w-full flex-1 max-w-md">
+                                  <div
+                                    className="bg-white rounded-lg border border-gray-200 overflow-hidden w-full flex-1 max-w-md cursor-pointer hover:border-blue-300 transition-colors"
+                                    onClick={(e) => { e.stopPropagation(); openPreviewModal(upload); }}
+                                  >
                                     {isExpired(upload.expires_at) ? (
                                       <div className="flex items-center justify-center h-full bg-gray-50">
                                         <p className="text-sm text-gray-500 text-center px-4">만료된 파일입니다.</p>
-                                      </div>
-                                    ) : loadingFilePreviews[upload.id] ? (
-                                      <div className="flex flex-col items-center justify-center h-full bg-gray-100">
-                                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-                                        <p className="text-sm text-gray-500">로딩 중...</p>
                                       </div>
                                     ) : isImageFileByType(upload.file_type) ? (
                                       loadingPreviews[`expanded_${upload.id}`] ? (
@@ -503,34 +417,10 @@ const UploadHistoryPage: React.FC = () => {
                                           onLoad={() => setLoadingPreviews({ ...loadingPreviews, [`expanded_${upload.id}`]: false })}
                                         />
                                       )
-                                    ) : isVideoFile(upload.file_name) && videoPreviews[upload.id] ? (
-                                      <video
-                                        src={videoPreviews[upload.id]}
-                                        controls
-                                        className="w-full h-full object-contain"
-                                      >
-                                        브라우저가 비디오 재생을 지원하지 않습니다.
-                                      </video>
-                                    ) : isAudioFile(upload.file_name) && audioPreviews[upload.id] ? (
-                                      <div className="flex items-center justify-center h-full p-4">
-                                        <audio
-                                          src={audioPreviews[upload.id]}
-                                          controls
-                                          className="w-full"
-                                        >
-                                          브라우저가 오디오 재생을 지원하지 않습니다.
-                                        </audio>
-                                      </div>
-                                    ) : isTextFile(upload.file_name) && textPreviews[upload.id] ? (
-                                      <div className="h-full overflow-auto bg-gray-50 p-4">
-                                        <pre className="text-xs text-gray-800 whitespace-pre-wrap break-words font-mono">
-                                          {textPreviews[upload.id]}
-                                        </pre>
-                                      </div>
                                     ) : (
                                       <div className="flex flex-col items-center justify-center h-full bg-gray-100 p-4 gap-4">
-                                        {getFileIcon(upload.file_type)}
-                                        <p className="text-sm text-gray-500 text-center">해당 파일 확장자는 미리보기를 지원하지 않습니다.</p>
+                                        <FileThumbnail source={null} fileName={upload.file_name} size="md" />
+                                        <p className="text-sm text-gray-500 text-center">클릭하여 미리보기</p>
                                       </div>
                                     )}
                                   </div>
@@ -677,23 +567,7 @@ const UploadHistoryPage: React.FC = () => {
                     className={`p-4 cursor-pointer ${expandedRow === upload.id ? 'bg-blue-50' : ''}`}
                   >
                     <div className="flex items-center space-x-3 pr-20">
-                    <div className="flex-shrink-0 w-16 h-16 rounded overflow-hidden bg-gray-100 flex items-center justify-center">
-                      {isImageFileByType(upload.file_type) && !isExpired(upload.expires_at) ? (
-                        loadingPreviews[`mobile_${upload.id}`] ? (
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                        ) : (
-                          <img
-                            src={getPreviewUrl(upload.share_code, upload.id)}
-                            alt={upload.file_name}
-                            className="w-full h-full object-cover"
-                            onLoadStart={() => setLoadingPreviews({ ...loadingPreviews, [`mobile_${upload.id}`]: true })}
-                            onLoad={() => setLoadingPreviews({ ...loadingPreviews, [`mobile_${upload.id}`]: false })}
-                          />
-                        )
-                      ) : (
-                        getFileIcon(upload.file_type)
-                      )}
-                    </div>
+                    <FileThumbnail source={getThumbnailSource(upload)} fileName={upload.file_name} size="md" />
                     <div className="flex-1 min-w-0">
                       <h3 className="text-sm font-medium text-gray-900" title={upload.file_name}>
                         {truncateFileName(upload.file_name, 25)}
@@ -724,21 +598,16 @@ const UploadHistoryPage: React.FC = () => {
                     <div className="space-y-4">
                       <div>
                         <h4 className="text-sm font-semibold text-gray-900 mb-2">미리보기</h4>
-                        <div className={`bg-white rounded-lg border border-gray-200 overflow-hidden ${
-                          isExpired(upload.expires_at) ? 'h-28' :
-                          (isImageFileByType(upload.file_type) ||
-                           (isVideoFile(upload.file_name) && videoPreviews[upload.id]) ||
-                           (isAudioFile(upload.file_name) && audioPreviews[upload.id]) ||
-                           (isTextFile(upload.file_name) && textPreviews[upload.id])) ? 'aspect-square' : 'h-32'
-                        }`}>
+                        <div
+                          className={`bg-white rounded-lg border border-gray-200 overflow-hidden cursor-pointer hover:border-blue-300 transition-colors ${
+                            isExpired(upload.expires_at) ? 'h-28' :
+                            isImageFileByType(upload.file_type) ? 'aspect-square' : 'h-32'
+                          }`}
+                          onClick={() => openPreviewModal(upload)}
+                        >
                           {isExpired(upload.expires_at) ? (
                             <div className="flex items-center justify-center h-full bg-gray-50">
                               <p className="text-xs text-gray-500 text-center px-4">만료된 파일입니다.</p>
-                            </div>
-                          ) : loadingFilePreviews[upload.id] ? (
-                            <div className="flex flex-col items-center justify-center h-full bg-gray-100">
-                              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
-                              <p className="text-xs text-gray-500">로딩 중...</p>
                             </div>
                           ) : isImageFileByType(upload.file_type) ? (
                             <img
@@ -746,34 +615,10 @@ const UploadHistoryPage: React.FC = () => {
                               alt={upload.file_name}
                               className="w-full h-full object-contain"
                             />
-                          ) : isVideoFile(upload.file_name) && videoPreviews[upload.id] ? (
-                            <video
-                              src={videoPreviews[upload.id]}
-                              controls
-                              className="w-full h-full object-contain"
-                            >
-                              브라우저가 비디오 재생을 지원하지 않습니다.
-                            </video>
-                          ) : isAudioFile(upload.file_name) && audioPreviews[upload.id] ? (
-                            <div className="flex items-center justify-center h-full p-4">
-                              <audio
-                                src={audioPreviews[upload.id]}
-                                controls
-                                className="w-full"
-                              >
-                                브라우저가 오디오 재생을 지원하지 않습니다.
-                              </audio>
-                            </div>
-                          ) : isTextFile(upload.file_name) && textPreviews[upload.id] ? (
-                            <div className="h-full overflow-auto bg-gray-50 p-3">
-                              <pre className="text-xs text-gray-800 whitespace-pre-wrap break-words font-mono">
-                                {textPreviews[upload.id]}
-                              </pre>
-                            </div>
                           ) : (
                             <div className="flex flex-col items-center justify-center h-full bg-gray-100 p-4 gap-4">
-                              {getFileIcon(upload.file_type)}
-                              <p className="text-xs text-gray-500 text-center">해당 파일 확장자는 미리보기를 지원하지 않습니다.</p>
+                              <FileThumbnail source={null} fileName={upload.file_name} size="md" />
+                              <p className="text-xs text-gray-500 text-center">클릭하여 미리보기</p>
                             </div>
                           )}
                         </div>
@@ -1036,6 +881,13 @@ const UploadHistoryPage: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {previewModalFile && (
+        <FilePreviewModal
+          file={previewModalFile}
+          onClose={() => setPreviewModalFile(null)}
+        />
       )}
 
       <style>{`

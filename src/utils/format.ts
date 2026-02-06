@@ -97,9 +97,31 @@ export const isAudioFile = (filename: string): boolean => {
 };
 
 export const isTextFile = (filename: string): boolean => {
-  const textExtensions = ['.txt', '.json', '.xml', '.csv', '.md', '.log', '.yaml', '.yml', '.html', '.css', '.js', '.ts', '.jsx', '.tsx', '.py', '.java', '.c', '.cpp', '.h', '.sh'];
+  const textExtensions = ['.txt', '.json', '.xml', '.md', '.log', '.yaml', '.yml', '.html', '.css', '.js', '.ts', '.jsx', '.tsx', '.py', '.java', '.c', '.cpp', '.h', '.sh'];
   const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
   return textExtensions.includes(extension);
+};
+
+export const isCsvFile = (filename: string): boolean => {
+  const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+  return extension === '.csv';
+};
+
+export const isExcelFile = (filename: string): boolean => {
+  const excelExtensions = ['.xlsx', '.xls'];
+  const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+  return excelExtensions.includes(extension);
+};
+
+export const isDocxFile = (filename: string): boolean => {
+  const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+  return extension === '.docx';
+};
+
+export const isHwpFile = (filename: string): boolean => {
+  const hwpExtensions = ['.hwp', '.hwpx'];
+  const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+  return hwpExtensions.includes(extension);
 };
 
 export const formatTimeRemaining = (remainingSeconds: number): string => {
