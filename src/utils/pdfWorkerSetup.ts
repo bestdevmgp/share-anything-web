@@ -1,3 +1,9 @@
 import { GlobalWorkerOptions } from 'pdfjs-dist';
 
-GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL}/pdf.worker.min.mjs`;
+const workerSrc = `${process.env.PUBLIC_URL}/pdf.worker.min.mjs`;
+
+GlobalWorkerOptions.workerSrc = workerSrc;
+
+Promise.resolve().then(() => {
+  GlobalWorkerOptions.workerSrc = workerSrc;
+});
