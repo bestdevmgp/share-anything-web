@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { fileAPI, workerAPI } from '../services/api';
 import { ExpirationOption } from '../types';
 import { formatFileSize, isImageFile, isVideoFile, isAudioFile, isTextFile, formatTimeRemaining, calculateTimeRemaining } from '../utils/format';
-import { DocumentIcon, XMarkIcon, EyeIcon, EyeSlashIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { DocumentIcon, XMarkIcon, EyeIcon, EyeSlashIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon, CheckIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 import { toast } from '../context/ToastContext';
 import TurnstileWidget from '../components/TurnstileWidget';
 
@@ -33,6 +33,10 @@ const UploadPage: React.FC = () => {
   const [uploadAbortController, setUploadAbortController] = useState<AbortController | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string>('');
   const [transferType, setTransferType] = useState<'server' | 'p2p'>('server');
+  const [p2pTooltipMounted, setP2PTooltipMounted] = useState(false);
+  const [p2pTooltipVisible, setP2PTooltipVisible] = useState(false);
+  const p2pButtonRef = useRef<HTMLButtonElement>(null);
+  const tooltipRef = useRef<HTMLDivElement>(null);
   const lastTimeUpdateRef = useRef<number>(0);
 
   useEffect(() => {
@@ -323,12 +327,54 @@ const UploadPage: React.FC = () => {
     }
   };
 
+  const openP2PTooltip = useCallback(() => {
+    setP2PTooltipMounted(true);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setP2PTooltipVisible(true);
+      });
+    });
+  }, []);
+
+  const closeP2PTooltip = useCallback(() => {
+    setP2PTooltipVisible(false);
+    setTimeout(() => setP2PTooltipMounted(false), 300);
+  }, []);
+
   const handleTransferTypeChange = (type: 'server' | 'p2p') => {
     setTransferType(type);
     if (type === 'p2p') {
       setIsOneTime(true);
+      const dismissed = localStorage.getItem('hideP2PTooltip');
+      if (!dismissed) {
+        openP2PTooltip();
+      }
+    } else {
+      closeP2PTooltip();
     }
   };
+
+  const handleDismissP2PTooltip = (dontShowAgain: boolean) => {
+    if (dontShowAgain) {
+      localStorage.setItem('hideP2PTooltip', 'true');
+    }
+    closeP2PTooltip();
+  };
+
+  // Close tooltip on outside click
+  useEffect(() => {
+    if (!p2pTooltipMounted) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        tooltipRef.current && !tooltipRef.current.contains(e.target as Node) &&
+        p2pButtonRef.current && !p2pButtonRef.current.contains(e.target as Node)
+      ) {
+        closeP2PTooltip();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [p2pTooltipMounted, closeP2PTooltip]);
 
   const expirationOptions: { value: ExpirationOption; label: string }[] = [
     { value: 'five_minutes', label: '5분' },
@@ -349,19 +395,19 @@ const UploadPage: React.FC = () => {
         </div>
 
         <div className="mb-10">
-          <div className="relative flex gap-1 w-full max-w-md bg-gray-100 rounded-full p-1.5">
+          <div className="relative flex gap-1.5 w-full max-w-md bg-gray-100 rounded-xl p-1.5">
             <div
-              className="absolute top-1.5 h-[calc(100%-12px)] bg-white rounded-full transition-all duration-200 ease-out"
+              className="absolute top-1.5 h-[calc(100%-12px)] bg-white rounded-lg transition-all duration-200 ease-out"
               style={{
-                width: 'calc(50% - 8px)',
-                left: transferType === 'server' ? '6px' : 'calc(50% + 2px)',
+                width: 'calc(50% - 9px)',
+                left: transferType === 'server' ? '6px' : 'calc(50% + 3px)',
               }}
             />
 
             <button
               type="button"
               onClick={() => handleTransferTypeChange('server')}
-              className={`relative z-10 flex-1 px-6 py-3 rounded-full text-sm font-semibold transition-all duration-200 ${
+              className={`relative z-10 flex-1 px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
                 transferType === 'server'
                   ? 'text-gray-900'
                   : 'text-gray-600 hover:bg-gray-200/50 hover:text-gray-800'
@@ -370,9 +416,10 @@ const UploadPage: React.FC = () => {
               일반 전송
             </button>
             <button
+              ref={p2pButtonRef}
               type="button"
               onClick={() => handleTransferTypeChange('p2p')}
-              className={`relative z-10 flex-1 px-6 py-3 rounded-full text-sm font-semibold transition-all duration-200 ${
+              className={`relative z-10 flex-1 px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
                 transferType === 'p2p'
                   ? 'text-gray-900'
                   : 'text-gray-600 hover:bg-gray-200/50 hover:text-gray-800'
@@ -380,15 +427,46 @@ const UploadPage: React.FC = () => {
             >
               보안 전송
             </button>
+
+            {p2pTooltipMounted && (
+              <div
+                ref={tooltipRef}
+                className={`absolute bg-white border border-gray-200 rounded-xl shadow-lg p-4 text-sm text-gray-700 z-50 transition-all duration-300
+                  top-full left-0 right-0 mt-3
+                  md:top-1/2 md:left-full md:right-auto md:w-[32rem] md:mt-0 md:ml-3 md:-translate-y-1/2
+                  ${p2pTooltipVisible ? 'opacity-100' : 'opacity-0'}
+                `}
+              >
+                {/* Mobile: top arrow */}
+                <div className="absolute -top-[7px] right-[25%] w-3.5 h-3.5 bg-white border-l border-t border-gray-200 transform rotate-45 md:hidden" />
+                {/* PC: left arrow */}
+                <div className="hidden md:block absolute top-1/2 -left-[7px] -translate-y-1/2 w-3.5 h-3.5 bg-white border-l border-b border-gray-200 transform rotate-45" />
+                <p className="font-semibold text-blue-600 mb-2 flex items-center gap-1">
+                  <InformationCircleIcon className="w-5 h-5 text-blue-600" />
+                  안내
+                </p>
+                <p className="mb-1">• WebRTC를 사용한 1:1 직접 전송으로 파일이 서버에 저장되지 않습니다.</p>
+                <p className="mb-1">• 사설망 연결 등의 이유로 P2P 전송이 차단될 경우, TURN 서버를 통해 파일을 전송합니다. 모든 데이터는 종단간 암호화됩니다.</p>
+                <p className="mb-3">• 일회성 전송이며, 발신자와 수신자가 동시에 온라인이어야 합니다.</p>
+                <div className="border-t border-gray-100 pt-3 px-1 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => handleDismissP2PTooltip(true)}
+                    className="text-xs text-gray-400 hover:text-gray-600 underline underline-offset-2 transition-colors"
+                  >
+                    다시 보지 않기
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => closeP2PTooltip()}
+                    className="px-5 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    확인
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-          {transferType === 'p2p' && (
-            <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-xl text-sm text-gray-700">
-              <p className="font-semibold text-blue-900 mb-1">보안 전송 안내</p>
-              <p>• WebRTC를 사용한 1:1 직접 전송으로 파일이 서버에 저장되지 않습니다.</p>
-              <p>• 교육기관이나 기업 등 사설망에 연결 시 P2P 전송이 차단될 수 있습니다.</p>
-              <p>• 일회성 전송만 가능하며, 발신자와 수신자가 동시에 온라인이어야 합니다.</p>
-            </div>
-          )}
         </div>
 
         <div className="mb-10">
