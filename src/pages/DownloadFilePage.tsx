@@ -533,8 +533,8 @@ const DownloadFilePage: React.FC = () => {
             }
           `}</style>
 
-          <div className="bg-white rounded-3xl border-2 border-gray-200 p-6 md:p-10">
-            <div className="flex justify-center mb-8">
+          <div className="bg-white rounded-3xl border-2 border-gray-200 p-6 md:p-8">
+            <div className="flex justify-center mb-5">
               {loadingPreview ? (
                 <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -552,13 +552,13 @@ const DownloadFilePage: React.FC = () => {
                 </div>
               ) : singleFilePreviewUrl && singleFileThumbnail.url ? (
                 <div
-                  className="max-w-full max-h-96 overflow-hidden rounded-2xl cursor-pointer"
+                  className="max-w-full max-h-[28rem] overflow-hidden rounded-2xl cursor-pointer"
                   onClick={() => setPreviewFile({ fileName: file.file_name, fileSize: file.file_size, source: singleFilePreviewUrl! })}
                 >
                   <img
                     src={singleFileThumbnail.url}
                     alt={file.file_name}
-                    className="max-w-full max-h-96 object-contain rounded-2xl"
+                    className="max-w-full max-h-[28rem] object-contain rounded-2xl"
                   />
                 </div>
               ) : singleFilePreviewUrl ? (
@@ -575,8 +575,8 @@ const DownloadFilePage: React.FC = () => {
               )}
             </div>
 
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4 text-center break-all">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-3 text-center break-all">
                 {file.file_name}
               </h2>
               {fileList.description && (
