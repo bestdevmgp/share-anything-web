@@ -9,6 +9,7 @@ import TurnstileWidget from '../components/TurnstileWidget';
 import { useP2PDownloader } from '../hooks/useP2PDownloader';
 import FileThumbnail from '../components/FileThumbnail';
 import FilePreviewModal from '../components/FilePreviewModal';
+import { useThumbnail } from '../hooks/useThumbnail';
 
 const DownloadFilePage: React.FC = () => {
   const { code } = useParams<{ code: string }>();
@@ -57,6 +58,10 @@ const DownloadFilePage: React.FC = () => {
   }, [p2pActiveFileId]);
 
   const singleFile = fileList?.files?.length === 1 ? fileList.files[0] : null;
+  const singleFileThumbnail = useThumbnail(
+    singleFile && singleFilePreviewUrl && !isImageFile(singleFile.file_name) ? singleFilePreviewUrl : null,
+    singleFile?.file_name || ''
+  );
   const p2pActiveFile = p2pActiveFileId ? fileList?.files?.find(f => f.id === p2pActiveFileId) : singleFile;
 
   const { status: p2pStatus, progress: p2pProgress, timeRemaining: p2pTimeRemaining, peerDeviceInfo: p2pPeerDeviceInfo, reset: resetP2P, cancelDownload } = useP2PDownloader({
@@ -545,6 +550,17 @@ const DownloadFilePage: React.FC = () => {
                     className="max-w-full max-h-96 object-contain"
                   />
                 </div>
+              ) : singleFilePreviewUrl && singleFileThumbnail.url ? (
+                <div
+                  className="max-w-full max-h-96 overflow-hidden rounded-2xl cursor-pointer"
+                  onClick={() => setPreviewFile({ fileName: file.file_name, fileSize: file.file_size, source: singleFilePreviewUrl! })}
+                >
+                  <img
+                    src={singleFileThumbnail.url}
+                    alt={file.file_name}
+                    className="max-w-full max-h-96 object-contain rounded-2xl"
+                  />
+                </div>
               ) : singleFilePreviewUrl ? (
                 <div
                   className="cursor-pointer"
@@ -693,6 +709,13 @@ const DownloadFilePage: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {previewFile && (
+          <FilePreviewModal
+            file={previewFile}
+            onClose={() => setPreviewFile(null)}
+          />
+        )}
       </div>
     );
   }
