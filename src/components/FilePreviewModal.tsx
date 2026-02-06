@@ -273,8 +273,10 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
             <XMarkIcon className="w-5 h-5 text-gray-500" />
           </button>
         </div>
-        <div className="p-4 flex items-center justify-center overflow-auto max-h-[calc(85vh-4rem)]">
-          {renderContent()}
+        <div className="p-4 flex overflow-auto max-h-[calc(85vh-4rem)]">
+          <div className="m-auto">
+            {renderContent()}
+          </div>
         </div>
       </div>
     </div>
