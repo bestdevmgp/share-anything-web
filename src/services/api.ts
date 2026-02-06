@@ -108,6 +108,28 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (
+      error.response?.status === 401 &&
+      error.config?.headers?.Authorization
+    ) {
+      const url = error.config?.url || '';
+      const isPasswordEndpoint =
+        url.includes('/verify-password') ||
+        url.includes('/download') ||
+        url.includes('/preview');
+      if (!isPasswordEndpoint) {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
+        window.dispatchEvent(new Event('auth:logout'));
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const authAPI = {
   getGoogleLoginUrl: () => {
     const callbackUrl = `${window.location.origin}/auth/callback/google`;
@@ -140,7 +162,21 @@ export const authAPI = {
   },
 
   isAuthenticated: () => {
-    return !!localStorage.getItem('auth_token');
+    const token = localStorage.getItem('auth_token');
+    if (!token) return false;
+    try {
+      const parts = token.split('.');
+      if (parts.length === 3) {
+        const payload = JSON.parse(atob(parts[1]));
+        if (payload.exp && Date.now() >= payload.exp * 1000) {
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('user');
+          return false;
+        }
+      }
+    } catch {
+    }
+    return true;
   }
 };
 

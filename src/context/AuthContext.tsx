@@ -36,8 +36,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (currentUser && isAuth) {
       setUser(currentUser);
       setIsAuthenticated(true);
+    } else if (currentUser && !isAuth) {
+      authAPI.logout();
     }
     setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    const handleForcedLogout = () => {
+      setUser(null);
+      setIsAuthenticated(false);
+    };
+    window.addEventListener('auth:logout', handleForcedLogout);
+    return () => window.removeEventListener('auth:logout', handleForcedLogout);
   }, []);
 
   const login = (token: string, userData: User) => {
