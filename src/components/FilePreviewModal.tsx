@@ -5,6 +5,8 @@ import 'react-pdf/dist/Page/TextLayer.css';
 import { XMarkIcon, DocumentIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { formatFileSize, isImageFile, isVideoFile, isAudioFile, isTextFile, isPdfFile, isCsvFile, isExcelFile, isDocxFile, isHwpFile } from '../utils/format';
 import { readTextContent, getMediaUrl, getArrayBuffer } from '../utils/filePreview';
+import { GlobalWorkerOptions } from 'pdfjs-dist';
+import { PDF_WORKER_SRC } from '../utils/pdfWorkerSetup';
 
 interface FilePreviewModalProps {
   file: {
@@ -173,6 +175,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
     }
 
     if (isPdfFile(fileName) && pdfSource) {
+      GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
       return (
         <div className="flex flex-col items-center w-full">
           <Document

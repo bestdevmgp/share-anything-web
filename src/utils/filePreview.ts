@@ -15,6 +15,8 @@ export function getMediaUrl(source: File | string): string {
 
 export async function generatePdfThumbnail(source: File | string): Promise<string> {
   const { pdfjs } = await import('react-pdf');
+  const { PDF_WORKER_SRC } = await import('./pdfWorkerSetup');
+  pdfjs.GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
   const data = await getArrayBuffer(source);
   const pdf = await pdfjs.getDocument({ data }).promise;
   const page = await pdf.getPage(1);

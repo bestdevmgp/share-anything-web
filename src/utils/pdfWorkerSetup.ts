@@ -1,9 +1,10 @@
 import { GlobalWorkerOptions } from 'pdfjs-dist';
 
-const workerSrc = `${process.env.PUBLIC_URL}/pdf.worker.min.js`;
+export const PDF_WORKER_SRC =
+  'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.296/build/pdf.worker.min.mjs';
 
-GlobalWorkerOptions.workerSrc = workerSrc;
+GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
 
 Promise.resolve().then(() => {
-  GlobalWorkerOptions.workerSrc = workerSrc;
+  GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
 });
