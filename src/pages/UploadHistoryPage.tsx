@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { QRCodeSVG } from 'qrcode.react';
 import { CheckIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
 import FileThumbnail from '../components/FileThumbnail';
+import { isPdfFile } from '../utils/format';
 import FilePreviewModal from '../components/FilePreviewModal';
 
 const UploadHistoryPage: React.FC = () => {
@@ -252,7 +253,7 @@ const UploadHistoryPage: React.FC = () => {
 
   const getThumbnailSource = (upload: UploadHistoryItem): string | null => {
     if (isExpired(upload.expires_at)) return null;
-    if (isImageFileByType(upload.file_type)) {
+    if (isImageFileByType(upload.file_type) || isPdfFile(upload.file_name)) {
       return getPreviewUrl(upload.share_code, upload.id);
     }
     return null;
@@ -441,6 +442,10 @@ const UploadHistoryPage: React.FC = () => {
                                           onLoad={() => setLoadingPreviews({ ...loadingPreviews, [`expanded_${upload.id}`]: false })}
                                         />
                                       )
+                                    ) : isPdfFile(upload.file_name) ? (
+                                      <div className="flex items-center justify-center h-full bg-gray-50 p-2">
+                                        <FileThumbnail source={getPreviewUrl(upload.share_code, upload.id)} fileName={upload.file_name} size="md" />
+                                      </div>
                                     ) : (
                                       <div className="flex flex-col items-center justify-center h-full bg-gray-100 p-4 gap-4">
                                         <FileThumbnail source={null} fileName={upload.file_name} size="md" />
@@ -639,6 +644,10 @@ const UploadHistoryPage: React.FC = () => {
                               alt={upload.file_name}
                               className="w-full h-full object-contain"
                             />
+                          ) : isPdfFile(upload.file_name) ? (
+                            <div className="flex items-center justify-center h-full bg-gray-50 p-2">
+                              <FileThumbnail source={getPreviewUrl(upload.share_code, upload.id)} fileName={upload.file_name} size="md" />
+                            </div>
                           ) : (
                             <div className="flex flex-col items-center justify-center h-full bg-gray-100 p-4 gap-4">
                               <FileThumbnail source={null} fileName={upload.file_name} size="md" />
