@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userAPI } from '../services/api';
 import { UploadHistoryItem, DownloadLog } from '../types';
@@ -28,6 +28,26 @@ const UploadHistoryPage: React.FC = () => {
   const [showQRModal, setShowQRModal] = useState(false);
   const [selectedShareCode, setSelectedShareCode] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [showScrollHint, setShowScrollHint] = useState(false);
+  const logsScrollRef = useRef<HTMLDivElement>(null);
+
+  const dismissScrollHint = useCallback(() => {
+    setShowScrollHint(false);
+  }, []);
+
+  useEffect(() => {
+    if (showAllLogsModal && selectedFileForLogs) {
+      const timer = setTimeout(() => {
+        const container = logsScrollRef.current;
+        if (container && container.scrollWidth > container.clientWidth) {
+          setShowScrollHint(true);
+        }
+      }, 150);
+      return () => clearTimeout(timer);
+    } else {
+      setShowScrollHint(false);
+    }
+  }, [showAllLogsModal, selectedFileForLogs]);
 
   useEffect(() => {
     if (authLoading) {
@@ -774,7 +794,8 @@ const UploadHistoryPage: React.FC = () => {
                 </svg>
               </button>
             </div>
-            <div className="overflow-auto flex-1 rounded-b-xl">
+            <div className="relative flex-1 overflow-hidden rounded-b-xl">
+              <div ref={logsScrollRef} className="overflow-auto h-full">
               {downloadLogs[selectedFileForLogs]?.length > 0 ? (
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50 sticky top-0">
@@ -795,7 +816,7 @@ const UploadHistoryPage: React.FC = () => {
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
                     {downloadLogs[selectedFileForLogs].map((log) => (
-                      <tr key={log.id} className="hover:bg-gray-50">
+                      <tr key={log.id} className="sm:hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
                           {log.downloader_name || '익명의 사용자'}
                         </td>
@@ -815,6 +836,28 @@ const UploadHistoryPage: React.FC = () => {
               ) : (
                 <div className="text-center text-gray-500 py-8">
                   아직 다운로드 기록이 없습니다.
+                </div>
+              )}
+              </div>
+
+              {showScrollHint && (
+                <div
+                  className="absolute inset-0 bg-black/40 flex items-center justify-center cursor-pointer z-10"
+                  onClick={dismissScrollHint}
+                  onTouchStart={dismissScrollHint}
+                >
+                  <div className="flex flex-col items-center gap-3">
+                    <svg
+                      className="w-12 h-12 text-white animate-scroll-hint"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                    </svg>
+                    <span className="text-white text-sm font-medium">좌우로 스크롤하세요</span>
+                  </div>
                 </div>
               )}
             </div>
@@ -917,6 +960,15 @@ const UploadHistoryPage: React.FC = () => {
 
         .animate-collapse-up {
           animation: collapseUp 0.3s ease-in forwards;
+        }
+
+        @keyframes scrollHint {
+          0%, 100% { transform: translateX(-12px); opacity: 0.7; }
+          50% { transform: translateX(12px); opacity: 1; }
+        }
+
+        .animate-scroll-hint {
+          animation: scrollHint 1.5s ease-in-out infinite;
         }
       `}</style>
     </div>

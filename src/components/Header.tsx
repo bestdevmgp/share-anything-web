@@ -33,7 +33,7 @@ const Header: React.FC = () => {
               <Menu as="div" className="relative">
                 {({ open }) => (
                   <>
-                    <Menu.Button className="flex items-center space-x-2 hover:bg-gray-50 rounded-lg px-3 py-2 transition-colors">
+                    <Menu.Button className="flex items-center space-x-2 hover:bg-gray-50 rounded-lg px-3 py-2 transition-colors focus:outline-none">
                       {user.profile_image && (
                         <img
                           src={user.profile_image}
