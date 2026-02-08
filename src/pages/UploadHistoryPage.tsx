@@ -799,7 +799,7 @@ const UploadHistoryPage: React.FC = () => {
               </button>
             </div>
             <div className="relative flex-1 min-h-0 rounded-b-xl">
-              <div ref={logsScrollRef} className="overflow-auto h-full">
+              <div ref={logsScrollRef} className="overflow-auto absolute inset-0">
               {downloadLogs[selectedFileForLogs]?.length > 0 ? (
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50 sticky top-0">
@@ -849,16 +849,10 @@ const UploadHistoryPage: React.FC = () => {
                   className="absolute inset-0 bg-black/40 flex items-center justify-center pointer-events-none z-10"
                 >
                   <div className="flex flex-col items-center gap-3">
-                    <svg
-                      className="w-12 h-12 text-white animate-scroll-hint"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={1.5}
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
-                    </svg>
-                    <span className="text-white text-sm font-medium">좌우로 스크롤하세요</span>
+                    <div className="w-16 h-8 rounded-full bg-white/30 relative overflow-hidden">
+                      <div className="w-6 h-6 rounded-full bg-white absolute top-1 animate-scroll-hint" />
+                    </div>
+                    <span className="text-white text-sm font-medium">좌우로 스크롤하세요.</span>
                   </div>
                 </div>
               )}
@@ -965,8 +959,8 @@ const UploadHistoryPage: React.FC = () => {
         }
 
         @keyframes scrollHint {
-          0%, 100% { transform: translateX(-12px); opacity: 0.7; }
-          50% { transform: translateX(12px); opacity: 1; }
+          0%, 100% { left: 2px; }
+          50% { left: calc(100% - 26px); }
         }
 
         .animate-scroll-hint {
