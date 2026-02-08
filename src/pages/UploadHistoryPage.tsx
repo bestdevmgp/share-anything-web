@@ -798,8 +798,8 @@ const UploadHistoryPage: React.FC = () => {
                 </svg>
               </button>
             </div>
-            <div className="relative flex-1 min-h-0 rounded-b-xl">
-              <div ref={logsScrollRef} className="overflow-auto absolute inset-0">
+            <div className="relative flex-1 min-h-0 flex flex-col rounded-b-xl">
+              <div ref={logsScrollRef} className="overflow-auto flex-1 min-h-0">
               {downloadLogs[selectedFileForLogs]?.length > 0 ? (
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50 sticky top-0">
