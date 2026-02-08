@@ -60,7 +60,8 @@ const DownloadFilePage: React.FC = () => {
   const singleFile = fileList?.files?.length === 1 ? fileList.files[0] : null;
   const singleFileThumbnail = useThumbnail(
     singleFile && singleFilePreviewUrl && !isImageFile(singleFile.file_name) ? singleFilePreviewUrl : null,
-    singleFile?.file_name || ''
+    singleFile?.file_name || '',
+    600
   );
   const p2pActiveFile = p2pActiveFileId ? fileList?.files?.find(f => f.id === p2pActiveFileId) : singleFile;
 

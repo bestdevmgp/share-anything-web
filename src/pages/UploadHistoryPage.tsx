@@ -8,7 +8,27 @@ import { QRCodeSVG } from 'qrcode.react';
 import { CheckIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
 import FileThumbnail from '../components/FileThumbnail';
 import { isPdfFile } from '../utils/format';
+import { useThumbnail } from '../hooks/useThumbnail';
 import FilePreviewModal from '../components/FilePreviewModal';
+
+const PdfPreview: React.FC<{ source: string; fileName: string; width?: number }> = ({ source, fileName, width = 600 }) => {
+  const { url, loading } = useThumbnail(source, fileName, width);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full bg-gray-100">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+      </div>
+    );
+  }
+  if (url) {
+    return <img src={url} alt={fileName} className="w-full h-full object-contain" />;
+  }
+  return (
+    <div className="flex items-center justify-center h-full bg-gray-100">
+      <FileThumbnail source={null} fileName={fileName} size="md" />
+    </div>
+  );
+};
 
 const UploadHistoryPage: React.FC = () => {
   const navigate = useNavigate();
@@ -443,9 +463,7 @@ const UploadHistoryPage: React.FC = () => {
                                         />
                                       )
                                     ) : isPdfFile(upload.file_name) ? (
-                                      <div className="flex items-center justify-center h-full bg-gray-50 p-2">
-                                        <FileThumbnail source={getPreviewUrl(upload.share_code, upload.id)} fileName={upload.file_name} size="md" />
-                                      </div>
+                                      <PdfPreview source={getPreviewUrl(upload.share_code, upload.id)} fileName={upload.file_name} />
                                     ) : (
                                       <div className="flex flex-col items-center justify-center h-full bg-gray-100 p-4 gap-4">
                                         <FileThumbnail source={null} fileName={upload.file_name} size="md" />
@@ -645,9 +663,7 @@ const UploadHistoryPage: React.FC = () => {
                               className="w-full h-full object-contain"
                             />
                           ) : isPdfFile(upload.file_name) ? (
-                            <div className="flex items-center justify-center h-full bg-gray-50 p-2">
-                              <FileThumbnail source={getPreviewUrl(upload.share_code, upload.id)} fileName={upload.file_name} size="md" />
-                            </div>
+                            <PdfPreview source={getPreviewUrl(upload.share_code, upload.id)} fileName={upload.file_name} />
                           ) : (
                             <div className="flex flex-col items-center justify-center h-full bg-gray-100 p-4 gap-4">
                               <FileThumbnail source={null} fileName={upload.file_name} size="md" />

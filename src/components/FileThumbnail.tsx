@@ -10,6 +10,7 @@ interface FileThumbnailProps {
   source: File | string | null;
   fileName: string;
   size?: 'sm' | 'md';
+  thumbnailWidth?: number;
 }
 
 const sizeMap = {
@@ -22,8 +23,8 @@ const iconSizeMap = {
   md: 'w-7 h-7',
 };
 
-const FileThumbnail: React.FC<FileThumbnailProps> = ({ source, fileName, size = 'sm' }) => {
-  const { url, loading } = useThumbnail(source, fileName);
+const FileThumbnail: React.FC<FileThumbnailProps> = ({ source, fileName, size = 'sm', thumbnailWidth }) => {
+  const { url, loading } = useThumbnail(source, fileName, thumbnailWidth);
   const boxClass = sizeMap[size];
   const iconClass = iconSizeMap[size];
 

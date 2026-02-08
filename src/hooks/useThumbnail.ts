@@ -9,14 +9,14 @@ type ThumbnailResult = {
 
 const cache = new Map<string, string>();
 
-function getCacheKey(source: File | string, fileName: string): string {
+function getCacheKey(source: File | string, fileName: string, width: number): string {
   if (source instanceof File) {
-    return `file:${source.name}:${source.size}:${source.lastModified}`;
+    return `file:${source.name}:${source.size}:${source.lastModified}:${width}`;
   }
-  return `url:${fileName}:${source}`;
+  return `url:${fileName}:${source}:${width}`;
 }
 
-export function useThumbnail(source: File | string | null, fileName: string): ThumbnailResult {
+export function useThumbnail(source: File | string | null, fileName: string, thumbnailWidth = 200): ThumbnailResult {
   const [url, setUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -26,7 +26,7 @@ export function useThumbnail(source: File | string | null, fileName: string): Th
       return;
     }
 
-    const key = getCacheKey(source, fileName);
+    const key = getCacheKey(source, fileName, thumbnailWidth);
     const cached = cache.get(key);
     if (cached) {
       setUrl(cached);
@@ -47,7 +47,7 @@ export function useThumbnail(source: File | string | null, fileName: string): Th
             objectUrl = source;
           }
         } else if (isPdfFile(fileName)) {
-          objectUrl = await generatePdfThumbnail(source);
+          objectUrl = await generatePdfThumbnail(source, thumbnailWidth);
         } else if (isVideoFile(fileName)) {
           objectUrl = await generateVideoThumbnail(source);
         }
@@ -67,7 +67,7 @@ export function useThumbnail(source: File | string | null, fileName: string): Th
     return () => {
       cancelled = true;
     };
-  }, [source, fileName]);
+  }, [source, fileName, thumbnailWidth]);
 
   return { url, loading };
 }
