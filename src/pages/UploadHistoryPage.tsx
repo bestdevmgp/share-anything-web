@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userAPI } from '../services/api';
 import { UploadHistoryItem, DownloadLog } from '../types';
@@ -31,16 +31,20 @@ const UploadHistoryPage: React.FC = () => {
   const [showScrollHint, setShowScrollHint] = useState(false);
   const logsScrollRef = useRef<HTMLDivElement>(null);
 
-  const dismissScrollHint = useCallback(() => {
-    setShowScrollHint(false);
-  }, []);
-
   useEffect(() => {
     if (showAllLogsModal && selectedFileForLogs) {
       const timer = setTimeout(() => {
         const container = logsScrollRef.current;
         if (container && container.scrollWidth > container.clientWidth) {
           setShowScrollHint(true);
+
+          const dismiss = () => setShowScrollHint(false);
+          container.addEventListener('scroll', dismiss, { once: true, passive: true });
+          container.addEventListener('touchstart', dismiss, { once: true, passive: true });
+          return () => {
+            container.removeEventListener('scroll', dismiss);
+            container.removeEventListener('touchstart', dismiss);
+          };
         }
       }, 150);
       return () => clearTimeout(timer);
@@ -794,7 +798,7 @@ const UploadHistoryPage: React.FC = () => {
                 </svg>
               </button>
             </div>
-            <div className="relative flex-1 overflow-hidden rounded-b-xl">
+            <div className="relative flex-1 min-h-0 rounded-b-xl">
               <div ref={logsScrollRef} className="overflow-auto h-full">
               {downloadLogs[selectedFileForLogs]?.length > 0 ? (
                 <table className="min-w-full divide-y divide-gray-200">
@@ -842,9 +846,7 @@ const UploadHistoryPage: React.FC = () => {
 
               {showScrollHint && (
                 <div
-                  className="absolute inset-0 bg-black/40 flex items-center justify-center cursor-pointer z-10"
-                  onClick={dismissScrollHint}
-                  onTouchStart={dismissScrollHint}
+                  className="absolute inset-0 bg-black/40 flex items-center justify-center pointer-events-none z-10"
                 >
                   <div className="flex flex-col items-center gap-3">
                     <svg
