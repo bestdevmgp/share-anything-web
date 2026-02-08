@@ -434,9 +434,9 @@ const UploadPage: React.FC = () => {
                   <InformationCircleIcon className="w-5 h-5 text-blue-600" />
                   안내
                 </p>
-                <p className="mb-1">• WebRTC를 사용한 1:1 직접 전송으로 파일이 서버에 저장되지 않습니다.</p>
-                <p className="mb-1">• 사설망 연결 등의 이유로 P2P 전송이 차단될 경우, TURN 서버를 통해 파일을 전송합니다. 모든 데이터는 종단간 암호화됩니다.</p>
-                <p className="mb-3">• 일회성 전송이며, 발신자와 수신자가 동시에 온라인이어야 합니다.</p>
+                <p className="mb-1 flex"><span className="flex-shrink-0 mr-1.5">•</span><span>WebRTC를 사용한 1:1 직접 전송으로 파일이 서버에 저장되지 않습니다.</span></p>
+                <p className="mb-1 flex"><span className="flex-shrink-0 mr-1.5">•</span><span>사설망 연결 등의 이유로 P2P 전송이 차단될 경우, TURN 서버를 통해 파일을 전송합니다. 모든 데이터는 종단간 암호화됩니다.</span></p>
+                <p className="mb-3 flex"><span className="flex-shrink-0 mr-1.5">•</span><span>일회성 전송이며, 발신자와 수신자가 동시에 온라인이어야 합니다.</span></p>
                 <div className="border-t border-gray-100 pt-3 px-1 flex items-center justify-between">
                   <button
                     type="button"

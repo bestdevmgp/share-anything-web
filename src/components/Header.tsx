@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { toast } from '../context/ToastContext';
-import { Menu } from '@headlessui/react';
+import { Menu, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 
 const Header: React.FC = () => {
@@ -44,7 +44,15 @@ const Header: React.FC = () => {
                       <span className="text-sm text-gray-700">{user.name}</span>
                       <ChevronDownIcon className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
                     </Menu.Button>
-                    <Menu.Items className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 focus:outline-none z-50">
+                    <Transition
+                      enter="transition ease-out duration-200"
+                      enterFrom="transform opacity-0 scale-95 -translate-y-2"
+                      enterTo="transform opacity-100 scale-100 translate-y-0"
+                      leave="transition ease-in duration-150"
+                      leaveFrom="transform opacity-100 scale-100 translate-y-0"
+                      leaveTo="transform opacity-0 scale-95 -translate-y-2"
+                    >
+                    <Menu.Items className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 focus:outline-none z-50 origin-top-right">
                   <Menu.Item>
                     {({ active }) => (
                       <button
@@ -70,6 +78,7 @@ const Header: React.FC = () => {
                     )}
                   </Menu.Item>
                     </Menu.Items>
+                    </Transition>
                   </>
                 )}
               </Menu>

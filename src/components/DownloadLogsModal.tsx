@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { userAPI } from '../services/api';
 import { DownloadLog } from '../types';
 import { toast } from '../context/ToastContext';
@@ -11,10 +11,30 @@ interface DownloadLogsModalProps {
 const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }) => {
   const [logs, setLogs] = useState<DownloadLog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showScrollHint, setShowScrollHint] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchDownloadLogs();
   }, [fileId]);
+
+  // Check if horizontal scroll is needed after logs load
+  useEffect(() => {
+    if (!loading && logs.length > 0) {
+      // Wait for DOM to render
+      const timer = setTimeout(() => {
+        const container = scrollContainerRef.current;
+        if (container && container.scrollWidth > container.clientWidth) {
+          setShowScrollHint(true);
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, logs]);
+
+  const dismissScrollHint = useCallback(() => {
+    setShowScrollHint(false);
+  }, []);
 
   const fetchDownloadLogs = async () => {
     try {
@@ -78,43 +98,67 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
                 <p className="text-gray-500">아직 다운로드 기록이 없습니다.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        다운로드한 사람
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        IP 주소
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        플랫폼
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        다운로드 날짜
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {logs.map((log) => (
-                      <tr key={log.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {log.downloader_name || '익명'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {log.ip_address}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {log.device_platform}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(log.downloaded_at)}
-                        </td>
+              <div className="relative">
+                <div ref={scrollContainerRef} className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          다운로드한 사람
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          IP 주소
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          플랫폼
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          다운로드 날짜
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {logs.map((log) => (
+                        <tr key={log.id}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {log.downloader_name || '익명'}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {log.ip_address}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {log.device_platform}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {formatDate(log.downloaded_at)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Scroll hint overlay */}
+                {showScrollHint && (
+                  <div
+                    className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center cursor-pointer"
+                    onClick={dismissScrollHint}
+                    onTouchStart={dismissScrollHint}
+                  >
+                    <div className="flex flex-col items-center gap-3">
+                      <svg
+                        className="w-12 h-12 text-white animate-scroll-hint-hand"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={1.5}
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                      </svg>
+                      <span className="text-white text-sm font-medium">좌우로 스크롤하세요</span>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -131,6 +175,16 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
           </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes scroll-hint-hand {
+          0%, 100% { transform: translateX(-12px); opacity: 0.7; }
+          50% { transform: translateX(12px); opacity: 1; }
+        }
+        .animate-scroll-hint-hand {
+          animation: scroll-hint-hand 1.5s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 };
