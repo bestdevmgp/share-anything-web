@@ -18,10 +18,8 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
     fetchDownloadLogs();
   }, [fileId]);
 
-  // Check if horizontal scroll is needed after logs load
   useEffect(() => {
     if (!loading && logs.length > 0) {
-      // Wait for DOM to render
       const timer = setTimeout(() => {
         const container = scrollContainerRef.current;
         if (container && container.scrollWidth > container.clientWidth) {
@@ -69,7 +67,7 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
 
         {/* Modal panel */}
         <div
-          className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full"
+          className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all max-w-full sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}

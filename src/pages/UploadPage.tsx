@@ -416,7 +416,7 @@ const UploadPage: React.FC = () => {
             {p2pTooltipMounted && (
               <div
                 ref={tooltipRef}
-                className={`absolute bg-white border border-gray-200 rounded-xl shadow-lg p-4 text-sm text-gray-700 z-50 transition-all duration-300
+                className={`absolute bg-white border border-gray-200 rounded-xl shadow-lg p-4 text-sm text-gray-700 z-50 transition-all duration-300 break-keep
                   ${tooltipPosition === 'bottom'
                     ? 'top-full left-0 right-0 mt-3'
                     : 'top-1/2 left-full w-[32rem] ml-3 -translate-y-1/2'

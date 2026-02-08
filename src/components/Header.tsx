@@ -46,13 +46,13 @@ const Header: React.FC = () => {
                     </Menu.Button>
                     <Transition
                       enter="transition ease-out duration-200"
-                      enterFrom="transform opacity-0 scale-95 -translate-y-2"
-                      enterTo="transform opacity-100 scale-100 translate-y-0"
+                      enterFrom="opacity-0 -translate-y-1"
+                      enterTo="opacity-100 translate-y-0"
                       leave="transition ease-in duration-150"
-                      leaveFrom="transform opacity-100 scale-100 translate-y-0"
-                      leaveTo="transform opacity-0 scale-95 -translate-y-2"
+                      leaveFrom="opacity-100 translate-y-0"
+                      leaveTo="opacity-0 -translate-y-1"
                     >
-                    <Menu.Items className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 focus:outline-none z-50 origin-top-right">
+                    <Menu.Items className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 focus:outline-none z-50">
                   <Menu.Item>
                     {({ active }) => (
                       <button
