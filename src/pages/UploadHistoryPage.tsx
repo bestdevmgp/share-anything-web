@@ -15,7 +15,7 @@ const PdfPreview: React.FC<{ source: string; fileName: string; width?: number }>
   const { url, loading } = useThumbnail(source, fileName, width);
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full bg-gray-100">
+      <div className="flex items-center justify-center h-full bg-gray-100 dark:bg-white/5">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
       </div>
     );
@@ -24,7 +24,7 @@ const PdfPreview: React.FC<{ source: string; fileName: string; width?: number }>
     return <img src={url} alt={fileName} className="w-full h-full object-contain" />;
   }
   return (
-    <div className="flex items-center justify-center h-full bg-gray-100">
+    <div className="flex items-center justify-center h-full bg-gray-100 dark:bg-white/5">
       <FileThumbnail source={null} fileName={fileName} size="md" />
     </div>
   );
@@ -296,10 +296,10 @@ const UploadHistoryPage: React.FC = () => {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#010001]">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-          <div className="text-gray-500">로딩 중...</div>
+          <div className="text-gray-500 dark:text-[#888888]">로딩 중...</div>
         </div>
       </div>
     );
@@ -308,13 +308,13 @@ const UploadHistoryPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 md:pt-16 pb-32">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">업로드 기록</h1>
-        <p className="text-gray-600 mt-2">유효한 파일이 총 {uploads.filter(u => !isExpired(u.expires_at)).length}개 있습니다.</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-[#EDEDED]">업로드 기록</h1>
+        <p className="text-gray-600 dark:text-[#888888] mt-2">유효한 파일이 총 {uploads.filter(u => !isExpired(u.expires_at)).length}개 있습니다.</p>
       </div>
 
       {uploads.length === 0 ? (
-        <div className="bg-white rounded-lg shadow p-12 text-center">
-          <p className="text-gray-500">유효한 공유 파일이 없습니다.</p>
+        <div className="bg-white rounded-lg shadow p-12 text-center dark:bg-[#0B0A0B] dark:shadow-none dark:border dark:border-white/10">
+          <p className="text-gray-500 dark:text-[#888888]">유효한 공유 파일이 없습니다.</p>
           <button
             onClick={() => navigate('/upload')}
             className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold"
@@ -324,9 +324,9 @@ const UploadHistoryPage: React.FC = () => {
         </div>
       ) : (
         <>
-          <div className="hidden md:block bg-white rounded-xl border-[3px] border-gray-100 overflow-hidden">
+          <div className="hidden md:block bg-white rounded-xl border-[3px] border-gray-100 dark:bg-[#0B0A0B] dark:border-white/10 overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 table-fixed">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-white/10 table-fixed">
                 <colgroup>
                   <col style={{ width: '30%' }} />
                   <col style={{ width: '10%' }} />
@@ -336,72 +336,72 @@ const UploadHistoryPage: React.FC = () => {
                   <col style={{ width: '10%' }} />
                   <col style={{ width: '10%' }} />
                 </colgroup>
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-50 dark:bg-white/5">
                   <tr>
-                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
+                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap align-middle">
                       파일명
                     </th>
-                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
+                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap align-middle">
                       크기
                     </th>
-                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
+                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap align-middle">
                       업로드 일시
                     </th>
-                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
+                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap align-middle">
                       만료 기한
                     </th>
-                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
+                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap align-middle">
                       다운로드
                     </th>
-                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
+                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap align-middle">
                       상태
                     </th>
-                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap align-middle">
+                    <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap align-middle">
                       작업
                     </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white divide-y divide-gray-200 dark:bg-[#0B0A0B] dark:divide-white/10">
                   {uploads.map((upload) => (
                     <React.Fragment key={upload.id}>
                       <tr
                         onClick={() => handleRowClick(upload.id)}
-                        className={`cursor-pointer transition-colors bg-white hover:bg-gray-50 ${expandedRow === upload.id ? 'bg-blue-50' : ''}`}
+                        className={`cursor-pointer transition-colors bg-white hover:bg-gray-50 dark:bg-[#0B0A0B] dark:hover:bg-white/5 ${expandedRow === upload.id ? 'bg-blue-50 dark:bg-blue-500/10' : ''}`}
                       >
                         <td className="px-6 py-4 max-w-0">
                           <div className="flex items-center space-x-3 overflow-hidden">
                             <FileThumbnail source={getThumbnailSource(upload)} fileName={upload.file_name} size="md" />
                             <div className="min-w-0 flex-1">
-                              <div className="text-sm font-medium text-gray-900" title={upload.file_name}>
+                              <div className="text-sm font-medium text-gray-900 dark:text-[#EDEDED]" title={upload.file_name}>
                                 {truncateFileName(upload.file_name)}
                               </div>
                               {upload.description && (
-                                <div className="text-sm text-gray-500 truncate">
+                                <div className="text-sm text-gray-500 dark:text-[#888888] truncate">
                                   {upload.description}
                                 </div>
                               )}
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#888888] text-center">
                           {formatFileSize(upload.file_size)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#888888] text-center">
                           {formatDate(upload.created_at)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#888888] text-center">
                           {formatDate(upload.expires_at)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-[#EDEDED] text-center">
                           {upload.download_count}회
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-center">
                           {isExpired(upload.expires_at) ? (
-                            <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                            <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-400">
                               만료됨
                             </span>
                           ) : (
-                            <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-500/15 dark:text-green-400">
                               유효함
                             </span>
                           )}
@@ -411,7 +411,7 @@ const UploadHistoryPage: React.FC = () => {
                             {!isExpired(upload.expires_at) && (
                               <button
                                 onClick={(e) => handleShowQRCode(upload.share_code, e)}
-                                className="p-2 text-gray-700 hover:bg-gray-200 rounded transition-colors"
+                                className="p-2 text-gray-700 hover:bg-gray-200 dark:text-[#888888] dark:hover:bg-white/10 rounded transition-colors"
                                 title="QR 코드"
                               >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -422,7 +422,7 @@ const UploadHistoryPage: React.FC = () => {
                             )}
                             <button
                               onClick={(e) => handleDelete(upload.id, e)}
-                              className="p-2 text-gray-700 hover:text-red-600 hover:bg-gray-200 rounded transition-colors"
+                              className="p-2 text-gray-700 hover:text-red-600 hover:bg-gray-200 dark:text-[#888888] dark:hover:text-red-400 dark:hover:bg-white/10 rounded transition-colors"
                               title="삭제"
                             >
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -435,22 +435,22 @@ const UploadHistoryPage: React.FC = () => {
 
                       {(expandedRow === upload.id || closingRow === upload.id) && (
                         <tr>
-                          <td colSpan={7} className="px-6" style={{ backgroundColor: '#F9FAFB' }}>
+                          <td colSpan={7} className="px-6 bg-[#F9FAFB] dark:bg-[#010001]">
                             <div className={`py-6 ${closingRow === upload.id ? 'animate-collapse-up' : 'animate-expand-down'}`}>
                               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                                 <div className="h-0 min-h-full flex flex-col overflow-hidden">
-                                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex-shrink-0">미리보기</h3>
+                                  <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-4 flex-shrink-0">미리보기</h3>
                                   <div
-                                    className="bg-white rounded-lg border border-gray-200 overflow-hidden w-full flex-1 max-w-md cursor-pointer hover:border-blue-300 transition-colors"
+                                    className="bg-white rounded-lg border border-gray-200 overflow-hidden w-full flex-1 max-w-md cursor-pointer hover:border-blue-300 dark:bg-[#0B0A0B] dark:border-white/10 dark:hover:border-blue-500/50 transition-colors"
                                     onClick={(e) => { e.stopPropagation(); openPreviewModal(upload); }}
                                   >
                                     {isExpired(upload.expires_at) ? (
-                                      <div className="flex items-center justify-center h-full bg-gray-50">
-                                        <p className="text-sm text-gray-500 text-center px-4">만료된 파일입니다.</p>
+                                      <div className="flex items-center justify-center h-full bg-gray-50 dark:bg-white/5">
+                                        <p className="text-sm text-gray-500 dark:text-[#888888] text-center px-4">만료된 파일입니다.</p>
                                       </div>
                                     ) : isImageFileByType(upload.file_type) ? (
                                       loadingPreviews[`expanded_${upload.id}`] ? (
-                                        <div className="flex items-center justify-center h-full bg-gray-100">
+                                        <div className="flex items-center justify-center h-full bg-gray-100 dark:bg-white/5">
                                           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                                         </div>
                                       ) : (
@@ -465,9 +465,9 @@ const UploadHistoryPage: React.FC = () => {
                                     ) : isPdfFile(upload.file_name) ? (
                                       <PdfPreview source={getPreviewUrl(upload.share_code, upload.id)} fileName={upload.file_name} />
                                     ) : (
-                                      <div className="flex flex-col items-center justify-center h-full bg-gray-100 p-4 gap-4">
+                                      <div className="flex flex-col items-center justify-center h-full bg-gray-100 dark:bg-white/5 p-4 gap-4">
                                         <FileThumbnail source={null} fileName={upload.file_name} size="md" />
-                                        <p className="text-sm text-gray-500 text-center">클릭하여 미리보기</p>
+                                        <p className="text-sm text-gray-500 dark:text-[#888888] text-center">클릭하여 미리보기</p>
                                       </div>
                                     )}
                                   </div>
@@ -475,86 +475,86 @@ const UploadHistoryPage: React.FC = () => {
 
                                 <div className="lg:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-4">
                                   <div className="flex flex-col">
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-4">상세 정보</h3>
-                                    <div className="bg-white rounded-lg border border-gray-200 p-4 grid grid-cols-2 gap-x-6 gap-y-3">
+                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">상세 정보</h3>
+                                    <div className="bg-white rounded-lg border border-gray-200 dark:bg-[#0B0A0B] dark:border-white/10 p-4 grid grid-cols-2 gap-x-6 gap-y-3">
                                       <div className="col-span-2">
-                                        <span className="text-sm font-medium text-gray-500">파일명</span>
-                                        <p className="text-sm text-gray-900 break-all">{upload.file_name}</p>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">파일명</span>
+                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED] break-all">{upload.file_name}</p>
                                       </div>
                                       <div className="col-span-2">
-                                        <span className="text-sm font-medium text-gray-500">설명</span>
-                                        <p className="text-sm text-gray-900 break-words whitespace-pre-wrap">{upload.description || '없음'}</p>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">설명</span>
+                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED] break-words whitespace-pre-wrap">{upload.description || '없음'}</p>
                                       </div>
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500">파일 타입</span>
-                                        <p className="text-sm text-gray-900">{upload.file_type}</p>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">파일 타입</span>
+                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED]">{upload.file_type}</p>
                                       </div>
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500">파일 크기</span>
-                                        <p className="text-sm text-gray-900">{formatFileSize(upload.file_size)}</p>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">파일 크기</span>
+                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED]">{formatFileSize(upload.file_size)}</p>
                                       </div>
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500">공유 코드</span>
-                                        <p className="text-sm text-gray-900 font-mono">{upload.share_code}</p>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">공유 코드</span>
+                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED] font-mono">{upload.share_code}</p>
                                       </div>
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500">비밀번호</span>
-                                        <p className="text-sm text-gray-900">{upload.has_password ? '있음' : '없음'}</p>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">비밀번호</span>
+                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED]">{upload.has_password ? '있음' : '없음'}</p>
                                       </div>
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500">일회용 공유</span>
-                                        <p className="text-sm text-gray-900">{upload.is_one_time ? '예' : '아니요'}</p>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">일회용 공유</span>
+                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED]">{upload.is_one_time ? '예' : '아니요'}</p>
                                       </div>
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500">다운로드 횟수</span>
-                                        <p className="text-sm text-gray-900">{upload.download_count}회</p>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">다운로드 횟수</span>
+                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED]">{upload.download_count}회</p>
                                       </div>
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500">업로드 날짜</span>
-                                        <p className="text-sm text-gray-900">{formatDate(upload.created_at)}</p>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">업로드 날짜</span>
+                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED]">{formatDate(upload.created_at)}</p>
                                       </div>
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500">만료 날짜</span>
-                                        <p className="text-sm text-gray-900">{formatDate(upload.expires_at)}</p>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">만료 날짜</span>
+                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED]">{formatDate(upload.expires_at)}</p>
                                       </div>
                                     </div>
                                   </div>
 
                                   <div className="h-0 min-h-full flex flex-col overflow-hidden">
                                     <div className="flex items-center justify-between mb-4 flex-shrink-0">
-                                      <h3 className="text-lg font-semibold text-gray-900">다운로드 기록</h3>
+                                      <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED]">다운로드 기록</h3>
                                       {downloadLogs[upload.id]?.length > 3 && (
                                         <button
                                           onClick={(e) => handleViewAllLogs(upload.id, e)}
-                                          className="px-3 py-1.5 text-sm text-gray-700 rounded hover:bg-gray-200 transition-colors font-medium"
+                                          className="px-3 py-1.5 text-sm text-gray-700 rounded hover:bg-gray-200 dark:text-[#888888] dark:hover:bg-white/10 transition-colors font-medium"
                                         >
                                           전체보기
                                         </button>
                                       )}
                                     </div>
-                                    <div className="bg-white rounded-lg border border-gray-200 p-4 flex-1 flex flex-col min-h-0 overflow-hidden">
+                                    <div className="bg-white rounded-lg border border-gray-200 dark:bg-[#0B0A0B] dark:border-white/10 p-4 flex-1 flex flex-col min-h-0 overflow-hidden">
                                       {loadingLogs[upload.id] ? (
-                                        <div className="text-sm text-gray-500 text-center py-4 flex-1 flex items-center justify-center">로딩 중...</div>
+                                        <div className="text-sm text-gray-500 dark:text-[#888888] text-center py-4 flex-1 flex items-center justify-center">로딩 중...</div>
                                       ) : downloadLogs[upload.id]?.length > 0 ? (
                                         <div className="space-y-4 overflow-y-auto pr-2 flex-1">
                                           {downloadLogs[upload.id].map((log) => (
                                             <div
                                               key={log.id}
-                                              className="text-sm border-b border-gray-100 pb-4 last:border-0 last:pb-0"
+                                              className="text-sm border-b border-gray-100 dark:border-white/10 pb-4 last:border-0 last:pb-0"
                                             >
                                               <div className="flex justify-between items-start gap-4">
                                                 <div className="min-w-0 flex-1">
-                                                  <p className="font-medium text-gray-900">
+                                                  <p className="font-medium text-gray-900 dark:text-[#EDEDED]">
                                                     {log.downloader_name || '익명의 사용자'}
                                                   </p>
-                                                  <p className="text-gray-500 text-xs mt-2">
+                                                  <p className="text-gray-500 dark:text-[#888888] text-xs mt-2">
                                                     {log.device_platform}
                                                   </p>
-                                                  <p className="text-gray-500 text-xs">
+                                                  <p className="text-gray-500 dark:text-[#888888] text-xs">
                                                     {log.ip_address}
                                                   </p>
                                                 </div>
-                                                <p className="text-xs text-gray-500 whitespace-nowrap flex-shrink-0">
+                                                <p className="text-xs text-gray-500 dark:text-[#888888] whitespace-nowrap flex-shrink-0">
                                                   {formatDate(log.downloaded_at)}
                                                 </p>
                                               </div>
@@ -562,7 +562,7 @@ const UploadHistoryPage: React.FC = () => {
                                           ))}
                                         </div>
                                       ) : (
-                                        <div className="text-sm text-gray-500 text-center py-4 flex-1 flex items-center justify-center">
+                                        <div className="text-sm text-gray-500 dark:text-[#888888] text-center py-4 flex-1 flex items-center justify-center">
                                           아직 다운로드 기록이 없습니다.
                                         </div>
                                       )}
@@ -583,13 +583,13 @@ const UploadHistoryPage: React.FC = () => {
 
           <div className="md:hidden space-y-2">
             {uploads.map((upload) => (
-              <div key={upload.id} className="bg-white rounded-xl border-[3px] border-gray-100 overflow-hidden">
+              <div key={upload.id} className="bg-white rounded-xl border-[3px] border-gray-100 dark:bg-[#0B0A0B] dark:border-white/10 overflow-hidden">
                 <div className="relative">
                   <div className="absolute top-1/2 -translate-y-1/2 right-3 flex gap-1 z-10">
                     {!isExpired(upload.expires_at) && (
                       <button
                         onClick={(e) => handleShowQRCode(upload.share_code, e)}
-                        className="p-2 text-gray-700 hover:bg-gray-200 rounded transition-colors"
+                        className="p-2 text-gray-700 hover:bg-gray-200 dark:text-[#888888] dark:hover:bg-white/10 rounded transition-colors"
                         title="QR 코드"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -600,7 +600,7 @@ const UploadHistoryPage: React.FC = () => {
                     )}
                     <button
                       onClick={(e) => handleDelete(upload.id, e)}
-                      className="p-2 text-gray-700 hover:text-red-600 hover:bg-gray-200 rounded transition-colors"
+                      className="p-2 text-gray-700 hover:text-red-600 hover:bg-gray-200 dark:text-[#888888] dark:hover:text-red-400 dark:hover:bg-white/10 rounded transition-colors"
                       title="삭제"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -611,27 +611,27 @@ const UploadHistoryPage: React.FC = () => {
 
                   <div
                     onClick={() => handleRowClick(upload.id)}
-                    className={`p-4 cursor-pointer ${expandedRow === upload.id ? 'bg-blue-50' : ''}`}
+                    className={`p-4 cursor-pointer ${expandedRow === upload.id ? 'bg-blue-50 dark:bg-blue-500/10' : ''}`}
                   >
                     <div className="flex items-center space-x-3 pr-20">
                     <FileThumbnail source={getThumbnailSource(upload)} fileName={upload.file_name} size="md" />
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-medium text-gray-900" title={upload.file_name}>
+                      <h3 className="text-sm font-medium text-gray-900 dark:text-[#EDEDED]" title={upload.file_name}>
                         {truncateFileName(upload.file_name, 25)}
                       </h3>
-                      <div className="mt-1 flex items-center space-x-2 text-xs text-gray-500">
+                      <div className="mt-1 flex items-center space-x-2 text-xs text-gray-500 dark:text-[#888888]">
                         <span>{formatFileSize(upload.file_size)}</span>
                         <span>•</span>
                         <span>{upload.download_count}회</span>
                         <span>•</span>
                         {isExpired(upload.expires_at) ? (
-                          <span className="text-red-600 font-medium">만료됨</span>
+                          <span className="text-red-600 dark:text-red-400 font-medium">만료됨</span>
                         ) : (
-                          <span className="text-green-600 font-medium">유효함</span>
+                          <span className="text-green-600 dark:text-green-400 font-medium">유효함</span>
                         )}
                       </div>
                       {upload.description && (
-                        <p className="mt-1 text-xs text-gray-500 line-clamp-2 overflow-hidden text-ellipsis">
+                        <p className="mt-1 text-xs text-gray-500 dark:text-[#888888] line-clamp-2 overflow-hidden text-ellipsis">
                           {upload.description}
                         </p>
                       )}
@@ -641,20 +641,20 @@ const UploadHistoryPage: React.FC = () => {
               </div>
 
                 {(expandedRow === upload.id || closingRow === upload.id) && (
-                  <div className={`border-t border-gray-200 p-4 ${closingRow === upload.id ? 'animate-collapse-up' : 'animate-expand-down'}`} style={{ backgroundColor: '#F9FAFB' }}>
+                  <div className={`border-t border-gray-200 dark:border-white/10 p-4 bg-[#F9FAFB] dark:bg-[#010001] ${closingRow === upload.id ? 'animate-collapse-up' : 'animate-expand-down'}`}>
                     <div className="space-y-4">
                       <div>
-                        <h4 className="text-sm font-semibold text-gray-900 mb-2">미리보기</h4>
+                        <h4 className="text-sm font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">미리보기</h4>
                         <div
-                          className={`bg-white rounded-lg border border-gray-200 overflow-hidden cursor-pointer hover:border-blue-300 transition-colors ${
+                          className={`bg-white rounded-lg border border-gray-200 overflow-hidden cursor-pointer hover:border-blue-300 dark:bg-[#0B0A0B] dark:border-white/10 dark:hover:border-blue-500/50 transition-colors ${
                             isExpired(upload.expires_at) ? 'h-28' :
                             isImageFileByType(upload.file_type) ? 'aspect-square' : 'h-32'
                           }`}
                           onClick={() => openPreviewModal(upload)}
                         >
                           {isExpired(upload.expires_at) ? (
-                            <div className="flex items-center justify-center h-full bg-gray-50">
-                              <p className="text-xs text-gray-500 text-center px-4">만료된 파일입니다.</p>
+                            <div className="flex items-center justify-center h-full bg-gray-50 dark:bg-white/5">
+                              <p className="text-xs text-gray-500 dark:text-[#888888] text-center px-4">만료된 파일입니다.</p>
                             </div>
                           ) : isImageFileByType(upload.file_type) ? (
                             <img
@@ -665,79 +665,79 @@ const UploadHistoryPage: React.FC = () => {
                           ) : isPdfFile(upload.file_name) ? (
                             <PdfPreview source={getPreviewUrl(upload.share_code, upload.id)} fileName={upload.file_name} />
                           ) : (
-                            <div className="flex flex-col items-center justify-center h-full bg-gray-100 p-4 gap-4">
+                            <div className="flex flex-col items-center justify-center h-full bg-gray-100 dark:bg-white/5 p-4 gap-4">
                               <FileThumbnail source={null} fileName={upload.file_name} size="md" />
-                              <p className="text-xs text-gray-500 text-center">클릭하여 미리보기</p>
+                              <p className="text-xs text-gray-500 dark:text-[#888888] text-center">클릭하여 미리보기</p>
                             </div>
                           )}
                         </div>
                       </div>
 
                       <div>
-                        <h4 className="text-sm font-semibold text-gray-900 mb-2">상세 정보</h4>
-                        <div className="bg-white rounded-lg border border-gray-200 p-3 space-y-2 text-xs">
+                        <h4 className="text-sm font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">상세 정보</h4>
+                        <div className="bg-white rounded-lg border border-gray-200 dark:bg-[#0B0A0B] dark:border-white/10 p-3 space-y-2 text-xs">
                           <div>
-                            <span className="text-gray-500">파일 타입:</span>
-                            <span className="ml-2 text-gray-900">{upload.file_type}</span>
+                            <span className="text-gray-500 dark:text-[#888888]">파일 타입:</span>
+                            <span className="ml-2 text-gray-900 dark:text-[#EDEDED]">{upload.file_type}</span>
                           </div>
                           <div>
-                            <span className="text-gray-500">공유 코드:</span>
-                            <span className="ml-2 text-gray-900 font-mono">{upload.share_code}</span>
+                            <span className="text-gray-500 dark:text-[#888888]">공유 코드:</span>
+                            <span className="ml-2 text-gray-900 dark:text-[#EDEDED] font-mono">{upload.share_code}</span>
                           </div>
                           <div>
-                            <span className="text-gray-500">비밀번호:</span>
-                            <span className="ml-2 text-gray-900">{upload.has_password ? '있음' : '없음'}</span>
+                            <span className="text-gray-500 dark:text-[#888888]">비밀번호:</span>
+                            <span className="ml-2 text-gray-900 dark:text-[#EDEDED]">{upload.has_password ? '있음' : '없음'}</span>
                           </div>
                           <div>
-                            <span className="text-gray-500">일회용 공유:</span>
-                            <span className="ml-2 text-gray-900">{upload.is_one_time ? '예' : '아니요'}</span>
+                            <span className="text-gray-500 dark:text-[#888888]">일회용 공유:</span>
+                            <span className="ml-2 text-gray-900 dark:text-[#EDEDED]">{upload.is_one_time ? '예' : '아니요'}</span>
                           </div>
                           <div>
-                            <div className="text-gray-500 mb-1">설명:</div>
-                            <div className="text-gray-900 break-words whitespace-pre-wrap">{upload.description || '없음'}</div>
+                            <div className="text-gray-500 dark:text-[#888888] mb-1">설명:</div>
+                            <div className="text-gray-900 dark:text-[#EDEDED] break-words whitespace-pre-wrap">{upload.description || '없음'}</div>
                           </div>
                           <div>
-                            <span className="text-gray-500">업로드:</span>
-                            <span className="ml-2 text-gray-900">{formatDate(upload.created_at)}</span>
+                            <span className="text-gray-500 dark:text-[#888888]">업로드:</span>
+                            <span className="ml-2 text-gray-900 dark:text-[#EDEDED]">{formatDate(upload.created_at)}</span>
                           </div>
                           <div>
-                            <span className="text-gray-500">만료:</span>
-                            <span className="ml-2 text-gray-900">{formatDate(upload.expires_at)}</span>
+                            <span className="text-gray-500 dark:text-[#888888]">만료:</span>
+                            <span className="ml-2 text-gray-900 dark:text-[#EDEDED]">{formatDate(upload.expires_at)}</span>
                           </div>
                         </div>
                       </div>
 
                       <div>
                         <div className="flex items-center justify-between mb-2">
-                          <h4 className="text-sm font-semibold text-gray-900">다운로드 기록</h4>
+                          <h4 className="text-sm font-semibold text-gray-900 dark:text-[#EDEDED]">다운로드 기록</h4>
                           {downloadLogs[upload.id]?.length > 2 && (
                             <button
                               onClick={(e) => handleViewAllLogs(upload.id, e)}
-                              className="px-2 py-1 text-xs text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                              className="px-2 py-1 text-xs text-gray-700 rounded hover:bg-gray-200 dark:text-[#888888] dark:hover:bg-white/10 transition-colors"
                             >
                               전체보기
                             </button>
                           )}
                         </div>
-                        <div className="bg-white rounded-lg border border-gray-200 p-4">
+                        <div className="bg-white rounded-lg border border-gray-200 dark:bg-[#0B0A0B] dark:border-white/10 p-4">
                           {loadingLogs[upload.id] ? (
-                            <div className="h-20 flex items-center justify-center text-xs text-gray-500 text-center">로딩 중...</div>
+                            <div className="h-20 flex items-center justify-center text-xs text-gray-500 dark:text-[#888888] text-center">로딩 중...</div>
                           ) : downloadLogs[upload.id]?.length > 0 ? (
                             <div className="space-y-4 overflow-y-auto pr-1" style={{
                               maxHeight: downloadLogs[upload.id].length <= 2 ? 'none' : '240px'
                             }}>
                               {downloadLogs[upload.id].map((log) => (
-                                <div key={log.id} className="text-xs border-b border-gray-100 pb-4 last:border-0 last:pb-0">
-                                  <p className="font-medium text-gray-900">{log.downloader_name || '익명의 사용자'}</p>
-                                  <p className="text-gray-500 mt-2">
+                                <div key={log.id} className="text-xs border-b border-gray-100 dark:border-white/10 pb-4 last:border-0 last:pb-0">
+                                  <p className="font-medium text-gray-900 dark:text-[#EDEDED]">{log.downloader_name || '익명의 사용자'}</p>
+                                  <p className="text-gray-500 dark:text-[#888888] mt-2">
                                     {log.device_platform} • {log.ip_address}
                                   </p>
-                                  <p className="text-gray-500 mt-2">{formatDate(log.downloaded_at)}</p>
+                                  <p className="text-gray-500 dark:text-[#888888] mt-2">{formatDate(log.downloaded_at)}</p>
                                 </div>
                               ))}
                             </div>
                           ) : (
-                            <div className="h-20 flex items-center justify-center text-xs text-gray-500 text-center">
+                            <div className="h-20 flex items-center justify-center text-xs text-gray-500 dark:text-[#888888] text-center">
                               아직 다운로드 기록이 없습니다.
                             </div>
                           )}
@@ -751,26 +751,26 @@ const UploadHistoryPage: React.FC = () => {
           </div>
 
           {totalPages > 1 && (
-            <div className="flex items-center justify-between px-4 py-3 bg-white sm:px-6 mt-4 rounded-lg border-[3px] border-gray-100">
+            <div className="flex items-center justify-between px-4 py-3 bg-white sm:px-6 mt-4 rounded-lg border-[3px] border-gray-100 dark:bg-[#0B0A0B] dark:border-white/10">
               <div className="flex-1 flex justify-between sm:hidden">
                 <button
                   onClick={handlePreviousPage}
                   disabled={offset === 0}
-                  className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:border-white/15 dark:text-[#EDEDED] dark:bg-[#0B0A0B] dark:hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   이전
                 </button>
                 <button
                   onClick={handleNextPage}
                   disabled={offset + limit >= total}
-                  className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:border-white/15 dark:text-[#EDEDED] dark:bg-[#0B0A0B] dark:hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   다음
                 </button>
               </div>
               <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-sm text-gray-700">
+                  <p className="text-sm text-gray-700 dark:text-[#EDEDED]">
                     전체 <span className="font-medium">{total}</span>개 중{' '}
                     <span className="font-medium">{offset + 1}</span>-
                     <span className="font-medium">{Math.min(offset + limit, total)}</span>개 표시
@@ -781,20 +781,20 @@ const UploadHistoryPage: React.FC = () => {
                     <button
                       onClick={handlePreviousPage}
                       disabled={offset === 0}
-                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-white/15 dark:bg-[#0B0A0B] dark:text-[#888888] dark:hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <span className="sr-only">이전</span>
                       <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </button>
-                    <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                    <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 dark:border-white/15 dark:bg-[#0B0A0B] dark:text-[#EDEDED]">
                       페이지 {currentPage} / {totalPages}
                     </span>
                     <button
                       onClick={handleNextPage}
                       disabled={offset + limit >= total}
-                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-white/15 dark:bg-[#0B0A0B] dark:text-[#888888] dark:hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <span className="sr-only">다음</span>
                       <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -810,15 +810,15 @@ const UploadHistoryPage: React.FC = () => {
       )}
 
       {showAllLogsModal && selectedFileForLogs && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl w-full max-w-3xl max-h-[80vh] flex flex-col overflow-hidden">
-            <div className="p-6 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900">전체 다운로드 기록</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-[#0B0A0B] rounded-xl w-full max-w-3xl max-h-[80vh] flex flex-col overflow-hidden">
+            <div className="p-6 border-b border-gray-200 dark:border-white/10 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-[#EDEDED]">전체 다운로드 기록</h2>
               <button
                 onClick={() => setShowAllLogsModal(false)}
-                className="p-1 hover:bg-gray-100 rounded"
+                className="p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded"
               >
-                <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 text-gray-500 dark:text-[#888888]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -826,36 +826,36 @@ const UploadHistoryPage: React.FC = () => {
             <div className="relative flex-1 min-h-0 flex flex-col rounded-b-xl">
               <div ref={logsScrollRef} className="overflow-auto flex-1 min-h-0">
               {downloadLogs[selectedFileForLogs]?.length > 0 ? (
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50 sticky top-0">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-white/10">
+                  <thead className="bg-gray-50 dark:bg-white/5 sticky top-0">
                     <tr>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap">
                         수신자
                       </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap">
                         플랫폼
                       </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap">
                         IP 주소
                       </th>
-                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                      <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap">
                         다운로드 시간
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white divide-y divide-gray-200 dark:bg-[#0B0A0B] dark:divide-white/10">
                     {downloadLogs[selectedFileForLogs].map((log) => (
-                      <tr key={log.id} className="sm:hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 text-center">
+                      <tr key={log.id} className="sm:hover:bg-gray-50 dark:sm:hover:bg-white/5">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-[#EDEDED] text-center">
                           {log.downloader_name || '익명의 사용자'}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#888888] text-center">
                           {log.device_platform}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#888888] text-center">
                           {log.ip_address}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#888888] text-center">
                           {formatDate(log.downloaded_at)}
                         </td>
                       </tr>
@@ -863,7 +863,7 @@ const UploadHistoryPage: React.FC = () => {
                   </tbody>
                 </table>
               ) : (
-                <div className="text-center text-gray-500 py-8">
+                <div className="text-center text-gray-500 dark:text-[#888888] py-8">
                   아직 다운로드 기록이 없습니다.
                 </div>
               )}
@@ -888,20 +888,20 @@ const UploadHistoryPage: React.FC = () => {
 
       {showQRModal && selectedShareCode && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50 p-4"
           onClick={() => setShowQRModal(false)}
         >
           <div
-            className="bg-white rounded-xl p-6 max-w-lg w-full"
+            className="bg-white dark:bg-[#0B0A0B] rounded-xl p-6 max-w-lg w-full"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900">QR 코드</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-[#EDEDED]">QR 코드</h2>
               <button
                 onClick={() => setShowQRModal(false)}
-                className="p-1 hover:bg-gray-100 rounded"
+                className="p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded"
               >
-                <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6 text-gray-500 dark:text-[#888888]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
@@ -915,12 +915,12 @@ const UploadHistoryPage: React.FC = () => {
                   includeMargin={false}
                 />
               </div>
-              <p className="text-sm text-gray-500 text-center mt-3">
+              <p className="text-sm text-gray-500 dark:text-[#888888] text-center mt-3">
                 QR 코드를 스캔하여 파일을 다운로드하세요.
               </p>
             </div>
             <div className="mt-6">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-[#EDEDED] mb-2">
                 공유 링크
               </label>
               <div className="relative">
@@ -928,17 +928,17 @@ const UploadHistoryPage: React.FC = () => {
                   type="text"
                   value={`${window.location.origin}/download/${selectedShareCode}`}
                   readOnly
-                  className="w-full px-4 py-3 pr-12 bg-gray-50 border border-gray-300 rounded-lg text-sm text-gray-700"
+                  className="w-full px-4 py-3 pr-12 bg-gray-50 border border-gray-300 rounded-lg text-sm text-gray-700 dark:bg-white/5 dark:border-white/15 dark:text-[#EDEDED]"
                 />
                 <button
                   onClick={handleCopyLink}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-300 rounded-lg transition-colors"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-300 dark:hover:bg-white/10 rounded-lg transition-colors"
                   title="링크 복사"
                 >
                   {copiedLink ? (
                     <CheckIcon className="w-5 h-5 text-green-600" />
                   ) : (
-                    <ClipboardDocumentIcon className="w-5 h-5 text-gray-600" />
+                    <ClipboardDocumentIcon className="w-5 h-5 text-gray-600 dark:text-[#888888]" />
                   )}
                 </button>
               </div>

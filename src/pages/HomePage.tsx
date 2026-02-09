@@ -32,10 +32,10 @@ const HomePage: React.FC = () => {
     <div>
       {/* Hero Section */}
       <div className="text-center pt-20 pb-16 px-4">
-        <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+        <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-[#EDEDED] mb-6">
           간편한 파일 공유
         </h1>
-        <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+        <p className="text-lg text-gray-600 dark:text-[#888888] max-w-3xl mx-auto">
           회원가입 없이 빠르고 안전하게 대용량 파일을 공유하세요. 파일을 선택하여 공유 링크를 생성하거나 코드를 입력하여 다운로드할 수 있습니다.
         </p>
       </div>
@@ -44,12 +44,12 @@ const HomePage: React.FC = () => {
       <div className="max-w-5xl mx-auto px-4 pb-20">
         <div className="grid md:grid-cols-2 gap-8">
           {/* Send Files Card */}
-          <div className="bg-white rounded-2xl border-[3px] border-gray-100 p-6 md:p-10 flex flex-col items-center text-center">
+          <div className="bg-white dark:bg-[#0B0A0B] rounded-2xl border-[3px] border-gray-100 dark:border-white/10 p-6 md:p-10 flex flex-col items-center text-center">
             <div className="flex items-center md:flex-col md:items-center mb-4 md:mb-6 w-full md:w-auto">
               <ArrowUpTrayIcon className="w-12 h-12 md:w-16 md:h-16 text-blue-600 mr-4 md:mr-0 md:mb-6 flex-shrink-0" strokeWidth={2.5} strokeLinecap="square" strokeLinejoin="miter" />
-              <h2 className="text-xl md:text-2xl font-bold text-gray-900">파일 업로드</h2>
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-[#EDEDED]">파일 업로드</h2>
             </div>
-            <p className="text-gray-600 mb-6 md:mb-8 text-sm md:text-base">
+            <p className="text-gray-600 dark:text-[#888888] mb-6 md:mb-8 text-sm md:text-base">
               파일을 선택하여 안전한 링크를 받으세요.
             </p>
             <button
@@ -61,12 +61,12 @@ const HomePage: React.FC = () => {
           </div>
 
           {/* Receive Files Card */}
-          <div className="bg-white rounded-2xl border-[3px] border-gray-100 p-6 md:p-10 flex flex-col items-center text-center">
+          <div className="bg-white dark:bg-[#0B0A0B] rounded-2xl border-[3px] border-gray-100 dark:border-white/10 p-6 md:p-10 flex flex-col items-center text-center">
             <div className="flex items-center md:flex-col md:items-center mb-4 md:mb-6 w-full md:w-auto">
-              <ArrowDownTrayIcon className="w-12 h-12 md:w-16 md:h-16 text-gray-700 mr-4 md:mr-0 md:mb-6 flex-shrink-0" strokeWidth={2.5} strokeLinecap="square" strokeLinejoin="miter" />
-              <h2 className="text-xl md:text-2xl font-bold text-gray-900">파일 다운로드</h2>
+              <ArrowDownTrayIcon className="w-12 h-12 md:w-16 md:h-16 text-gray-700 dark:text-[#EDEDED] mr-4 md:mr-0 md:mb-6 flex-shrink-0" strokeWidth={2.5} strokeLinecap="square" strokeLinejoin="miter" />
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-[#EDEDED]">파일 다운로드</h2>
             </div>
-            <p className="text-gray-600 mb-6 md:mb-8 text-sm md:text-base">
+            <p className="text-gray-600 dark:text-[#888888] mb-6 md:mb-8 text-sm md:text-base">
               공유 코드 6자리를 입력하세요.
             </p>
             <div className="w-full max-w-sm md:max-w-xs relative">
@@ -83,7 +83,7 @@ const HomePage: React.FC = () => {
                   }
                 }}
                 placeholder="123456"
-                className="w-full px-5 py-3 md:px-6 md:py-3 pr-12 border border-gray-300 rounded-xl text-center font-mono text-base md:text-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-5 py-3 md:px-6 md:py-3 pr-12 border border-gray-300 dark:border-white/15 dark:bg-[#0B0A0B] dark:text-[#EDEDED] dark:placeholder-[#666666] rounded-xl text-center font-mono text-base md:text-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500/50 focus:border-transparent"
                 maxLength={6}
               />
               <button
@@ -92,7 +92,7 @@ const HomePage: React.FC = () => {
                 className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-colors ${
                   downloadCode.length === 6
                     ? 'bg-blue-600 text-white hover:bg-blue-700'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-gray-300 dark:bg-white/10 text-gray-500 dark:text-[#666666] cursor-not-allowed'
                 }`}
                 title="다운로드"
               >

@@ -30,7 +30,7 @@ const FileThumbnail: React.FC<FileThumbnailProps> = ({ source, fileName, size = 
 
   if (loading) {
     return (
-      <div className={`${boxClass} flex-shrink-0 bg-gray-100 rounded flex items-center justify-center`}>
+      <div className={`${boxClass} flex-shrink-0 bg-gray-100 dark:bg-white/5 rounded flex items-center justify-center`}>
         <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600" />
       </div>
     );
@@ -60,54 +60,54 @@ const FileThumbnail: React.FC<FileThumbnailProps> = ({ source, fileName, size = 
       );
     }
     return (
-      <div className={`${boxClass} flex-shrink-0 bg-purple-50 rounded flex items-center justify-center`}>
-        <FilmIcon className={`${iconClass} text-purple-600`} />
+      <div className={`${boxClass} flex-shrink-0 bg-purple-50 dark:bg-purple-500/10 rounded flex items-center justify-center`}>
+        <FilmIcon className={`${iconClass} text-purple-600 dark:text-purple-400`} />
       </div>
     );
   }
 
   if (isAudioFile(fileName)) {
     return (
-      <div className={`${boxClass} flex-shrink-0 bg-green-50 rounded flex items-center justify-center`}>
-        <MusicalNoteIcon className={`${iconClass} text-green-600`} />
+      <div className={`${boxClass} flex-shrink-0 bg-green-50 dark:bg-green-500/10 rounded flex items-center justify-center`}>
+        <MusicalNoteIcon className={`${iconClass} text-green-600 dark:text-green-400`} />
       </div>
     );
   }
 
   if (isExcelFile(fileName) || isCsvFile(fileName)) {
     return (
-      <div className={`${boxClass} flex-shrink-0 bg-green-50 rounded flex items-center justify-center`}>
-        <TableCellsIcon className={`${iconClass} text-green-600`} />
+      <div className={`${boxClass} flex-shrink-0 bg-green-50 dark:bg-green-500/10 rounded flex items-center justify-center`}>
+        <TableCellsIcon className={`${iconClass} text-green-600 dark:text-green-400`} />
       </div>
     );
   }
 
   if (isDocxFile(fileName)) {
     return (
-      <div className={`${boxClass} flex-shrink-0 bg-blue-50 rounded flex items-center justify-center`}>
-        <DocumentTextIcon className={`${iconClass} text-blue-600`} />
+      <div className={`${boxClass} flex-shrink-0 bg-blue-50 dark:bg-blue-500/10 rounded flex items-center justify-center`}>
+        <DocumentTextIcon className={`${iconClass} text-blue-600 dark:text-blue-400`} />
       </div>
     );
   }
 
   if (isHwpFile(fileName)) {
     return (
-      <div className={`${boxClass} flex-shrink-0 bg-sky-50 rounded flex items-center justify-center`}>
-        <DocumentTextIcon className={`${iconClass} text-sky-600`} />
+      <div className={`${boxClass} flex-shrink-0 bg-sky-50 dark:bg-sky-500/10 rounded flex items-center justify-center`}>
+        <DocumentTextIcon className={`${iconClass} text-sky-600 dark:text-sky-400`} />
       </div>
     );
   }
 
   if (isTextFile(fileName)) {
     return (
-      <div className={`${boxClass} flex-shrink-0 bg-yellow-50 rounded flex items-center justify-center`}>
-        <DocumentTextIcon className={`${iconClass} text-yellow-600`} />
+      <div className={`${boxClass} flex-shrink-0 bg-yellow-50 dark:bg-yellow-500/10 rounded flex items-center justify-center`}>
+        <DocumentTextIcon className={`${iconClass} text-yellow-600 dark:text-yellow-400`} />
       </div>
     );
   }
 
   return (
-    <div className={`${boxClass} flex-shrink-0 bg-gray-100 rounded flex items-center justify-center`}>
+    <div className={`${boxClass} flex-shrink-0 bg-gray-100 dark:bg-white/5 rounded flex items-center justify-center`}>
       <DocumentIcon className={`${iconClass} text-gray-400`} />
     </div>
   );

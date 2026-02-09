@@ -131,7 +131,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
         <thead className="sticky top-0">
           <tr>
             {(data[0] || []).map((cell, i) => (
-              <th key={i} className="bg-gray-100 border border-gray-200 px-3 py-2 text-left font-medium text-gray-700 whitespace-nowrap">
+              <th key={i} className="bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-left font-medium text-gray-700 dark:text-[#EDEDED] whitespace-nowrap">
                 {cell}
               </th>
             ))}
@@ -139,9 +139,9 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
         </thead>
         <tbody>
           {data.slice(1).map((row, ri) => (
-            <tr key={ri} className="hover:bg-gray-50">
+            <tr key={ri} className="hover:bg-gray-50 dark:hover:bg-white/5">
               {row.map((cell, ci) => (
-                <td key={ci} className="border border-gray-200 px-3 py-1.5 text-gray-800 whitespace-nowrap">
+                <td key={ci} className="border border-gray-200 dark:border-white/10 px-3 py-1.5 text-gray-800 dark:text-[#EDEDED] whitespace-nowrap">
                   {cell}
                 </td>
               ))}
@@ -155,7 +155,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   const renderContent = () => {
     if (loading) {
       return (
-        <div className="flex flex-col items-center py-16 text-gray-400">
+        <div className="flex flex-col items-center py-16 text-gray-400 dark:text-[#666666]">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mb-3" />
           <p className="text-sm">로딩 중...</p>
         </div>
@@ -182,7 +182,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
             file={pdfSource}
             onLoadSuccess={onDocumentLoadSuccess}
             loading={
-              <div className="py-16 text-gray-400 text-sm">PDF 로딩 중...</div>
+              <div className="py-16 text-gray-400 dark:text-[#666666] text-sm">PDF 로딩 중...</div>
             }
           >
             <Page
@@ -197,19 +197,19 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
               <button
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage <= 1}
-                className="p-1.5 hover:bg-gray-100 rounded-lg disabled:opacity-30 transition-colors"
+                className="p-1.5 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg disabled:opacity-30 transition-colors"
               >
-                <ChevronLeftIcon className="w-5 h-5 text-gray-600" />
+                <ChevronLeftIcon className="w-5 h-5 text-gray-600 dark:text-[#888888]" />
               </button>
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-gray-600 dark:text-[#888888]">
                 {currentPage} / {numPages}
               </span>
               <button
                 onClick={() => setCurrentPage(p => Math.min(numPages, p + 1))}
                 disabled={currentPage >= numPages}
-                className="p-1.5 hover:bg-gray-100 rounded-lg disabled:opacity-30 transition-colors"
+                className="p-1.5 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg disabled:opacity-30 transition-colors"
               >
-                <ChevronRightIcon className="w-5 h-5 text-gray-600" />
+                <ChevronRightIcon className="w-5 h-5 text-gray-600 dark:text-[#888888]" />
               </button>
             </div>
           )}
@@ -236,8 +236,8 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
 
     if (isTextFile(fileName) && textContent !== null) {
       return (
-        <div className="w-full max-h-[70vh] overflow-auto bg-gray-50 rounded-xl p-6">
-          <pre className="text-sm text-gray-800 whitespace-pre-wrap break-words font-mono">
+        <div className="w-full max-h-[70vh] overflow-auto bg-gray-50 dark:bg-white/5 rounded-xl p-6">
+          <pre className="text-sm text-gray-800 dark:text-[#EDEDED] whitespace-pre-wrap break-words font-mono">
             {textContent}
           </pre>
         </div>
@@ -245,7 +245,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
     }
 
     return (
-      <div className="flex flex-col items-center py-12 text-gray-400">
+      <div className="flex flex-col items-center py-12 text-gray-400 dark:text-[#666666]">
         <DocumentIcon className="w-16 h-16 mb-3" />
         <p className="text-sm">미리보기를 지원하지 않는 파일입니다.</p>
       </div>
@@ -254,23 +254,23 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 dark:bg-black/70 dark:backdrop-blur-sm p-4"
       onClick={onClose}
     >
       <div
-        className="relative bg-white rounded-2xl max-w-3xl w-full max-h-[85vh] overflow-hidden shadow-2xl"
+        className="relative bg-white dark:bg-[#0B0A0B] rounded-2xl max-w-3xl w-full max-h-[85vh] overflow-hidden shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-100">
+        <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-white/10">
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-gray-900 truncate">{fileName}</p>
-            <p className="text-xs text-gray-500">{formatFileSize(fileSize)}</p>
+            <p className="text-sm font-semibold text-gray-900 dark:text-[#EDEDED] truncate">{fileName}</p>
+            <p className="text-xs text-gray-500 dark:text-[#888888]">{formatFileSize(fileSize)}</p>
           </div>
           <button
             onClick={onClose}
-            className="ml-3 p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+            className="ml-3 p-1.5 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
           >
-            <XMarkIcon className="w-5 h-5 text-gray-500" />
+            <XMarkIcon className="w-5 h-5 text-gray-500 dark:text-[#888888]" />
           </button>
         </div>
         <div className="p-4 flex overflow-auto max-h-[calc(85vh-4rem)]">

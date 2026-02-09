@@ -17,10 +17,10 @@ const LoginPage: React.FC = () => {
     return (
         <div className="flex items-center justify-center px-4 py-20">
             <div className="max-w-md w-full">
-                <div className="bg-white rounded-3xl border-2 border-gray-200 p-10">
+                <div className="bg-white dark:bg-[#0B0A0B] rounded-3xl border-2 border-gray-200 dark:border-white/10 p-10">
                     <div className="text-center mb-10">
-                        <h1 className="text-4xl font-bold text-gray-900 mb-3">환영합니다!</h1>
-                        <p className="text-gray-600">
+                        <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">환영합니다!</h1>
+                        <p className="text-gray-600 dark:text-[#888888]">
                             계정을 선택해 주세요. 모든 정보는 안전하게 보관됩니다.
                         </p>
                     </div>
@@ -30,7 +30,7 @@ const LoginPage: React.FC = () => {
                         {/* Google Login */}
                         <button
                             onClick={handleGoogleLogin}
-                            className="w-full flex items-center justify-center space-x-3 px-6 py-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                            className="w-full flex items-center justify-center space-x-3 px-6 py-3 bg-white dark:bg-[#1A1A1A] border border-gray-300 dark:border-white/15 rounded-lg hover:bg-gray-50 dark:hover:bg-white/10 transition-colors"
                         >
                             <svg className="w-5 h-5" viewBox="0 0 24 24">
                                 <path
@@ -50,7 +50,7 @@ const LoginPage: React.FC = () => {
                                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                                 />
                             </svg>
-                            <span className="text-gray-700 font-medium text-sm">Google로 계속하기</span>
+                            <span className="text-gray-700 dark:text-[#EDEDED] font-medium text-sm">Google로 계속하기</span>
                         </button>
 
                         {/* Naver Login */}
@@ -69,13 +69,13 @@ const LoginPage: React.FC = () => {
                     </div>
 
                     {/* Terms and Privacy Notice */}
-                    <div className="text-center text-xs text-gray-500 leading-relaxed">
+                    <div className="text-center text-xs text-gray-500 dark:text-[#666666] leading-relaxed">
                         본 서비스 이용 시 ShareAnything의{' '}
-                        <a href="/privacy-policy" className="text-gray-500 underline hover:text-gray-700">
+                        <a href="/privacy-policy" className="text-gray-500 dark:text-[#888888] underline hover:text-gray-700 dark:hover:text-[#EDEDED]">
                             개인정보처리방침
                         </a>
                         {' '}및{' '}
-                        <a href="/terms-of-use" className="text-gray-500 underline hover:text-gray-700">
+                        <a href="/terms-of-use" className="text-gray-500 dark:text-[#888888] underline hover:text-gray-700 dark:hover:text-[#EDEDED]">
                             이용약관
                         </a>
                         에 동의하는 것으로 간주됩니다.

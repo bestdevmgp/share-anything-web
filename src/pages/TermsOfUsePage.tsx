@@ -8,14 +8,14 @@ const TermsOfServicePage: React.FC = () => {
     return (
         <div>
             <div className="max-w-4xl mx-auto px-4 py-12">
-                <div className="bg-white rounded-2xl shadow-sm px-12 py-8 md:px-20 md:py-12">
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
+                <div className="bg-white dark:bg-[#0B0A0B] rounded-2xl shadow-sm dark:shadow-none dark:border dark:border-white/10 px-12 py-8 md:px-20 md:py-12">
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-8">
                         ShareAnything 이용약관
                     </h1>
 
-                    <div className="space-y-8 text-gray-700">
+                    <div className="space-y-8 text-gray-700 dark:text-[#888888]">
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 제1조 (목적)
                             </h2>
                             <p className="leading-relaxed">
@@ -24,7 +24,7 @@ const TermsOfServicePage: React.FC = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 제2조 (정의)
                             </h2>
                             <ul className="list-decimal list-inside space-y-2 ml-4">
@@ -36,7 +36,7 @@ const TermsOfServicePage: React.FC = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 제3조 (약관의 게시와 개정)
                             </h2>
                             <ul className="list-decimal list-inside space-y-2 ml-4">
@@ -48,7 +48,7 @@ const TermsOfServicePage: React.FC = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 제4조 (회원가입)
                             </h2>
                             <ul className="list-decimal list-inside space-y-2 ml-4">
@@ -64,7 +64,7 @@ const TermsOfServicePage: React.FC = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 제5조 (서비스의 제공)
                             </h2>
                             <ul className="list-decimal list-inside space-y-2 ml-4">
@@ -82,7 +82,7 @@ const TermsOfServicePage: React.FC = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 제6조 (파일의 관리 및 삭제)
                             </h2>
                             <ul className="list-decimal list-inside space-y-2 ml-4">
@@ -100,7 +100,7 @@ const TermsOfServicePage: React.FC = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 제7조 (이용자의 의무)
                             </h2>
                             <ul className="list-decimal list-inside space-y-2 ml-4">
@@ -119,7 +119,7 @@ const TermsOfServicePage: React.FC = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 제8조 (저작권의 귀속)
                             </h2>
                             <ul className="list-decimal list-inside space-y-2 ml-4">
@@ -129,7 +129,7 @@ const TermsOfServicePage: React.FC = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 제9조 (회사의 면책)
                             </h2>
                             <ul className="list-decimal list-inside space-y-2 ml-4">
@@ -141,7 +141,7 @@ const TermsOfServicePage: React.FC = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 제10조 (개인정보보호)
                             </h2>
                             <p className="leading-relaxed">
@@ -150,7 +150,7 @@ const TermsOfServicePage: React.FC = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 제11조 (이용계약의 해지)
                             </h2>
                             <ul className="list-decimal list-inside space-y-2 ml-4">
@@ -166,7 +166,7 @@ const TermsOfServicePage: React.FC = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 제12조 (손해배상)
                             </h2>
                             <ul className="list-decimal list-inside space-y-2 ml-4">
@@ -176,7 +176,7 @@ const TermsOfServicePage: React.FC = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 제13조 (분쟁의 해결)
                             </h2>
                             <ul className="list-decimal list-inside space-y-2 ml-4">
@@ -185,9 +185,9 @@ const TermsOfServicePage: React.FC = () => {
                             </ul>
                         </section>
 
-                        <div className="mt-12 pt-8 border-t border-gray-200">
-                            <p className="text-sm text-gray-600 font-semibold mb-2">부칙</p>
-                            <p className="text-sm text-gray-600">
+                        <div className="mt-12 pt-8 border-t border-gray-200 dark:border-white/10">
+                            <p className="text-sm text-gray-600 dark:text-[#888888] font-semibold mb-2">부칙</p>
+                            <p className="text-sm text-gray-600 dark:text-[#888888]">
                                 본 약관은 2025년 11월 22일부터 적용됩니다.
                             </p>
                         </div>

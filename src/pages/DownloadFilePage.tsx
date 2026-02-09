@@ -357,7 +357,7 @@ const DownloadFilePage: React.FC = () => {
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 mb-8 text-gray-600">
+          <p className="mt-4 mb-8 text-gray-600 dark:text-[#888888]">
             {loading ? '파일 정보를 불러오는 중...' : '요청을 검사하는 중...'}
           </p>
           <TurnstileWidget
@@ -379,7 +379,7 @@ const DownloadFilePage: React.FC = () => {
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">파일 정보를 불러오는 중...</p>
+          <p className="mt-4 text-gray-600 dark:text-[#888888]">파일 정보를 불러오는 중...</p>
         </div>
       </div>
     );
@@ -389,15 +389,15 @@ const DownloadFilePage: React.FC = () => {
     return (
       <div className="flex items-center justify-center px-4 py-20">
         <div className="max-w-md w-full text-center">
-          <div className="bg-white rounded-3xl border-2 border-gray-200 p-8">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="bg-white rounded-3xl border-2 border-gray-200 dark:bg-[#0B0A0B] dark:border-white/10 p-8">
+            <div className="w-16 h-16 bg-red-100 dark:bg-red-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M6 18L18 6" className="error-x-path-1" />
                 <path d="M6 6l12 12" className="error-x-path-2" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">{errorTitle}</h2>
-            <p className="text-gray-600 mb-6">{error}</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-[#EDEDED] mb-2">{errorTitle}</h2>
+            <p className="text-gray-600 dark:text-[#888888] mb-6">{error}</p>
             <button
               onClick={() => navigate('/', { state: { autoFocus: true } })}
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -436,13 +436,13 @@ const DownloadFilePage: React.FC = () => {
     return (
       <div className="flex items-center justify-center px-4 py-20">
         <div className="max-w-md w-full">
-          <div className="bg-white rounded-3xl border-2 border-gray-200 p-10">
+          <div className="bg-white rounded-3xl border-2 border-gray-200 dark:bg-[#0B0A0B] dark:border-white/10 p-10">
             <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
                 <LockClosedIcon className="w-8 h-8 text-blue-600" />
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">비밀번호 입력</h1>
-              <p className="text-gray-600">
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-[#EDEDED] mb-2">비밀번호 입력</h1>
+              <p className="text-gray-600 dark:text-[#888888]">
                 이 파일은 비밀번호로 보호되어 있습니다.
               </p>
             </div>
@@ -455,13 +455,13 @@ const DownloadFilePage: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="파일 비밀번호를 입력하세요"
-                    className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-white/15 dark:bg-[#0B0A0B] dark:text-[#EDEDED] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     autoFocus
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700 dark:text-[#888888] dark:hover:text-[#EDEDED]"
                   >
                     {showPassword ? (
                       <EyeSlashIcon className="w-5 h-5" />
@@ -494,7 +494,7 @@ const DownloadFilePage: React.FC = () => {
           <div className="text-center mb-10">
             <div className="flex justify-center mb-5">
               <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                isP2PDownload && p2pStatus === 'downloading' ? 'bg-blue-100' : 'bg-green-100'
+                isP2PDownload && p2pStatus === 'downloading' ? 'bg-blue-100 dark:bg-blue-500/15' : 'bg-green-100 dark:bg-green-500/15'
               }`}>
                 {isP2PDownload && p2pStatus === 'downloading' ? (
                   <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
@@ -505,7 +505,7 @@ const DownloadFilePage: React.FC = () => {
                 )}
               </div>
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-3">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">
               {isP2PDownload ? (
                 p2pStatus === 'waiting' || p2pStatus === 'connecting' ? '수신 준비 완료' :
                 p2pStatus === 'downloading' ? '파일 다운로드 중...' :
@@ -513,7 +513,7 @@ const DownloadFilePage: React.FC = () => {
                 '다운로드 준비 완료'
               ) : '다운로드 준비 완료'}
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-[#888888]">
               {isP2PDownload ? (
                 p2pStatus === 'downloading' ? (p2pPeerDeviceInfo ? `${p2pPeerDeviceInfo}에서 파일을 받는 중입니다.` : '파일을 받는 중입니다. 잠시만 기다려주세요.') :
                 p2pStatus === 'completed' ? '파일이 성공적으로 다운로드되었습니다.' :
@@ -534,10 +534,10 @@ const DownloadFilePage: React.FC = () => {
             }
           `}</style>
 
-          <div className="bg-white rounded-3xl border-2 border-gray-200 p-6 md:p-8">
+          <div className="bg-white rounded-3xl border-2 border-gray-200 dark:bg-[#0B0A0B] dark:border-white/10 p-6 md:p-8">
             <div className="flex justify-center mb-5">
               {loadingPreview ? (
-                <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center">
+                <div className="w-24 h-24 bg-blue-100 dark:bg-blue-500/15 rounded-full flex items-center justify-center">
                   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                 </div>
               ) : singleFilePreviewUrl && isImageFile(file.file_name) ? (
@@ -570,38 +570,38 @@ const DownloadFilePage: React.FC = () => {
                   <FileThumbnail source={singleFilePreviewUrl} fileName={file.file_name} size="md" />
                 </div>
               ) : (
-                <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center">
+                <div className="w-24 h-24 bg-blue-100 dark:bg-blue-500/15 rounded-full flex items-center justify-center">
                   <DocumentIcon className="w-12 h-12 text-blue-600" />
                 </div>
               )}
             </div>
 
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-3 text-center break-all">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3 text-center break-all">
                 {file.file_name}
               </h2>
               {fileList.description && (
-                <p className="text-gray-600 text-center mb-6 break-words whitespace-pre-wrap">
+                <p className="text-gray-600 dark:text-[#888888] text-center mb-6 break-words whitespace-pre-wrap">
                   {fileList.description}
                 </p>
               )}
             </div>
 
             <div className="space-y-3 mb-8">
-              <div className="flex justify-between py-2 border-b border-gray-200">
-                <span className="text-gray-600">파일 크기</span>
-                <span className="font-semibold text-gray-900">{formatFileSize(file.file_size)}</span>
+              <div className="flex justify-between py-2 border-b border-gray-200 dark:border-white/10">
+                <span className="text-gray-600 dark:text-[#888888]">파일 크기</span>
+                <span className="font-semibold text-gray-900 dark:text-[#EDEDED]">{formatFileSize(file.file_size)}</span>
               </div>
               {fileList.description && (
-                <div className="flex justify-between py-2 border-b border-gray-200">
-                  <span className="text-gray-600">업로드한 사람</span>
-                  <span className="font-semibold text-gray-900">익명의 사용자</span>
+                <div className="flex justify-between py-2 border-b border-gray-200 dark:border-white/10">
+                  <span className="text-gray-600 dark:text-[#888888]">업로드한 사람</span>
+                  <span className="font-semibold text-gray-900 dark:text-[#EDEDED]">익명의 사용자</span>
                 </div>
               )}
               {!isP2PDownload && (
                 <div className="flex justify-between py-2">
-                  <span className="text-gray-600">만료 일시</span>
-                  <span className="font-semibold text-gray-900">{formatDateTime(fileList.expires_at)}</span>
+                  <span className="text-gray-600 dark:text-[#888888]">만료 일시</span>
+                  <span className="font-semibold text-gray-900 dark:text-[#EDEDED]">{formatDateTime(fileList.expires_at)}</span>
                 </div>
               )}
             </div>
@@ -609,11 +609,11 @@ const DownloadFilePage: React.FC = () => {
             <div className="">
               {isP2PDownload ? (
                 p2pStatus === 'downloading' || p2pStatus === 'connecting' ? (
-                  <div className="bg-blue-50 rounded-xl px-4 py-4">
+                  <div className="bg-blue-50 dark:bg-blue-500/10 rounded-xl px-4 py-4">
                     <div className="flex items-center gap-2">
                       <div className="flex-1 pl-2">
                         <div className="flex justify-between mb-2">
-                          <span className="text-sm font-medium text-gray-700 self-start">
+                          <span className="text-sm font-medium text-gray-700 dark:text-[#EDEDED] self-start">
                             {p2pStatus === 'connecting' ? '연결 중...' : `다운로드 중...`}
                           </span>
                           {p2pStatus === 'downloading' && (
@@ -626,7 +626,7 @@ const DownloadFilePage: React.FC = () => {
                           )}
                         </div>
                         {p2pStatus === 'downloading' && (
-                          <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                          <div className="bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden">
                             <div
                               className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
                               style={{ width: `${p2pProgress}%` }}
@@ -636,10 +636,10 @@ const DownloadFilePage: React.FC = () => {
                       </div>
                       <button
                         onClick={handleCancelP2PDownload}
-                        className="p-1 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
+                        className="p-1 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded transition-colors flex-shrink-0"
                         title="다운로드 취소"
                       >
-                        <XMarkIcon className="w-6 h-6 text-gray-600" />
+                        <XMarkIcon className="w-6 h-6 text-gray-600 dark:text-[#888888]" />
                       </button>
                     </div>
                   </div>
@@ -657,11 +657,11 @@ const DownloadFilePage: React.FC = () => {
                   </button>
                 )
               ) : downloading ? (
-                <div className="bg-blue-50 rounded-xl px-4 py-4">
+                <div className="bg-blue-50 dark:bg-blue-500/10 rounded-xl px-4 py-4">
                   <div className="flex items-center gap-2">
                     <div className="flex-1 pl-2">
                       <div className="flex justify-between mb-2">
-                        <span className="text-sm font-medium text-gray-700 self-start">
+                        <span className="text-sm font-medium text-gray-700 dark:text-[#EDEDED] self-start">
                           {downloadProgress === 100 ? '잠시만 기다려주세요...' : '다운로드 중...'}
                         </span>
                         {downloadProgress < 100 && (
@@ -673,7 +673,7 @@ const DownloadFilePage: React.FC = () => {
                           </div>
                         )}
                       </div>
-                      <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                      <div className="bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden">
                         <div
                           className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
                           style={{ width: `${downloadProgress}%` }}
@@ -682,10 +682,10 @@ const DownloadFilePage: React.FC = () => {
                     </div>
                     <button
                       onClick={handleCancelDownload}
-                      className="p-1 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
+                      className="p-1 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded transition-colors flex-shrink-0"
                       title="다운로드 취소"
                     >
-                      <XMarkIcon className="w-6 h-6 text-gray-600" />
+                      <XMarkIcon className="w-6 h-6 text-gray-600 dark:text-[#888888]" />
                     </button>
                   </div>
                 </div>
@@ -703,7 +703,7 @@ const DownloadFilePage: React.FC = () => {
             <div className="mt-4 text-center">
               <button
                 onClick={() => navigate('/')}
-                className="text-sm text-gray-500 hover:text-gray-700"
+                className="text-sm text-gray-500 hover:text-gray-700 dark:text-[#888888] dark:hover:text-[#EDEDED]"
               >
                 돌아가기
               </button>
@@ -746,21 +746,21 @@ const DownloadFilePage: React.FC = () => {
       <div className="py-12 px-4">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-10">
-            <h1 className="text-4xl font-bold text-gray-900 mb-3">파일 다운로드</h1>
-            <p className="text-gray-600">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">파일 다운로드</h1>
+            <p className="text-gray-600 dark:text-[#888888]">
               {p2pPeerDeviceInfo ? `${p2pPeerDeviceInfo}에 연결되었습니다. ` : ''}다운로드할 파일을 선택해 주세요.
             </p>
           </div>
 
-          <div className="bg-white rounded-3xl border-2 border-gray-200 p-10">
+          <div className="bg-white rounded-3xl border-2 border-gray-200 dark:bg-[#0B0A0B] dark:border-white/10 p-10">
             {fileList.description && (
-              <div className="mb-8 p-4 bg-gray-50 rounded-lg">
-                <p className="text-gray-700 break-words whitespace-pre-wrap">{fileList.description}</p>
+              <div className="mb-8 p-4 bg-gray-50 dark:bg-white/5 rounded-lg">
+                <p className="text-gray-700 dark:text-[#EDEDED] break-words whitespace-pre-wrap">{fileList.description}</p>
               </div>
             )}
 
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                 파일 목록 ({fileList.total_count}개)
               </h3>
             </div>
@@ -775,7 +775,7 @@ const DownloadFilePage: React.FC = () => {
                   <div
                     key={file.id}
                     className={`p-4 rounded-xl border-2 transition-all ${
-                      isActive ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-transparent'
+                      isActive ? 'bg-blue-50 border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/30' : 'bg-gray-50 border-transparent dark:bg-white/5'
                     }`}
                   >
                     <div className="flex items-center space-x-4">
@@ -784,12 +784,12 @@ const DownloadFilePage: React.FC = () => {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-base font-semibold text-gray-900 truncate">
+                        <h4 className="text-base font-semibold text-gray-900 dark:text-[#EDEDED] truncate">
                           {file.file_name}
                         </h4>
                         {isDownloading ? (
                           <div className="mt-1.5">
-                            <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                            <div className="bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden">
                               <div
                                 className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
                                 style={{ width: `${p2pProgress}%` }}
@@ -797,7 +797,7 @@ const DownloadFilePage: React.FC = () => {
                             </div>
                           </div>
                         ) : (
-                          <p className="text-sm text-gray-500">{formatFileSize(file.file_size)}</p>
+                          <p className="text-sm text-gray-500 dark:text-[#888888]">{formatFileSize(file.file_size)}</p>
                         )}
                       </div>
 
@@ -815,17 +815,17 @@ const DownloadFilePage: React.FC = () => {
                           </div>
                           <button
                             onClick={handleCancelP2PDownload}
-                            className="p-1 hover:bg-blue-100 rounded transition-colors"
+                            className="p-1 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded transition-colors"
                             title="다운로드 취소"
                           >
-                            <XMarkIcon className="w-5 h-5 text-gray-500" />
+                            <XMarkIcon className="w-5 h-5 text-gray-500 dark:text-[#888888]" />
                           </button>
                         </div>
                       ) : (
                         <button
                           onClick={() => startP2PDownload(file.id)}
                           disabled={p2pEnabled && !isActive}
-                          className="flex-shrink-0 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                          className="flex-shrink-0 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-white/10 disabled:cursor-not-allowed transition-colors"
                         >
                           다운로드
                         </button>
@@ -839,7 +839,7 @@ const DownloadFilePage: React.FC = () => {
             <div className="mt-4 text-center">
               <button
                 onClick={() => navigate('/')}
-                className="text-sm text-gray-500 hover:text-gray-700"
+                className="text-sm text-gray-500 hover:text-gray-700 dark:text-[#888888] dark:hover:text-[#EDEDED]"
               >
                 돌아가기
               </button>
@@ -854,33 +854,33 @@ const DownloadFilePage: React.FC = () => {
     <div className="py-12 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">파일 다운로드</h1>
-          <p className="text-gray-600">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">파일 다운로드</h1>
+          <p className="text-gray-600 dark:text-[#888888]">
             {fileList.total_count}개의 파일이 있습니다. 다운로드할 파일을 선택하세요.
           </p>
         </div>
 
-        <div className="bg-white rounded-3xl border-2 border-gray-200 p-10">
+        <div className="bg-white rounded-3xl border-2 border-gray-200 dark:bg-[#0B0A0B] dark:border-white/10 p-10">
           {fileList.description && (
-            <div className="mb-8 p-4 bg-gray-50 rounded-lg">
-              <p className="text-gray-700 break-words whitespace-pre-wrap">{fileList.description}</p>
+            <div className="mb-8 p-4 bg-gray-50 dark:bg-white/5 rounded-lg">
+              <p className="text-gray-700 dark:text-[#EDEDED] break-words whitespace-pre-wrap">{fileList.description}</p>
             </div>
           )}
 
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED]">
               파일 목록 ({selectedFiles.size}/{fileList.total_count} 선택됨)
             </h3>
             <div className="flex gap-1">
               <button
                 onClick={selectAllFiles}
-                className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg"
+                className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg"
               >
                 전체 선택
               </button>
               <button
                 onClick={deselectAllFiles}
-                className="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg"
+                className="px-3 py-1.5 text-sm text-gray-600 dark:text-[#888888] hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg"
               >
                 선택 해제
               </button>
@@ -894,15 +894,15 @@ const DownloadFilePage: React.FC = () => {
                 onClick={() => toggleFileSelection(file.id)}
                 className={`flex items-center space-x-4 p-4 rounded-xl cursor-pointer transition-all ${
                   selectedFiles.has(file.id)
-                    ? 'bg-blue-50 border-2 border-blue-500'
-                    : 'bg-gray-50 border-2 border-transparent hover:bg-gray-100'
+                    ? 'bg-blue-50 border-2 border-blue-500 dark:bg-blue-500/10'
+                    : 'bg-gray-50 border-2 border-transparent hover:bg-gray-100 dark:bg-white/5 dark:hover:bg-white/10'
                 }`}
               >
                 <div className="flex-shrink-0">
                   <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center ${
                     selectedFiles.has(file.id)
                       ? 'bg-blue-600 border-blue-600'
-                      : 'border-gray-300'
+                      : 'border-gray-300 dark:border-white/15'
                   }`}>
                     {selectedFiles.has(file.id) && (
                       <CheckIcon className="w-4 h-4 text-white" />
@@ -915,10 +915,10 @@ const DownloadFilePage: React.FC = () => {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-base font-semibold text-gray-900 truncate">
+                  <h4 className="text-base font-semibold text-gray-900 dark:text-[#EDEDED] truncate">
                     {file.file_name}
                   </h4>
-                  <p className="text-sm text-gray-500">{formatFileSize(file.file_size)}</p>
+                  <p className="text-sm text-gray-500 dark:text-[#888888]">{formatFileSize(file.file_size)}</p>
                 </div>
               </div>
             ))}
@@ -926,11 +926,11 @@ const DownloadFilePage: React.FC = () => {
 
           <div className="">
             {downloading ? (
-              <div className="bg-blue-50 rounded-xl px-4 py-4">
+              <div className="bg-blue-50 dark:bg-blue-500/10 rounded-xl px-4 py-4">
                 <div className="flex items-center gap-2">
                   <div className="flex-1 pl-2">
                     <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-700 self-start">
+                      <span className="text-sm font-medium text-gray-700 dark:text-[#EDEDED] self-start">
                         {downloadProgress === 100 ? '잠시만 기다려주세요...' : (downloadAsZip ? 'ZIP 생성 중...' : '다운로드 중...')}
                       </span>
                       {downloadProgress < 100 && (
@@ -942,7 +942,7 @@ const DownloadFilePage: React.FC = () => {
                         </div>
                       )}
                     </div>
-                    <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                    <div className="bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden">
                       <div
                         className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
                         style={{ width: `${downloadProgress}%` }}
@@ -951,10 +951,10 @@ const DownloadFilePage: React.FC = () => {
                   </div>
                   <button
                     onClick={handleCancelDownload}
-                    className="p-1 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
+                    className="p-1 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded transition-colors flex-shrink-0"
                     title="다운로드 취소"
                   >
-                    <XMarkIcon className="w-6 h-6 text-gray-600" />
+                    <XMarkIcon className="w-6 h-6 text-gray-600 dark:text-[#888888]" />
                   </button>
                 </div>
               </div>
@@ -971,14 +971,14 @@ const DownloadFilePage: React.FC = () => {
                     <button
                       onClick={() => handleDownload(true)}
                       disabled={selectedFiles.size === 0}
-                      className="flex-1 px-4 py-3 md:py-4 bg-gray-100 text-gray-700 text-base font-semibold rounded-xl hover:bg-gray-200 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+                      className="flex-1 px-4 py-3 md:py-4 bg-gray-100 text-gray-700 text-base font-semibold rounded-xl hover:bg-gray-200 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors dark:bg-white/5 dark:text-[#EDEDED] dark:hover:bg-white/10"
                     >
                       ZIP 다운로드
                     </button>
                     <button
                       onClick={() => handleDownload(false)}
                       disabled={selectedFiles.size === 0}
-                      className="flex-1 px-4 py-3 md:py-4 bg-blue-600 text-white text-base font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                      className="flex-1 px-4 py-3 md:py-4 bg-blue-600 text-white text-base font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-white/10 disabled:cursor-not-allowed transition-colors"
                     >
                       다운로드
                     </button>
@@ -987,7 +987,7 @@ const DownloadFilePage: React.FC = () => {
                   <button
                     onClick={() => handleDownload(false)}
                     disabled={selectedFiles.size === 0}
-                    className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                    className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-white/10 disabled:cursor-not-allowed transition-colors"
                   >
                     {selectedFiles.size === 0
                       ? '파일을 선택하세요'
@@ -1004,7 +1004,7 @@ const DownloadFilePage: React.FC = () => {
           <div className="mt-4 text-center">
             <button
               onClick={() => navigate('/')}
-              className="text-sm text-gray-500 hover:text-gray-700"
+              className="text-sm text-gray-500 hover:text-gray-700 dark:text-[#888888] dark:hover:text-[#EDEDED]"
             >
               돌아가기
             </button>

@@ -8,14 +8,14 @@ const PrivacyPolicyPage: React.FC = () => {
     return (
         <div>
             <div className="max-w-4xl mx-auto px-4 py-12">
-                <div className="bg-white rounded-2xl shadow-sm px-12 py-8 md:px-20 md:py-12">
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
+                <div className="bg-white dark:bg-[#0B0A0B] rounded-2xl shadow-sm dark:shadow-none dark:border dark:border-white/10 px-12 py-8 md:px-20 md:py-12">
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-8">
                         ShareAnything 개인정보처리방침
                     </h1>
 
-                    <div className="space-y-8 text-gray-700">
+                    <div className="space-y-8 text-gray-700 dark:text-[#888888]">
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 1. 개인정보의 처리 목적
                             </h2>
                             <p className="leading-relaxed mb-4">
@@ -29,24 +29,24 @@ const PrivacyPolicyPage: React.FC = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 2. 처리하는 개인정보의 항목
                             </h2>
                             <div className="leading-relaxed">
                                 <p className="mb-4">회사는 OAuth 인증을 통해 최소한의 개인정보만을 수집합니다.</p>
 
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">필수 수집 항목</h3>
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">필수 수집 항목</h3>
                                 <ul className="list-disc list-inside space-y-1 ml-4 mb-4">
                                     <li>Google OAuth 로그인 시: 이메일 주소, 이름, 프로필 사진</li>
                                     <li>Naver OAuth 로그인 시: 이메일 주소, 이름</li>
                                 </ul>
 
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">자동 수집 항목</h3>
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">자동 수집 항목</h3>
                                 <ul className="list-disc list-inside space-y-1 ml-4 mb-4">
                                     <li>서비스 이용 기록, IP 주소</li>
                                 </ul>
 
-                                <h3 className="text-lg font-semibold text-gray-900 mb-2">파일 관련 정보</h3>
+                                <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">파일 관련 정보</h3>
                                 <ul className="list-disc list-inside space-y-1 ml-4">
                                     <li>업로드한 파일명, 파일 크기, 업로드 일시</li>
                                     <li>공유 코드, 파일 유효기간</li>
@@ -56,7 +56,7 @@ const PrivacyPolicyPage: React.FC = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 3. 개인정보의 처리 및 보유 기간
                             </h2>
                             <p className="leading-relaxed mb-4">
@@ -77,7 +77,7 @@ const PrivacyPolicyPage: React.FC = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 4. 개인정보의 제3자 제공
                             </h2>
                             <p className="leading-relaxed mb-4">
@@ -89,7 +89,7 @@ const PrivacyPolicyPage: React.FC = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 5. 개인정보처리의 위탁
                             </h2>
                             <p className="leading-relaxed mb-4">
@@ -97,29 +97,29 @@ const PrivacyPolicyPage: React.FC = () => {
                             </p>
 
                             <div className="overflow-x-auto">
-                                <table className="w-full border border-gray-300 border-collapse">
+                                <table className="w-full border border-gray-300 dark:border-white/15 border-collapse">
                                     <thead>
-                                    <tr className="bg-gray-50">
-                                        <th className="border border-gray-300 px-4 py-2 text-left">위탁받는 자</th>
-                                        <th className="border border-gray-300 px-4 py-2 text-left">위탁하는 업무의 내용</th>
+                                    <tr className="bg-gray-50 dark:bg-white/5">
+                                        <th className="border border-gray-300 dark:border-white/15 px-4 py-2 text-left dark:text-[#EDEDED]">위탁받는 자</th>
+                                        <th className="border border-gray-300 dark:border-white/15 px-4 py-2 text-left dark:text-[#EDEDED]">위탁하는 업무의 내용</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     <tr>
-                                        <td className="border border-gray-300 px-4 py-2">Google LLC</td>
-                                        <td className="border border-gray-300 px-4 py-2">OAuth 인증 서비스</td>
+                                        <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">Google LLC</td>
+                                        <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">OAuth 인증 서비스</td>
                                     </tr>
                                     <tr>
-                                        <td className="border border-gray-300 px-4 py-2">Naver Corp.</td>
-                                        <td className="border border-gray-300 px-4 py-2">OAuth 인증 서비스</td>
+                                        <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">Naver Corp.</td>
+                                        <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">OAuth 인증 서비스</td>
                                     </tr>
                                     <tr>
-                                        <td className="border border-gray-300 px-4 py-2">Amazon Web Services, Inc.</td>
-                                        <td className="border border-gray-300 px-4 py-2">서버 호스팅</td>
+                                        <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">Amazon Web Services, Inc.</td>
+                                        <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">서버 호스팅</td>
                                     </tr>
                                     <tr>
-                                        <td className="border border-gray-300 px-4 py-2">Cloudflare, Inc.</td>
-                                        <td className="border border-gray-300 px-4 py-2">파일 저장</td>
+                                        <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">Cloudflare, Inc.</td>
+                                        <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">파일 저장</td>
                                     </tr>
                                     </tbody>
                                 </table>
@@ -131,7 +131,7 @@ const PrivacyPolicyPage: React.FC = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 6. 정보주체의 권리·의무 및 행사방법
                             </h2>
                             <p className="leading-relaxed mb-4">
@@ -149,7 +149,7 @@ const PrivacyPolicyPage: React.FC = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 7. 개인정보의 파기
                             </h2>
                             <p className="leading-relaxed mb-4">
@@ -174,7 +174,7 @@ const PrivacyPolicyPage: React.FC = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 8. 개인정보의 안전성 확보조치
                             </h2>
                             <p className="leading-relaxed mb-4">
@@ -188,14 +188,14 @@ const PrivacyPolicyPage: React.FC = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 9. 개인정보 보호책임자
                             </h2>
                             <p className="leading-relaxed mb-4">
                                 회사는 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제를 위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.
                             </p>
-                            <div className="bg-gray-50 rounded-lg p-4">
-                                <p className="font-semibold mb-2">개인정보 보호책임자</p>
+                            <div className="bg-gray-50 dark:bg-white/5 rounded-lg p-4">
+                                <p className="font-semibold mb-2 dark:text-[#EDEDED]">개인정보 보호책임자</p>
                                 <ul className="space-y-1 text-sm">
                                     <li>성명: 박민규</li>
                                     <li>직책: ShareAnything 개발자</li>
@@ -205,7 +205,7 @@ const PrivacyPolicyPage: React.FC = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                            <h2 className="text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
                                 10. 개인정보 처리방침 변경
                             </h2>
                             <p className="leading-relaxed">
@@ -213,11 +213,11 @@ const PrivacyPolicyPage: React.FC = () => {
                             </p>
                         </section>
 
-                        <div className="mt-12 pt-8 border-t border-gray-200">
-                            <p className="text-sm text-gray-600">
+                        <div className="mt-12 pt-8 border-t border-gray-200 dark:border-white/10">
+                            <p className="text-sm text-gray-600 dark:text-[#888888]">
                                 공고일자: 2025년 11월 22일
                             </p>
-                            <p className="text-sm text-gray-600">
+                            <p className="text-sm text-gray-600 dark:text-[#888888]">
                                 시행일자: 2025년 11월 22일
                             </p>
                         </div>

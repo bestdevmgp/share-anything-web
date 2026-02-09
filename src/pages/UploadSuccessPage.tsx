@@ -107,7 +107,7 @@ const UploadSuccessPage: React.FC = () => {
         <div className="text-center mb-12">
           <div className="flex justify-center mb-5">
             <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-              !isP2PTransfer || allFilesCompleted ? 'bg-green-100' : 'bg-blue-100'
+              !isP2PTransfer || allFilesCompleted ? 'bg-green-100 dark:bg-green-500/15' : 'bg-blue-100 dark:bg-blue-500/15'
             }`}>
               {isP2PTransfer && !allFilesCompleted ? (
                 <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
@@ -118,7 +118,7 @@ const UploadSuccessPage: React.FC = () => {
               )}
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">
             {isP2PTransfer ? (
               overallStatus === 'waiting' ? '수신자 대기 중...' :
               overallStatus === 'connected' ? '수신자 연결됨' :
@@ -126,7 +126,7 @@ const UploadSuccessPage: React.FC = () => {
               '전송 완료'
             ) : '업로드 완료'}
           </h1>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-gray-600 dark:text-[#888888]">
             {isP2PTransfer ? (
               overallStatus === 'waiting' ? '수신자가 연결될 때까지 이 페이지를 닫지 마세요.' :
               allFilesCompleted ? '모든 파일이 성공적으로 전송되었습니다.' :
@@ -148,36 +148,36 @@ const UploadSuccessPage: React.FC = () => {
           }
         `}</style>
 
-        <div className="bg-white rounded-3xl border-2 border-gray-200 p-8 md:p-12">
+        <div className="bg-white dark:bg-[#0B0A0B] rounded-3xl border-2 border-gray-200 dark:border-white/10 p-8 md:p-12">
           <div className="mb-8">
-            <label className="block text-sm font-medium text-gray-600 mb-3 text-center">
+            <label className="block text-sm font-medium text-gray-600 dark:text-[#888888] mb-3 text-center">
               전송 코드
             </label>
-            <div className="relative bg-gray-50 rounded-xl px-4 md:px-8 py-4 md:py-6 mb-4 border border-gray-300">
-              <p className="text-4xl md:text-5xl font-bold text-center text-gray-900 break-all" style={{ letterSpacing: '0.1em' }}>
+            <div className="relative bg-gray-50 dark:bg-white/5 rounded-xl px-4 md:px-8 py-4 md:py-6 mb-4 border border-gray-300 dark:border-white/15">
+              <p className="text-4xl md:text-5xl font-bold text-center text-gray-900 dark:text-[#EDEDED] break-all" style={{ letterSpacing: '0.1em' }}>
                 {displayCode}
               </p>
               <button
                 onClick={() => handleCopy(groupShareCode, 'code')}
-                className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-200 rounded-lg transition-colors"
+                className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-200 dark:hover:bg-white/10 rounded-lg transition-colors"
                 title="코드 복사"
               >
                 {copiedField === 'code' ? (
                   <CheckIcon className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
                 ) : (
-                  <ClipboardDocumentIcon className="w-5 h-5 md:w-6 md:h-6 text-gray-600" />
+                  <ClipboardDocumentIcon className="w-5 h-5 md:w-6 md:h-6 text-gray-600 dark:text-[#888888]" />
                 )}
               </button>
             </div>
             {!isP2PTransfer && uploadResult.files[0]?.expires_at && (
-              <p className="text-sm text-gray-500 text-center">
+              <p className="text-sm text-gray-500 dark:text-[#888888] text-center">
                 만료: {formatDateTime(uploadResult.files[0].expires_at)}
               </p>
             )}
           </div>
 
           <div className="mb-8">
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-gray-700 dark:text-[#888888] mb-3">
               공유 링크
             </label>
             <div className="relative">
@@ -185,17 +185,17 @@ const UploadSuccessPage: React.FC = () => {
                 type="text"
                 value={downloadUrl}
                 readOnly
-                className="w-full px-4 py-3 pr-12 bg-gray-50 border border-gray-300 rounded-lg text-sm text-gray-700"
+                className="w-full px-4 py-3 pr-12 bg-gray-50 dark:bg-white/5 border border-gray-300 dark:border-white/15 rounded-lg text-sm text-gray-700 dark:text-[#EDEDED]"
               />
               <button
                 onClick={() => handleCopy(downloadUrl, 'link')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-300 rounded-lg transition-colors"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-300 dark:hover:bg-white/10 rounded-lg transition-colors"
                 title="링크 복사"
               >
                 {copiedField === 'link' ? (
                   <CheckIcon className="w-5 h-5 text-green-600" />
                 ) : (
-                  <ClipboardDocumentIcon className="w-5 h-5 text-gray-600" />
+                  <ClipboardDocumentIcon className="w-5 h-5 text-gray-600 dark:text-[#888888]" />
                 )}
               </button>
             </div>
@@ -213,21 +213,21 @@ const UploadSuccessPage: React.FC = () => {
                   if (isCompleted) {
                     return (
                       <>
-                        <label className="block text-sm font-medium text-gray-700 mb-3">
+                        <label className="block text-sm font-medium text-gray-700 dark:text-[#888888] mb-3">
                           파일
                         </label>
-                        <div className="p-4 rounded-xl border-2 bg-green-50 border-green-200">
+                        <div className="p-4 rounded-xl border-2 bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30">
                           <div className="flex items-center space-x-3">
                             <div className="flex-shrink-0">
-                              <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-green-100">
+                              <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-green-100 dark:bg-green-500/15">
                                 <CheckIcon className="w-5 h-5 text-green-600" />
                               </div>
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h4 className="text-sm font-medium text-gray-900 truncate">
+                              <h4 className="text-sm font-medium text-gray-900 dark:text-[#EDEDED] truncate">
                                 {file.name}
                               </h4>
-                              <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                              <p className="text-xs text-gray-500 dark:text-[#888888]">{formatFileSize(file.size)}</p>
                             </div>
                             <div className="flex-shrink-0 text-right mr-4">
                               <span className="text-sm text-green-600 font-medium">완료</span>
@@ -240,24 +240,24 @@ const UploadSuccessPage: React.FC = () => {
 
                   if (isTransferring || p2pStatus === 'connected') {
                     return (
-                      <div className="bg-blue-50 rounded-xl px-4 py-4">
+                      <div className="bg-blue-50 dark:bg-blue-500/10 rounded-xl px-4 py-4">
                         <div className="flex items-center gap-2">
                           <div className="flex-1 pl-2">
                             <div className="flex justify-between mb-2">
-                              <span className="text-sm font-medium text-gray-700 self-start">
+                              <span className="text-sm font-medium text-gray-700 dark:text-[#888888] self-start">
                                 {isTransferring ? '전송 중...' : '연결 중...'}
                               </span>
                               {isTransferring && (
                                 <div className="flex items-center gap-2 self-end">
                                   {progress?.timeRemaining && (
-                                    <span className="text-xs text-gray-500">{progress.timeRemaining}</span>
+                                    <span className="text-xs text-gray-500 dark:text-[#888888]">{progress.timeRemaining}</span>
                                   )}
                                   <span className="text-xs font-semibold text-blue-600">{progress?.progress || 0}%</span>
                                 </div>
                               )}
                             </div>
                             {isTransferring && (
-                              <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                              <div className="bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden">
                                 <div
                                   className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
                                   style={{ width: `${progress?.progress || 0}%` }}
@@ -267,10 +267,10 @@ const UploadSuccessPage: React.FC = () => {
                           </div>
                           <button
                             onClick={() => cancelTransfer(file.name)}
-                            className="p-1 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
+                            className="p-1 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded transition-colors flex-shrink-0"
                             title="전송 중단"
                           >
-                            <XMarkIcon className="w-6 h-6 text-gray-600" />
+                            <XMarkIcon className="w-6 h-6 text-gray-600 dark:text-[#888888]" />
                           </button>
                         </div>
                       </div>
@@ -279,11 +279,11 @@ const UploadSuccessPage: React.FC = () => {
 
                   return (
                     <>
-                      <label className="block text-sm font-medium text-gray-700 mb-3">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-[#888888] mb-3">
                         파일
                       </label>
                       <div
-                        className="p-4 rounded-xl border-2 bg-gray-50 border-transparent cursor-pointer hover:bg-gray-100 transition-colors"
+                        className="p-4 rounded-xl border-2 bg-gray-50 dark:bg-white/5 border-transparent cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
                         onClick={() => setPreviewFile(file)}
                       >
                         <div className="flex items-center space-x-3">
@@ -291,13 +291,13 @@ const UploadSuccessPage: React.FC = () => {
                             <FileThumbnail source={file} fileName={file.name} size="sm" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="text-sm font-medium text-gray-900 truncate">
+                            <h4 className="text-sm font-medium text-gray-900 dark:text-[#EDEDED] truncate">
                               {file.name}
                             </h4>
-                            <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                            <p className="text-xs text-gray-500 dark:text-[#888888]">{formatFileSize(file.size)}</p>
                           </div>
                           <div className="flex-shrink-0 text-right mr-4">
-                            <span className="text-sm text-gray-400">대기 중</span>
+                            <span className="text-sm text-gray-400 dark:text-[#666666]">대기 중</span>
                           </div>
                         </div>
                       </div>
@@ -306,7 +306,7 @@ const UploadSuccessPage: React.FC = () => {
                 })()
               ) : (
                 <>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-[#888888] mb-3">
                     파일 목록 ({files.length}개)
                   </label>
                   <div className="space-y-3">
@@ -319,9 +319,9 @@ const UploadSuccessPage: React.FC = () => {
                         <div
                           key={file.name}
                           className={`p-4 rounded-xl border-2 transition-all ${
-                            isTransferring ? 'bg-blue-50 border-blue-200' :
-                            isCompleted ? 'bg-green-50 border-green-200' :
-                            'bg-gray-50 border-transparent cursor-pointer hover:bg-gray-100'
+                            isTransferring ? 'bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30' :
+                            isCompleted ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30' :
+                            'bg-gray-50 dark:bg-white/5 border-transparent cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10'
                           }`}
                           onClick={() => {
                             if (!isTransferring && !isCompleted) setPreviewFile(file);
@@ -330,7 +330,7 @@ const UploadSuccessPage: React.FC = () => {
                           <div className="flex items-center space-x-3">
                             <div className="flex-shrink-0">
                               {isCompleted ? (
-                                <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-green-100">
+                                <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-green-100 dark:bg-green-500/15">
                                   <CheckIcon className="w-5 h-5 text-green-600" />
                                 </div>
                               ) : (
@@ -339,12 +339,12 @@ const UploadSuccessPage: React.FC = () => {
                             </div>
 
                             <div className="flex-1 min-w-0">
-                              <h4 className="text-sm font-medium text-gray-900 truncate">
+                              <h4 className="text-sm font-medium text-gray-900 dark:text-[#EDEDED] truncate">
                                 {file.name}
                               </h4>
                               {isTransferring ? (
                                 <div className="mt-1.5">
-                                  <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                                  <div className="bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden">
                                     <div
                                       className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
                                       style={{ width: `${progress?.progress || 0}%` }}
@@ -352,7 +352,7 @@ const UploadSuccessPage: React.FC = () => {
                                   </div>
                                 </div>
                               ) : (
-                                <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                                <p className="text-xs text-gray-500 dark:text-[#888888]">{formatFileSize(file.size)}</p>
                               )}
                             </div>
 
@@ -362,19 +362,19 @@ const UploadSuccessPage: React.FC = () => {
                               ) : isTransferring ? (
                                 <div className="flex items-center gap-2 mr-1">
                                   {progress?.timeRemaining && (
-                                    <span className="text-xs text-gray-500">{progress.timeRemaining}</span>
+                                    <span className="text-xs text-gray-500 dark:text-[#888888]">{progress.timeRemaining}</span>
                                   )}
                                   <span className="text-xs font-semibold text-blue-600">{progress?.progress || 0}%</span>
                                   <button
                                     onClick={() => cancelTransfer(file.name)}
-                                    className="p-1 hover:bg-blue-100 rounded transition-colors"
+                                    className="p-1 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded transition-colors"
                                     title="전송 중단"
                                   >
-                                    <XMarkIcon className="w-5 h-5 text-gray-500" />
+                                    <XMarkIcon className="w-5 h-5 text-gray-500 dark:text-[#888888]" />
                                   </button>
                                 </div>
                               ) : (
-                                <span className="text-sm text-gray-400 mr-4">대기 중</span>
+                                <span className="text-sm text-gray-400 dark:text-[#666666] mr-4">대기 중</span>
                               )}
                             </div>
                           </div>
@@ -388,7 +388,7 @@ const UploadSuccessPage: React.FC = () => {
           )}
 
           <div className="flex flex-col items-center">
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+            <label className="block text-sm font-medium text-gray-700 dark:text-[#888888] mb-3">
               QR 코드로 다운로드
             </label>
             <div className="p-4 bg-white border-2 border-gray-200 rounded-2xl">
@@ -413,23 +413,23 @@ const UploadSuccessPage: React.FC = () => {
 
       {showFailedModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fade-in">
-          <div className="bg-white rounded-2xl max-w-[30rem] w-full p-6 md:p-8 animate-modal-pop relative">
+          <div className="bg-white dark:bg-[#0B0A0B] rounded-2xl max-w-[30rem] w-full p-6 md:p-8 animate-modal-pop relative">
             <button
               onClick={() => setShowFailedModal(false)}
-              className="absolute top-4 right-4 p-1 hover:bg-gray-100 rounded-lg transition-colors"
+              className="absolute top-4 right-4 p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
               title="닫기"
             >
-              <XMarkIcon className="w-6 h-6 text-gray-400" />
+              <XMarkIcon className="w-6 h-6 text-gray-400 dark:text-[#666666]" />
             </button>
             <div className="flex justify-center mb-4">
-              <div className="w-14 h-14 bg-yellow-100 rounded-full flex items-center justify-center">
+              <div className="w-14 h-14 bg-yellow-100 dark:bg-yellow-500/15 rounded-full flex items-center justify-center">
                 <ExclamationTriangleIcon className="w-8 h-8 text-yellow-600" />
               </div>
             </div>
-            <h3 className="text-xl font-bold text-gray-900 text-center mb-3">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-[#EDEDED] text-center mb-3">
               P2P 연결 실패
             </h3>
-            <p className="text-gray-600 text-center mb-6 text-sm leading-relaxed">
+            <p className="text-gray-600 dark:text-[#888888] text-center mb-6 text-sm leading-relaxed">
               P2P 및 TURN 서버 연결에 모두 실패하였습니다.
               <br />
               일반 전송으로 전환하시겠습니까?
@@ -437,7 +437,7 @@ const UploadSuccessPage: React.FC = () => {
             <div className="flex gap-3">
               <button
                 onClick={handleRetryP2P}
-                className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-3 border border-gray-300 dark:border-white/15 text-gray-700 dark:text-[#EDEDED] font-medium rounded-xl hover:bg-gray-50 dark:hover:bg-white/10 transition-colors"
               >
                 다시 시도
               </button>

@@ -63,22 +63,22 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
     <div className="fixed inset-0 z-50 overflow-y-auto" onClick={onClose}>
       <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
         {/* Background overlay */}
-        <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" />
+        <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 dark:bg-black/70" />
 
         {/* Modal panel */}
         <div
-          className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all max-w-full sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full"
+          className="inline-block align-bottom bg-white dark:bg-[#0B0A0B] rounded-lg text-left overflow-hidden shadow-xl transform transition-all max-w-full sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+          <div className="bg-white dark:bg-[#0B0A0B] px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg leading-6 font-medium text-gray-900">
+              <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-[#EDEDED]">
                 다운로드 기록
               </h3>
               <button
                 onClick={onClose}
-                className="text-gray-400 hover:text-gray-500"
+                className="text-gray-400 hover:text-gray-500 dark:text-[#666666] dark:hover:text-[#888888]"
               >
                 <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -89,45 +89,45 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
             {/* Content */}
             {loading ? (
               <div className="text-center py-8">
-                <div className="text-gray-500">로딩 중...</div>
+                <div className="text-gray-500 dark:text-[#888888]">로딩 중...</div>
               </div>
             ) : logs.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-gray-500">아직 다운로드 기록이 없습니다.</p>
+                <p className="text-gray-500 dark:text-[#888888]">아직 다운로드 기록이 없습니다.</p>
               </div>
             ) : (
               <div className="relative">
                 <div ref={scrollContainerRef} className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
+                  <table className="min-w-full divide-y divide-gray-200 dark:divide-white/10">
+                    <thead className="bg-gray-50 dark:bg-white/5">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider">
                           다운로드한 사람
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider">
                           IP 주소
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider">
                           플랫폼
                         </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider">
                           다운로드 날짜
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
+                    <tbody className="bg-white dark:bg-[#0B0A0B] divide-y divide-gray-200 dark:divide-white/10">
                       {logs.map((log) => (
                         <tr key={log.id}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-[#EDEDED]">
                             {log.downloader_name || '익명'}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#888888]">
                             {log.ip_address}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#888888]">
                             {log.device_platform}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#888888]">
                             {formatDate(log.downloaded_at)}
                           </td>
                         </tr>
@@ -162,11 +162,11 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
           </div>
 
           {/* Footer */}
-          <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <div className="bg-gray-50 dark:bg-white/5 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
             <button
               type="button"
               onClick={onClose}
-              className="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+              className="w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-white/15 shadow-sm px-4 py-2 bg-white dark:bg-[#1A1A1A] text-base font-medium text-gray-700 dark:text-[#EDEDED] hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
             >
               닫기
             </button>

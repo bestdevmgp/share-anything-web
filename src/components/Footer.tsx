@@ -1,24 +1,66 @@
 import React from 'react';
+import { useTheme } from '../context/ThemeContext';
+import { SunIcon, MoonIcon, ComputerDesktopIcon } from '@heroicons/react/24/outline';
 
 const Footer: React.FC = () => {
+  const { theme, setTheme } = useTheme();
+
   return (
-    <footer className="bg-white border-t border-gray-200 py-8">
+    <footer className="bg-white dark:bg-[#010001] border-t border-gray-200 dark:border-white/10 py-8">
       <div className="max-w-7xl mx-auto px-4">
         {/* Links */}
         <div className="flex justify-center items-center gap-8 mb-6">
           <a
             href="/privacy-policy"
-            className="text-gray-600 hover:text-gray-900 text-sm transition-colors"
+            className="text-gray-600 dark:text-[#888888] hover:text-gray-900 dark:hover:text-[#EDEDED] text-sm transition-colors"
           >
             개인정보처리방침
           </a>
           <a
             href="/terms-of-use"
-            className="text-gray-600 hover:text-gray-900 text-sm transition-colors"
+            className="text-gray-600 dark:text-[#888888] hover:text-gray-900 dark:hover:text-[#EDEDED] text-sm transition-colors"
           >
             이용약관
           </a>
+        </div>
 
+        {/* Theme Switcher */}
+        <div className="flex justify-center mb-6">
+          <div className="inline-flex items-center gap-0.5 rounded-full border border-gray-200 dark:border-white/10 p-0.5 bg-gray-100 dark:bg-white/5">
+            <button
+              onClick={() => setTheme('system')}
+              className={`w-5 h-5 flex items-center justify-center rounded-full transition-colors ${
+                theme === 'system'
+                  ? 'bg-white dark:bg-[#222222] text-gray-900 dark:text-[#EDEDED] shadow-sm ring-1 ring-gray-300 dark:ring-white/20'
+                  : 'text-gray-400 dark:text-[#666666] hover:text-gray-600 dark:hover:text-[#888888]'
+              }`}
+              title="시스템 설정"
+            >
+              <ComputerDesktopIcon className="w-3 h-3" />
+            </button>
+            <button
+              onClick={() => setTheme('light')}
+              className={`w-5 h-5 flex items-center justify-center rounded-full transition-colors ${
+                theme === 'light'
+                  ? 'bg-white dark:bg-[#222222] text-gray-900 dark:text-[#EDEDED] shadow-sm ring-1 ring-gray-300 dark:ring-white/20'
+                  : 'text-gray-400 dark:text-[#666666] hover:text-gray-600 dark:hover:text-[#888888]'
+              }`}
+              title="라이트 모드"
+            >
+              <SunIcon className="w-[15px] h-[15px]" />
+            </button>
+            <button
+              onClick={() => setTheme('dark')}
+              className={`w-5 h-5 flex items-center justify-center rounded-full transition-colors ${
+                theme === 'dark'
+                  ? 'bg-white dark:bg-[#222222] text-gray-900 dark:text-[#EDEDED] shadow-sm ring-1 ring-gray-300 dark:ring-white/20'
+                  : 'text-gray-400 dark:text-[#666666] hover:text-gray-600 dark:hover:text-[#888888]'
+              }`}
+              title="다크 모드"
+            >
+              <MoonIcon className="w-3 h-3" />
+            </button>
+          </div>
         </div>
 
         {/* GitHub Icons */}
@@ -28,7 +70,7 @@ const Footer: React.FC = () => {
             href="https://github.com/bestdevmgp"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-gray-500 dark:text-[#666666] hover:text-gray-700 dark:hover:text-[#EDEDED] transition-colors"
             aria-label="GitHub"
           >
             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -41,7 +83,7 @@ const Footer: React.FC = () => {
             href="https://mingyu.dev"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-gray-500 dark:text-[#666666] hover:text-gray-700 dark:hover:text-[#EDEDED] transition-colors"
             aria-label="Portfolio"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -52,7 +94,7 @@ const Footer: React.FC = () => {
           {/* Email Icon */}
           <a
             href="mailto:me@mingyu.dev"
-            className="text-gray-500 hover:text-gray-700 transition-colors"
+            className="text-gray-500 dark:text-[#666666] hover:text-gray-700 dark:hover:text-[#EDEDED] transition-colors"
             aria-label="Email"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -63,10 +105,11 @@ const Footer: React.FC = () => {
 
         {/* Copyright */}
         <div className="text-center">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-[#666666]">
             © 2026 ShareAnything. All rights reserved.
           </p>
         </div>
+
       </div>
     </footer>
   );

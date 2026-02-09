@@ -375,14 +375,14 @@ const UploadPage: React.FC = () => {
     <div>
       <div className="max-w-4xl mx-auto px-4 py-12 md:pb-32">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">파일 전송</h1>
-          <p className="text-lg text-gray-600">파일과 비밀번호는 암호화되어 보관되며 유효 기간이 지나면 즉시 폐기됩니다.</p>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">파일 전송</h1>
+          <p className="text-lg text-gray-600 dark:text-[#888888]">파일과 비밀번호는 암호화되어 보관되며 유효 기간이 지나면 즉시 폐기됩니다.</p>
         </div>
 
         <div className="mb-10">
-          <div className="relative flex gap-1.5 w-full max-w-md bg-gray-100 rounded-xl p-1.5">
+          <div className="relative flex gap-1.5 w-full max-w-md bg-gray-100 dark:bg-[#0B0A0B] rounded-xl p-1.5">
             <div
-              className="absolute top-1.5 h-[calc(100%-12px)] bg-white rounded-lg transition-all duration-200 ease-out"
+              className="absolute top-1.5 h-[calc(100%-12px)] bg-white dark:bg-[#222222] rounded-lg transition-all duration-200 ease-out"
               style={{
                 width: 'calc(50% - 9px)',
                 left: transferType === 'server' ? '6px' : 'calc(50% + 3px)',
@@ -394,8 +394,8 @@ const UploadPage: React.FC = () => {
               onClick={() => handleTransferTypeChange('server')}
               className={`relative z-10 flex-1 px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
                 transferType === 'server'
-                  ? 'text-gray-900'
-                  : 'text-gray-600 hover:bg-gray-200/50 hover:text-gray-800'
+                  ? 'text-gray-900 dark:text-[#EDEDED]'
+                  : 'text-gray-600 dark:text-[#888888] hover:bg-gray-200/50 dark:hover:bg-white/5 hover:text-gray-800 dark:hover:text-[#EDEDED]'
               }`}
             >
               일반 전송
@@ -406,8 +406,8 @@ const UploadPage: React.FC = () => {
               onClick={() => handleTransferTypeChange('p2p')}
               className={`relative z-10 flex-1 px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
                 transferType === 'p2p'
-                  ? 'text-gray-900'
-                  : 'text-gray-600 hover:bg-gray-200/50 hover:text-gray-800'
+                  ? 'text-gray-900 dark:text-[#EDEDED]'
+                  : 'text-gray-600 dark:text-[#888888] hover:bg-gray-200/50 dark:hover:bg-white/5 hover:text-gray-800 dark:hover:text-[#EDEDED]'
               }`}
             >
               보안 전송
@@ -416,7 +416,7 @@ const UploadPage: React.FC = () => {
             {p2pTooltipMounted && (
               <div
                 ref={tooltipRef}
-                className={`absolute bg-white border border-gray-200 rounded-xl shadow-lg p-4 text-sm text-gray-700 z-50 transition-all duration-300 break-keep
+                className={`absolute bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-white/10 rounded-xl shadow-lg p-4 text-sm text-gray-700 dark:text-[#888888] z-50 transition-all duration-300 break-keep
                   ${tooltipPosition === 'bottom'
                     ? 'top-full left-0 right-0 mt-3'
                     : 'top-1/2 left-full w-[32rem] ml-3 -translate-y-1/2'
@@ -425,10 +425,10 @@ const UploadPage: React.FC = () => {
                 `}
               >
                 {tooltipPosition === 'bottom' && (
-                  <div className="absolute -top-[7px] right-[25%] w-3.5 h-3.5 bg-white border-l border-t border-gray-200 transform rotate-45" />
+                  <div className="absolute -top-[7px] right-[25%] w-3.5 h-3.5 bg-white dark:bg-[#1A1A1A] border-l border-t border-gray-200 dark:border-white/10 transform rotate-45" />
                 )}
                 {tooltipPosition === 'right' && (
-                  <div className="absolute top-1/2 -left-[7px] -translate-y-1/2 w-3.5 h-3.5 bg-white border-l border-b border-gray-200 transform rotate-45" />
+                  <div className="absolute top-1/2 -left-[7px] -translate-y-1/2 w-3.5 h-3.5 bg-white dark:bg-[#1A1A1A] border-l border-b border-gray-200 dark:border-white/10 transform rotate-45" />
                 )}
                 <p className="font-semibold text-blue-600 mb-2 flex items-center gap-1">
                   <InformationCircleIcon className="w-5 h-5 text-blue-600" />
@@ -437,11 +437,11 @@ const UploadPage: React.FC = () => {
                 <p className="mb-1 flex"><span className="flex-shrink-0 mr-1.5">•</span><span>WebRTC를 사용한 1:1 직접 전송으로 파일이 서버에 저장되지 않습니다.</span></p>
                 <p className="mb-1 flex"><span className="flex-shrink-0 mr-1.5">•</span><span>사설망 연결 등의 이유로 P2P 전송이 차단될 경우, TURN 서버를 통해 파일을 전송합니다. 모든 데이터는 종단간 암호화됩니다.</span></p>
                 <p className="mb-3 flex"><span className="flex-shrink-0 mr-1.5">•</span><span>일회성 전송이며, 발신자와 수신자가 동시에 온라인이어야 합니다.</span></p>
-                <div className="border-t border-gray-100 pt-3 px-1 flex items-center justify-between">
+                <div className="border-t border-gray-100 dark:border-white/10 pt-3 px-1 flex items-center justify-between">
                   <button
                     type="button"
                     onClick={() => handleDismissP2PTooltip(true)}
-                    className="text-xs text-gray-400 hover:text-gray-600 underline underline-offset-2 transition-colors"
+                    className="text-xs text-gray-400 dark:text-[#666666] hover:text-gray-600 dark:hover:text-[#888888] underline underline-offset-2 transition-colors"
                   >
                     다시 보지 않기
                   </button>
@@ -463,36 +463,36 @@ const UploadPage: React.FC = () => {
             {...getRootProps()}
             className={`border-2 border-dashed rounded-2xl cursor-pointer transition-colors h-[calc(100vw-2rem)] md:h-[30rem] ${
               isDragActive
-                ? 'border-blue-500 bg-blue-50'
-                : 'border-gray-300 bg-white hover:border-gray-400'
+                ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10'
+                : 'border-gray-300 bg-white hover:border-gray-400 dark:border-white/15 dark:bg-[#0B0A0B] dark:hover:border-white/25'
             } ${files.length > 0 ? 'p-4 md:p-6 flex flex-col' : 'p-6 md:p-16 text-center'}`}
           >
             <input {...getInputProps()} />
 
             {files.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full">
-                <div className="w-14 h-14 md:w-20 md:h-20 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-3 md:mb-6">
+                <div className="w-14 h-14 md:w-20 md:h-20 bg-blue-100 dark:bg-blue-500/15 rounded-2xl flex items-center justify-center mx-auto mb-3 md:mb-6">
                   <DocumentIcon className="w-7 h-7 md:w-10 md:h-10 text-blue-600" />
                 </div>
-                <p className="text-sm md:text-xl font-semibold text-gray-900 mb-1 md:mb-2">
+                <p className="text-sm md:text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-1 md:mb-2">
                   여기에 파일을 드래그하거나 클릭하여 {transferType === 'p2p' ? '전송' : '업로드'}하세요.
                 </p>
                 {transferType !== 'p2p' && (
-                  <p className="text-xs md:text-sm text-gray-500 mb-3 md:mb-6">
+                  <p className="text-xs md:text-sm text-gray-500 dark:text-[#888888] mb-3 md:mb-6">
                     로그인 시 최대 3GB까지 업로드할 수 있습니다.
                   </p>
                 )}
                 {transferType === 'p2p' && <div className="mb-3 md:mb-6" />}
                 <button
                   type="button"
-                  className="px-6 py-2 md:px-8 md:py-3 bg-gray-100 text-gray-700 text-sm md:text-base font-medium rounded-lg hover:bg-gray-200 transition-colors"
+                  className="px-6 py-2 md:px-8 md:py-3 bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-[#EDEDED] text-sm md:text-base font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-white/15 transition-colors"
                 >
                   파일 선택
                 </button>
               </div>
             ) : (
               <>
-                <h3 className="font-semibold text-gray-900 mt-0.5 md:mt-0 mb-3.5 md:mb-4 flex-shrink-0">선택된 파일 ({files.length})</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-[#EDEDED] mt-0.5 md:mt-0 mb-3.5 md:mb-4 flex-shrink-0">선택된 파일 ({files.length})</h3>
                 <div className="flex-1 overflow-y-auto space-y-2 min-h-0">
                   {files.map((file, index) => (
                     <div
@@ -501,26 +501,26 @@ const UploadPage: React.FC = () => {
                         e.stopPropagation();
                         setPreviewFile(file);
                       }}
-                      className="flex items-center justify-between p-3.5 bg-gray-50 rounded-lg md:hover:bg-gray-100 transition-colors cursor-pointer"
+                      className="flex items-center justify-between p-3.5 bg-gray-50 dark:bg-white/5 rounded-lg md:hover:bg-gray-100 dark:md:hover:bg-white/10 transition-colors cursor-pointer"
                     >
                       <div className="flex items-center space-x-3 flex-1 min-w-0">
                         <FileThumbnail source={file} fileName={file.name} size="sm" />
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-gray-900 truncate">{file.name}</p>
-                          <p className="text-xs text-gray-500">{formatFileSize(file.size)}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-[#EDEDED] truncate">{file.name}</p>
+                          <p className="text-xs text-gray-500 dark:text-[#888888]">{formatFileSize(file.size)}</p>
                         </div>
                       </div>
                       <button
                         onClick={(e) => { e.stopPropagation(); removeFile(index); }}
-                        className="ml-2 p-1 hover:bg-gray-200 rounded"
+                        className="ml-2 p-1 hover:bg-gray-200 dark:hover:bg-white/10 rounded"
                       >
-                        <XMarkIcon className="w-5 h-5 text-gray-500" />
+                        <XMarkIcon className="w-5 h-5 text-gray-500 dark:text-[#888888]" />
                       </button>
                     </div>
                   ))}
                   <button
                     type="button"
-                    className="w-full p-3.5 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-gray-400 hover:text-gray-600 hover:border-gray-400 transition-colors"
+                    className="w-full p-3.5 border-2 border-dashed border-gray-300 dark:border-white/15 rounded-lg flex items-center justify-center text-gray-400 dark:text-[#666666] hover:text-gray-600 dark:hover:text-[#888888] hover:border-gray-400 dark:hover:border-white/25 transition-colors"
                   >
                     <PlusIcon className="w-6 h-6" />
                   </button>
@@ -531,19 +531,19 @@ const UploadPage: React.FC = () => {
         </div>
 
         {isProcessingFiles && (
-          <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <p className="text-sm font-medium text-gray-700">파일 처리 중...</p>
+          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-200 dark:border-blue-500/30">
+            <p className="text-sm font-medium text-gray-700 dark:text-[#EDEDED]">파일 처리 중...</p>
           </div>
         )}
 
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">전송 설정</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-[#EDEDED] mb-8">전송 설정</h2>
 
           {transferType !== 'p2p' && (
             <div className="mb-8">
-              <h3 className={`text-base font-semibold text-gray-900 ${!isAuthenticated ? 'mb-1' : 'mb-4'}`}>유효 기간</h3>
+              <h3 className={`text-base font-semibold text-gray-900 dark:text-[#EDEDED] ${!isAuthenticated ? 'mb-1' : 'mb-4'}`}>유효 기간</h3>
               {!isAuthenticated && (
-                <p className="mb-4 text-sm text-gray-500">
+                <p className="mb-4 text-sm text-gray-500 dark:text-[#888888]">
                   로그인 후 사용 가능합니다.
                 </p>
               )}
@@ -556,7 +556,7 @@ const UploadPage: React.FC = () => {
                     className={`px-4 py-2 md:px-6 md:py-3 rounded-xl text-sm md:text-base font-medium transition-colors ${
                       expiration === option.value
                         ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        : 'bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-[#EDEDED] hover:bg-gray-200 dark:hover:bg-white/10'
                     } ${!isAuthenticated && option.value !== 'five_minutes' ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     {option.label}
@@ -579,7 +579,7 @@ const UploadPage: React.FC = () => {
                         className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors cursor-pointer ${
                           isOneTime
                             ? 'bg-blue-600 border-blue-600'
-                            : 'border-gray-300 bg-white'
+                            : 'border-gray-300 dark:border-white/15 bg-white dark:bg-[#0B0A0B]'
                         }`}
                       >
                         {isOneTime && (
@@ -589,7 +589,7 @@ const UploadPage: React.FC = () => {
                     </div>
                     <span
                       onClick={() => setIsOneTime(!isOneTime)}
-                      className="ml-2.5 text-base font-medium cursor-pointer text-gray-900"
+                      className="ml-2.5 text-base font-medium cursor-pointer text-gray-900 dark:text-[#EDEDED]"
                     >
                       일회용 다운로드
                     </span>
@@ -600,8 +600,8 @@ const UploadPage: React.FC = () => {
           )}
 
           <div className="mb-8">
-            <h3 className="text-base font-semibold text-gray-900 mb-4">
-              비밀번호 <span className="text-sm text-gray-400 font-normal">선택</span>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
+              비밀번호 <span className="text-sm text-gray-400 dark:text-[#666666] font-normal">선택</span>
             </h3>
             <div className="relative">
               <input
@@ -610,13 +610,13 @@ const UploadPage: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={!isAuthenticated}
                 placeholder={isAuthenticated ? "다운로드 비밀번호" : "로그인 후 사용 가능합니다."}
-                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-200 disabled:text-gray-400"
+                className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-white/15 dark:bg-[#0B0A0B] dark:text-[#EDEDED] dark:placeholder-[#666666] rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500/50 focus:border-transparent disabled:bg-gray-200 disabled:text-gray-400 dark:disabled:bg-white/5 dark:disabled:text-[#666666]"
               />
               {isAuthenticated ? (
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-500 dark:text-[#888888] hover:text-gray-700 dark:hover:text-[#EDEDED]"
                 >
                   {showPassword ? (
                     <EyeIcon className="w-5 h-5" />
@@ -626,7 +626,7 @@ const UploadPage: React.FC = () => {
                 </button>
               ) : (
                 <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-gray-400 dark:text-[#666666]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
@@ -635,38 +635,38 @@ const UploadPage: React.FC = () => {
           </div>
 
           <div>
-            <h3 className="text-base font-semibold text-gray-900 mb-4">
-              설명 <span className="text-sm text-gray-400 font-normal">선택</span>
+            <h3 className="text-base font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
+              설명 <span className="text-sm text-gray-400 dark:text-[#666666] font-normal">선택</span>
             </h3>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="파일에 대한 간단한 설명을 입력하세요..."
               rows={4}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+              className="w-full px-4 py-3 border border-gray-300 dark:border-white/15 dark:bg-[#0B0A0B] dark:text-[#EDEDED] dark:placeholder-[#666666] rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500/50 focus:border-transparent resize-none"
             />
           </div>
         </div>
 
         <div className="mt-7">
           {isUploading && transferType !== 'p2p' ? (
-            <div className="bg-blue-50 rounded-xl px-4 py-4">
+            <div className="bg-blue-50 dark:bg-blue-500/10 rounded-xl px-4 py-4">
               <div className="flex items-center gap-2">
                 <div className="flex-1 pl-2">
                   <div className="flex justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700 self-start">
+                    <span className="text-sm font-medium text-gray-700 dark:text-[#EDEDED] self-start">
                       {uploadProgress === 100 ? '잠시만 기다려주세요...' : '업로드 중...'}
                     </span>
                     {uploadProgress < 100 && (
                       <div className="flex items-center gap-2 self-end">
                         {uploadTimeRemaining && (
-                          <span className="text-xs text-gray-500">{uploadTimeRemaining}</span>
+                          <span className="text-xs text-gray-500 dark:text-[#888888]">{uploadTimeRemaining}</span>
                         )}
                         <span className="text-xs font-semibold text-blue-600">{uploadProgress}%</span>
                       </div>
                     )}
                   </div>
-                  <div className="bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                  <div className="bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden">
                     <div
                       className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
                       style={{ width: `${uploadProgress}%` }}
@@ -675,10 +675,10 @@ const UploadPage: React.FC = () => {
                 </div>
                 <button
                   onClick={handleCancelUpload}
-                  className="p-1 hover:bg-blue-100 rounded transition-colors flex-shrink-0"
+                  className="p-1 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded transition-colors flex-shrink-0"
                   title="업로드 취소"
                 >
-                  <XMarkIcon className="w-6 h-6 text-gray-600" />
+                  <XMarkIcon className="w-6 h-6 text-gray-600 dark:text-[#888888]" />
                 </button>
               </div>
             </div>
@@ -701,7 +701,7 @@ const UploadPage: React.FC = () => {
                 <button
                   onClick={handleUpload}
                   disabled={files.length === 0 || !turnstileToken || (isUploading && transferType === 'p2p')}
-                  className="w-full md:w-auto min-w-[120px] px-10 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                  className="w-full md:w-auto min-w-[120px] px-10 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-white/10 dark:disabled:text-[#666666] disabled:cursor-not-allowed transition-colors"
                 >
                   {isUploading && transferType === 'p2p' ? '요청 중...' : (transferType === 'p2p' ? '전송' : '업로드')}
                 </button>
