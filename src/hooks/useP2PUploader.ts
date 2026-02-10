@@ -187,6 +187,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     };
 
     reader.readAsArrayBuffer(file);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shareCode, formatTime]);
 
   const setupPeerConnection = useCallback(async (requestedFileName: string) => {
@@ -218,8 +219,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     const pc = await createPeerConnection();
     pcRef.current = pc;
 
-    // Connection timeout - if not connected within 30 seconds, consider it failed
-    // Increased timeout to allow TURN relay negotiation
+    // 30초 타임아웃 (TURN 릴레이 협상 포함)
     const connectionTimeout = setTimeout(() => {
       if (pc.iceConnectionState !== 'connected' && pc.iceConnectionState !== 'completed') {
         console.log('[useP2PUploader] Connection timeout - ICE state:', pc.iceConnectionState);
@@ -281,7 +281,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
         clearTimeout(connectionTimeout);
         setStatus('connected');
 
-        // Check if using TURN relay
         try {
           const stats = await pc.getStats();
           stats.forEach((report) => {
@@ -304,10 +303,11 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
         setConnectionFailed(true);
         setStatus('waiting');
       }
-      // 'disconnected' state is often temporary during transfer, don't show error
+      // 전송 중 disconnected는 일시적일 수 있으므로 에러 미표시
     };
 
     return pc;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shareCode, sendFile]);
 
   useEffect(() => {
@@ -414,7 +414,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
           if (isTransferringRef.current) {
             toast.warning(t('p2p.receiverDisconnected'));
             isTransferringRef.current = false;
-            // Reset file progress to waiting
             setFileProgresses(prev => {
               const newMap = new Map(prev);
               newMap.forEach((progress, fileName) => {
@@ -454,7 +453,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, shareCode, retryCount]);
+  }, [enabled, shareCode, retryCount, t]);
 
   const retry = useCallback(() => {
     console.log('[useP2PUploader] Retrying P2P connection...');
@@ -510,6 +509,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     setStatus('waiting');
     setCurrentFileName('');
     toast.info(t('p2p.transferCancelled'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { status, fileProgresses, currentFileName, peerDeviceInfo, connectionFailed, retry, cancelTransfer };

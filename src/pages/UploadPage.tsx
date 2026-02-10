@@ -18,7 +18,6 @@ const UploadPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const { t, language } = useTranslation();
 
-  // Check for P2P fallback files
   const fallbackFiles = location.state?.fallbackFiles as File[] | undefined;
   const fromP2PFallback = location.state?.fromP2PFallback as boolean | undefined;
   const fallbackHandledRef = useRef(false);
@@ -46,7 +45,7 @@ const UploadPage: React.FC = () => {
 
   useEffect(() => {
     document.title = t('upload.pageTitle');
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (fromP2PFallback && fallbackFiles && fallbackFiles.length > 0 && !fallbackHandledRef.current) {
@@ -57,6 +56,7 @@ const UploadPage: React.FC = () => {
 
       window.history.replaceState({}, document.title);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fromP2PFallback, fallbackFiles]);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {

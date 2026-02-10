@@ -49,7 +49,6 @@ const Footer: React.FC = () => {
   return (
     <footer className="bg-white dark:bg-[#010001] border-t border-gray-200 dark:border-white/10 py-8">
       <div className="max-w-7xl mx-auto px-4">
-        {/* Links */}
         <div className="flex justify-center items-center gap-8 mb-6">
           <a
             href="/privacy-policy"
@@ -65,9 +64,7 @@ const Footer: React.FC = () => {
           </a>
         </div>
 
-        {/* GitHub Icons */}
         <div className="flex justify-center items-center gap-4 mb-6">
-          {/* GitHub Icon */}
           <a
             href="https://github.com/bestdevmgp"
             target="_blank"
@@ -80,7 +77,6 @@ const Footer: React.FC = () => {
             </svg>
           </a>
 
-          {/* Portfolio Icon */}
           <a
             href="https://mingyu.dev"
             target="_blank"
@@ -93,7 +89,6 @@ const Footer: React.FC = () => {
             </svg>
           </a>
 
-          {/* Email Icon */}
           <a
             href="mailto:me@mingyu.dev"
             className="text-gray-500 dark:text-[#666666] hover:text-gray-700 dark:hover:text-[#EDEDED] transition-colors"
@@ -105,7 +100,6 @@ const Footer: React.FC = () => {
           </a>
         </div>
 
-        {/* Copyright */}
         <div className="text-center mb-5">
           <p className="text-sm text-gray-500 dark:text-[#666666]">
             © 2026 ShareAnything. All rights reserved.

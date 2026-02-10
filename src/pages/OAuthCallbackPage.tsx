@@ -13,7 +13,7 @@ const OAuthCallbackPage: React.FC = () => {
 
   useEffect(() => {
     document.title = t('oauth.loggingIn');
-  }, []);
+  }, [t]);
   const { login } = useAuth();
   const [searchParams] = useSearchParams();
   const [error, setError] = useState('');

@@ -105,7 +105,7 @@ const UploadHistoryPage: React.FC = () => {
     return () => {
       document.title = 'ShareAnything';
     };
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {

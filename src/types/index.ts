@@ -142,7 +142,6 @@ export interface SignalingMessage {
   device_info?: string;
 }
 
-// Presigned Upload Types
 export interface PresignedUploadFileInfo {
   file_name: string;
   file_size: number;
@@ -184,7 +183,6 @@ export interface CompleteUploadRequest {
   files: CompleteUploadFile[];
 }
 
-// Multipart Upload Types
 export interface MultipartUploadFileInfo {
   file_name: string;
   file_size: number;
@@ -253,7 +251,6 @@ export interface CompleteMultipartUploadRequest {
   files: CompleteMultipartFileInfo[];
 }
 
-// TURN Credentials Types
 export interface IceServer {
   urls: string[];
   username?: string;

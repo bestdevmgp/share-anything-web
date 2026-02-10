@@ -32,7 +32,6 @@ const HomePage: React.FC = () => {
 
   return (
     <div>
-      {/* Hero Section */}
       <div className="text-center pt-20 pb-16 px-4">
         <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-[#EDEDED] mb-6">
           {t('home.heroTitle')}
@@ -42,10 +41,8 @@ const HomePage: React.FC = () => {
         </p>
       </div>
 
-      {/* Cards Section */}
       <div className="max-w-5xl mx-auto px-4 pb-20">
         <div className="grid md:grid-cols-2 gap-8">
-          {/* Send Files Card */}
           <div className="bg-white dark:bg-[#0B0A0B] rounded-2xl border-[3px] border-gray-100 dark:border-white/10 p-6 md:p-10 flex flex-col items-center text-center">
             <div className="flex items-center md:flex-col md:items-center mb-4 md:mb-6 w-full md:w-auto">
               <ArrowUpTrayIcon className="w-12 h-12 md:w-16 md:h-16 text-blue-600 mr-4 md:mr-0 md:mb-6 flex-shrink-0" strokeWidth={2.5} strokeLinecap="square" strokeLinejoin="miter" />
@@ -62,7 +59,6 @@ const HomePage: React.FC = () => {
             </button>
           </div>
 
-          {/* Receive Files Card */}
           <div className="bg-white dark:bg-[#0B0A0B] rounded-2xl border-[3px] border-gray-100 dark:border-white/10 p-6 md:p-10 flex flex-col items-center text-center">
             <div className="flex items-center md:flex-col md:items-center mb-4 md:mb-6 w-full md:w-auto">
               <ArrowDownTrayIcon className="w-12 h-12 md:w-16 md:h-16 text-gray-700 dark:text-[#EDEDED] mr-4 md:mr-0 md:mb-6 flex-shrink-0" strokeWidth={2.5} strokeLinecap="square" strokeLinejoin="miter" />

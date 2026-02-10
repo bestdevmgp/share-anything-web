@@ -55,15 +55,12 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto" onClick={onClose}>
       <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        {/* Background overlay */}
         <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 dark:bg-black/70" />
 
-        {/* Modal panel */}
         <div
           className="inline-block align-bottom bg-white dark:bg-[#0B0A0B] rounded-lg text-left overflow-hidden shadow-xl transform transition-all max-w-full sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header */}
           <div className="bg-white dark:bg-[#0B0A0B] px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-[#EDEDED]">
@@ -79,7 +76,6 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
               </button>
             </div>
 
-            {/* Content */}
             {loading ? (
               <div className="text-center py-8">
                 <div className="text-gray-500 dark:text-[#888888]">{t('common.loading')}</div>
@@ -129,7 +125,6 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
                   </table>
                 </div>
 
-                {/* Scroll hint overlay */}
                 {showScrollHint && (
                   <div
                     className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center cursor-pointer"
@@ -154,7 +149,6 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
             )}
           </div>
 
-          {/* Footer */}
           <div className="bg-gray-50 dark:bg-white/5 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
             <button
               type="button"

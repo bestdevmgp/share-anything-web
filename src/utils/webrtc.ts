@@ -4,10 +4,10 @@ import { turnAPI } from '../services/api';
 const API_BASE_URL = process.env.REACT_APP_API_URL || '';
 const WS_URL = API_BASE_URL.replace(/^http/, 'ws');
 
-// Cache for ICE servers to avoid repeated API calls
+// ICE 서버 캐시
 let cachedIceServers: RTCIceServer[] | null = null;
 let cacheExpiry: number = 0;
-const CACHE_DURATION_MS = 12 * 60 * 60 * 1000; // 12 hours (credentials valid for 24 hours)
+const CACHE_DURATION_MS = 12 * 60 * 60 * 1000; // 12시간 (자격증명 유효기간 24시간)
 
 export const createWebSocketConnection = (onMessage: (message: SignalingMessage) => void): WebSocket => {
   const ws = new WebSocket(`${WS_URL}/ws/signaling`);
@@ -24,7 +24,6 @@ export const createWebSocketConnection = (onMessage: (message: SignalingMessage)
   return ws;
 };
 
-// Convert API response to RTCIceServer format
 const convertToRTCIceServers = (servers: IceServer[]): RTCIceServer[] => {
   return servers.map(server => ({
     urls: server.urls,
@@ -33,7 +32,7 @@ const convertToRTCIceServers = (servers: IceServer[]): RTCIceServer[] => {
   }));
 };
 
-// Fallback ICE servers (Google STUN only - no TURN)
+// STUN 전용 폴백 서버
 const getFallbackIceServers = (): RTCIceServer[] => {
   console.warn('[WebRTC] Using fallback STUN servers (no TURN)');
   return [
@@ -43,11 +42,9 @@ const getFallbackIceServers = (): RTCIceServer[] => {
   ];
 };
 
-// Fetch ICE servers from backend (with caching)
 export const getIceServers = async (): Promise<RTCIceServer[]> => {
   const now = Date.now();
 
-  // Return cached servers if still valid
   if (cachedIceServers && now < cacheExpiry) {
     console.log('[WebRTC] Using cached ICE servers');
     return cachedIceServers;
@@ -66,7 +63,6 @@ export const getIceServers = async (): Promise<RTCIceServer[]> => {
   }
 };
 
-// Clear cached credentials (useful when refreshing)
 export const clearIceServerCache = (): void => {
   cachedIceServers = null;
   cacheExpiry = 0;

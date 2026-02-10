@@ -18,7 +18,7 @@ const DownloadFilePage: React.FC = () => {
 
   useEffect(() => {
     document.title = t('download.pageTitle');
-  }, []);
+  }, [t]);
   const navigate = useNavigate();
 
   const [fileList, setFileList] = useState<FileListResponse | null>(null);
@@ -57,6 +57,7 @@ const DownloadFilePage: React.FC = () => {
     setP2pCompletedFileIds(prev => new Set(prev).add(p2pActiveFileId || ''));
     setP2pActiveFileId(null);
     setP2pEnabled(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [p2pActiveFileId]);
 
   const singleFile = fileList?.files?.length === 1 ? fileList.files[0] : null;
@@ -162,6 +163,7 @@ const DownloadFilePage: React.FC = () => {
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code, navigate]);
 
   const handleTurnstileVerify = useCallback(async (token: string) => {

@@ -16,7 +16,7 @@ const UploadSuccessPage: React.FC = () => {
 
   useEffect(() => {
     document.title = t('uploadSuccess.pageTitle');
-  }, []);
+  }, [t]);
 
   const uploadResult = location.state?.uploadResult as FileUploadResponse | undefined;
   const uploadedFiles = location.state?.uploadedFiles as File[] | undefined;

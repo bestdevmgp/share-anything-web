@@ -6,7 +6,7 @@ const LoginPage: React.FC = () => {
     const { t } = useTranslation();
     useEffect(() => {
         document.title = t('login.title');
-    }, []);
+    }, [t]);
 
     const handleGoogleLogin = () => {
         window.location.href = authAPI.getGoogleLoginUrl();
@@ -27,9 +27,7 @@ const LoginPage: React.FC = () => {
                         </p>
                     </div>
 
-                    {/* Login Buttons */}
                     <div className="space-y-4 mb-8">
-                        {/* Google Login */}
                         <button
                             onClick={handleGoogleLogin}
                             className="w-full flex items-center justify-center space-x-3 px-6 py-3 bg-white dark:bg-[#1A1A1A] border border-gray-300 dark:border-white/15 rounded-lg hover:bg-gray-50 dark:hover:bg-white/10 transition-colors"
@@ -55,7 +53,6 @@ const LoginPage: React.FC = () => {
                             <span className="text-gray-700 dark:text-[#EDEDED] font-medium text-sm">{t('login.continueWithGoogle')}</span>
                         </button>
 
-                        {/* Naver Login */}
                         <button
                             onClick={handleNaverLogin}
                             className="w-full flex items-center justify-center space-x-5 px-6 py-3 bg-[#03C75A] hover:bg-[#02b350] rounded-lg transition-colors"
@@ -70,7 +67,6 @@ const LoginPage: React.FC = () => {
                         </button>
                     </div>
 
-                    {/* Terms and Privacy Notice */}
                     <div className="text-center text-xs text-gray-500 dark:text-[#666666] leading-relaxed">
                         {t('login.termsNotice')}
                         <a href="/privacy-policy" className="text-gray-500 dark:text-[#888888] underline hover:text-gray-700 dark:hover:text-[#EDEDED]">

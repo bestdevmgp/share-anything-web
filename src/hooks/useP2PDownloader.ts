@@ -98,7 +98,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
         const pc = await createPeerConnection();
         pcRef.current = pc;
 
-        // Connection timeout - if not connected within 10 seconds, consider it failed
+        // 10초 연결 타임아웃
         const connectionTimeout = setTimeout(() => {
           if (!isCleaningUpRef.current && !completedRef.current && pc.iceConnectionState !== 'connected' && pc.iceConnectionState !== 'completed') {
             console.log('[useP2PDownloader] Connection timeout - ICE state:', pc.iceConnectionState);
@@ -157,7 +157,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
                   });
                 }
 
-                // Delay cleanup to ensure everything is processed
+                // 처리 완료 대기 후 정리
                 setTimeout(() => cleanup(), 1000);
                 return;
               }
@@ -174,13 +174,11 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
                     return;
                   }
                 } catch {
-                  // Not JSON, ignore
                 }
               }
               return;
             }
 
-            // Handle binary data (file chunks)
             const chunk = event.data as ArrayBuffer;
             receivedChunksRef.current.push(chunk);
             receivedSizeRef.current += chunk.byteLength;
@@ -229,7 +227,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
             clearTimeout(connectionTimeout);
             setStatus('downloading');
 
-            // Check if using TURN relay
             try {
               const stats = await pc.getStats();
               stats.forEach((report) => {
@@ -248,7 +245,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
             }
           } else if (pc.iceConnectionState === 'failed') {
             clearTimeout(connectionTimeout);
-            // Connection truly failed - check if we have enough data
+            // 연결 실패 시 수신 데이터가 충분하면 완료 처리
             if (!completedRef.current && receivedSizeRef.current > 0 && receivedSizeRef.current >= actualFileSize * 0.95) {
               console.log('[useP2PDownloader] ICE failed but got most data, completing');
               completedRef.current = true;
@@ -381,6 +378,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
     setProgress(0);
     setTimeRemaining('');
     toast.info(t('p2p.downloadCancelled'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { status, progress, timeRemaining, peerDeviceInfo, reset, cancelDownload };

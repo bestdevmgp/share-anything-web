@@ -30,7 +30,6 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     setToasts((prev) => [...prev, newToast]);
 
-    // Auto remove after 3 seconds
     setTimeout(() => {
       removeToast(id);
     }, 3000);
@@ -51,7 +50,6 @@ export const useToast = () => {
   return context;
 };
 
-// Helper functions for easier usage (similar to react-toastify API)
 let toastFunctions: {
   success: (message: string) => void;
   error: (message: string) => void;
