@@ -2,6 +2,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { userAPI } from '../services/api';
 import { DownloadLog } from '../types';
 import { toast } from '../context/ToastContext';
+import { useTranslation } from '../i18n';
+import { formatDateTime } from '../utils/format';
 
 interface DownloadLogsModalProps {
   fileId: string;
@@ -9,6 +11,7 @@ interface DownloadLogsModalProps {
 }
 
 const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }) => {
+  const { t, language } = useTranslation();
   const [logs, setLogs] = useState<DownloadLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [showScrollHint, setShowScrollHint] = useState(false);
@@ -41,23 +44,13 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
       setLogs(data);
     } catch (error: any) {
       console.error('Failed to fetch download logs:', error);
-      toast.error('다운로드 기록 조회에 실패하였습니다.');
+      toast.error(t('downloadLogs.fetchError'));
     } finally {
       setLoading(false);
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-
-    return `${year}년 ${month}월 ${day}일 ${hours}:${minutes}:${seconds}`;
-  };
+  const formatDate = (dateString: string) => formatDateTime(dateString, language);
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto" onClick={onClose}>
@@ -74,7 +67,7 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
           <div className="bg-white dark:bg-[#0B0A0B] px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-[#EDEDED]">
-                다운로드 기록
+                {t('downloadLogs.title')}
               </h3>
               <button
                 onClick={onClose}
@@ -89,11 +82,11 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
             {/* Content */}
             {loading ? (
               <div className="text-center py-8">
-                <div className="text-gray-500 dark:text-[#888888]">로딩 중...</div>
+                <div className="text-gray-500 dark:text-[#888888]">{t('common.loading')}</div>
               </div>
             ) : logs.length === 0 ? (
               <div className="text-center py-8">
-                <p className="text-gray-500 dark:text-[#888888]">아직 다운로드 기록이 없습니다.</p>
+                <p className="text-gray-500 dark:text-[#888888]">{t('downloadLogs.noLogs')}</p>
               </div>
             ) : (
               <div className="relative">
@@ -102,16 +95,16 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
                     <thead className="bg-gray-50 dark:bg-white/5">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider">
-                          다운로드한 사람
+                          {t('downloadLogs.downloader')}
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider">
-                          IP 주소
+                          {t('downloadLogs.ipAddress')}
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider">
-                          플랫폼
+                          {t('downloadLogs.platform')}
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider">
-                          다운로드 날짜
+                          {t('downloadLogs.downloadDate')}
                         </th>
                       </tr>
                     </thead>
@@ -119,7 +112,7 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
                       {logs.map((log) => (
                         <tr key={log.id}>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-[#EDEDED]">
-                            {log.downloader_name || '익명'}
+                            {log.downloader_name || t('common.anonymous')}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#888888]">
                             {log.ip_address}
@@ -153,7 +146,7 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
                       >
                         <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
                       </svg>
-                      <span className="text-white text-sm font-medium">좌우로 스크롤하세요.</span>
+                      <span className="text-white text-sm font-medium">{t('common.scrollHorizontally')}</span>
                     </div>
                   </div>
                 )}
@@ -168,7 +161,7 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
               onClick={onClose}
               className="w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-white/15 shadow-sm px-4 py-2 bg-white dark:bg-[#1A1A1A] text-base font-medium text-gray-700 dark:text-[#EDEDED] hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
             >
-              닫기
+              {t('common.close')}
             </button>
           </div>
         </div>

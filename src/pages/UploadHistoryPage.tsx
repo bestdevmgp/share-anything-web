@@ -7,9 +7,10 @@ import { useAuth } from '../context/AuthContext';
 import { QRCodeSVG } from 'qrcode.react';
 import { CheckIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
 import FileThumbnail from '../components/FileThumbnail';
-import { isPdfFile } from '../utils/format';
+import { isPdfFile, formatFileSize, formatDateTime } from '../utils/format';
 import { useThumbnail } from '../hooks/useThumbnail';
 import FilePreviewModal from '../components/FilePreviewModal';
+import { useTranslation } from '../i18n';
 
 const PdfPreview: React.FC<{ source: string; fileName: string; width?: number }> = ({ source, fileName, width = 600 }) => {
   const { url, loading } = useThumbnail(source, fileName, width);
@@ -50,6 +51,7 @@ const UploadHistoryPage: React.FC = () => {
   const [selectedShareCode, setSelectedShareCode] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [showScrollHint, setShowScrollHint] = useState(false);
+  const { t, language } = useTranslation();
   const logsScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -99,7 +101,7 @@ const UploadHistoryPage: React.FC = () => {
   }, [showAllLogsModal, showQRModal]);
 
   useEffect(() => {
-    document.title = '업로드 기록';
+    document.title = t('history.pageTitle');
     return () => {
       document.title = 'ShareAnything';
     };
@@ -129,7 +131,7 @@ const UploadHistoryPage: React.FC = () => {
       setTotal(response.total);
     } catch (error: any) {
       console.error('Failed to fetch uploads:', error);
-      toast.error('업로드 기록 조회에 실패하였습니다.');
+      toast.error(t('history.fetchError'));
     } finally {
       setLoading(false);
     }
@@ -146,7 +148,7 @@ const UploadHistoryPage: React.FC = () => {
       setDownloadLogs({ ...downloadLogs, [fileId]: logs });
     } catch (error: any) {
       console.error('Failed to fetch download logs:', error);
-      toast.error('다운로드 기록 조회에 실패하였습니다.');
+      toast.error(t('history.downloadLogFetchError'));
     } finally {
       setLoadingLogs({ ...loadingLogs, [fileId]: false });
     }
@@ -177,13 +179,13 @@ const UploadHistoryPage: React.FC = () => {
 
   const handleDelete = async (fileId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!window.confirm('정말 삭제하시겠습니까? 삭제된 파일은 더 이상 다운로드할 수 없습니다.')) {
+    if (!window.confirm(t('history.confirmDelete'))) {
       return;
     }
 
     try {
       await userAPI.deleteFile(fileId);
-      toast.success('삭제되었습니다.');
+      toast.success(t('history.deleteSuccess'));
       setUploads(uploads.filter(upload => upload.id !== fileId));
       setTotal(total - 1);
       if (expandedRow === fileId) {
@@ -191,7 +193,7 @@ const UploadHistoryPage: React.FC = () => {
       }
     } catch (error: any) {
       console.error('Failed to delete file:', error);
-      toast.error('삭제에 실패하였습니다.');
+      toast.error(t('history.deleteFailed'));
     }
   };
 
@@ -219,26 +221,6 @@ const UploadHistoryPage: React.FC = () => {
     } catch (err) {
       console.error('Failed to copy:', err);
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-
-    return `${year}년 ${month}월 ${day}일 ${hours}:${minutes}:${seconds}`;
-  };
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
   };
 
   const isExpired = (expiresAt: string) => {
@@ -299,7 +281,7 @@ const UploadHistoryPage: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-[#010001]">
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
-          <div className="text-gray-500 dark:text-[#888888]">로딩 중...</div>
+          <div className="text-gray-500 dark:text-[#888888]">{t('common.loading')}</div>
         </div>
       </div>
     );
@@ -308,18 +290,18 @@ const UploadHistoryPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 md:pt-16 pb-32">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-[#EDEDED]">업로드 기록</h1>
-        <p className="text-gray-600 dark:text-[#888888] mt-2">유효한 파일이 총 {uploads.filter(u => !isExpired(u.expires_at)).length}개 있습니다.</p>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-[#EDEDED]">{t('history.pageTitle')}</h1>
+        <p className="text-gray-600 dark:text-[#888888] mt-2">{t('history.validFileCount', { count: uploads.filter(u => !isExpired(u.expires_at)).length })}</p>
       </div>
 
       {uploads.length === 0 ? (
         <div className="bg-white rounded-lg shadow p-12 text-center dark:bg-[#0B0A0B] dark:shadow-none dark:border dark:border-white/10">
-          <p className="text-gray-500 dark:text-[#888888]">유효한 공유 파일이 없습니다.</p>
+          <p className="text-gray-500 dark:text-[#888888]">{t('history.noFiles')}</p>
           <button
             onClick={() => navigate('/upload')}
             className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold"
           >
-            파일 공유하기
+            {t('history.shareFiles')}
           </button>
         </div>
       ) : (
@@ -339,25 +321,25 @@ const UploadHistoryPage: React.FC = () => {
                 <thead className="bg-gray-50 dark:bg-white/5">
                   <tr>
                     <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap align-middle">
-                      파일명
+                      {t('history.fileName')}
                     </th>
                     <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap align-middle">
-                      크기
+                      {t('history.size')}
                     </th>
                     <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap align-middle">
-                      업로드 일시
+                      {t('history.uploadDate')}
                     </th>
                     <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap align-middle">
-                      만료 기한
+                      {t('history.expirationDate')}
                     </th>
                     <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap align-middle">
-                      다운로드
+                      {t('history.downloads')}
                     </th>
                     <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap align-middle">
-                      상태
+                      {t('history.status')}
                     </th>
                     <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap align-middle">
-                      작업
+                      {t('history.actions')}
                     </th>
                   </tr>
                 </thead>
@@ -387,22 +369,22 @@ const UploadHistoryPage: React.FC = () => {
                           {formatFileSize(upload.file_size)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#888888] text-center">
-                          {formatDate(upload.created_at)}
+                          {formatDateTime(upload.created_at, language)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#888888] text-center">
-                          {formatDate(upload.expires_at)}
+                          {formatDateTime(upload.expires_at, language)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-[#EDEDED] text-center">
-                          {upload.download_count}회
+                          {t('common.countUnit', { count: upload.download_count })}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-center">
                           {isExpired(upload.expires_at) ? (
                             <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-400">
-                              만료됨
+                              {t('history.expired')}
                             </span>
                           ) : (
                             <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-500/15 dark:text-green-400">
-                              유효함
+                              {t('history.active')}
                             </span>
                           )}
                         </td>
@@ -412,7 +394,7 @@ const UploadHistoryPage: React.FC = () => {
                               <button
                                 onClick={(e) => handleShowQRCode(upload.share_code, e)}
                                 className="p-2 text-gray-700 hover:bg-gray-200 dark:text-[#888888] dark:hover:bg-white/10 rounded transition-colors"
-                                title="QR 코드"
+                                title={t('history.qrCode')}
                               >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
@@ -423,7 +405,7 @@ const UploadHistoryPage: React.FC = () => {
                             <button
                               onClick={(e) => handleDelete(upload.id, e)}
                               className="p-2 text-gray-700 hover:text-red-600 hover:bg-gray-200 dark:text-[#888888] dark:hover:text-red-400 dark:hover:bg-white/10 rounded transition-colors"
-                              title="삭제"
+                              title={t('common.delete')}
                             >
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
@@ -439,14 +421,14 @@ const UploadHistoryPage: React.FC = () => {
                             <div className={`py-6 ${closingRow === upload.id ? 'animate-collapse-up' : 'animate-expand-down'}`}>
                               <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                                 <div className="h-0 min-h-full flex flex-col overflow-hidden">
-                                  <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-4 flex-shrink-0">미리보기</h3>
+                                  <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-4 flex-shrink-0">{t('history.preview')}</h3>
                                   <div
                                     className="bg-white rounded-lg border border-gray-200 overflow-hidden w-full flex-1 max-w-md cursor-pointer hover:border-blue-300 dark:bg-[#0B0A0B] dark:border-white/10 dark:hover:border-blue-500/50 transition-colors"
                                     onClick={(e) => { e.stopPropagation(); openPreviewModal(upload); }}
                                   >
                                     {isExpired(upload.expires_at) ? (
                                       <div className="flex items-center justify-center h-full bg-gray-50 dark:bg-white/5">
-                                        <p className="text-sm text-gray-500 dark:text-[#888888] text-center px-4">만료된 파일입니다.</p>
+                                        <p className="text-sm text-gray-500 dark:text-[#888888] text-center px-4">{t('history.expiredFile')}</p>
                                       </div>
                                     ) : isImageFileByType(upload.file_type) ? (
                                       loadingPreviews[`expanded_${upload.id}`] ? (
@@ -467,7 +449,7 @@ const UploadHistoryPage: React.FC = () => {
                                     ) : (
                                       <div className="flex flex-col items-center justify-center h-full bg-gray-100 dark:bg-white/5 p-4 gap-4">
                                         <FileThumbnail source={null} fileName={upload.file_name} size="md" />
-                                        <p className="text-sm text-gray-500 dark:text-[#888888] text-center">클릭하여 미리보기</p>
+                                        <p className="text-sm text-gray-500 dark:text-[#888888] text-center">{t('history.clickToPreview')}</p>
                                       </div>
                                     )}
                                   </div>
@@ -475,66 +457,66 @@ const UploadHistoryPage: React.FC = () => {
 
                                 <div className="lg:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-4">
                                   <div className="flex flex-col">
-                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">상세 정보</h3>
+                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">{t('history.detailInfo')}</h3>
                                     <div className="bg-white rounded-lg border border-gray-200 dark:bg-[#0B0A0B] dark:border-white/10 p-4 grid grid-cols-2 gap-x-6 gap-y-3">
                                       <div className="col-span-2">
-                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">파일명</span>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">{t('history.fileNameLabel')}</span>
                                         <p className="text-sm text-gray-900 dark:text-[#EDEDED] break-all">{upload.file_name}</p>
                                       </div>
                                       <div className="col-span-2">
-                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">설명</span>
-                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED] break-words whitespace-pre-wrap">{upload.description || '없음'}</p>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">{t('history.descriptionLabel')}</span>
+                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED] break-words whitespace-pre-wrap">{upload.description || t('common.none')}</p>
                                       </div>
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">파일 타입</span>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">{t('history.fileTypeLabel')}</span>
                                         <p className="text-sm text-gray-900 dark:text-[#EDEDED]">{upload.file_type}</p>
                                       </div>
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">파일 크기</span>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">{t('history.fileSizeLabel')}</span>
                                         <p className="text-sm text-gray-900 dark:text-[#EDEDED]">{formatFileSize(upload.file_size)}</p>
                                       </div>
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">공유 코드</span>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">{t('history.shareCodeLabel')}</span>
                                         <p className="text-sm text-gray-900 dark:text-[#EDEDED] font-mono">{upload.share_code}</p>
                                       </div>
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">비밀번호</span>
-                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED]">{upload.has_password ? '있음' : '없음'}</p>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">{t('history.passwordLabel')}</span>
+                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED]">{upload.has_password ? t('common.exists') : t('common.none')}</p>
                                       </div>
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">일회용 공유</span>
-                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED]">{upload.is_one_time ? '예' : '아니요'}</p>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">{t('history.oneTimeShareLabel')}</span>
+                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED]">{upload.is_one_time ? t('common.yes') : t('common.no')}</p>
                                       </div>
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">다운로드 횟수</span>
-                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED]">{upload.download_count}회</p>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">{t('history.downloadCountLabel')}</span>
+                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED]">{t('common.countUnit', { count: upload.download_count })}</p>
                                       </div>
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">업로드 날짜</span>
-                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED]">{formatDate(upload.created_at)}</p>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">{t('history.uploadDateLabel')}</span>
+                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED]">{formatDateTime(upload.created_at, language)}</p>
                                       </div>
                                       <div>
-                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">만료 날짜</span>
-                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED]">{formatDate(upload.expires_at)}</p>
+                                        <span className="text-sm font-medium text-gray-500 dark:text-[#888888]">{t('history.expirationDateLabel')}</span>
+                                        <p className="text-sm text-gray-900 dark:text-[#EDEDED]">{formatDateTime(upload.expires_at, language)}</p>
                                       </div>
                                     </div>
                                   </div>
 
                                   <div className="h-0 min-h-full flex flex-col overflow-hidden">
                                     <div className="flex items-center justify-between mb-4 flex-shrink-0">
-                                      <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED]">다운로드 기록</h3>
+                                      <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED]">{t('history.downloadHistory')}</h3>
                                       {downloadLogs[upload.id]?.length > 3 && (
                                         <button
                                           onClick={(e) => handleViewAllLogs(upload.id, e)}
                                           className="px-3 py-1.5 text-sm text-gray-700 rounded hover:bg-gray-200 dark:text-[#888888] dark:hover:bg-white/10 transition-colors font-medium"
                                         >
-                                          전체보기
+                                          {t('history.viewAll')}
                                         </button>
                                       )}
                                     </div>
                                     <div className="bg-white rounded-lg border border-gray-200 dark:bg-[#0B0A0B] dark:border-white/10 p-4 flex-1 flex flex-col min-h-0 overflow-hidden">
                                       {loadingLogs[upload.id] ? (
-                                        <div className="text-sm text-gray-500 dark:text-[#888888] text-center py-4 flex-1 flex items-center justify-center">로딩 중...</div>
+                                        <div className="text-sm text-gray-500 dark:text-[#888888] text-center py-4 flex-1 flex items-center justify-center">{t('common.loading')}</div>
                                       ) : downloadLogs[upload.id]?.length > 0 ? (
                                         <div className="space-y-4 overflow-y-auto pr-2 flex-1">
                                           {downloadLogs[upload.id].map((log) => (
@@ -545,7 +527,7 @@ const UploadHistoryPage: React.FC = () => {
                                               <div className="flex justify-between items-start gap-4">
                                                 <div className="min-w-0 flex-1">
                                                   <p className="font-medium text-gray-900 dark:text-[#EDEDED]">
-                                                    {log.downloader_name || '익명의 사용자'}
+                                                    {log.downloader_name || t('common.anonymousUser')}
                                                   </p>
                                                   <p className="text-gray-500 dark:text-[#888888] text-xs mt-2">
                                                     {log.device_platform}
@@ -555,7 +537,7 @@ const UploadHistoryPage: React.FC = () => {
                                                   </p>
                                                 </div>
                                                 <p className="text-xs text-gray-500 dark:text-[#888888] whitespace-nowrap flex-shrink-0">
-                                                  {formatDate(log.downloaded_at)}
+                                                  {formatDateTime(log.downloaded_at, language)}
                                                 </p>
                                               </div>
                                             </div>
@@ -563,7 +545,7 @@ const UploadHistoryPage: React.FC = () => {
                                         </div>
                                       ) : (
                                         <div className="text-sm text-gray-500 dark:text-[#888888] text-center py-4 flex-1 flex items-center justify-center">
-                                          아직 다운로드 기록이 없습니다.
+                                          {t('history.noDownloadLogs')}
                                         </div>
                                       )}
                                     </div>
@@ -590,7 +572,7 @@ const UploadHistoryPage: React.FC = () => {
                       <button
                         onClick={(e) => handleShowQRCode(upload.share_code, e)}
                         className="p-2 text-gray-700 hover:bg-gray-200 dark:text-[#888888] dark:hover:bg-white/10 rounded transition-colors"
-                        title="QR 코드"
+                        title={t('history.qrCode')}
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
@@ -601,7 +583,7 @@ const UploadHistoryPage: React.FC = () => {
                     <button
                       onClick={(e) => handleDelete(upload.id, e)}
                       className="p-2 text-gray-700 hover:text-red-600 hover:bg-gray-200 dark:text-[#888888] dark:hover:text-red-400 dark:hover:bg-white/10 rounded transition-colors"
-                      title="삭제"
+                      title={t('common.delete')}
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
@@ -622,12 +604,12 @@ const UploadHistoryPage: React.FC = () => {
                       <div className="mt-1 flex items-center space-x-2 text-xs text-gray-500 dark:text-[#888888]">
                         <span>{formatFileSize(upload.file_size)}</span>
                         <span>•</span>
-                        <span>{upload.download_count}회</span>
+                        <span>{t('common.countUnit', { count: upload.download_count })}</span>
                         <span>•</span>
                         {isExpired(upload.expires_at) ? (
-                          <span className="text-red-600 dark:text-red-400 font-medium">만료됨</span>
+                          <span className="text-red-600 dark:text-red-400 font-medium">{t('history.expired')}</span>
                         ) : (
-                          <span className="text-green-600 dark:text-green-400 font-medium">유효함</span>
+                          <span className="text-green-600 dark:text-green-400 font-medium">{t('history.active')}</span>
                         )}
                       </div>
                       {upload.description && (
@@ -644,7 +626,7 @@ const UploadHistoryPage: React.FC = () => {
                   <div className={`border-t border-gray-200 dark:border-white/10 p-4 bg-[#F9FAFB] dark:bg-[#010001] ${closingRow === upload.id ? 'animate-collapse-up' : 'animate-expand-down'}`}>
                     <div className="space-y-4">
                       <div>
-                        <h4 className="text-sm font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">미리보기</h4>
+                        <h4 className="text-sm font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">{t('history.preview')}</h4>
                         <div
                           className={`bg-white rounded-lg border border-gray-200 overflow-hidden cursor-pointer hover:border-blue-300 dark:bg-[#0B0A0B] dark:border-white/10 dark:hover:border-blue-500/50 transition-colors ${
                             isExpired(upload.expires_at) ? 'h-28' :
@@ -654,7 +636,7 @@ const UploadHistoryPage: React.FC = () => {
                         >
                           {isExpired(upload.expires_at) ? (
                             <div className="flex items-center justify-center h-full bg-gray-50 dark:bg-white/5">
-                              <p className="text-xs text-gray-500 dark:text-[#888888] text-center px-4">만료된 파일입니다.</p>
+                              <p className="text-xs text-gray-500 dark:text-[#888888] text-center px-4">{t('history.expiredFile')}</p>
                             </div>
                           ) : isImageFileByType(upload.file_type) ? (
                             <img
@@ -667,78 +649,78 @@ const UploadHistoryPage: React.FC = () => {
                           ) : (
                             <div className="flex flex-col items-center justify-center h-full bg-gray-100 dark:bg-white/5 p-4 gap-4">
                               <FileThumbnail source={null} fileName={upload.file_name} size="md" />
-                              <p className="text-xs text-gray-500 dark:text-[#888888] text-center">클릭하여 미리보기</p>
+                              <p className="text-xs text-gray-500 dark:text-[#888888] text-center">{t('history.clickToPreview')}</p>
                             </div>
                           )}
                         </div>
                       </div>
 
                       <div>
-                        <h4 className="text-sm font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">상세 정보</h4>
+                        <h4 className="text-sm font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">{t('history.detailInfo')}</h4>
                         <div className="bg-white rounded-lg border border-gray-200 dark:bg-[#0B0A0B] dark:border-white/10 p-3 space-y-2 text-xs">
                           <div>
-                            <span className="text-gray-500 dark:text-[#888888]">파일 타입:</span>
+                            <span className="text-gray-500 dark:text-[#888888]">{t('history.fileTypeLabel')}:</span>
                             <span className="ml-2 text-gray-900 dark:text-[#EDEDED]">{upload.file_type}</span>
                           </div>
                           <div>
-                            <span className="text-gray-500 dark:text-[#888888]">공유 코드:</span>
+                            <span className="text-gray-500 dark:text-[#888888]">{t('history.shareCodeLabel')}:</span>
                             <span className="ml-2 text-gray-900 dark:text-[#EDEDED] font-mono">{upload.share_code}</span>
                           </div>
                           <div>
-                            <span className="text-gray-500 dark:text-[#888888]">비밀번호:</span>
-                            <span className="ml-2 text-gray-900 dark:text-[#EDEDED]">{upload.has_password ? '있음' : '없음'}</span>
+                            <span className="text-gray-500 dark:text-[#888888]">{t('history.passwordLabel')}:</span>
+                            <span className="ml-2 text-gray-900 dark:text-[#EDEDED]">{upload.has_password ? t('common.exists') : t('common.none')}</span>
                           </div>
                           <div>
-                            <span className="text-gray-500 dark:text-[#888888]">일회용 공유:</span>
-                            <span className="ml-2 text-gray-900 dark:text-[#EDEDED]">{upload.is_one_time ? '예' : '아니요'}</span>
+                            <span className="text-gray-500 dark:text-[#888888]">{t('history.oneTimeShareLabel')}:</span>
+                            <span className="ml-2 text-gray-900 dark:text-[#EDEDED]">{upload.is_one_time ? t('common.yes') : t('common.no')}</span>
                           </div>
                           <div>
-                            <div className="text-gray-500 dark:text-[#888888] mb-1">설명:</div>
-                            <div className="text-gray-900 dark:text-[#EDEDED] break-words whitespace-pre-wrap">{upload.description || '없음'}</div>
+                            <div className="text-gray-500 dark:text-[#888888] mb-1">{t('history.descriptionLabel')}:</div>
+                            <div className="text-gray-900 dark:text-[#EDEDED] break-words whitespace-pre-wrap">{upload.description || t('common.none')}</div>
                           </div>
                           <div>
-                            <span className="text-gray-500 dark:text-[#888888]">업로드:</span>
-                            <span className="ml-2 text-gray-900 dark:text-[#EDEDED]">{formatDate(upload.created_at)}</span>
+                            <span className="text-gray-500 dark:text-[#888888]">{t('history.uploadDateLabel')}:</span>
+                            <span className="ml-2 text-gray-900 dark:text-[#EDEDED]">{formatDateTime(upload.created_at, language)}</span>
                           </div>
                           <div>
-                            <span className="text-gray-500 dark:text-[#888888]">만료:</span>
-                            <span className="ml-2 text-gray-900 dark:text-[#EDEDED]">{formatDate(upload.expires_at)}</span>
+                            <span className="text-gray-500 dark:text-[#888888]">{t('history.expirationDateLabel')}:</span>
+                            <span className="ml-2 text-gray-900 dark:text-[#EDEDED]">{formatDateTime(upload.expires_at, language)}</span>
                           </div>
                         </div>
                       </div>
 
                       <div>
                         <div className="flex items-center justify-between mb-2">
-                          <h4 className="text-sm font-semibold text-gray-900 dark:text-[#EDEDED]">다운로드 기록</h4>
+                          <h4 className="text-sm font-semibold text-gray-900 dark:text-[#EDEDED]">{t('history.downloadHistory')}</h4>
                           {downloadLogs[upload.id]?.length > 2 && (
                             <button
                               onClick={(e) => handleViewAllLogs(upload.id, e)}
                               className="px-2 py-1 text-xs text-gray-700 rounded hover:bg-gray-200 dark:text-[#888888] dark:hover:bg-white/10 transition-colors"
                             >
-                              전체보기
+                              {t('history.viewAll')}
                             </button>
                           )}
                         </div>
                         <div className="bg-white rounded-lg border border-gray-200 dark:bg-[#0B0A0B] dark:border-white/10 p-4">
                           {loadingLogs[upload.id] ? (
-                            <div className="h-20 flex items-center justify-center text-xs text-gray-500 dark:text-[#888888] text-center">로딩 중...</div>
+                            <div className="h-20 flex items-center justify-center text-xs text-gray-500 dark:text-[#888888] text-center">{t('common.loading')}</div>
                           ) : downloadLogs[upload.id]?.length > 0 ? (
                             <div className="space-y-4 overflow-y-auto pr-1" style={{
                               maxHeight: downloadLogs[upload.id].length <= 2 ? 'none' : '240px'
                             }}>
                               {downloadLogs[upload.id].map((log) => (
                                 <div key={log.id} className="text-xs border-b border-gray-100 dark:border-white/10 pb-4 last:border-0 last:pb-0">
-                                  <p className="font-medium text-gray-900 dark:text-[#EDEDED]">{log.downloader_name || '익명의 사용자'}</p>
+                                  <p className="font-medium text-gray-900 dark:text-[#EDEDED]">{log.downloader_name || t('common.anonymousUser')}</p>
                                   <p className="text-gray-500 dark:text-[#888888] mt-2">
                                     {log.device_platform} • {log.ip_address}
                                   </p>
-                                  <p className="text-gray-500 dark:text-[#888888] mt-2">{formatDate(log.downloaded_at)}</p>
+                                  <p className="text-gray-500 dark:text-[#888888] mt-2">{formatDateTime(log.downloaded_at, language)}</p>
                                 </div>
                               ))}
                             </div>
                           ) : (
                             <div className="h-20 flex items-center justify-center text-xs text-gray-500 dark:text-[#888888] text-center">
-                              아직 다운로드 기록이 없습니다.
+                              {t('history.noDownloadLogs')}
                             </div>
                           )}
                         </div>
@@ -758,22 +740,20 @@ const UploadHistoryPage: React.FC = () => {
                   disabled={offset === 0}
                   className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:border-white/15 dark:text-[#EDEDED] dark:bg-[#0B0A0B] dark:hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  이전
+                  {t('history.previous')}
                 </button>
                 <button
                   onClick={handleNextPage}
                   disabled={offset + limit >= total}
                   className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 dark:border-white/15 dark:text-[#EDEDED] dark:bg-[#0B0A0B] dark:hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  다음
+                  {t('history.next')}
                 </button>
               </div>
               <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
                 <div>
                   <p className="text-sm text-gray-700 dark:text-[#EDEDED]">
-                    전체 <span className="font-medium">{total}</span>개 중{' '}
-                    <span className="font-medium">{offset + 1}</span>-
-                    <span className="font-medium">{Math.min(offset + limit, total)}</span>개 표시
+                    {t('history.pagination', { from: offset + 1, to: Math.min(offset + limit, total), total })}
                   </p>
                 </div>
                 <div>
@@ -783,20 +763,20 @@ const UploadHistoryPage: React.FC = () => {
                       disabled={offset === 0}
                       className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-white/15 dark:bg-[#0B0A0B] dark:text-[#888888] dark:hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <span className="sr-only">이전</span>
+                      <span className="sr-only">{t('history.previous')}</span>
                       <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
                     </button>
                     <span className="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 dark:border-white/15 dark:bg-[#0B0A0B] dark:text-[#EDEDED]">
-                      페이지 {currentPage} / {totalPages}
+                      {t('history.pageOf', { current: currentPage, total: totalPages })}
                     </span>
                     <button
                       onClick={handleNextPage}
                       disabled={offset + limit >= total}
                       className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 dark:border-white/15 dark:bg-[#0B0A0B] dark:text-[#888888] dark:hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <span className="sr-only">다음</span>
+                      <span className="sr-only">{t('history.next')}</span>
                       <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
                       </svg>
@@ -813,7 +793,7 @@ const UploadHistoryPage: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-[#0B0A0B] rounded-xl w-full max-w-3xl max-h-[80vh] flex flex-col overflow-hidden">
             <div className="p-6 border-b border-gray-200 dark:border-white/10 flex items-center justify-between">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-[#EDEDED]">전체 다운로드 기록</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-[#EDEDED]">{t('history.allDownloadHistory')}</h2>
               <button
                 onClick={() => setShowAllLogsModal(false)}
                 className="p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded"
@@ -830,16 +810,16 @@ const UploadHistoryPage: React.FC = () => {
                   <thead className="bg-gray-50 dark:bg-white/5 sticky top-0">
                     <tr>
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap">
-                        수신자
+                        {t('history.receiver')}
                       </th>
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap">
-                        플랫폼
+                        {t('downloadLogs.platform')}
                       </th>
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap">
-                        IP 주소
+                        {t('downloadLogs.ipAddress')}
                       </th>
                       <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap">
-                        다운로드 시간
+                        {t('history.downloadTime')}
                       </th>
                     </tr>
                   </thead>
@@ -847,7 +827,7 @@ const UploadHistoryPage: React.FC = () => {
                     {downloadLogs[selectedFileForLogs].map((log) => (
                       <tr key={log.id} className="sm:hover:bg-gray-50 dark:sm:hover:bg-white/5">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-[#EDEDED] text-center">
-                          {log.downloader_name || '익명의 사용자'}
+                          {log.downloader_name || t('common.anonymousUser')}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#888888] text-center">
                           {log.device_platform}
@@ -856,7 +836,7 @@ const UploadHistoryPage: React.FC = () => {
                           {log.ip_address}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#888888] text-center">
-                          {formatDate(log.downloaded_at)}
+                          {formatDateTime(log.downloaded_at, language)}
                         </td>
                       </tr>
                     ))}
@@ -864,7 +844,7 @@ const UploadHistoryPage: React.FC = () => {
                 </table>
               ) : (
                 <div className="text-center text-gray-500 dark:text-[#888888] py-8">
-                  아직 다운로드 기록이 없습니다.
+                  {t('history.noDownloadLogs')}
                 </div>
               )}
               </div>
@@ -877,7 +857,7 @@ const UploadHistoryPage: React.FC = () => {
                     <div className="w-16 h-8 rounded-full bg-white/30 relative overflow-hidden">
                       <div className="w-6 h-6 rounded-full bg-white absolute top-1 animate-scroll-hint" />
                     </div>
-                    <span className="text-white text-sm font-medium">좌우로 스크롤하세요.</span>
+                    <span className="text-white text-sm font-medium">{t('common.scrollHorizontally')}</span>
                   </div>
                 </div>
               )}
@@ -896,7 +876,7 @@ const UploadHistoryPage: React.FC = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-[#EDEDED]">QR 코드</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-[#EDEDED]">{t('history.qrCode')}</h2>
               <button
                 onClick={() => setShowQRModal(false)}
                 className="p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded"
@@ -916,12 +896,12 @@ const UploadHistoryPage: React.FC = () => {
                 />
               </div>
               <p className="text-sm text-gray-500 dark:text-[#888888] text-center mt-3">
-                QR 코드를 스캔하여 파일을 다운로드하세요.
+                {t('history.scanQR')}
               </p>
             </div>
             <div className="mt-6">
               <label className="block text-sm font-medium text-gray-700 dark:text-[#EDEDED] mb-2">
-                공유 링크
+                {t('history.shareLink')}
               </label>
               <div className="relative">
                 <input
@@ -933,7 +913,7 @@ const UploadHistoryPage: React.FC = () => {
                 <button
                   onClick={handleCopyLink}
                   className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-300 dark:hover:bg-white/10 rounded-lg transition-colors"
-                  title="링크 복사"
+                  title={t('history.copyLink')}
                 >
                   {copiedLink ? (
                     <CheckIcon className="w-5 h-5 text-green-600" />

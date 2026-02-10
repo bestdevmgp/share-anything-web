@@ -4,13 +4,15 @@ import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../services/api';
 import { AuthResponse } from '../types';
 import { toast } from '../context/ToastContext';
+import { useTranslation } from '../i18n';
 
 const OAuthCallbackPage: React.FC = () => {
   const navigate = useNavigate();
   const { provider } = useParams<{ provider: 'google' | 'naver' }>();
+  const { t } = useTranslation();
 
   useEffect(() => {
-    document.title = '로그인 중...';
+    document.title = t('oauth.loggingIn');
   }, []);
   const { login } = useAuth();
   const [searchParams] = useSearchParams();
@@ -20,7 +22,7 @@ const OAuthCallbackPage: React.FC = () => {
   useEffect(() => {
     const handleCallback = async () => {
       if (!provider) {
-        setError('잘못된 요청입니다.');
+        setError(t('oauth.invalidRequest'));
         return;
       }
 
@@ -49,20 +51,20 @@ const OAuthCallbackPage: React.FC = () => {
           navigate('/', { replace: true });
           return;
         } catch (err) {
-          setError('사용자 정보 파싱에 실패하였습니다.');
+          setError(t('oauth.userParseError'));
           setTimeout(() => navigate('/login', { replace: true }), 2000);
           return;
         }
       }
 
       if (errorParam) {
-        setError(`로그인이 취소되었거나 오류가 발생하였습니다: ${errorParam}`);
+        setError(t('oauth.loginCancelledOrError', { error: errorParam }));
         setTimeout(() => navigate('/login', { replace: true }), 3000);
         return;
       }
 
       if (!code) {
-        setError('인증 코드를 받지 못하였습니다.');
+        setError(t('oauth.noAuthCode'));
         setTimeout(() => navigate('/login', { replace: true }), 3000);
         return;
       }
@@ -80,14 +82,14 @@ const OAuthCallbackPage: React.FC = () => {
         if (data.token && data.user) {
           login(data.token, data.user);
           localStorage.removeItem(processedKey);
-          toast.success('로그인되었습니다.');
+          toast.success(t('oauth.loginSuccess'));
           navigate('/', { replace: true });
         } else {
-          toast.error('로그인 정보를 받지 못하였습니다.');
+          toast.error(t('oauth.noLoginInfo'));
           setTimeout(() => navigate('/login', { replace: true }), 3000);
         }
       } catch (err: any) {
-        const errorMessage = err.response?.data?.message || err.message || '로그인에 실패하였습니다.';
+        const errorMessage = err.response?.data?.message || err.message || t('oauth.loginFailed');
         toast.error(errorMessage);
         setTimeout(() => navigate('/login', { replace: true }), 3000);
       }
@@ -107,9 +109,9 @@ const OAuthCallbackPage: React.FC = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">로그인 실패</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('oauth.loginFailedTitle')}</h2>
             <p className="text-gray-600 mb-6">{error}</p>
-            <p className="text-sm text-gray-500">로그인 페이지로 이동합니다...</p>
+            <p className="text-sm text-gray-500">{t('oauth.redirectingToLogin')}</p>
           </div>
         </div>
       </div>
@@ -120,7 +122,7 @@ const OAuthCallbackPage: React.FC = () => {
     <div className="flex items-center justify-center py-20">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">로그인 중...</p>
+        <p className="mt-4 text-gray-600">{t('oauth.loggingIn')}</p>
       </div>
     </div>
   );

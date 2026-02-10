@@ -1,3 +1,6 @@
+import { translate } from '../i18n';
+import { Language } from '../context/LanguageContext';
+
 export const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes';
 
@@ -8,26 +11,36 @@ export const formatFileSize = (bytes: number): string => {
   return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
 };
 
-export const formatDate = (dateString: string): string => {
+export const formatDate = (dateString: string, language: Language = 'ko'): string => {
   const date = new Date(dateString);
   const now = new Date();
   const diff = date.getTime() - now.getTime();
   const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
 
   if (days < 0) {
-    return '만료됨';
+    return translate(language, 'format.expired');
   } else if (days === 0) {
     const hours = Math.ceil(diff / (1000 * 60 * 60));
-    return `${hours}시간 후 만료`;
+    return translate(language, 'format.expiresInHours', { hours });
   } else if (days === 1) {
-    return '내일 만료';
+    return translate(language, 'format.expiresTomorrow');
   } else {
-    return `${days}일 후 만료`;
+    return translate(language, 'format.expiresInDays', { days });
   }
 };
 
-export const formatDateTime = (dateString: string): string => {
+export const formatDateTime = (dateString: string, language: Language = 'ko'): string => {
   const date = new Date(dateString);
+
+  if (language === 'en') {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return translate(language, 'format.dateTime', { year, month, day, hours, minutes, seconds });
+  }
 
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
@@ -36,20 +49,20 @@ export const formatDateTime = (dateString: string): string => {
   const minutes = String(date.getMinutes()).padStart(2, '0');
   const seconds = String(date.getSeconds()).padStart(2, '0');
 
-  return `${year}년 ${month}월 ${day}일 ${hours}:${minutes}:${seconds}`;
+  return translate(language, 'format.dateTime', { year, month, day, hours, minutes, seconds });
 };
 
-export const getExpirationLabel = (expiration: string): string => {
+export const getExpirationLabel = (expiration: string, language: Language = 'ko'): string => {
   const labels: Record<string, string> = {
-    'five_minutes': '5분',
-    'thirty_minutes': '30분',
-    'one_hour': '1시간',
-    'three_hours': '3시간',
-    'six_hours': '6시간',
-    'twelve_hours': '12시간',
-    'twenty_four_hours': '24시간',
+    'five_minutes': translate(language, 'format.5min'),
+    'thirty_minutes': translate(language, 'format.30min'),
+    'one_hour': translate(language, 'format.1hour'),
+    'three_hours': translate(language, 'format.3hours'),
+    'six_hours': translate(language, 'format.6hours'),
+    'twelve_hours': translate(language, 'format.12hours'),
+    'twenty_four_hours': translate(language, 'format.24hours'),
   };
-  return labels[expiration] || '24시간';
+  return labels[expiration] || translate(language, 'format.24hours');
 };
 
 export const downloadFile = (blob: Blob, filename: string) => {
@@ -124,22 +137,22 @@ export const isHwpFile = (filename: string): boolean => {
   return hwpExtensions.includes(extension);
 };
 
-export const formatTimeRemaining = (remainingSeconds: number): string => {
+export const formatTimeRemaining = (remainingSeconds: number, language: Language = 'ko'): string => {
   if (remainingSeconds <= 0 || !isFinite(remainingSeconds)) {
-    return '계산 중...';
+    return translate(language, 'format.calculating');
   }
 
   if (remainingSeconds < 60) {
-    return `${Math.ceil(remainingSeconds)}초 남음`;
+    return translate(language, 'format.secondsRemaining', { seconds: Math.ceil(remainingSeconds) });
   } else if (remainingSeconds < 3600) {
     const minutes = Math.floor(remainingSeconds / 60);
     const seconds = Math.ceil(remainingSeconds % 60);
-    return `${minutes}분 ${seconds}초 남음`;
+    return translate(language, 'format.minutesSecondsRemaining', { minutes, seconds });
   } else {
     const hours = Math.floor(remainingSeconds / 3600);
     const minutes = Math.floor((remainingSeconds % 3600) / 60);
     const seconds = Math.ceil(remainingSeconds % 60);
-    return `${hours}시간 ${minutes}분 ${seconds}초 남음`;
+    return translate(language, 'format.hoursMinutesSecondsRemaining', { hours, minutes, seconds });
   }
 };
 

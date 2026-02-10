@@ -1,9 +1,11 @@
 import React, {useEffect} from 'react';
 import {authAPI} from '../services/api';
+import { useTranslation } from '../i18n';
 
 const LoginPage: React.FC = () => {
+    const { t } = useTranslation();
     useEffect(() => {
-        document.title = '로그인';
+        document.title = t('login.title');
     }, []);
 
     const handleGoogleLogin = () => {
@@ -19,9 +21,9 @@ const LoginPage: React.FC = () => {
             <div className="max-w-md w-full">
                 <div className="bg-white dark:bg-[#0B0A0B] rounded-3xl border-2 border-gray-200 dark:border-white/10 p-10">
                     <div className="text-center mb-10">
-                        <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">환영합니다!</h1>
+                        <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">{t('login.welcome')}</h1>
                         <p className="text-gray-600 dark:text-[#888888]">
-                            계정을 선택해 주세요. 모든 정보는 안전하게 보관됩니다.
+                            {t('login.subtitle')}
                         </p>
                     </div>
 
@@ -50,7 +52,7 @@ const LoginPage: React.FC = () => {
                                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                                 />
                             </svg>
-                            <span className="text-gray-700 dark:text-[#EDEDED] font-medium text-sm">Google로 계속하기</span>
+                            <span className="text-gray-700 dark:text-[#EDEDED] font-medium text-sm">{t('login.continueWithGoogle')}</span>
                         </button>
 
                         {/* Naver Login */}
@@ -64,21 +66,21 @@ const LoginPage: React.FC = () => {
                                     d="M16.273 12.845L7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845z"
                                 />
                             </svg>
-                            <span className="text-white font-medium text-sm">네이버로 계속하기</span>
+                            <span className="text-white font-medium text-sm">{t('login.continueWithNaver')}</span>
                         </button>
                     </div>
 
                     {/* Terms and Privacy Notice */}
                     <div className="text-center text-xs text-gray-500 dark:text-[#666666] leading-relaxed">
-                        본 서비스 이용 시 ShareAnything의{' '}
+                        {t('login.termsNotice')}
                         <a href="/privacy-policy" className="text-gray-500 dark:text-[#888888] underline hover:text-gray-700 dark:hover:text-[#EDEDED]">
-                            개인정보처리방침
+                            {t('footer.privacyPolicy')}
                         </a>
-                        {' '}및{' '}
+                        {t('login.termsAnd')}
                         <a href="/terms-of-use" className="text-gray-500 dark:text-[#888888] underline hover:text-gray-700 dark:hover:text-[#EDEDED]">
-                            이용약관
+                            {t('footer.termsOfUse')}
                         </a>
-                        에 동의하는 것으로 간주됩니다.
+                        {t('login.termsAgree')}
                     </div>
                 </div>
             </div>

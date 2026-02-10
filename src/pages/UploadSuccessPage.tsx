@@ -7,13 +7,15 @@ import { CheckIcon, ClipboardDocumentIcon, ExclamationTriangleIcon, XMarkIcon } 
 import { useP2PUploader } from '../hooks/useP2PUploader';
 import FileThumbnail from '../components/FileThumbnail';
 import FilePreviewModal from '../components/FilePreviewModal';
+import { useTranslation } from '../i18n';
 
 const UploadSuccessPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { t, language } = useTranslation();
 
   useEffect(() => {
-    document.title = '업로드 완료';
+    document.title = t('uploadSuccess.pageTitle');
   }, []);
 
   const uploadResult = location.state?.uploadResult as FileUploadResponse | undefined;
@@ -120,19 +122,19 @@ const UploadSuccessPage: React.FC = () => {
           </div>
           <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">
             {isP2PTransfer ? (
-              overallStatus === 'waiting' ? '수신자 대기 중...' :
-              overallStatus === 'connected' ? '수신자 연결됨' :
-              overallStatus === 'transferring' ? '파일 전송 중...' :
-              '전송 완료'
-            ) : '업로드 완료'}
+              overallStatus === 'waiting' ? t('uploadSuccess.waitingForReceiver') :
+              overallStatus === 'connected' ? t('uploadSuccess.receiverConnected') :
+              overallStatus === 'transferring' ? t('uploadSuccess.transferring') :
+              t('uploadSuccess.transferComplete')
+            ) : t('uploadSuccess.uploadComplete')}
           </h1>
           <p className="text-lg text-gray-600 dark:text-[#888888]">
             {isP2PTransfer ? (
-              overallStatus === 'waiting' ? '수신자가 연결될 때까지 이 페이지를 닫지 마세요.' :
-              allFilesCompleted ? '모든 파일이 성공적으로 전송되었습니다.' :
-              peerDeviceInfo ? `${peerDeviceInfo}에 연결되었습니다. 파일을 전송 중입니다.` :
-              '파일을 전송 중입니다. 잠시만 기다려주세요.'
-            ) : '코드를 공유하거나 아래 링크를 통해 파일을 다운로드하세요.'}
+              overallStatus === 'waiting' ? t('uploadSuccess.keepPageOpen') :
+              allFilesCompleted ? t('uploadSuccess.allFilesTransferred') :
+              peerDeviceInfo ? t('uploadSuccess.connectedTo', { device: peerDeviceInfo }) :
+              t('uploadSuccess.transferringPleaseWait')
+            ) : t('uploadSuccess.shareCodeOrLink')}
           </p>
         </div>
         <style>{`
@@ -151,7 +153,7 @@ const UploadSuccessPage: React.FC = () => {
         <div className="bg-white dark:bg-[#0B0A0B] rounded-3xl border-2 border-gray-200 dark:border-white/10 p-8 md:p-12">
           <div className="mb-8">
             <label className="block text-sm font-medium text-gray-600 dark:text-[#888888] mb-3 text-center">
-              전송 코드
+              {t('uploadSuccess.transferCode')}
             </label>
             <div className="relative bg-gray-50 dark:bg-white/5 rounded-xl px-4 md:px-8 py-4 md:py-6 mb-4 border border-gray-300 dark:border-white/15">
               <p className="text-4xl md:text-5xl font-bold text-center text-gray-900 dark:text-[#EDEDED] break-all" style={{ letterSpacing: '0.1em' }}>
@@ -160,7 +162,7 @@ const UploadSuccessPage: React.FC = () => {
               <button
                 onClick={() => handleCopy(groupShareCode, 'code')}
                 className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-200 dark:hover:bg-white/10 rounded-lg transition-colors"
-                title="코드 복사"
+                title={t('uploadSuccess.copyCode')}
               >
                 {copiedField === 'code' ? (
                   <CheckIcon className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
@@ -171,14 +173,14 @@ const UploadSuccessPage: React.FC = () => {
             </div>
             {!isP2PTransfer && uploadResult.files[0]?.expires_at && (
               <p className="text-sm text-gray-500 dark:text-[#888888] text-center">
-                만료: {formatDateTime(uploadResult.files[0].expires_at)}
+                {t('uploadSuccess.expires', { dateTime: formatDateTime(uploadResult.files[0].expires_at, language) })}
               </p>
             )}
           </div>
 
           <div className="mb-8">
             <label className="block text-sm font-medium text-gray-700 dark:text-[#888888] mb-3">
-              공유 링크
+              {t('uploadSuccess.shareLink')}
             </label>
             <div className="relative">
               <input
@@ -190,7 +192,7 @@ const UploadSuccessPage: React.FC = () => {
               <button
                 onClick={() => handleCopy(downloadUrl, 'link')}
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-2 hover:bg-gray-300 dark:hover:bg-white/10 rounded-lg transition-colors"
-                title="링크 복사"
+                title={t('uploadSuccess.copyLink')}
               >
                 {copiedField === 'link' ? (
                   <CheckIcon className="w-5 h-5 text-green-600" />
@@ -214,7 +216,7 @@ const UploadSuccessPage: React.FC = () => {
                     return (
                       <>
                         <label className="block text-sm font-medium text-gray-700 dark:text-[#888888] mb-3">
-                          파일
+                          {t('common.file')}
                         </label>
                         <div className="p-4 rounded-xl border-2 bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30">
                           <div className="flex items-center space-x-3">
@@ -230,7 +232,7 @@ const UploadSuccessPage: React.FC = () => {
                               <p className="text-xs text-gray-500 dark:text-[#888888]">{formatFileSize(file.size)}</p>
                             </div>
                             <div className="flex-shrink-0 text-right mr-4">
-                              <span className="text-sm text-green-600 font-medium">완료</span>
+                              <span className="text-sm text-green-600 font-medium">{t('uploadSuccess.completed')}</span>
                             </div>
                           </div>
                         </div>
@@ -245,7 +247,7 @@ const UploadSuccessPage: React.FC = () => {
                           <div className="flex-1 pl-2">
                             <div className="flex justify-between mb-2">
                               <span className="text-sm font-medium text-gray-700 dark:text-[#888888] self-start">
-                                {isTransferring ? '전송 중...' : '연결 중...'}
+                                {isTransferring ? t('uploadSuccess.sending') : t('uploadSuccess.connecting')}
                               </span>
                               {isTransferring && (
                                 <div className="flex items-center gap-2 self-end">
@@ -268,7 +270,7 @@ const UploadSuccessPage: React.FC = () => {
                           <button
                             onClick={() => cancelTransfer(file.name)}
                             className="p-1 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded transition-colors flex-shrink-0"
-                            title="전송 중단"
+                            title={t('uploadSuccess.cancelTransfer')}
                           >
                             <XMarkIcon className="w-6 h-6 text-gray-600 dark:text-[#888888]" />
                           </button>
@@ -280,7 +282,7 @@ const UploadSuccessPage: React.FC = () => {
                   return (
                     <>
                       <label className="block text-sm font-medium text-gray-700 dark:text-[#888888] mb-3">
-                        파일
+                        {t('common.file')}
                       </label>
                       <div
                         className="p-4 rounded-xl border-2 bg-gray-50 dark:bg-white/5 border-transparent cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
@@ -297,7 +299,7 @@ const UploadSuccessPage: React.FC = () => {
                             <p className="text-xs text-gray-500 dark:text-[#888888]">{formatFileSize(file.size)}</p>
                           </div>
                           <div className="flex-shrink-0 text-right mr-4">
-                            <span className="text-sm text-gray-400 dark:text-[#666666]">대기 중</span>
+                            <span className="text-sm text-gray-400 dark:text-[#666666]">{t('uploadSuccess.waiting')}</span>
                           </div>
                         </div>
                       </div>
@@ -307,7 +309,7 @@ const UploadSuccessPage: React.FC = () => {
               ) : (
                 <>
                   <label className="block text-sm font-medium text-gray-700 dark:text-[#888888] mb-3">
-                    파일 목록 ({files.length}개)
+                    {t('uploadSuccess.fileList', { count: files.length })}
                   </label>
                   <div className="space-y-3">
                     {files.map((file) => {
@@ -358,7 +360,7 @@ const UploadSuccessPage: React.FC = () => {
 
                             <div className="flex-shrink-0 text-right">
                               {isCompleted ? (
-                                <span className="text-sm text-green-600 font-medium mr-4">완료</span>
+                                <span className="text-sm text-green-600 font-medium mr-4">{t('uploadSuccess.completed')}</span>
                               ) : isTransferring ? (
                                 <div className="flex items-center gap-2 mr-1">
                                   {progress?.timeRemaining && (
@@ -368,13 +370,13 @@ const UploadSuccessPage: React.FC = () => {
                                   <button
                                     onClick={() => cancelTransfer(file.name)}
                                     className="p-1 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded transition-colors"
-                                    title="전송 중단"
+                                    title={t('uploadSuccess.cancelTransfer')}
                                   >
                                     <XMarkIcon className="w-5 h-5 text-gray-500 dark:text-[#888888]" />
                                   </button>
                                 </div>
                               ) : (
-                                <span className="text-sm text-gray-400 dark:text-[#666666] mr-4">대기 중</span>
+                                <span className="text-sm text-gray-400 dark:text-[#666666] mr-4">{t('uploadSuccess.waiting')}</span>
                               )}
                             </div>
                           </div>
@@ -389,7 +391,7 @@ const UploadSuccessPage: React.FC = () => {
 
           <div className="flex flex-col items-center">
             <label className="block text-sm font-medium text-gray-700 dark:text-[#888888] mb-3">
-              QR 코드로 다운로드
+              {t('uploadSuccess.qrDownload')}
             </label>
             <div className="p-4 bg-white border-2 border-gray-200 rounded-2xl">
               <QRCodeSVG
@@ -406,7 +408,7 @@ const UploadSuccessPage: React.FC = () => {
             onClick={() => navigate('/')}
             className="w-full px-8 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors"
           >
-            완료
+            {t('common.done')}
           </button>
         </div>
       </div>
@@ -417,7 +419,7 @@ const UploadSuccessPage: React.FC = () => {
             <button
               onClick={() => setShowFailedModal(false)}
               className="absolute top-4 right-4 p-1 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
-              title="닫기"
+              title={t('common.close')}
             >
               <XMarkIcon className="w-6 h-6 text-gray-400 dark:text-[#666666]" />
             </button>
@@ -427,25 +429,25 @@ const UploadSuccessPage: React.FC = () => {
               </div>
             </div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-[#EDEDED] text-center mb-3">
-              P2P 연결 실패
+              {t('uploadSuccess.p2pConnectionFailed')}
             </h3>
             <p className="text-gray-600 dark:text-[#888888] text-center mb-6 text-sm leading-relaxed">
-              P2P 및 TURN 서버 연결에 모두 실패하였습니다.
+              {t('uploadSuccess.p2pConnectionFailedDesc')}
               <br />
-              일반 전송으로 전환하시겠습니까?
+              {t('uploadSuccess.switchToServer')}
             </p>
             <div className="flex gap-3">
               <button
                 onClick={handleRetryP2P}
                 className="flex-1 px-4 py-3 border border-gray-300 dark:border-white/15 text-gray-700 dark:text-[#EDEDED] font-medium rounded-xl hover:bg-gray-50 dark:hover:bg-white/10 transition-colors"
               >
-                다시 시도
+                {t('common.retry')}
               </button>
               <button
                 onClick={handleSwitchToServerUpload}
                 className="flex-1 px-4 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors"
               >
-                전환
+                {t('common.switchBtn')}
               </button>
             </div>
           </div>

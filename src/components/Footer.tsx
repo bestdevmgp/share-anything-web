@@ -1,9 +1,50 @@
-import React from 'react';
+import React, { useState, useRef, useEffect, Fragment } from 'react';
 import { useTheme } from '../context/ThemeContext';
-import { SunIcon, MoonIcon, ComputerDesktopIcon } from '@heroicons/react/24/outline';
+import { useLanguage } from '../context/LanguageContext';
+import { SunIcon, MoonIcon, ComputerDesktopIcon, ChevronUpIcon, GlobeAltIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { Transition } from '@headlessui/react';
+import { useTranslation } from '../i18n';
+
+const langOptions = [
+  { key: 'ko' as const, label: '한국어' },
+  { key: 'en' as const, label: 'English' },
+];
+
+const themeIcons: Record<string, React.ReactNode> = {
+  system: <ComputerDesktopIcon className="w-4 h-4" />,
+  light: <SunIcon className="w-[18px] h-[18px]" />,
+  dark: <MoonIcon className="w-4 h-4" />,
+};
 
 const Footer: React.FC = () => {
   const { theme, setTheme } = useTheme();
+  const { language: lang, setLanguage: setLang } = useLanguage();
+  const { t } = useTranslation();
+
+  const themeOptions = [
+    { key: 'light' as const, label: t('footer.themeLight') },
+    { key: 'dark' as const, label: t('footer.themeDark') },
+    { key: 'system' as const, label: t('footer.themeSystem') },
+  ];
+  const [themeOpen, setThemeOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
+  const themeRef = useRef<HTMLDivElement>(null);
+  const langRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (themeRef.current && !themeRef.current.contains(e.target as Node)) {
+        setThemeOpen(false);
+      }
+      if (langRef.current && !langRef.current.contains(e.target as Node)) {
+        setLangOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const currentLang = langOptions.find((o) => o.key === lang)!;
 
   return (
     <footer className="bg-white dark:bg-[#010001] border-t border-gray-200 dark:border-white/10 py-8">
@@ -14,13 +55,13 @@ const Footer: React.FC = () => {
             href="/privacy-policy"
             className="text-gray-600 dark:text-[#888888] hover:text-gray-900 dark:hover:text-[#EDEDED] text-sm transition-colors"
           >
-            개인정보처리방침
+            {t('footer.privacyPolicy')}
           </a>
           <a
             href="/terms-of-use"
             className="text-gray-600 dark:text-[#888888] hover:text-gray-900 dark:hover:text-[#EDEDED] text-sm transition-colors"
           >
-            이용약관
+            {t('footer.termsOfUse')}
           </a>
         </div>
 
@@ -71,42 +112,89 @@ const Footer: React.FC = () => {
           </p>
         </div>
 
-        {/* Theme Switcher */}
-        <div className="flex justify-center">
-          <div className="inline-flex items-center gap-0.5 rounded-full border border-gray-200 dark:border-white/10 p-0.5 bg-gray-100 dark:bg-white/5">
+        {/* Dropdowns */}
+        <div className="flex justify-center items-end gap-3">
+          {/* Language Dropdown */}
+          <div className="relative" ref={langRef}>
             <button
-              onClick={() => setTheme('system')}
-              className={`w-5 h-5 flex items-center justify-center rounded-full transition-colors ${
-                theme === 'system'
-                  ? 'bg-white dark:bg-[#222222] text-gray-900 dark:text-[#EDEDED] shadow-sm ring-1 ring-gray-300 dark:ring-white/20'
-                  : 'text-gray-400 dark:text-[#666666] hover:text-gray-600 dark:hover:text-[#888888]'
-              }`}
-              title="시스템 설정"
+              onClick={() => { setLangOpen((v) => !v); setThemeOpen(false); }}
+              className="flex items-center justify-between w-40 h-10 px-2.5 border border-gray-200 dark:border-white/10 bg-white dark:bg-[#010001] text-gray-600 dark:text-[#AAAAAA] hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-sm"
             >
-              <ComputerDesktopIcon className="w-3 h-3" />
+              <div className="flex items-center gap-2">
+                <GlobeAltIcon className="w-4 h-4" />
+                <span>{currentLang.label}</span>
+              </div>
+              <ChevronUpIcon className={`w-3 h-3 transition-transform ${langOpen ? '' : 'rotate-180'}`} />
             </button>
+
+            <Transition
+              as={Fragment}
+              show={langOpen}
+              enter="transition ease-out duration-200"
+              enterFrom="opacity-0 translate-y-1"
+              enterTo="opacity-100 translate-y-0"
+              leave="transition ease-in duration-150"
+              leaveFrom="opacity-100 translate-y-0"
+              leaveTo="opacity-0 translate-y-1"
+            >
+              <div className="absolute bottom-full left-0 mb-1 w-40 border border-gray-200 dark:border-white/10 bg-white dark:bg-[#010001] shadow-lg overflow-hidden">
+                <div className="px-2.5 py-1.5 text-xs text-gray-400 dark:text-[#666666]">{t('footer.language')}</div>
+                {langOptions.map((option) => (
+                  <button
+                    key={option.key}
+                    onClick={() => { setLang(option.key); setLangOpen(false); }}
+                    className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors ${
+                      lang === option.key
+                        ? 'text-gray-900 dark:text-[#EDEDED]'
+                        : 'text-gray-600 dark:text-[#888888] hover:bg-gray-50 dark:hover:bg-white/5'
+                    }`}
+                  >
+                    <CheckIcon className={`w-3.5 h-3.5 flex-shrink-0 ${lang === option.key ? 'opacity-100' : 'opacity-0'}`} />
+                    <span>{option.label}</span>
+                  </button>
+                ))}
+              </div>
+            </Transition>
+          </div>
+
+          {/* Theme Dropdown */}
+          <div className="relative" ref={themeRef}>
             <button
-              onClick={() => setTheme('light')}
-              className={`w-5 h-5 flex items-center justify-center rounded-full transition-colors ${
-                theme === 'light'
-                  ? 'bg-white dark:bg-[#222222] text-gray-900 dark:text-[#EDEDED] shadow-sm ring-1 ring-gray-300 dark:ring-white/20'
-                  : 'text-gray-400 dark:text-[#666666] hover:text-gray-600 dark:hover:text-[#888888]'
-              }`}
-              title="라이트 모드"
+              onClick={() => { setThemeOpen((v) => !v); setLangOpen(false); }}
+              className="flex items-center justify-between w-16 h-10 px-2.5 border border-gray-200 dark:border-white/10 bg-white dark:bg-[#010001] text-gray-600 dark:text-[#AAAAAA] hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-sm"
             >
-              <SunIcon className="w-[15px] h-[15px]" />
+              {themeIcons[theme]}
+              <ChevronUpIcon className={`w-3 h-3 transition-transform ${themeOpen ? '' : 'rotate-180'}`} />
             </button>
-            <button
-              onClick={() => setTheme('dark')}
-              className={`w-5 h-5 flex items-center justify-center rounded-full transition-colors ${
-                theme === 'dark'
-                  ? 'bg-white dark:bg-[#222222] text-gray-900 dark:text-[#EDEDED] shadow-sm ring-1 ring-gray-300 dark:ring-white/20'
-                  : 'text-gray-400 dark:text-[#666666] hover:text-gray-600 dark:hover:text-[#888888]'
-              }`}
-              title="다크 모드"
+
+            <Transition
+              as={Fragment}
+              show={themeOpen}
+              enter="transition ease-out duration-200"
+              enterFrom="opacity-0 translate-y-1"
+              enterTo="opacity-100 translate-y-0"
+              leave="transition ease-in duration-150"
+              leaveFrom="opacity-100 translate-y-0"
+              leaveTo="opacity-0 translate-y-1"
             >
-              <MoonIcon className="w-3 h-3" />
-            </button>
+              <div className="absolute bottom-full right-0 mb-1 w-28 border border-gray-200 dark:border-white/10 bg-white dark:bg-[#010001] shadow-lg overflow-hidden">
+                <div className="px-2.5 py-1.5 text-xs text-gray-400 dark:text-[#666666]">{t('footer.theme')}</div>
+                {themeOptions.map((option) => (
+                  <button
+                    key={option.key}
+                    onClick={() => { setTheme(option.key); setThemeOpen(false); }}
+                    className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors ${
+                      theme === option.key
+                        ? 'text-gray-900 dark:text-[#EDEDED]'
+                        : 'text-gray-600 dark:text-[#888888] hover:bg-gray-50 dark:hover:bg-white/5'
+                    }`}
+                  >
+                    <CheckIcon className={`w-3.5 h-3.5 flex-shrink-0 ${theme === option.key ? 'opacity-100' : 'opacity-0'}`} />
+                    <span>{option.label}</span>
+                  </button>
+                ))}
+              </div>
+            </Transition>
           </div>
         </div>
 

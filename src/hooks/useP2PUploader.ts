@@ -3,6 +3,7 @@ import { SignalingMessage } from '../types';
 import { createWebSocketConnection, createPeerConnection, generatePeerId, sendSignalingMessage } from '../utils/webrtc';
 import { toast } from '../context/ToastContext';
 import { getDeviceInfo } from '../utils/format';
+import { useTranslation } from '../i18n';
 
 interface FileProgress {
   fileName: string;
@@ -18,6 +19,7 @@ interface UseP2PUploaderProps {
 }
 
 export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProps) => {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<'waiting' | 'connected' | 'transferring' | 'completed'>('waiting');
   const [fileProgresses, setFileProgresses] = useState<Map<string, FileProgress>>(new Map());
   const [currentFileName, setCurrentFileName] = useState<string>('');
@@ -51,13 +53,13 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
   }, [files]);
 
   const formatTime = useCallback((seconds: number): string => {
-    if (seconds < 60) return `${Math.ceil(seconds)}초`;
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}분 ${Math.ceil(seconds % 60)}초`;
+    if (seconds < 60) return t('format.secondsShort', { seconds: Math.ceil(seconds) });
+    if (seconds < 3600) return t('format.minutesSecondsShort', { minutes: Math.floor(seconds / 60), seconds: Math.ceil(seconds % 60) });
     const hours = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = Math.ceil(seconds % 60);
-    return `${hours}시간 ${mins}분 ${secs}초`;
-  }, []);
+    return t('format.hoursMinutesSecondsShort', { hours, minutes: mins, seconds: secs });
+  }, [t]);
 
   const sendFile = useCallback((file: File, dataChannel: RTCDataChannel) => {
     const reader = new FileReader();
@@ -93,7 +95,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
         });
       }
 
-      toast.success(`${file.name} 전송 완료!`);
+      toast.success(t('p2p.transferComplete', { fileName: file.name }));
 
       setTimeout(() => {
         if (pcRef.current) {
@@ -191,7 +193,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     const file = filesRef.current.find(f => f.name === requestedFileName);
     if (!file) {
       console.error('[useP2PUploader] Requested file not found:', requestedFileName);
-      toast.error('요청된 파일을 찾을 수 없습니다.');
+      toast.error(t('p2p.fileNotFound'));
       return null;
     }
 
@@ -256,7 +258,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       console.error('[useP2PUploader] DataChannel error:', error);
       clearTimeout(connectionTimeout);
       if (isTransferringRef.current) {
-        toast.error('파일 전송 중 오류가 발생하였습니다.');
+        toast.error(t('p2p.transferError'));
       }
     };
 
@@ -287,7 +289,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
               const localCandidate = stats.get(report.localCandidateId);
               if (localCandidate?.candidateType === 'relay') {
                 console.log('[useP2PUploader] Connected via TURN relay');
-                toast.info('P2P 연결에 실패하였습니다. TURN 서버에 접속합니다.');
+                toast.info(t('p2p.turnFallback'));
               } else {
                 console.log('[useP2PUploader] Connected via direct P2P:', localCandidate?.candidateType);
               }
@@ -335,7 +337,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     ws.onerror = (error) => {
       console.error('WebSocket error:', error);
       if (!isCleaningUpRef.current) {
-        toast.error('연결 오류가 발생하였습니다.');
+        toast.error(t('p2p.connectionError'));
       }
     };
 
@@ -410,7 +412,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
         case 'downloader_offline':
           console.log('[useP2PUploader] Downloader went offline');
           if (isTransferringRef.current) {
-            toast.warning('수신자가 연결을 종료하였습니다.');
+            toast.warning(t('p2p.receiverDisconnected'));
             isTransferringRef.current = false;
             // Reset file progress to waiting
             setFileProgresses(prev => {
@@ -434,7 +436,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
 
         case 'error':
           console.error('Signaling error:', message.message);
-          toast.error(message.message || '연결 오류가 발생하였습니다.');
+          toast.error(message.message || t('p2p.connectionError'));
           break;
       }
     };
@@ -507,7 +509,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
 
     setStatus('waiting');
     setCurrentFileName('');
-    toast.info('전송이 중단되었습니다.');
+    toast.info(t('p2p.transferCancelled'));
   }, []);
 
   return { status, fileProgresses, currentFileName, peerDeviceInfo, connectionFailed, retry, cancelTransfer };

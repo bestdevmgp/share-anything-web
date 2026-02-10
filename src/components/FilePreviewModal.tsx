@@ -5,6 +5,7 @@ import 'react-pdf/dist/Page/TextLayer.css';
 import { XMarkIcon, DocumentIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { formatFileSize, isImageFile, isVideoFile, isAudioFile, isTextFile, isPdfFile, isCsvFile, isExcelFile, isDocxFile, isHwpFile } from '../utils/format';
 import { readTextContent, getMediaUrl, getArrayBuffer } from '../utils/filePreview';
+import { useTranslation } from '../i18n';
 import { GlobalWorkerOptions } from 'pdfjs-dist';
 import { PDF_WORKER_SRC } from '../utils/pdfWorkerSetup';
 
@@ -18,6 +19,7 @@ interface FilePreviewModalProps {
 }
 
 const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) => {
+  const { t } = useTranslation();
   const { fileName, fileSize, source } = file;
   const [textContent, setTextContent] = useState<string | null>(null);
   const [csvData, setCsvData] = useState<string[][] | null>(null);
@@ -157,7 +159,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
       return (
         <div className="flex flex-col items-center py-16 text-gray-400 dark:text-[#666666]">
           <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mb-3" />
-          <p className="text-sm">로딩 중...</p>
+          <p className="text-sm">{t('preview.loading')}</p>
         </div>
       );
     }
@@ -182,7 +184,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
             file={pdfSource}
             onLoadSuccess={onDocumentLoadSuccess}
             loading={
-              <div className="py-16 text-gray-400 dark:text-[#666666] text-sm">PDF 로딩 중...</div>
+              <div className="py-16 text-gray-400 dark:text-[#666666] text-sm">{t('preview.pdfLoading')}</div>
             }
           >
             <Page
@@ -247,7 +249,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
     return (
       <div className="flex flex-col items-center py-12 text-gray-400 dark:text-[#666666]">
         <DocumentIcon className="w-16 h-16 mb-3" />
-        <p className="text-sm">미리보기를 지원하지 않는 파일입니다.</p>
+        <p className="text-sm">{t('preview.unsupported')}</p>
       </div>
     );
   };

@@ -7,6 +7,7 @@ import { ExpirationOption } from '../types';
 import { formatFileSize, formatTimeRemaining, calculateTimeRemaining } from '../utils/format';
 import { DocumentIcon, XMarkIcon, EyeIcon, EyeSlashIcon, CheckIcon, InformationCircleIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { toast } from '../context/ToastContext';
+import { useTranslation } from '../i18n';
 import TurnstileWidget from '../components/TurnstileWidget';
 import FileThumbnail from '../components/FileThumbnail';
 import FilePreviewModal from '../components/FilePreviewModal';
@@ -15,6 +16,7 @@ const UploadPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated } = useAuth();
+  const { t, language } = useTranslation();
 
   // Check for P2P fallback files
   const fallbackFiles = location.state?.fallbackFiles as File[] | undefined;
@@ -43,7 +45,7 @@ const UploadPage: React.FC = () => {
   const lastTimeUpdateRef = useRef<number>(0);
 
   useEffect(() => {
-    document.title = '파일 업로드';
+    document.title = t('upload.pageTitle');
   }, []);
 
   useEffect(() => {
@@ -51,7 +53,7 @@ const UploadPage: React.FC = () => {
       fallbackHandledRef.current = true;
       setFiles(fallbackFiles);
       setTransferType('server');
-      toast.info('일반 전송으로 전환되었습니다. 파일을 업로드해주세요.');
+      toast.info(t('upload.fallbackNotice'));
 
       window.history.replaceState({}, document.title);
     }
@@ -75,12 +77,12 @@ const UploadPage: React.FC = () => {
 
   const handleUpload = async () => {
     if (files.length === 0) {
-      toast.error('파일을 선택해주세요');
+      toast.error(t('upload.selectFilesError'));
       return;
     }
 
     if (!turnstileToken) {
-      toast.error('로봇이 아닌지 확인해주세요');
+      toast.error(t('upload.verifyNotRobot'));
       return;
     }
 
@@ -145,7 +147,7 @@ const UploadPage: React.FC = () => {
         const now = Date.now();
         if (now - lastTimeUpdateRef.current >= 1000) {
           const remainingSeconds = calculateTimeRemaining(uploadStartTime, totalUploaded, totalSize);
-          setUploadTimeRemaining(formatTimeRemaining(remainingSeconds));
+          setUploadTimeRemaining(formatTimeRemaining(remainingSeconds, language));
           lastTimeUpdateRef.current = now;
         }
       };
@@ -275,15 +277,15 @@ const UploadPage: React.FC = () => {
       });
     } catch (err: any) {
       if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED' || err.message === 'Upload cancelled') {
-        toast.info('업로드가 취소되었습니다.');
+        toast.info(t('upload.uploadCancelled'));
       } else if (err.response?.status === 400) {
-        toast.error(err.response?.data?.message || '보안 확인이 필요합니다.');
+        toast.error(err.response?.data?.message || t('upload.securityRequired'));
         setTurnstileToken('');
       } else if (err.response?.status === 403) {
-        toast.error(err.response?.data?.message || '보안 확인에 실패하였습니다. 다시 시도해주세요.');
+        toast.error(err.response?.data?.message || t('upload.securityFailed'));
         setTurnstileToken('');
       } else {
-        toast.error(err.response?.data?.message || '업로드에 실패하였습니다.');
+        toast.error(err.response?.data?.message || t('upload.uploadFailed'));
       }
     } finally {
       setIsUploading(false);
@@ -362,21 +364,21 @@ const UploadPage: React.FC = () => {
   }, [p2pTooltipMounted, closeP2PTooltip]);
 
   const expirationOptions: { value: ExpirationOption; label: string }[] = [
-    { value: 'five_minutes', label: '5분' },
-    { value: 'thirty_minutes', label: '30분' },
-    { value: 'one_hour', label: '1시간' },
-    { value: 'three_hours', label: '3시간' },
-    { value: 'six_hours', label: '6시간' },
-    { value: 'twelve_hours', label: '12시간' },
-    { value: 'twenty_four_hours', label: '24시간' },
+    { value: 'five_minutes', label: t('format.5min') },
+    { value: 'thirty_minutes', label: t('format.30min') },
+    { value: 'one_hour', label: t('format.1hour') },
+    { value: 'three_hours', label: t('format.3hours') },
+    { value: 'six_hours', label: t('format.6hours') },
+    { value: 'twelve_hours', label: t('format.12hours') },
+    { value: 'twenty_four_hours', label: t('format.24hours') },
   ];
 
   return (
     <div>
       <div className="max-w-4xl mx-auto px-4 py-12 md:pb-32">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">파일 전송</h1>
-          <p className="text-lg text-gray-600 dark:text-[#888888]">파일과 비밀번호는 암호화되어 보관되며 유효 기간이 지나면 즉시 폐기됩니다.</p>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">{t('upload.title')}</h1>
+          <p className="text-lg text-gray-600 dark:text-[#888888]">{t('upload.subtitle')}</p>
         </div>
 
         <div className="mb-10">
@@ -398,7 +400,7 @@ const UploadPage: React.FC = () => {
                   : 'text-gray-600 dark:text-[#888888] hover:bg-gray-200/50 dark:hover:bg-white/5 hover:text-gray-800 dark:hover:text-[#EDEDED]'
               }`}
             >
-              일반 전송
+              {t('upload.serverTransfer')}
             </button>
             <button
               ref={p2pButtonRef}
@@ -410,7 +412,7 @@ const UploadPage: React.FC = () => {
                   : 'text-gray-600 dark:text-[#888888] hover:bg-gray-200/50 dark:hover:bg-white/5 hover:text-gray-800 dark:hover:text-[#EDEDED]'
               }`}
             >
-              보안 전송
+              {t('upload.p2pTransfer')}
             </button>
 
             {p2pTooltipMounted && (
@@ -432,25 +434,25 @@ const UploadPage: React.FC = () => {
                 )}
                 <p className="font-semibold text-blue-600 mb-2 flex items-center gap-1">
                   <InformationCircleIcon className="w-5 h-5 text-blue-600" />
-                  안내
+                  {t('upload.p2pNotice')}
                 </p>
-                <p className="mb-1 flex"><span className="flex-shrink-0 mr-1.5">•</span><span>WebRTC를 사용한 1:1 직접 전송으로 파일이 서버에 저장되지 않습니다.</span></p>
-                <p className="mb-1 flex"><span className="flex-shrink-0 mr-1.5">•</span><span>사설망 연결 등의 이유로 P2P 전송이 차단될 경우, TURN 서버를 통해 파일을 전송합니다. 모든 데이터는 종단간 암호화됩니다.</span></p>
-                <p className="mb-3 flex"><span className="flex-shrink-0 mr-1.5">•</span><span>일회성 전송이며, 발신자와 수신자가 동시에 온라인이어야 합니다.</span></p>
+                <p className="mb-1 flex"><span className="flex-shrink-0 mr-1.5">•</span><span>{t('upload.p2pBullet1')}</span></p>
+                <p className="mb-1 flex"><span className="flex-shrink-0 mr-1.5">•</span><span>{t('upload.p2pBullet2')}</span></p>
+                <p className="mb-3 flex"><span className="flex-shrink-0 mr-1.5">•</span><span>{t('upload.p2pBullet3')}</span></p>
                 <div className="border-t border-gray-100 dark:border-white/10 pt-3 px-1 flex items-center justify-between">
                   <button
                     type="button"
                     onClick={() => handleDismissP2PTooltip(true)}
                     className="text-xs text-gray-400 dark:text-[#666666] hover:text-gray-600 dark:hover:text-[#888888] underline underline-offset-2 transition-colors"
                   >
-                    다시 보지 않기
+                    {t('upload.dontShowAgain')}
                   </button>
                   <button
                     type="button"
                     onClick={() => closeP2PTooltip()}
                     className="px-5 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors"
                   >
-                    확인
+                    {t('common.confirm')}
                   </button>
                 </div>
               </div>
@@ -475,11 +477,11 @@ const UploadPage: React.FC = () => {
                   <DocumentIcon className="w-7 h-7 md:w-10 md:h-10 text-blue-600" />
                 </div>
                 <p className="text-sm md:text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-1 md:mb-2">
-                  여기에 파일을 드래그하거나 클릭하여 {transferType === 'p2p' ? '전송' : '업로드'}하세요.
+                  {t('upload.dropzoneText', { action: transferType === 'p2p' ? t('upload.dropzoneActionTransfer') : t('upload.dropzoneActionUpload') })}
                 </p>
                 {transferType !== 'p2p' && (
                   <p className="text-xs md:text-sm text-gray-500 dark:text-[#888888] mb-3 md:mb-6">
-                    로그인 시 최대 3GB까지 업로드할 수 있습니다.
+                    {t('upload.maxSizeNotice')}
                   </p>
                 )}
                 {transferType === 'p2p' && <div className="mb-3 md:mb-6" />}
@@ -487,12 +489,12 @@ const UploadPage: React.FC = () => {
                   type="button"
                   className="px-6 py-2 md:px-8 md:py-3 bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-[#EDEDED] text-sm md:text-base font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-white/15 transition-colors"
                 >
-                  파일 선택
+                  {t('upload.selectFiles')}
                 </button>
               </div>
             ) : (
               <>
-                <h3 className="font-semibold text-gray-900 dark:text-[#EDEDED] mt-0.5 md:mt-0 mb-3.5 md:mb-4 flex-shrink-0">선택된 파일 ({files.length})</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-[#EDEDED] mt-0.5 md:mt-0 mb-3.5 md:mb-4 flex-shrink-0">{t('upload.selectedFiles', { count: files.length })}</h3>
                 <div className="flex-1 overflow-y-auto space-y-2 min-h-0">
                   {files.map((file, index) => (
                     <div
@@ -532,19 +534,19 @@ const UploadPage: React.FC = () => {
 
         {isProcessingFiles && (
           <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-200 dark:border-blue-500/30">
-            <p className="text-sm font-medium text-gray-700 dark:text-[#EDEDED]">파일 처리 중...</p>
+            <p className="text-sm font-medium text-gray-700 dark:text-[#EDEDED]">{t('upload.processingFiles')}</p>
           </div>
         )}
 
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-[#EDEDED] mb-8">전송 설정</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-[#EDEDED] mb-8">{t('upload.transferSettings')}</h2>
 
           {transferType !== 'p2p' && (
             <div className="mb-8">
-              <h3 className={`text-base font-semibold text-gray-900 dark:text-[#EDEDED] ${!isAuthenticated ? 'mb-1' : 'mb-4'}`}>유효 기간</h3>
+              <h3 className={`text-base font-semibold text-gray-900 dark:text-[#EDEDED] ${!isAuthenticated ? 'mb-1' : 'mb-4'}`}>{t('upload.expiration')}</h3>
               {!isAuthenticated && (
                 <p className="mb-4 text-sm text-gray-500 dark:text-[#888888]">
-                  로그인 후 사용 가능합니다.
+                  {t('upload.loginRequired')}
                 </p>
               )}
               <div className="flex flex-wrap gap-2 md:gap-3 mb-4">
@@ -591,7 +593,7 @@ const UploadPage: React.FC = () => {
                       onClick={() => setIsOneTime(!isOneTime)}
                       className="ml-2.5 text-base font-medium cursor-pointer text-gray-900 dark:text-[#EDEDED]"
                     >
-                      일회용 다운로드
+                      {t('upload.oneTimeDownload')}
                     </span>
                   </div>
                 </div>
@@ -601,7 +603,7 @@ const UploadPage: React.FC = () => {
 
           <div className="mb-8">
             <h3 className="text-base font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
-              비밀번호 <span className="text-sm text-gray-400 dark:text-[#666666] font-normal">선택</span>
+              {t('upload.password')} <span className="text-sm text-gray-400 dark:text-[#666666] font-normal">{t('common.optional')}</span>
             </h3>
             <div className="relative">
               <input
@@ -609,7 +611,7 @@ const UploadPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={!isAuthenticated}
-                placeholder={isAuthenticated ? "다운로드 비밀번호" : "로그인 후 사용 가능합니다."}
+                placeholder={isAuthenticated ? t('upload.passwordPlaceholder') : t('upload.passwordPlaceholderDisabled')}
                 className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-white/15 dark:bg-[#0B0A0B] dark:text-[#EDEDED] dark:placeholder-[#666666] rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500/50 focus:border-transparent disabled:bg-gray-200 disabled:text-gray-400 dark:disabled:bg-white/5 dark:disabled:text-[#666666]"
               />
               {isAuthenticated ? (
@@ -636,12 +638,12 @@ const UploadPage: React.FC = () => {
 
           <div>
             <h3 className="text-base font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
-              설명 <span className="text-sm text-gray-400 dark:text-[#666666] font-normal">선택</span>
+              {t('upload.description')} <span className="text-sm text-gray-400 dark:text-[#666666] font-normal">{t('common.optional')}</span>
             </h3>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="파일에 대한 간단한 설명을 입력하세요..."
+              placeholder={t('upload.descriptionPlaceholder')}
               rows={4}
               className="w-full px-4 py-3 border border-gray-300 dark:border-white/15 dark:bg-[#0B0A0B] dark:text-[#EDEDED] dark:placeholder-[#666666] rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500/50 focus:border-transparent resize-none"
             />
@@ -655,7 +657,7 @@ const UploadPage: React.FC = () => {
                 <div className="flex-1 pl-2">
                   <div className="flex justify-between mb-2">
                     <span className="text-sm font-medium text-gray-700 dark:text-[#EDEDED] self-start">
-                      {uploadProgress === 100 ? '잠시만 기다려주세요...' : '업로드 중...'}
+                      {uploadProgress === 100 ? t('upload.pleaseWait') : t('upload.uploading')}
                     </span>
                     {uploadProgress < 100 && (
                       <div className="flex items-center gap-2 self-end">
@@ -676,7 +678,7 @@ const UploadPage: React.FC = () => {
                 <button
                   onClick={handleCancelUpload}
                   className="p-1 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded transition-colors flex-shrink-0"
-                  title="업로드 취소"
+                  title={t('upload.cancelUpload')}
                 >
                   <XMarkIcon className="w-6 h-6 text-gray-600 dark:text-[#888888]" />
                 </button>
@@ -689,7 +691,7 @@ const UploadPage: React.FC = () => {
                   onVerify={(token) => setTurnstileToken(token)}
                   onError={() => {
                     setTurnstileToken('');
-                    toast.error('보안 확인에 실패하였습니다. 다시 시도해주세요.');
+                    toast.error(t('upload.securityFailed'));
                   }}
                   onExpire={() => {
                     setTurnstileToken('');
@@ -703,7 +705,7 @@ const UploadPage: React.FC = () => {
                   disabled={files.length === 0 || !turnstileToken || (isUploading && transferType === 'p2p')}
                   className="w-full md:w-auto min-w-[120px] px-10 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-white/10 dark:disabled:text-[#666666] disabled:cursor-not-allowed transition-colors"
                 >
-                  {isUploading && transferType === 'p2p' ? '요청 중...' : (transferType === 'p2p' ? '전송' : '업로드')}
+                  {isUploading && transferType === 'p2p' ? t('upload.requesting') : (transferType === 'p2p' ? t('upload.transfer') : t('common.upload'))}
                 </button>
               </div>
             </div>

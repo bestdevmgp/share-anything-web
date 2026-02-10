@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { LanguageProvider } from './context/LanguageContext';
 import ToastContainer from './components/Toast';
 import './utils/pdfWorkerSetup';
 
@@ -46,13 +47,15 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <ToastProvider>
-          <Router>
-            <AppContent />
-          </Router>
-        </ToastProvider>
-      </AuthProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <ToastProvider>
+            <Router>
+              <AppContent />
+            </Router>
+          </ToastProvider>
+        </AuthProvider>
+      </LanguageProvider>
     </ThemeProvider>
   );
 };

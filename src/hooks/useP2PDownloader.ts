@@ -3,6 +3,7 @@ import { SignalingMessage, FileInfo } from '../types';
 import { createWebSocketConnection, createPeerConnection, generatePeerId, sendSignalingMessage } from '../utils/webrtc';
 import { toast } from '../context/ToastContext';
 import { getDeviceInfo } from '../utils/format';
+import { useTranslation } from '../i18n';
 
 interface UseP2PDownloaderProps {
   shareCode: string;
@@ -12,6 +13,7 @@ interface UseP2PDownloaderProps {
 }
 
 export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: UseP2PDownloaderProps) => {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<'waiting' | 'connecting' | 'downloading' | 'completed' | 'error' | 'cancelled'>('waiting');
   const [progress, setProgress] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState<string>('');
@@ -29,13 +31,13 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
   const isCleaningUpRef = useRef<boolean>(false);
 
   const formatTime = useCallback((seconds: number): string => {
-    if (seconds < 60) return `${Math.ceil(seconds)}초`;
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}분 ${Math.ceil(seconds % 60)}초`;
+    if (seconds < 60) return t('format.secondsShort', { seconds: Math.ceil(seconds) });
+    if (seconds < 3600) return t('format.minutesSecondsShort', { minutes: Math.floor(seconds / 60), seconds: Math.ceil(seconds % 60) });
     const hours = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = Math.ceil(seconds % 60);
-    return `${hours}시간 ${mins}분 ${secs}초`;
-  }, []);
+    return t('format.hoursMinutesSecondsShort', { hours, minutes: mins, seconds: secs });
+  }, [t]);
 
   useEffect(() => {
     if (!enabled || !shareCode || !fileInfo || !fileInfo.file_name) {
@@ -85,7 +87,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           console.error('WebSocket error:', error);
           if (!isCleaningUpRef.current && !completedRef.current) {
             setStatus('error');
-            toast.error('연결 오류가 발생하였습니다.');
+            toast.error(t('p2p.connectionError'));
           }
         };
 
@@ -101,7 +103,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           if (!isCleaningUpRef.current && !completedRef.current && pc.iceConnectionState !== 'connected' && pc.iceConnectionState !== 'completed') {
             console.log('[useP2PDownloader] Connection timeout - ICE state:', pc.iceConnectionState);
             setStatus('error');
-            toast.error('P2P 연결 시간이 초과되었습니다. 네트워크 환경을 확인해주세요.');
+            toast.error(t('p2p.connectionTimeout'));
             cleanup();
           }
         }, 10000);
@@ -203,7 +205,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
             console.error('DataChannel error:', error);
             if (!isCleaningUpRef.current && !completedRef.current) {
               setStatus('error');
-              toast.error('파일 수신 중 오류가 발생하였습니다.');
+              toast.error(t('p2p.receiveError'));
             }
           };
         };
@@ -235,7 +237,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
                   const localCandidate = stats.get(report.localCandidateId);
                   if (localCandidate?.candidateType === 'relay') {
                     console.log('[useP2PDownloader] Connected via TURN relay');
-                    toast.info('P2P 연결에 실패하였습니다. TURN 서버에 접속합니다.');
+                    toast.info(t('p2p.turnFallback'));
                   } else {
                     console.log('[useP2PDownloader] Connected via direct P2P:', localCandidate?.candidateType);
                   }
@@ -256,7 +258,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
               onComplete(blob);
             } else if (!completedRef.current && !isCleaningUpRef.current) {
               setStatus('error');
-              toast.error('P2P 연결에 실패하였습니다. 네트워크를 확인해주세요.');
+              toast.error(t('p2p.connectionFailed'));
             }
           }
         };
@@ -265,7 +267,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
         console.error('Failed to setup P2P connection:', error);
         if (!isCleaningUpRef.current) {
           setStatus('error');
-          toast.error('P2P 연결 설정에 실패하였습니다.');
+          toast.error(t('p2p.setupFailed'));
         }
       }
     };
@@ -318,7 +320,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
         case 'uploader_offline':
           if (!isCleaningUpRef.current && !completedRef.current) {
             setStatus('error');
-            toast.error('발신자가 연결을 종료하였습니다.');
+            toast.error(t('p2p.senderDisconnected'));
           }
           cleanup();
           break;
@@ -327,7 +329,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           console.error('Signaling error:', message.message);
           if (!isCleaningUpRef.current && !completedRef.current) {
             setStatus('error');
-            toast.error(message.message || '연결 오류가 발생하였습니다.');
+            toast.error(message.message || t('p2p.connectionError'));
           }
           break;
       }
@@ -378,7 +380,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
     setStatus('cancelled');
     setProgress(0);
     setTimeRemaining('');
-    toast.info('다운로드가 중단되었습니다.');
+    toast.info(t('p2p.downloadCancelled'));
   }, []);
 
   return { status, progress, timeRemaining, peerDeviceInfo, reset, cancelDownload };

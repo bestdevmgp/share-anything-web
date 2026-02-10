@@ -5,6 +5,7 @@ import { FileListResponse } from '../types';
 import { formatFileSize, downloadFile, formatDateTime, isImageFile, formatTimeRemaining, calculateTimeRemaining } from '../utils/format';
 import { DocumentIcon, LockClosedIcon, CheckIcon, ArrowDownTrayIcon, EyeIcon, EyeSlashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { toast } from '../context/ToastContext';
+import { useTranslation } from '../i18n';
 import TurnstileWidget from '../components/TurnstileWidget';
 import { useP2PDownloader } from '../hooks/useP2PDownloader';
 import FileThumbnail from '../components/FileThumbnail';
@@ -13,16 +14,17 @@ import { useThumbnail } from '../hooks/useThumbnail';
 
 const DownloadFilePage: React.FC = () => {
   const { code } = useParams<{ code: string }>();
+  const { t, language } = useTranslation();
 
   useEffect(() => {
-    document.title = '파일 다운로드';
+    document.title = t('download.pageTitle');
   }, []);
   const navigate = useNavigate();
 
   const [fileList, setFileList] = useState<FileListResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [errorTitle, setErrorTitle] = useState('잘못된 코드');
+  const [errorTitle, setErrorTitle] = useState('');
 
   const [password, setPassword] = useState('');
   const [passwordVerified, setPasswordVerified] = useState(false);
@@ -51,7 +53,7 @@ const DownloadFilePage: React.FC = () => {
   const handleP2PDownloadComplete = useCallback((blob: Blob, fileName: string) => {
     console.log('[DownloadFilePage] P2P download completed:', { fileName, blobSize: blob.size });
     downloadFile(blob, fileName);
-    toast.success('파일 다운로드가 완료되었습니다.');
+    toast.success(t('download.downloadComplete'));
     setP2pCompletedFileIds(prev => new Set(prev).add(p2pActiveFileId || ''));
     setP2pActiveFileId(null);
     setP2pEnabled(false);
@@ -130,8 +132,8 @@ const DownloadFilePage: React.FC = () => {
         setIsP2PDownload(true);
 
         if (list.uploader_online === false) {
-          setErrorTitle('발신자 오프라인');
-          setError('발신자가 현재 오프라인입니다. 나중에 다시 시도해주세요.');
+          setErrorTitle(t('download.senderOffline'));
+          setError(t('download.senderOfflineDesc'));
           return;
         }
       } else {
@@ -148,14 +150,14 @@ const DownloadFilePage: React.FC = () => {
       const statusCode = err.response?.status;
 
       if (statusCode === 404) {
-        setErrorTitle('잘못된 코드');
-        setError('찾을 수 없거나 만료된 파일입니다.');
+        setErrorTitle(t('download.invalidCode'));
+        setError(t('download.notFoundOrExpired'));
       } else if (statusCode === 429) {
-        setErrorTitle('차단된 IP');
-        setError('비정상적인 활동으로 인해 사용자의 IP가 일시적으로 차단되었습니다. 나중에 다시 시도해 주세요.');
+        setErrorTitle(t('download.blockedIP'));
+        setError(t('download.blockedIPDesc'));
       } else {
-        setErrorTitle('알 수 없는 오류');
-        setError(err.response?.data?.message || '잠시 후에 다시 시도해 주세요.');
+        setErrorTitle(t('download.unknownError'));
+        setError(err.response?.data?.message || t('download.tryAgainLater'));
       }
     } finally {
       setLoading(false);
@@ -212,7 +214,7 @@ const DownloadFilePage: React.FC = () => {
     e.preventDefault();
 
     if (!code || !password) {
-      toast.error('비밀번호를 입력해주세요');
+      toast.error(t('download.enterPassword'));
       return;
     }
 
@@ -224,18 +226,18 @@ const DownloadFilePage: React.FC = () => {
       const list = await fileAPI.getFileList(code, turnstileToken);
       setFileList(list);
       setPasswordVerified(true);
-      toast.success('비밀번호가 확인되었습니다.');
+      toast.success(t('download.passwordVerified'));
 
       if (list.files.length === 1) {
         setSelectedFiles(new Set([list.files[0].id]));
       }
     } catch (err: any) {
       if (err.response?.status === 401) {
-        toast.error('비밀번호가 올바르지 않습니다.');
+        toast.error(t('download.passwordIncorrect'));
         setPassword('');
         setShowPassword(false);
       } else {
-        toast.error('비밀번호 확인에 실패하였습니다.');
+        toast.error(t('download.passwordVerifyFailed'));
       }
     } finally {
       setLoading(false);
@@ -276,7 +278,7 @@ const DownloadFilePage: React.FC = () => {
                 progressEvent.loaded,
                 totalSize
               );
-              setDownloadTimeRemaining(formatTimeRemaining(remainingSeconds));
+              setDownloadTimeRemaining(formatTimeRemaining(remainingSeconds, language));
               lastDownloadTimeUpdateRef.current = now;
             }
           },
@@ -284,7 +286,7 @@ const DownloadFilePage: React.FC = () => {
         );
 
         downloadFile(blob, `${code}.zip`);
-        toast.success('ZIP 파일 다운로드가 완료되었습니다.');
+        toast.success(t('download.zipDownloadComplete'));
         return;
       }
 
@@ -325,17 +327,17 @@ const DownloadFilePage: React.FC = () => {
 
       toast.success(
         selectedFileIds.length === 1
-          ? '다운로드가 시작되었습니다.'
-          : `${selectedFileIds.length}개 파일 다운로드가 시작되었습니다.`
+          ? t('download.downloadStarted')
+          : t('download.multiDownloadStarted', { count: selectedFileIds.length })
       );
     } catch (err: any) {
       if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') {
-        toast.info('다운로드가 취소되었습니다.');
+        toast.info(t('download.downloadCancelled'));
       } else if (err.response?.status === 401) {
-        toast.error('비밀번호가 올바르지 않습니다.');
+        toast.error(t('download.passwordIncorrect'));
         setPasswordVerified(false);
       } else {
-        toast.error(err.response?.data?.message || '다운로드에 실패하였습니다.');
+        toast.error(err.response?.data?.message || t('download.downloadFailed'));
       }
     } finally {
       setDownloading(false);
@@ -358,15 +360,15 @@ const DownloadFilePage: React.FC = () => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 mb-8 text-gray-600 dark:text-[#888888]">
-            {loading ? '파일 정보를 불러오는 중...' : '요청을 검사하는 중...'}
+            {loading ? t('download.loadingFileInfo') : t('download.verifyingRequest')}
           </p>
           <TurnstileWidget
             onVerify={handleTurnstileVerify}
             onError={() => {
-              toast.error('보안 확인에 실패하였습니다. 페이지를 새로고침해주세요.');
+              toast.error(t('download.securityFailed'));
             }}
             onExpire={() => {
-              toast.error('보안 확인이 만료되었습니다. 페이지를 새로고침해주세요.');
+              toast.error(t('download.securityExpired'));
             }}
           />
         </div>
@@ -379,7 +381,7 @@ const DownloadFilePage: React.FC = () => {
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-[#888888]">파일 정보를 불러오는 중...</p>
+          <p className="mt-4 text-gray-600 dark:text-[#888888]">{t('download.loadingFileInfo')}</p>
         </div>
       </div>
     );
@@ -402,7 +404,7 @@ const DownloadFilePage: React.FC = () => {
               onClick={() => navigate('/', { state: { autoFocus: true } })}
               className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
             >
-              다시 시도
+              {t('common.retry')}
             </button>
           </div>
           <style>{`
@@ -441,9 +443,9 @@ const DownloadFilePage: React.FC = () => {
               <div className="w-16 h-16 bg-blue-100 dark:bg-blue-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
                 <LockClosedIcon className="w-8 h-8 text-blue-600" />
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-[#EDEDED] mb-2">비밀번호 입력</h1>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-[#EDEDED] mb-2">{t('download.passwordTitle')}</h1>
               <p className="text-gray-600 dark:text-[#888888]">
-                이 파일은 비밀번호로 보호되어 있습니다.
+                {t('download.passwordProtected')}
               </p>
             </div>
 
@@ -454,7 +456,7 @@ const DownloadFilePage: React.FC = () => {
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="파일 비밀번호를 입력하세요"
+                    placeholder={t('download.passwordPlaceholder')}
                     className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-white/15 dark:bg-[#0B0A0B] dark:text-[#EDEDED] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     autoFocus
                   />
@@ -476,7 +478,7 @@ const DownloadFilePage: React.FC = () => {
                 type="submit"
                 className="w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700"
               >
-                확인
+                {t('common.confirm')}
               </button>
             </form>
           </div>
@@ -507,18 +509,18 @@ const DownloadFilePage: React.FC = () => {
             </div>
             <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">
               {isP2PDownload ? (
-                p2pStatus === 'waiting' || p2pStatus === 'connecting' ? '수신 준비 완료' :
-                p2pStatus === 'downloading' ? '파일 다운로드 중...' :
-                p2pStatus === 'completed' ? '다운로드 완료' :
-                '다운로드 준비 완료'
-              ) : '다운로드 준비 완료'}
+                p2pStatus === 'waiting' || p2pStatus === 'connecting' ? t('download.readyToReceive') :
+                p2pStatus === 'downloading' ? t('download.downloading') :
+                p2pStatus === 'completed' ? t('download.downloadCompleteTitle') :
+                t('download.readyToDownload')
+              ) : t('download.readyToDownload')}
             </h1>
             <p className="text-gray-600 dark:text-[#888888]">
               {isP2PDownload ? (
-                p2pStatus === 'downloading' ? (p2pPeerDeviceInfo ? `${p2pPeerDeviceInfo}에서 파일을 받는 중입니다.` : '파일을 받는 중입니다. 잠시만 기다려주세요.') :
-                p2pStatus === 'completed' ? '파일이 성공적으로 다운로드되었습니다.' :
-                p2pPeerDeviceInfo ? `${p2pPeerDeviceInfo}에 연결되었습니다.` : '발신자 연결에 성공하였습니다.'
-              ) : '다운로드를 시작하기 전에 아래 파일 정보를 확인하세요.'}
+                p2pStatus === 'downloading' ? (p2pPeerDeviceInfo ? t('download.receivingFrom', { device: p2pPeerDeviceInfo }) : t('download.receivingPleaseWait')) :
+                p2pStatus === 'completed' ? t('download.downloadedSuccessfully') :
+                p2pPeerDeviceInfo ? t('download.connectedToDevice', { device: p2pPeerDeviceInfo }) : t('download.connectionSuccess')
+              ) : t('download.checkFileBeforeDownload')}
             </p>
           </div>
           <style>{`
@@ -589,19 +591,19 @@ const DownloadFilePage: React.FC = () => {
 
             <div className="space-y-3 mb-8">
               <div className="flex justify-between py-2 border-b border-gray-200 dark:border-white/10">
-                <span className="text-gray-600 dark:text-[#888888]">파일 크기</span>
+                <span className="text-gray-600 dark:text-[#888888]">{t('download.fileSize')}</span>
                 <span className="font-semibold text-gray-900 dark:text-[#EDEDED]">{formatFileSize(file.file_size)}</span>
               </div>
               {fileList.description && (
                 <div className="flex justify-between py-2 border-b border-gray-200 dark:border-white/10">
-                  <span className="text-gray-600 dark:text-[#888888]">업로드한 사람</span>
-                  <span className="font-semibold text-gray-900 dark:text-[#EDEDED]">익명의 사용자</span>
+                  <span className="text-gray-600 dark:text-[#888888]">{t('download.uploader')}</span>
+                  <span className="font-semibold text-gray-900 dark:text-[#EDEDED]">{t('common.anonymousUser')}</span>
                 </div>
               )}
               {!isP2PDownload && (
                 <div className="flex justify-between py-2">
-                  <span className="text-gray-600 dark:text-[#888888]">만료 일시</span>
-                  <span className="font-semibold text-gray-900 dark:text-[#EDEDED]">{formatDateTime(fileList.expires_at)}</span>
+                  <span className="text-gray-600 dark:text-[#888888]">{t('download.expiresAt')}</span>
+                  <span className="font-semibold text-gray-900 dark:text-[#EDEDED]">{formatDateTime(fileList.expires_at, language)}</span>
                 </div>
               )}
             </div>
@@ -614,7 +616,7 @@ const DownloadFilePage: React.FC = () => {
                       <div className="flex-1 pl-2">
                         <div className="flex justify-between mb-2">
                           <span className="text-sm font-medium text-gray-700 dark:text-[#EDEDED] self-start">
-                            {p2pStatus === 'connecting' ? '연결 중...' : `다운로드 중...`}
+                            {p2pStatus === 'connecting' ? t('download.connectingP2P') : t('download.downloadingP2P')}
                           </span>
                           {p2pStatus === 'downloading' && (
                             <div className="flex items-center gap-2 self-end">
@@ -637,7 +639,7 @@ const DownloadFilePage: React.FC = () => {
                       <button
                         onClick={handleCancelP2PDownload}
                         className="p-1 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded transition-colors flex-shrink-0"
-                        title="다운로드 취소"
+                        title={t('download.cancelDownload')}
                       >
                         <XMarkIcon className="w-6 h-6 text-gray-600 dark:text-[#888888]" />
                       </button>
@@ -645,7 +647,7 @@ const DownloadFilePage: React.FC = () => {
                   </div>
                 ) : p2pStatus === 'completed' ? (
                   <div className="text-center py-4 text-green-600 font-semibold">
-                    ✓ 다운로드 완료
+                    ✓ {t('download.downloadCompleteMark')}
                   </div>
                 ) : (
                   <button
@@ -653,7 +655,7 @@ const DownloadFilePage: React.FC = () => {
                     className="w-full px-6 py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
                   >
                     <ArrowDownTrayIcon className="w-5 h-5" />
-                    <span>다운로드 시작</span>
+                    <span>{t('download.startDownload')}</span>
                   </button>
                 )
               ) : downloading ? (
@@ -662,7 +664,7 @@ const DownloadFilePage: React.FC = () => {
                     <div className="flex-1 pl-2">
                       <div className="flex justify-between mb-2">
                         <span className="text-sm font-medium text-gray-700 dark:text-[#EDEDED] self-start">
-                          {downloadProgress === 100 ? '잠시만 기다려주세요...' : '다운로드 중...'}
+                          {downloadProgress === 100 ? t('download.pleaseWait') : t('download.downloadingP2P')}
                         </span>
                         {downloadProgress < 100 && (
                           <div className="flex items-center gap-2 self-end">
@@ -683,7 +685,7 @@ const DownloadFilePage: React.FC = () => {
                     <button
                       onClick={handleCancelDownload}
                       className="p-1 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded transition-colors flex-shrink-0"
-                      title="다운로드 취소"
+                      title={t('download.cancelDownload')}
                     >
                       <XMarkIcon className="w-6 h-6 text-gray-600 dark:text-[#888888]" />
                     </button>
@@ -695,7 +697,7 @@ const DownloadFilePage: React.FC = () => {
                   className="w-full px-6 py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
                 >
                   <ArrowDownTrayIcon className="w-5 h-5" />
-                  <span>파일 다운로드</span>
+                  <span>{t('download.downloadFile')}</span>
                 </button>
               )}
             </div>
@@ -705,7 +707,7 @@ const DownloadFilePage: React.FC = () => {
                 onClick={() => navigate('/')}
                 className="text-sm text-gray-500 hover:text-gray-700 dark:text-[#888888] dark:hover:text-[#EDEDED]"
               >
-                돌아가기
+                {t('common.back')}
               </button>
             </div>
           </div>
@@ -746,9 +748,9 @@ const DownloadFilePage: React.FC = () => {
       <div className="py-12 px-4">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-10">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">파일 다운로드</h1>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">{t('download.pageTitle')}</h1>
             <p className="text-gray-600 dark:text-[#888888]">
-              {p2pPeerDeviceInfo ? `${p2pPeerDeviceInfo}에 연결되었습니다. ` : ''}다운로드할 파일을 선택해 주세요.
+              {p2pPeerDeviceInfo ? t('download.connectedToDeviceShort', { device: p2pPeerDeviceInfo }) : ''}{t('download.selectFileToDownload')}
             </p>
           </div>
 
@@ -761,7 +763,7 @@ const DownloadFilePage: React.FC = () => {
 
             <div className="mb-6">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
-                파일 목록 ({fileList.total_count}개)
+                {t('download.fileListCount', { count: fileList.total_count })}
               </h3>
             </div>
 
@@ -803,7 +805,7 @@ const DownloadFilePage: React.FC = () => {
 
                       {isCompleted ? (
                         <span className="flex-shrink-0 px-4 py-2 text-green-600 text-sm font-medium">
-                          ✓ 완료
+                          ✓ {t('common.done')}
                         </span>
                       ) : isDownloading ? (
                         <div className="flex-shrink-0 flex items-center gap-2">
@@ -816,7 +818,7 @@ const DownloadFilePage: React.FC = () => {
                           <button
                             onClick={handleCancelP2PDownload}
                             className="p-1 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded transition-colors"
-                            title="다운로드 취소"
+                            title={t('download.cancelDownload')}
                           >
                             <XMarkIcon className="w-5 h-5 text-gray-500 dark:text-[#888888]" />
                           </button>
@@ -827,7 +829,7 @@ const DownloadFilePage: React.FC = () => {
                           disabled={p2pEnabled && !isActive}
                           className="flex-shrink-0 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-white/10 disabled:cursor-not-allowed transition-colors"
                         >
-                          다운로드
+                          {t('common.download')}
                         </button>
                       )}
                     </div>
@@ -841,7 +843,7 @@ const DownloadFilePage: React.FC = () => {
                 onClick={() => navigate('/')}
                 className="text-sm text-gray-500 hover:text-gray-700 dark:text-[#888888] dark:hover:text-[#EDEDED]"
               >
-                돌아가기
+                {t('common.back')}
               </button>
             </div>
           </div>
@@ -854,9 +856,9 @@ const DownloadFilePage: React.FC = () => {
     <div className="py-12 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">파일 다운로드</h1>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">{t('download.pageTitle')}</h1>
           <p className="text-gray-600 dark:text-[#888888]">
-            {fileList.total_count}개의 파일이 있습니다. 다운로드할 파일을 선택하세요.
+            {t('download.totalFilesAvailable', { count: fileList.total_count })}
           </p>
         </div>
 
@@ -869,20 +871,20 @@ const DownloadFilePage: React.FC = () => {
 
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED]">
-              파일 목록 ({selectedFiles.size}/{fileList.total_count} 선택됨)
+              {t('download.fileListSelected', { selected: selectedFiles.size, total: fileList.total_count })}
             </h3>
             <div className="flex gap-1">
               <button
                 onClick={selectAllFiles}
                 className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg"
               >
-                전체 선택
+                {t('download.selectAll')}
               </button>
               <button
                 onClick={deselectAllFiles}
                 className="px-3 py-1.5 text-sm text-gray-600 dark:text-[#888888] hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg"
               >
-                선택 해제
+                {t('download.deselectAll')}
               </button>
             </div>
           </div>
@@ -931,7 +933,7 @@ const DownloadFilePage: React.FC = () => {
                   <div className="flex-1 pl-2">
                     <div className="flex justify-between mb-2">
                       <span className="text-sm font-medium text-gray-700 dark:text-[#EDEDED] self-start">
-                        {downloadProgress === 100 ? '잠시만 기다려주세요...' : (downloadAsZip ? 'ZIP 생성 중...' : '다운로드 중...')}
+                        {downloadProgress === 100 ? t('download.pleaseWait') : (downloadAsZip ? t('download.creatingZip') : t('download.downloadingP2P'))}
                       </span>
                       {downloadProgress < 100 && (
                         <div className="flex items-center gap-2 self-end">
@@ -952,7 +954,7 @@ const DownloadFilePage: React.FC = () => {
                   <button
                     onClick={handleCancelDownload}
                     className="p-1 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded transition-colors flex-shrink-0"
-                    title="다운로드 취소"
+                    title={t('download.cancelDownload')}
                   >
                     <XMarkIcon className="w-6 h-6 text-gray-600 dark:text-[#888888]" />
                   </button>
@@ -973,14 +975,14 @@ const DownloadFilePage: React.FC = () => {
                       disabled={selectedFiles.size === 0}
                       className="flex-1 px-4 py-3 md:py-4 bg-gray-100 text-gray-700 text-base font-semibold rounded-xl hover:bg-gray-200 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors dark:bg-white/5 dark:text-[#EDEDED] dark:hover:bg-white/10"
                     >
-                      ZIP 다운로드
+                      {t('download.zipDownload')}
                     </button>
                     <button
                       onClick={() => handleDownload(false)}
                       disabled={selectedFiles.size === 0}
                       className="flex-1 px-4 py-3 md:py-4 bg-blue-600 text-white text-base font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-white/10 disabled:cursor-not-allowed transition-colors"
                     >
-                      다운로드
+                      {t('common.download')}
                     </button>
                   </div>
                 ) : (
@@ -990,10 +992,10 @@ const DownloadFilePage: React.FC = () => {
                     className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-white/10 disabled:cursor-not-allowed transition-colors"
                   >
                     {selectedFiles.size === 0
-                      ? '파일을 선택하세요'
+                      ? t('download.selectFilePrompt')
                       : selectedFiles.size === 1
-                      ? '다운로드'
-                      : `${selectedFiles.size}개 파일 다운로드`
+                      ? t('common.download')
+                      : t('download.multiFileDownload', { count: selectedFiles.size })
                     }
                   </button>
                 );
@@ -1006,7 +1008,7 @@ const DownloadFilePage: React.FC = () => {
               onClick={() => navigate('/')}
               className="text-sm text-gray-500 hover:text-gray-700 dark:text-[#888888] dark:hover:text-[#EDEDED]"
             >
-              돌아가기
+              {t('common.back')}
             </button>
           </div>
         </div>

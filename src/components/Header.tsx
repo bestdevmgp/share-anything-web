@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 import { toast } from '../context/ToastContext';
+import { useTranslation } from '../i18n';
 import { Menu, Transition } from '@headlessui/react';
 import { ChevronDownIcon } from '@heroicons/react/20/solid';
 
@@ -10,10 +11,11 @@ import { ChevronDownIcon } from '@heroicons/react/20/solid';
 const Header: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleLogout = () => {
     logout();
-    toast.success('로그아웃되었습니다.');
+    toast.success(t('header.logoutSuccess'));
     navigate('/');
   };
 
@@ -63,7 +65,7 @@ const Header: React.FC = () => {
                           active ? 'bg-gray-100 dark:bg-white/10' : ''
                         } w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-[#EDEDED]`}
                       >
-                        업로드 기록
+                        {t('header.uploadHistory')}
                       </button>
                     )}
                   </Menu.Item>
@@ -75,7 +77,7 @@ const Header: React.FC = () => {
                           active ? 'bg-red-50 dark:bg-red-500/10' : ''
                         } w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 font-medium`}
                       >
-                        로그아웃
+                        {t('header.logout')}
                       </button>
                     )}
                   </Menu.Item>
@@ -89,7 +91,7 @@ const Header: React.FC = () => {
                 to="/login"
                 className="px-4 py-2 text-sm text-primary-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg font-medium"
               >
-                로그인
+                {t('header.login')}
               </Link>
             )}
           </div>
