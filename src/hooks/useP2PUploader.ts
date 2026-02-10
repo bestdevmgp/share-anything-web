@@ -453,7 +453,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, shareCode, retryCount, t]);
+  }, [enabled, shareCode, retryCount]);
 
   const retry = useCallback(() => {
     console.log('[useP2PUploader] Retrying P2P connection...');
