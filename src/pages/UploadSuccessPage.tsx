@@ -70,7 +70,7 @@ const UploadSuccessPage: React.FC = () => {
     return null;
   }
 
-  const downloadUrl = `${process.env.REACT_APP_API_URL}/og/${groupShareCode}`;
+  const downloadUrl = `${window.location.origin}/download/${groupShareCode}`;
 
   const displayCode = groupShareCode.length === 6
     ? `${groupShareCode.slice(0, 3)} ${groupShareCode.slice(3)}`

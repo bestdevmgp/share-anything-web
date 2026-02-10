@@ -1,0 +1,14 @@
+{
+  "rewrites": [
+    {
+      "source": "/download/:code",
+      "missing": [
+        {
+          "type": "query",
+          "key": "r"
+        }
+      ],
+      "destination": "https://share-api.mingyu.dev/og/:code"
+    }
+  ]
+}
