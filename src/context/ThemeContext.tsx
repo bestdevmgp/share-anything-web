@@ -31,8 +31,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return theme;
   });
 
-  const applyTheme = useCallback((resolved: 'light' | 'dark') => {
+  const applyTheme = useCallback((resolved: 'light' | 'dark', animate = false) => {
     const root = document.documentElement;
+
+    if (animate) {
+      root.classList.add('theme-transition');
+    }
+
     if (resolved === 'dark') {
       root.classList.add('dark');
     } else {
@@ -43,12 +48,19 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (metaThemeColor) {
       metaThemeColor.setAttribute('content', resolved === 'dark' ? '#010001' : '#0065F4');
     }
+
+    if (animate) {
+      setTimeout(() => root.classList.remove('theme-transition'), 300);
+    }
   }, []);
+
+  const isInitialMount = React.useRef(true);
 
   useEffect(() => {
     const resolved = theme === 'system' ? getSystemTheme() : theme;
     setResolvedTheme(resolved);
-    applyTheme(resolved);
+    applyTheme(resolved, !isInitialMount.current);
+    isInitialMount.current = false;
   }, [theme, applyTheme]);
 
   useEffect(() => {
@@ -58,7 +70,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const handleChange = (e: MediaQueryListEvent) => {
       const resolved = e.matches ? 'dark' : 'light';
       setResolvedTheme(resolved);
-      applyTheme(resolved);
+      applyTheme(resolved, true);
     };
 
     mediaQuery.addEventListener('change', handleChange);
