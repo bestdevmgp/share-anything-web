@@ -106,8 +106,7 @@ const Footer: React.FC = () => {
           </p>
         </div>
 
-        {/* Dropdowns */}
-        <div className="flex justify-center items-end gap-3">
+        <div className="flex justify-center items-end gap-[9px]">
           {/* Language Dropdown */}
           <div className="relative" ref={langRef}>
             <button
