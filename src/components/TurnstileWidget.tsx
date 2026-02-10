@@ -1,5 +1,6 @@
 import React, { useRef } from 'react';
 import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile';
+import { useTheme } from '../context/ThemeContext';
 
 interface TurnstileWidgetProps {
   onVerify: (token: string) => void;
@@ -14,6 +15,7 @@ const TurnstileWidget: React.FC<TurnstileWidgetProps> = ({
   onExpire,
   alignLeft = false
 }) => {
+  const { resolvedTheme } = useTheme();
   const siteKey = process.env.REACT_APP_TURNSTILE_SITE_KEY;
   const turnstileRef = useRef<TurnstileInstance>(null);
 
@@ -40,7 +42,7 @@ const TurnstileWidget: React.FC<TurnstileWidgetProps> = ({
         onError={onError}
         onExpire={handleExpire}
         options={{
-          theme: 'light',
+          theme: resolvedTheme,
           size: 'normal',
         }}
       />
