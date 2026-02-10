@@ -117,7 +117,7 @@ const Footer: React.FC = () => {
                 <GlobeAltIcon className="w-4 h-4" />
                 <span>{currentLang.label}</span>
               </div>
-              <ChevronUpIcon className={`w-3 h-3 transition-transform ${langOpen ? '' : 'rotate-180'}`} />
+              <ChevronUpIcon className={`w-3 h-3 transition-transform ${langOpen ? 'rotate-180' : ''}`} />
             </button>
 
             <Transition
@@ -156,8 +156,8 @@ const Footer: React.FC = () => {
               onClick={() => { setThemeOpen((v) => !v); setLangOpen(false); }}
               className="flex items-center justify-between w-16 h-10 px-2.5 border border-gray-200 dark:border-white/10 bg-white dark:bg-[#010001] text-gray-600 dark:text-[#AAAAAA] hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-sm"
             >
-              {themeIcons[theme]}
-              <ChevronUpIcon className={`w-3 h-3 transition-transform ${themeOpen ? '' : 'rotate-180'}`} />
+              <span className="w-[18px] h-[18px] flex-shrink-0 flex items-center justify-center">{themeIcons[theme]}</span>
+              <ChevronUpIcon className={`w-3 h-3 flex-shrink-0 transition-transform ${themeOpen ? 'rotate-180' : ''}`} />
             </button>
 
             <Transition
