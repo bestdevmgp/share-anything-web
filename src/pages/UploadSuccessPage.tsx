@@ -112,7 +112,13 @@ const UploadSuccessPage: React.FC = () => {
               !isP2PTransfer || allFilesCompleted ? 'bg-green-100 dark:bg-green-500/15' : 'bg-blue-100 dark:bg-blue-500/15'
             }`}>
               {isP2PTransfer && !allFilesCompleted ? (
-                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+                overallStatus === 'connected' ? (
+                  <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
+                ) : (
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+                )
               ) : (
                 <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M5 13l4 4L19 7" className="upload-checkmark-path" />
@@ -131,6 +137,7 @@ const UploadSuccessPage: React.FC = () => {
           <p className="text-lg text-gray-600 dark:text-[#888888]">
             {isP2PTransfer ? (
               overallStatus === 'waiting' ? t('uploadSuccess.keepPageOpen') :
+              overallStatus === 'connected' ? t('uploadSuccess.connectedReadyToDownload', { device: peerDeviceInfo || '' }) :
               allFilesCompleted ? t('uploadSuccess.allFilesTransferred') :
               peerDeviceInfo ? t('uploadSuccess.connectedTo', { device: peerDeviceInfo }) :
               t('uploadSuccess.transferringPleaseWait')
