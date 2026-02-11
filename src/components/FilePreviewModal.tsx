@@ -231,6 +231,9 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
     if (isPptxFile(fileName)) {
       if (presignedUrl) {
         const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(presignedUrl)}`;
+        console.log('[PPTX Preview] presignedUrl:', presignedUrl);
+        console.log('[PPTX Preview] presignedUrl length:', presignedUrl.length);
+        console.log('[PPTX Preview] viewerUrl:', viewerUrl);
         return (
           <iframe
             src={viewerUrl}
