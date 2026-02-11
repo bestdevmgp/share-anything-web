@@ -50,6 +50,10 @@
     "login": "로그인",
     "logoutSuccess": "로그아웃되었습니다."
   },
+  "notFound": {
+    "description": "찾으시는 페이지가 존재하지 않습니다.",
+    "goHome": "홈으로 돌아가기"
+  },
   "footer": {
     "privacyPolicy": "개인정보처리방침",
     "termsOfUse": "이용약관",

@@ -50,6 +50,10 @@
     "login": "Sign in",
     "logoutSuccess": "You have been signed out."
   },
+  "notFound": {
+    "description": "The page you are looking for does not exist.",
+    "goHome": "Go to Home"
+  },
   "footer": {
     "privacyPolicy": "Privacy Policy",
     "termsOfUse": "Terms of Use",

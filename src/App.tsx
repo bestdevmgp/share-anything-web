@@ -16,6 +16,7 @@ import OAuthCallbackPage from './pages/OAuthCallbackPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfUsePage from './pages/TermsOfUsePage';
 import UploadHistoryPage from './pages/UploadHistoryPage';
+import NotFoundPage from './pages/NotFoundPage';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
@@ -37,6 +38,7 @@ const AppContent: React.FC = () => {
           <Route path="/auth/callback/:provider" element={<OAuthCallbackPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/terms-of-use" element={<TermsOfUsePage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
       <Footer />
