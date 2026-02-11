@@ -605,7 +605,7 @@ const UploadHistoryPage: React.FC = () => {
               </table>
             </div>
             {showTableScrollHint && (
-              <div className="absolute inset-0 bg-black/15 flex items-center justify-center pointer-events-none z-10 rounded-xl">
+              <div className="absolute inset-0 bg-black/20 flex items-center justify-center pointer-events-none z-10 rounded-xl">
                 <div className="flex flex-col items-center gap-3">
                   <div className="w-16 h-8 rounded-full bg-white/30 relative overflow-hidden">
                     <div className="w-6 h-6 rounded-full bg-white absolute top-1 animate-scroll-hint" />
@@ -916,7 +916,7 @@ const UploadHistoryPage: React.FC = () => {
 
               {showScrollHint && (
                 <div
-                  className="absolute inset-0 bg-black/15 flex items-center justify-center pointer-events-none z-10"
+                  className="absolute inset-0 bg-black/20 flex items-center justify-center pointer-events-none z-10"
                 >
                   <div className="flex flex-col items-center gap-3">
                     <div className="w-16 h-8 rounded-full bg-white/30 relative overflow-hidden">
