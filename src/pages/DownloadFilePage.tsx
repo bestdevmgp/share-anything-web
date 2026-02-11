@@ -762,15 +762,49 @@ const DownloadFilePage: React.FC = () => {
   };
 
   if (isP2PDownload && fileList.files.length > 1) {
+    const allP2PCompleted = fileList.files.every(f => p2pCompletedFileIds.has(f.id));
+    const anyP2PDownloading = p2pActiveFileId && (p2pStatus === 'downloading' || p2pStatus === 'connecting');
+
     return (
       <div className="py-12 px-4">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-10">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">{t('download.pageTitle')}</h1>
+            <div className="flex justify-center mb-5">
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                anyP2PDownloading ? 'bg-blue-100 dark:bg-blue-500/15' : 'bg-green-100 dark:bg-green-500/15'
+              }`}>
+                {anyP2PDownloading ? (
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+                ) : (
+                  <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 13l4 4L19 7" className="download-checkmark-path" />
+                  </svg>
+                )}
+              </div>
+            </div>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">
+              {allP2PCompleted ? t('download.receiveCompleteTitle') :
+               anyP2PDownloading ? t('download.downloading') :
+               t('download.readyToReceive')}
+            </h1>
             <p className="text-gray-600 dark:text-[#888888]">
-              {p2pPeerDeviceInfo ? t('download.connectedToDeviceShort', { device: p2pPeerDeviceInfo }) : ''}{t('download.selectFileToDownload')}
+              {allP2PCompleted ? t('download.receivedSuccessfully') :
+               anyP2PDownloading ? (p2pPeerDeviceInfo ? t('download.receivingFrom', { device: p2pPeerDeviceInfo }) : t('download.receivingPleaseWait')) :
+               p2pPeerDeviceInfo ? t('download.connectedToDevice', { device: p2pPeerDeviceInfo }) : t('download.connectionSuccess')}
             </p>
           </div>
+          <style>{`
+            .download-checkmark-path {
+              stroke-dasharray: 20;
+              stroke-dashoffset: 20;
+              animation: drawDownloadCheck 0.6s ease-out forwards;
+            }
+            @keyframes drawDownloadCheck {
+              to {
+                stroke-dashoffset: 0;
+              }
+            }
+          `}</style>
 
           <div className="bg-white rounded-3xl border-2 border-gray-200 dark:bg-[#0B0A0B] dark:border-white/10 p-10">
             {fileList.description && (
@@ -835,7 +869,7 @@ const DownloadFilePage: React.FC = () => {
                           </div>
                           <button
                             onClick={handleCancelP2PDownload}
-                            className="p-1 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded transition-colors"
+                            className="p-1 [@media(hover:hover)]:hover:bg-blue-100 [@media(hover:hover)]:dark:hover:bg-blue-500/20 active:bg-blue-100 dark:active:bg-blue-500/20 rounded transition-colors"
                             title={t('download.cancelDownload')}
                           >
                             <XMarkIcon className="w-5 h-5 text-gray-500 dark:text-[#888888]" />

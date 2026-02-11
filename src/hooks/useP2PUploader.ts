@@ -248,9 +248,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     dataChannel.onerror = (error) => {
       console.error('[useP2PUploader] DataChannel error:', error);
       clearTimeout(connectionTimeout);
-      if (isTransferringRef.current) {
-        toast.error(t('p2p.transferError'));
-      }
     };
 
     pc.onicecandidate = (event) => {
@@ -421,7 +418,9 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
 
         case 'error':
           console.error('Signaling error:', message.message);
-          toast.error(message.message || t('p2p.connectionError'));
+          if (!isCleaningUpRef.current && !message.message?.includes('not online')) {
+            toast.error(message.message || t('p2p.connectionError'));
+          }
           break;
       }
     };
