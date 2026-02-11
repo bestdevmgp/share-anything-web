@@ -87,9 +87,11 @@ const UploadHistoryPage: React.FC = () => {
         const dismiss = () => setShowTableScrollHint(false);
         container.addEventListener('scroll', dismiss, { once: true, passive: true });
         container.addEventListener('touchstart', dismiss, { once: true, passive: true });
+        container.addEventListener('mousedown', dismiss, { once: true });
         return () => {
           container.removeEventListener('scroll', dismiss);
           container.removeEventListener('touchstart', dismiss);
+          container.removeEventListener('mousedown', dismiss);
         };
       }
     }, 150);
@@ -603,7 +605,7 @@ const UploadHistoryPage: React.FC = () => {
               </table>
             </div>
             {showTableScrollHint && (
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center pointer-events-none z-10 rounded-xl">
+              <div className="absolute inset-0 bg-black/25 flex items-center justify-center pointer-events-none z-10 rounded-xl">
                 <div className="flex flex-col items-center gap-3">
                   <div className="w-16 h-8 rounded-full bg-white/30 relative overflow-hidden">
                     <div className="w-6 h-6 rounded-full bg-white absolute top-1 animate-scroll-hint" />
@@ -1032,7 +1034,7 @@ const UploadHistoryPage: React.FC = () => {
         }
 
         .animate-scroll-hint {
-          animation: scrollHint 1.5s ease-in-out infinite;
+          animation: scrollHint 2.5s ease-in-out infinite;
         }
       `}</style>
     </div>
