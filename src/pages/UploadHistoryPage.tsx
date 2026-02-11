@@ -44,7 +44,7 @@ const UploadHistoryPage: React.FC = () => {
   const [loadingLogs, setLoadingLogs] = useState<{ [key: string]: boolean }>({});
   const [showAllLogsModal, setShowAllLogsModal] = useState(false);
   const [selectedFileForLogs, setSelectedFileForLogs] = useState<string | null>(null);
-  const [loadingPreviews, setLoadingPreviews] = useState<{ [key: string]: boolean }>({});
+  const [presignedUrls, setPresignedUrls] = useState<Record<string, string>>({});
   const [closingRow, setClosingRow] = useState<string | null>(null);
   const [previewModalFile, setPreviewModalFile] = useState<{ fileName: string; fileSize: number; source: string; presignedUrl?: string } | null>(null);
   const [showQRModal, setShowQRModal] = useState(false);
@@ -108,6 +108,26 @@ const UploadHistoryPage: React.FC = () => {
   }, [t]);
 
   useEffect(() => {
+    const fetchPresignedUrls = async () => {
+      const urls: Record<string, string> = {};
+      const promises = uploads
+        .filter(u => new Date(u.expires_at) >= new Date() && (u.file_type.startsWith('image/') || isPdfFile(u.file_name)))
+        .map(async (upload) => {
+          try {
+            const result = await fileAPI.getDownloadUrl(upload.share_code, upload.id, undefined, true);
+            urls[upload.id] = result.download_url;
+          } catch {}
+        });
+      await Promise.all(promises);
+      setPresignedUrls(urls);
+    };
+    if (uploads.length > 0) {
+      fetchPresignedUrls();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uploads]);
+
+  useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && showQRModal) {
         setShowQRModal(false);
@@ -169,11 +189,21 @@ const UploadHistoryPage: React.FC = () => {
 
   const openPreviewModal = async (upload: UploadHistoryItem) => {
     if (isExpired(upload.expires_at)) return;
-    const previewUrl = getPreviewUrl(upload.share_code, upload.id);
-    const presignedUrl = isPptxFile(upload.file_name)
-      ? await fileAPI.getDownloadUrl(upload.share_code, upload.id, undefined, true).then(r => r.download_url).catch(() => undefined)
-      : undefined;
-    setPreviewModalFile({ fileName: upload.file_name, fileSize: upload.file_size, source: previewUrl, presignedUrl });
+    let url = presignedUrls[upload.id];
+    if (!url) {
+      try {
+        const result = await fileAPI.getDownloadUrl(upload.share_code, upload.id, undefined, true);
+        url = result.download_url;
+      } catch {
+        return;
+      }
+    }
+    setPreviewModalFile({
+      fileName: upload.file_name,
+      fileSize: upload.file_size,
+      source: url,
+      presignedUrl: isPptxFile(upload.file_name) ? url : undefined
+    });
   };
 
   const handleDelete = async (fileId: string, e: React.MouseEvent) => {
@@ -230,11 +260,6 @@ const UploadHistoryPage: React.FC = () => {
     return fileType.startsWith('image/');
   };
 
-  const getPreviewUrl = (shareCode: string, fileId: string) => {
-    const apiUrl = process.env.REACT_APP_API_URL;
-    return `${apiUrl}/preview/file?code=${shareCode}&file_id=${fileId}`;
-  };
-
   const truncateFileName = (fileName: string, maxLength: number = 50) => {
     if (fileName.length <= maxLength) return fileName;
 
@@ -255,7 +280,7 @@ const UploadHistoryPage: React.FC = () => {
   const getThumbnailSource = (upload: UploadHistoryItem): string | null => {
     if (isExpired(upload.expires_at)) return null;
     if (isImageFileByType(upload.file_type) || isPdfFile(upload.file_name)) {
-      return getPreviewUrl(upload.share_code, upload.id);
+      return presignedUrls[upload.id] || null;
     }
     return null;
   };
@@ -305,7 +330,7 @@ const UploadHistoryPage: React.FC = () => {
         </div>
       ) : (
         <>
-          <div className="hidden md:block bg-white rounded-xl border-[3px] border-gray-100 dark:bg-[#0B0A0B] dark:border-white/10 overflow-hidden">
+          <div className="hidden lg:block bg-white rounded-xl border-[3px] border-gray-100 dark:bg-[#0B0A0B] dark:border-white/10 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200 dark:divide-white/10 table-fixed">
                 <colgroup>
@@ -430,21 +455,25 @@ const UploadHistoryPage: React.FC = () => {
                                         <p className="text-sm text-gray-500 dark:text-[#888888] text-center px-4">{t('history.expiredFile')}</p>
                                       </div>
                                     ) : isImageFileByType(upload.file_type) ? (
-                                      loadingPreviews[`expanded_${upload.id}`] ? (
-                                        <div className="flex items-center justify-center h-full bg-gray-100 dark:bg-white/5">
-                                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                                        </div>
-                                      ) : (
+                                      presignedUrls[upload.id] ? (
                                         <img
-                                          src={getPreviewUrl(upload.share_code, upload.id)}
+                                          src={presignedUrls[upload.id]}
                                           alt={upload.file_name}
                                           className="w-full h-full object-contain"
-                                          onLoadStart={() => setLoadingPreviews({ ...loadingPreviews, [`expanded_${upload.id}`]: true })}
-                                          onLoad={() => setLoadingPreviews({ ...loadingPreviews, [`expanded_${upload.id}`]: false })}
                                         />
+                                      ) : (
+                                        <div className="flex items-center justify-center h-full bg-gray-100 dark:bg-white/5">
+                                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+                                        </div>
                                       )
                                     ) : isPdfFile(upload.file_name) ? (
-                                      <PdfPreview source={getPreviewUrl(upload.share_code, upload.id)} fileName={upload.file_name} />
+                                      presignedUrls[upload.id] ? (
+                                        <PdfPreview source={presignedUrls[upload.id]} fileName={upload.file_name} />
+                                      ) : (
+                                        <div className="flex items-center justify-center h-full bg-gray-100 dark:bg-white/5">
+                                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+                                        </div>
+                                      )
                                     ) : (
                                       <div className="flex flex-col items-center justify-center h-full bg-gray-100 dark:bg-white/5 p-4 gap-4">
                                         <FileThumbnail source={null} fileName={upload.file_name} size="md" />
@@ -562,7 +591,7 @@ const UploadHistoryPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="md:hidden space-y-2">
+          <div className="lg:hidden space-y-2">
             {uploads.map((upload) => (
               <div key={upload.id} className="bg-white rounded-xl border-[3px] border-gray-100 dark:bg-[#0B0A0B] dark:border-white/10 overflow-hidden">
                 <div className="relative">
@@ -638,13 +667,25 @@ const UploadHistoryPage: React.FC = () => {
                               <p className="text-xs text-gray-500 dark:text-[#888888] text-center px-4">{t('history.expiredFile')}</p>
                             </div>
                           ) : isImageFileByType(upload.file_type) ? (
-                            <img
-                              src={getPreviewUrl(upload.share_code, upload.id)}
-                              alt={upload.file_name}
-                              className="w-full h-full object-contain"
-                            />
+                            presignedUrls[upload.id] ? (
+                              <img
+                                src={presignedUrls[upload.id]}
+                                alt={upload.file_name}
+                                className="w-full h-full object-contain"
+                              />
+                            ) : (
+                              <div className="flex items-center justify-center h-full bg-gray-100 dark:bg-white/5">
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+                              </div>
+                            )
                           ) : isPdfFile(upload.file_name) ? (
-                            <PdfPreview source={getPreviewUrl(upload.share_code, upload.id)} fileName={upload.file_name} />
+                            presignedUrls[upload.id] ? (
+                              <PdfPreview source={presignedUrls[upload.id]} fileName={upload.file_name} />
+                            ) : (
+                              <div className="flex items-center justify-center h-full bg-gray-100 dark:bg-white/5">
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+                              </div>
+                            )
                           ) : (
                             <div className="flex flex-col items-center justify-center h-full bg-gray-100 dark:bg-white/5 p-4 gap-4">
                               <FileThumbnail source={null} fileName={upload.file_name} size="md" />
