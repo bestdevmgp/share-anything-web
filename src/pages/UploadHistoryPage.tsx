@@ -327,13 +327,13 @@ const UploadHistoryPage: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full min-w-[1200px] divide-y divide-gray-200 dark:divide-white/10 table-fixed">
                 <colgroup>
-                  <col style={{ width: '30%' }} />
-                  <col style={{ width: '10%' }} />
-                  <col style={{ width: '15%' }} />
-                  <col style={{ width: '15%' }} />
-                  <col style={{ width: '10%' }} />
-                  <col style={{ width: '10%' }} />
-                  <col style={{ width: '10%' }} />
+                  <col style={{ width: '22%' }} />
+                  <col style={{ width: '12%' }} />
+                  <col style={{ width: '14%' }} />
+                  <col style={{ width: '14%' }} />
+                  <col style={{ width: '12%' }} />
+                  <col style={{ width: '12%' }} />
+                  <col style={{ width: '14%' }} />
                 </colgroup>
                 <thead className="bg-gray-50 dark:bg-white/5">
                   <tr>
