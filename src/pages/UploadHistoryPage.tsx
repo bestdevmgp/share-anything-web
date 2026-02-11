@@ -325,7 +325,16 @@ const UploadHistoryPage: React.FC = () => {
         <>
           <div className="hidden md:block bg-white rounded-xl border-[3px] border-gray-100 dark:bg-[#0B0A0B] dark:border-white/10 overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[1000px] divide-y divide-gray-200 dark:divide-white/10">
+              <table className="w-full min-w-[1200px] divide-y divide-gray-200 dark:divide-white/10 table-fixed">
+                <colgroup>
+                  <col style={{ width: '30%' }} />
+                  <col style={{ width: '10%' }} />
+                  <col style={{ width: '15%' }} />
+                  <col style={{ width: '15%' }} />
+                  <col style={{ width: '10%' }} />
+                  <col style={{ width: '10%' }} />
+                  <col style={{ width: '10%' }} />
+                </colgroup>
                 <thead className="bg-gray-50 dark:bg-white/5">
                   <tr>
                     <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider whitespace-nowrap align-middle">
@@ -427,7 +436,7 @@ const UploadHistoryPage: React.FC = () => {
                         <tr>
                           <td colSpan={7} className="px-6 bg-[#F9FAFB] dark:bg-[#010001]">
                             <div className={`py-6 ${closingRow === upload.id ? 'animate-collapse-up' : 'animate-expand-down'}`}>
-                              <div className="grid grid-cols-3 gap-4">
+                              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                                 <div className="h-0 min-h-full flex flex-col overflow-hidden">
                                   <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-4 flex-shrink-0">{t('history.preview')}</h3>
                                   <div
@@ -467,7 +476,7 @@ const UploadHistoryPage: React.FC = () => {
                                   </div>
                                 </div>
 
-                                <div className="col-span-2 grid grid-cols-2 gap-4">
+                                <div className="lg:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-4">
                                   <div className="flex flex-col">
                                     <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">{t('history.detailInfo')}</h3>
                                     <div className="bg-white rounded-lg border border-gray-200 dark:bg-[#0B0A0B] dark:border-white/10 p-4 grid grid-cols-2 gap-x-6 gap-y-3">
