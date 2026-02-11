@@ -119,6 +119,7 @@ export interface P2PStatusResponse {
 export type SignalingMessageType =
   | 'uploader_ready'
   | 'downloader_join'
+  | 'downloader_arrived'
   | 'peer_matched'
   | 'offer'
   | 'answer'

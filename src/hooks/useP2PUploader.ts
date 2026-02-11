@@ -386,6 +386,15 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
           }
           break;
 
+        case 'downloader_arrived':
+          if (!isTransferringRef.current) {
+            setStatus('connected');
+            if (message.device_info) {
+              setPeerDeviceInfo(message.device_info);
+            }
+          }
+          break;
+
         case 'downloader_offline':
           if (isTransferringRef.current) {
             toast.warning(t('p2p.receiverDisconnected'));
@@ -407,6 +416,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
           }
           setStatus('waiting');
           setCurrentFileName('');
+          setPeerDeviceInfo(null);
           break;
 
         case 'error':

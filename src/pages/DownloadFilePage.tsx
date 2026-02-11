@@ -2,12 +2,13 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fileAPI } from '../services/api';
 import { FileListResponse } from '../types';
-import { formatFileSize, downloadFile, formatDateTime, isImageFile, isPptxFile, formatTimeRemaining, calculateTimeRemaining } from '../utils/format';
+import { formatFileSize, downloadFile, formatDateTime, isImageFile, isPptxFile, formatTimeRemaining, calculateTimeRemaining, getDeviceInfo } from '../utils/format';
 import { DocumentIcon, LockClosedIcon, CheckIcon, ArrowDownTrayIcon, EyeIcon, EyeSlashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { toast } from '../context/ToastContext';
 import { useTranslation } from '../i18n';
 import TurnstileWidget from '../components/TurnstileWidget';
 import { useP2PDownloader } from '../hooks/useP2PDownloader';
+import { createWebSocketConnection, generatePeerId, sendSignalingMessage } from '../utils/webrtc';
 import FileThumbnail from '../components/FileThumbnail';
 import FilePreviewModal from '../components/FilePreviewModal';
 import { useThumbnail } from '../hooks/useThumbnail';
@@ -110,6 +111,25 @@ const DownloadFilePage: React.FC = () => {
       setP2pEnabled(false);
     }
   }, [p2pStatus]);
+
+  useEffect(() => {
+    if (!isP2PDownload || !fileList || !passwordVerified || !code) return;
+
+    const ws = createWebSocketConnection(() => {});
+
+    ws.onopen = () => {
+      sendSignalingMessage(ws, {
+        type: 'downloader_arrived',
+        share_code: code,
+        peer_id: generatePeerId(),
+        device_info: getDeviceInfo()
+      });
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [isP2PDownload, fileList, passwordVerified, code]);
 
   const loadFileList = useCallback(async (token: string) => {
     if (!code) {
