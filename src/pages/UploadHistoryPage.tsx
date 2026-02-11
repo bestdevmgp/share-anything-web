@@ -323,9 +323,9 @@ const UploadHistoryPage: React.FC = () => {
         </div>
       ) : (
         <>
-          <div className="hidden lg:block bg-white rounded-xl border-[3px] border-gray-100 dark:bg-[#0B0A0B] dark:border-white/10 overflow-hidden">
+          <div className="hidden md:block bg-white rounded-xl border-[3px] border-gray-100 dark:bg-[#0B0A0B] dark:border-white/10 overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-white/10 table-fixed">
+              <table className="w-full min-w-[900px] divide-y divide-gray-200 dark:divide-white/10 table-fixed">
                 <colgroup>
                   <col style={{ width: '30%' }} />
                   <col style={{ width: '10%' }} />
@@ -584,7 +584,7 @@ const UploadHistoryPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="lg:hidden space-y-2">
+          <div className="md:hidden space-y-2">
             {uploads.map((upload) => (
               <div key={upload.id} className="bg-white rounded-xl border-[3px] border-gray-100 dark:bg-[#0B0A0B] dark:border-white/10 overflow-hidden">
                 <div className="relative">
