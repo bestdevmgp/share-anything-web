@@ -42,7 +42,7 @@ const DownloadFilePage: React.FC = () => {
   const [singleFilePreviewUrl, setSingleFilePreviewUrl] = useState<string | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
 
-  const [turnstileToken, setTurnstileToken] = useState<string>('');
+  const [, setTurnstileToken] = useState<string>('');
   const [turnstileVerified, setTurnstileVerified] = useState(false);
 
   const [isP2PDownload, setIsP2PDownload] = useState(false);
@@ -223,13 +223,11 @@ const DownloadFilePage: React.FC = () => {
 
       await fileAPI.verifyPassword(code, password);
 
-      const list = await fileAPI.getFileList(code, turnstileToken);
-      setFileList(list);
       setPasswordVerified(true);
       toast.success(t('download.passwordVerified'));
 
-      if (list.files.length === 1) {
-        setSelectedFiles(new Set([list.files[0].id]));
+      if (fileList && fileList.files.length === 1) {
+        setSelectedFiles(new Set([fileList.files[0].id]));
       }
     } catch (err: any) {
       if (err.response?.status === 401) {
@@ -466,9 +464,9 @@ const DownloadFilePage: React.FC = () => {
                     className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700 dark:text-[#888888] dark:hover:text-[#EDEDED]"
                   >
                     {showPassword ? (
-                      <EyeSlashIcon className="w-5 h-5" />
-                    ) : (
                       <EyeIcon className="w-5 h-5" />
+                    ) : (
+                      <EyeSlashIcon className="w-5 h-5" />
                     )}
                   </button>
                 </div>

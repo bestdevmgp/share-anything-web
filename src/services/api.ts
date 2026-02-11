@@ -241,12 +241,15 @@ export const fileAPI = {
 
   createP2PSession: async (
     files: { name: string; size: number; type: string }[],
-    turnstileToken: string
+    turnstileToken: string,
+    password?: string
   ): Promise<FileUploadResponse> => {
-    const response = await api.post<FileUploadResponse>('/file/p2p/create', {
+    const body: Record<string, unknown> = {
       files,
       turnstile_token: turnstileToken
-    });
+    };
+    if (password) body.password = password;
+    const response = await api.post<FileUploadResponse>('/file/p2p/create', body);
     return response.data;
   },
 

@@ -104,7 +104,8 @@ const UploadPage: React.FC = () => {
             size: file.size,
             type: file.type || 'application/octet-stream'
           })),
-          turnstileToken
+          turnstileToken,
+          isAuthenticated && password ? password : undefined
         );
 
         navigate('/upload/success', {
