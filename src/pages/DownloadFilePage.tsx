@@ -214,7 +214,7 @@ const DownloadFilePage: React.FC = () => {
 
   const openPreview = async (fileName: string, fileSize: number, fileId: string, blobSource: string) => {
     const presignedUrl = isPptxFile(fileName) && code
-      ? await fileAPI.getDownloadUrl(code, fileId, password || undefined).then(r => r.download_url).catch(() => undefined)
+      ? await fileAPI.getDownloadUrl(code, fileId, password || undefined, true).then(r => r.download_url).catch(() => undefined)
       : undefined;
     setPreviewFile({ fileName, fileSize, source: blobSource, presignedUrl });
   };

@@ -171,7 +171,7 @@ const UploadHistoryPage: React.FC = () => {
     if (isExpired(upload.expires_at)) return;
     const previewUrl = getPreviewUrl(upload.share_code, upload.id);
     const presignedUrl = isPptxFile(upload.file_name)
-      ? await fileAPI.getDownloadUrl(upload.share_code, upload.id).then(r => r.download_url).catch(() => undefined)
+      ? await fileAPI.getDownloadUrl(upload.share_code, upload.id, undefined, true).then(r => r.download_url).catch(() => undefined)
       : undefined;
     setPreviewModalFile({ fileName: upload.file_name, fileSize: upload.file_size, source: previewUrl, presignedUrl });
   };

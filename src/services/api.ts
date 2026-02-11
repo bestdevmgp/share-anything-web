@@ -333,15 +333,19 @@ export const fileAPI = {
   getDownloadUrl: async (
     code: string,
     fileId: string,
-    password?: string
+    password?: string,
+    inline?: boolean
   ): Promise<{ download_url: string; expires_in_secs: number }> => {
     const headers: Record<string, string> = {};
     if (password) {
       headers['X-File-Password'] = password;
     }
 
+    const params: Record<string, string> = { code, file_id: fileId };
+    if (inline) params.inline = 'true';
+
     const response = await api.get<{ download_url: string; expires_in_secs: number }>('/download/url', {
-      params: { code, file_id: fileId },
+      params,
       headers
     });
 
