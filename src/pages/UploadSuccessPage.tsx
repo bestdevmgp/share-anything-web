@@ -46,6 +46,13 @@ const UploadSuccessPage: React.FC = () => {
     }
   }, [connectionFailed]);
 
+  useEffect(() => {
+    if (showFailedModal) {
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = ''; };
+    }
+  }, [showFailedModal]);
+
   const handleSwitchToServerUpload = () => {
     navigate('/upload', {
       state: {
