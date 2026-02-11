@@ -529,14 +529,14 @@ const DownloadFilePage: React.FC = () => {
               {isP2PDownload ? (
                 p2pStatus === 'waiting' || p2pStatus === 'connecting' ? t('download.readyToReceive') :
                 p2pStatus === 'downloading' ? t('download.downloading') :
-                p2pStatus === 'completed' ? t('download.downloadCompleteTitle') :
+                p2pStatus === 'completed' ? t('download.receiveCompleteTitle') :
                 t('download.readyToDownload')
               ) : t('download.readyToDownload')}
             </h1>
             <p className="text-gray-600 dark:text-[#888888]">
               {isP2PDownload ? (
                 p2pStatus === 'downloading' ? (p2pPeerDeviceInfo ? t('download.receivingFrom', { device: p2pPeerDeviceInfo }) : t('download.receivingPleaseWait')) :
-                p2pStatus === 'completed' ? t('download.downloadedSuccessfully') :
+                p2pStatus === 'completed' ? t('download.receivedSuccessfully') :
                 p2pPeerDeviceInfo ? t('download.connectedToDevice', { device: p2pPeerDeviceInfo }) : t('download.connectionSuccess')
               ) : t('download.checkFileBeforeDownload')}
             </p>
@@ -665,7 +665,7 @@ const DownloadFilePage: React.FC = () => {
                   </div>
                 ) : p2pStatus === 'completed' ? (
                   <div className="text-center py-4 text-green-600 font-semibold">
-                    ✓ {t('download.downloadCompleteMark')}
+                    ✓ {t('download.receiveCompleteMark')}
                   </div>
                 ) : (
                   <button

@@ -109,12 +109,13 @@ const UploadSuccessPage: React.FC = () => {
         <div className="text-center mb-12">
           <div className="flex justify-center mb-5">
             <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-              !isP2PTransfer || allFilesCompleted ? 'bg-green-100 dark:bg-green-500/15' : 'bg-blue-100 dark:bg-blue-500/15'
+              !isP2PTransfer || allFilesCompleted || overallStatus === 'connected' ? 'bg-green-100 dark:bg-green-500/15' : 'bg-blue-100 dark:bg-blue-500/15'
             }`}>
               {isP2PTransfer && !allFilesCompleted ? (
                 overallStatus === 'connected' ? (
-                  <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
                   </svg>
                 ) : (
                   <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
