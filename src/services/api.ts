@@ -337,7 +337,8 @@ export const fileAPI = {
     code: string,
     fileId: string,
     password?: string,
-    inline?: boolean
+    inline?: boolean,
+    preview?: boolean
   ): Promise<{ download_url: string; expires_in_secs: number }> => {
     const headers: Record<string, string> = {};
     if (password) {
@@ -346,6 +347,7 @@ export const fileAPI = {
 
     const params: Record<string, string> = { code, file_id: fileId };
     if (inline) params.inline = 'true';
+    if (preview) params.preview = 'true';
 
     const response = await api.get<{ download_url: string; expires_in_secs: number }>('/download/url', {
       params,

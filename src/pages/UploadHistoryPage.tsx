@@ -108,26 +108,6 @@ const UploadHistoryPage: React.FC = () => {
   }, [t]);
 
   useEffect(() => {
-    const fetchPresignedUrls = async () => {
-      const urls: Record<string, string> = {};
-      const promises = uploads
-        .filter(u => new Date(u.expires_at) >= new Date() && (u.file_type.startsWith('image/') || isPdfFile(u.file_name)))
-        .map(async (upload) => {
-          try {
-            const result = await fileAPI.getDownloadUrl(upload.share_code, upload.id, undefined, true);
-            urls[upload.id] = result.download_url;
-          } catch {}
-        });
-      await Promise.all(promises);
-      setPresignedUrls(urls);
-    };
-    if (uploads.length > 0) {
-      fetchPresignedUrls();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uploads]);
-
-  useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && showQRModal) {
         setShowQRModal(false);
@@ -147,6 +127,19 @@ const UploadHistoryPage: React.FC = () => {
     try {
       setLoading(true);
       const response = await userAPI.getUploads(limit, offset);
+
+      const urls: Record<string, string> = {};
+      const promises = response.items
+        .filter(u => new Date(u.expires_at) >= new Date() && (u.file_type.startsWith('image/') || isPdfFile(u.file_name)))
+        .map(async (upload) => {
+          try {
+            const result = await fileAPI.getDownloadUrl(upload.share_code, upload.id, undefined, true, true);
+            urls[upload.id] = result.download_url;
+          } catch {}
+        });
+      await Promise.all(promises);
+
+      setPresignedUrls(urls);
       setUploads(response.items);
       setTotal(response.total);
     } catch (error: any) {
@@ -192,7 +185,7 @@ const UploadHistoryPage: React.FC = () => {
     let url = presignedUrls[upload.id];
     if (!url) {
       try {
-        const result = await fileAPI.getDownloadUrl(upload.share_code, upload.id, undefined, true);
+        const result = await fileAPI.getDownloadUrl(upload.share_code, upload.id, undefined, true, true);
         url = result.download_url;
       } catch {
         return;
