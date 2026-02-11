@@ -2,9 +2,9 @@ import React from 'react';
 import { useThumbnail } from '../hooks/useThumbnail';
 import {
   isImageFile, isPdfFile, isVideoFile, isAudioFile, isTextFile,
-  isCsvFile, isExcelFile, isDocxFile, isHwpFile
+  isCsvFile, isExcelFile, isDocxFile, isPptxFile, isHwpFile
 } from '../utils/format';
-import { DocumentIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon, TableCellsIcon } from '@heroicons/react/24/outline';
+import { DocumentIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon, TableCellsIcon, PresentationChartBarIcon } from '@heroicons/react/24/outline';
 
 interface FileThumbnailProps {
   source: File | string | null;
@@ -36,7 +36,7 @@ const FileThumbnail: React.FC<FileThumbnailProps> = ({ source, fileName, size = 
     );
   }
 
-  if ((isImageFile(fileName) || isPdfFile(fileName)) && url) {
+  if ((isImageFile(fileName) || isPdfFile(fileName) || isPptxFile(fileName)) && url) {
     return (
       <img
         src={url}
@@ -78,6 +78,14 @@ const FileThumbnail: React.FC<FileThumbnailProps> = ({ source, fileName, size = 
     return (
       <div className={`${boxClass} flex-shrink-0 bg-green-50 dark:bg-green-500/10 rounded flex items-center justify-center`}>
         <TableCellsIcon className={`${iconClass} text-green-600 dark:text-green-400`} />
+      </div>
+    );
+  }
+
+  if (isPptxFile(fileName)) {
+    return (
+      <div className={`${boxClass} flex-shrink-0 bg-orange-50 dark:bg-orange-500/10 rounded flex items-center justify-center`}>
+        <PresentationChartBarIcon className={`${iconClass} text-orange-600 dark:text-orange-400`} />
       </div>
     );
   }

@@ -131,6 +131,12 @@ export const isDocxFile = (filename: string): boolean => {
   return extension === '.docx';
 };
 
+export const isPptxFile = (filename: string): boolean => {
+  const pptxExtensions = ['.pptx', '.ppt'];
+  const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+  return pptxExtensions.includes(extension);
+};
+
 export const isHwpFile = (filename: string): boolean => {
   const hwpExtensions = ['.hwp', '.hwpx'];
   const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'));

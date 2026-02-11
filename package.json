@@ -15,6 +15,7 @@
     "@types/react": "^19.2.6",
     "@types/react-dom": "^19.2.3",
     "axios": "^1.13.2",
+    "jszip": "^3.10.1",
     "mammoth": "^1.11.0",
     "pdfjs-dist": "^5.4.296",
     "qrcode.react": "^4.2.0",

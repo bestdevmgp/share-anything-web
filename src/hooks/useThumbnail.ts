@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { isImageFile, isPdfFile, isVideoFile } from '../utils/format';
-import { generatePdfThumbnail, generateVideoThumbnail } from '../utils/filePreview';
+import { isImageFile, isPdfFile, isVideoFile, isPptxFile } from '../utils/format';
+import { generatePdfThumbnail, generateVideoThumbnail, generatePptxThumbnail } from '../utils/filePreview';
 
 type ThumbnailResult = {
   url: string | null;
@@ -50,6 +50,8 @@ export function useThumbnail(source: File | string | null, fileName: string, thu
           objectUrl = await generatePdfThumbnail(source, thumbnailWidth);
         } else if (isVideoFile(fileName)) {
           objectUrl = await generateVideoThumbnail(source);
+        } else if (isPptxFile(fileName)) {
+          objectUrl = await generatePptxThumbnail(source);
         }
 
         if (!cancelled && objectUrl) {

@@ -66,6 +66,20 @@ export function generateVideoThumbnail(source: File | string): Promise<string> {
   });
 }
 
+export async function generatePptxThumbnail(source: File | string): Promise<string | null> {
+  const JSZip = (await import('jszip')).default;
+  const data = await getArrayBuffer(source);
+  const zip = await JSZip.loadAsync(data);
+  for (const path of ['docProps/thumbnail.jpeg', 'docProps/thumbnail.png']) {
+    const entry = zip.file(path);
+    if (entry) {
+      const blob = await entry.async('blob');
+      return URL.createObjectURL(blob);
+    }
+  }
+  return null;
+}
+
 export async function readTextContent(source: File | string, maxLength = 5000): Promise<string> {
   if (source instanceof File) {
     const text = await source.text();

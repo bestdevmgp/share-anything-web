@@ -3,8 +3,8 @@ import { Document, Page } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import { XMarkIcon, DocumentIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
-import { formatFileSize, isImageFile, isVideoFile, isAudioFile, isTextFile, isPdfFile, isCsvFile, isExcelFile, isDocxFile, isHwpFile } from '../utils/format';
-import { readTextContent, getMediaUrl, getArrayBuffer } from '../utils/filePreview';
+import { formatFileSize, isImageFile, isVideoFile, isAudioFile, isTextFile, isPdfFile, isCsvFile, isExcelFile, isDocxFile, isPptxFile, isHwpFile } from '../utils/format';
+import { readTextContent, getMediaUrl, getArrayBuffer, generatePptxThumbnail } from '../utils/filePreview';
 import { useTranslation } from '../i18n';
 import { GlobalWorkerOptions } from 'pdfjs-dist';
 import { PDF_WORKER_SRC } from '../utils/pdfWorkerSetup';
@@ -95,6 +95,12 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
           const ws = wb.Sheets[wb.SheetNames[0]];
           const json = XLSX.utils.sheet_to_json<string[]>(ws, { header: 1 });
           if (!cancelled) setExcelData((json as string[][]).slice(0, 1000));
+        } else if (isPptxFile(fileName)) {
+          const thumbUrl = await generatePptxThumbnail(source);
+          if (!cancelled && thumbUrl) {
+            objectUrl = thumbUrl;
+            setMediaUrl(thumbUrl);
+          }
         } else if (isDocxFile(fileName)) {
           const mammoth = await import('mammoth');
           const data = await getArrayBuffer(source);
@@ -217,6 +223,10 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
           )}
         </div>
       );
+    }
+
+    if (isPptxFile(fileName) && mediaUrl) {
+      return <img src={mediaUrl} alt={fileName} className="max-w-full max-h-[70vh] object-contain rounded" />;
     }
 
     if (isCsvFile(fileName) && csvData) {
