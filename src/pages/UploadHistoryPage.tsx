@@ -51,8 +51,10 @@ const UploadHistoryPage: React.FC = () => {
   const [selectedShareCode, setSelectedShareCode] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
   const [showScrollHint, setShowScrollHint] = useState(false);
+  const [showTableScrollHint, setShowTableScrollHint] = useState(false);
   const { t, language } = useTranslation();
   const logsScrollRef = useRef<HTMLDivElement>(null);
+  const tableScrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (showAllLogsModal && selectedFileForLogs) {
@@ -75,6 +77,24 @@ const UploadHistoryPage: React.FC = () => {
       setShowScrollHint(false);
     }
   }, [showAllLogsModal, selectedFileForLogs]);
+
+  useEffect(() => {
+    if (loading || uploads.length === 0) return;
+    const timer = setTimeout(() => {
+      const container = tableScrollRef.current;
+      if (container && container.scrollWidth > container.clientWidth) {
+        setShowTableScrollHint(true);
+        const dismiss = () => setShowTableScrollHint(false);
+        container.addEventListener('scroll', dismiss, { once: true, passive: true });
+        container.addEventListener('touchstart', dismiss, { once: true, passive: true });
+        return () => {
+          container.removeEventListener('scroll', dismiss);
+          container.removeEventListener('touchstart', dismiss);
+        };
+      }
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [loading, uploads]);
 
   useEffect(() => {
     if (authLoading) {
@@ -323,8 +343,8 @@ const UploadHistoryPage: React.FC = () => {
         </div>
       ) : (
         <>
-          <div className="hidden md:block bg-white rounded-xl border-[3px] border-gray-100 dark:bg-[#0B0A0B] dark:border-white/10 overflow-hidden">
-            <div className="overflow-x-auto">
+          <div className="hidden md:block bg-white rounded-xl border-[3px] border-gray-100 dark:bg-[#0B0A0B] dark:border-white/10 overflow-hidden relative">
+            <div ref={tableScrollRef} className="overflow-x-auto">
               <table className="w-full min-w-[1200px] divide-y divide-gray-200 dark:divide-white/10 table-fixed">
                 <colgroup>
                   <col style={{ width: '25%' }} />
@@ -436,7 +456,7 @@ const UploadHistoryPage: React.FC = () => {
                         <tr>
                           <td colSpan={7} className="px-6 bg-[#F9FAFB] dark:bg-[#010001]">
                             <div className={`py-6 ${closingRow === upload.id ? 'animate-collapse-up' : 'animate-expand-down'}`}>
-                              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                              <div className="grid grid-cols-3 gap-4">
                                 <div className="h-0 min-h-full flex flex-col overflow-hidden">
                                   <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-4 flex-shrink-0">{t('history.preview')}</h3>
                                   <div
@@ -476,7 +496,7 @@ const UploadHistoryPage: React.FC = () => {
                                   </div>
                                 </div>
 
-                                <div className="lg:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                <div className="col-span-2 grid grid-cols-2 gap-4">
                                   <div className="flex flex-col">
                                     <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">{t('history.detailInfo')}</h3>
                                     <div className="bg-white rounded-lg border border-gray-200 dark:bg-[#0B0A0B] dark:border-white/10 p-4 grid grid-cols-2 gap-x-6 gap-y-3">
@@ -582,6 +602,16 @@ const UploadHistoryPage: React.FC = () => {
                 </tbody>
               </table>
             </div>
+            {showTableScrollHint && (
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center pointer-events-none z-10 rounded-xl">
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-16 h-8 rounded-full bg-white/30 relative overflow-hidden">
+                    <div className="w-6 h-6 rounded-full bg-white absolute top-1 animate-scroll-hint" />
+                  </div>
+                  <span className="text-white text-sm font-medium">{t('common.scrollHorizontally')}</span>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="md:hidden space-y-2">
