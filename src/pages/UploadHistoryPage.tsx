@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { userAPI } from '../services/api';
+import { userAPI, fileAPI } from '../services/api';
 import { UploadHistoryItem, DownloadLog } from '../types';
 import { toast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import { QRCodeSVG } from 'qrcode.react';
 import { CheckIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
 import FileThumbnail from '../components/FileThumbnail';
-import { isPdfFile, formatFileSize, formatDateTime } from '../utils/format';
+import { isPdfFile, isPptxFile, formatFileSize, formatDateTime } from '../utils/format';
 import { useThumbnail } from '../hooks/useThumbnail';
 import FilePreviewModal from '../components/FilePreviewModal';
 import { useTranslation } from '../i18n';
@@ -46,7 +46,7 @@ const UploadHistoryPage: React.FC = () => {
   const [selectedFileForLogs, setSelectedFileForLogs] = useState<string | null>(null);
   const [loadingPreviews, setLoadingPreviews] = useState<{ [key: string]: boolean }>({});
   const [closingRow, setClosingRow] = useState<string | null>(null);
-  const [previewModalFile, setPreviewModalFile] = useState<{ fileName: string; fileSize: number; source: string } | null>(null);
+  const [previewModalFile, setPreviewModalFile] = useState<{ fileName: string; fileSize: number; source: string; presignedUrl?: string } | null>(null);
   const [showQRModal, setShowQRModal] = useState(false);
   const [selectedShareCode, setSelectedShareCode] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
@@ -167,14 +167,13 @@ const UploadHistoryPage: React.FC = () => {
     }
   };
 
-  const openPreviewModal = (upload: UploadHistoryItem) => {
+  const openPreviewModal = async (upload: UploadHistoryItem) => {
     if (isExpired(upload.expires_at)) return;
     const previewUrl = getPreviewUrl(upload.share_code, upload.id);
-    setPreviewModalFile({
-      fileName: upload.file_name,
-      fileSize: upload.file_size,
-      source: previewUrl,
-    });
+    const presignedUrl = isPptxFile(upload.file_name)
+      ? await fileAPI.getDownloadUrl(upload.share_code, upload.id).then(r => r.download_url).catch(() => undefined)
+      : undefined;
+    setPreviewModalFile({ fileName: upload.file_name, fileSize: upload.file_size, source: previewUrl, presignedUrl });
   };
 
   const handleDelete = async (fileId: string, e: React.MouseEvent) => {

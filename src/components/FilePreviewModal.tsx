@@ -14,13 +14,14 @@ interface FilePreviewModalProps {
     fileName: string;
     fileSize: number;
     source: File | string;
+    presignedUrl?: string;
   };
   onClose: () => void;
 }
 
 const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) => {
   const { t } = useTranslation();
-  const { fileName, fileSize, source } = file;
+  const { fileName, fileSize, source, presignedUrl } = file;
   const [textContent, setTextContent] = useState<string | null>(null);
   const [csvData, setCsvData] = useState<string[][] | null>(null);
   const [excelData, setExcelData] = useState<string[][] | null>(null);
@@ -96,10 +97,12 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
           const json = XLSX.utils.sheet_to_json<string[]>(ws, { header: 1 });
           if (!cancelled) setExcelData((json as string[][]).slice(0, 1000));
         } else if (isPptxFile(fileName)) {
-          const thumbUrl = await generatePptxThumbnail(source);
-          if (!cancelled && thumbUrl) {
-            objectUrl = thumbUrl;
-            setMediaUrl(thumbUrl);
+          if (source instanceof File) {
+            const thumbUrl = await generatePptxThumbnail(source);
+            if (!cancelled && thumbUrl) {
+              objectUrl = thumbUrl;
+              setMediaUrl(thumbUrl);
+            }
           }
         } else if (isDocxFile(fileName)) {
           const mammoth = await import('mammoth');
@@ -225,8 +228,21 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
       );
     }
 
-    if (isPptxFile(fileName) && mediaUrl) {
-      return <img src={mediaUrl} alt={fileName} className="max-w-full max-h-[70vh] object-contain rounded" />;
+    if (isPptxFile(fileName)) {
+      if (presignedUrl) {
+        const viewerUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(presignedUrl)}`;
+        return (
+          <iframe
+            src={viewerUrl}
+            title={fileName}
+            className="w-full rounded border-0"
+            style={{ width: Math.min(700, window.innerWidth - 80), height: '70vh' }}
+          />
+        );
+      }
+      if (mediaUrl) {
+        return <img src={mediaUrl} alt={fileName} className="max-w-full max-h-[70vh] object-contain rounded" />;
+      }
     }
 
     if (isCsvFile(fileName) && csvData) {

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fileAPI } from '../services/api';
 import { FileListResponse } from '../types';
-import { formatFileSize, downloadFile, formatDateTime, isImageFile, formatTimeRemaining, calculateTimeRemaining } from '../utils/format';
+import { formatFileSize, downloadFile, formatDateTime, isImageFile, isPptxFile, formatTimeRemaining, calculateTimeRemaining } from '../utils/format';
 import { DocumentIcon, LockClosedIcon, CheckIcon, ArrowDownTrayIcon, EyeIcon, EyeSlashIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { toast } from '../context/ToastContext';
 import { useTranslation } from '../i18n';
@@ -38,7 +38,7 @@ const DownloadFilePage: React.FC = () => {
   const [downloadAsZip, setDownloadAsZip] = useState(false);
   const lastDownloadTimeUpdateRef = useRef<number>(0);
 
-  const [previewFile, setPreviewFile] = useState<{ fileName: string; fileSize: number; source: string } | null>(null);
+  const [previewFile, setPreviewFile] = useState<{ fileName: string; fileSize: number; source: string; presignedUrl?: string } | null>(null);
   const [singleFilePreviewUrl, setSingleFilePreviewUrl] = useState<string | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
 
@@ -211,6 +211,13 @@ const DownloadFilePage: React.FC = () => {
       if (blobUrl) URL.revokeObjectURL(blobUrl);
     };
   }, [fileList, code, password]);
+
+  const openPreview = async (fileName: string, fileSize: number, fileId: string, blobSource: string) => {
+    const presignedUrl = isPptxFile(fileName) && code
+      ? await fileAPI.getDownloadUrl(code, fileId, password || undefined).then(r => r.download_url).catch(() => undefined)
+      : undefined;
+    setPreviewFile({ fileName, fileSize, source: blobSource, presignedUrl });
+  };
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -547,7 +554,7 @@ const DownloadFilePage: React.FC = () => {
               ) : singleFilePreviewUrl && isImageFile(file.file_name) ? (
                 <div
                   className="max-w-full max-h-96 overflow-hidden rounded-2xl cursor-pointer"
-                  onClick={() => setPreviewFile({ fileName: file.file_name, fileSize: file.file_size, source: singleFilePreviewUrl! })}
+                  onClick={() => openPreview(file.file_name, file.file_size, file.id, singleFilePreviewUrl!)}
                 >
                   <img
                     src={singleFilePreviewUrl}
@@ -558,7 +565,7 @@ const DownloadFilePage: React.FC = () => {
               ) : singleFilePreviewUrl && singleFileThumbnail.url ? (
                 <div
                   className="max-w-full max-h-[28rem] overflow-hidden rounded-2xl cursor-pointer"
-                  onClick={() => setPreviewFile({ fileName: file.file_name, fileSize: file.file_size, source: singleFilePreviewUrl! })}
+                  onClick={() => openPreview(file.file_name, file.file_size, file.id, singleFilePreviewUrl!)}
                 >
                   <img
                     src={singleFileThumbnail.url}
@@ -569,7 +576,7 @@ const DownloadFilePage: React.FC = () => {
               ) : singleFilePreviewUrl ? (
                 <div
                   className="cursor-pointer"
-                  onClick={() => setPreviewFile({ fileName: file.file_name, fileSize: file.file_size, source: singleFilePreviewUrl! })}
+                  onClick={() => openPreview(file.file_name, file.file_size, file.id, singleFilePreviewUrl!)}
                 >
                   <FileThumbnail source={singleFilePreviewUrl} fileName={file.file_name} size="md" />
                 </div>
