@@ -112,13 +112,10 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       if (dataChannel.bufferedAmount === 0) {
         try {
           dataChannel.send('__EOF__');
-          console.log('[useP2PUploader] EOF marker sent, buffer drained');
-        } catch (err) {
-          console.warn('[useP2PUploader] Failed to send EOF marker:', err);
+        } catch {
         }
         finishTransfer();
       } else {
-        console.log('[useP2PUploader] Waiting for buffer to drain:', dataChannel.bufferedAmount);
         setTimeout(waitForBufferDrain, 50);
       }
     };
@@ -130,12 +127,10 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
 
       const sendChunk = () => {
         if (cancelledRef.current) {
-          console.log('[useP2PUploader] Transfer cancelled');
           return;
         }
 
         if (offset >= buffer.byteLength) {
-          console.log('[useP2PUploader] All chunks queued, waiting for buffer drain...');
           waitForBufferDrain();
           return;
         }
@@ -198,7 +193,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       return null;
     }
 
-    console.log('[useP2PUploader] Setting up peer connection for file:', requestedFileName);
     setCurrentFileName(requestedFileName);
     isTransferringRef.current = true;
 
@@ -222,7 +216,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     // 30초 타임아웃 (TURN 릴레이 협상 포함)
     const connectionTimeout = setTimeout(() => {
       if (pc.iceConnectionState !== 'connected' && pc.iceConnectionState !== 'completed') {
-        console.log('[useP2PUploader] Connection timeout - ICE state:', pc.iceConnectionState);
         setConnectionFailed(true);
         setStatus('waiting');
       }
@@ -234,7 +227,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     dataChannelRef.current = dataChannel;
 
     dataChannel.onopen = () => {
-      console.log('[useP2PUploader] DataChannel opened for file:', requestedFileName);
       clearTimeout(connectionTimeout);
       setStatus('transferring');
 
@@ -250,7 +242,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     };
 
     dataChannel.onclose = () => {
-      console.log('[useP2PUploader] DataChannel closed');
       clearTimeout(connectionTimeout);
     };
 
@@ -276,7 +267,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     };
 
     pc.oniceconnectionstatechange = async () => {
-      console.log('[useP2PUploader] ICE connection state:', pc.iceConnectionState);
       if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
         clearTimeout(connectionTimeout);
         setStatus('connected');
@@ -287,19 +277,14 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
             if (report.type === 'candidate-pair' && report.state === 'succeeded') {
               const localCandidate = stats.get(report.localCandidateId);
               if (localCandidate?.candidateType === 'relay') {
-                console.log('[useP2PUploader] Connected via TURN relay');
                 toast.info(t('p2p.turnFallback'));
-              } else {
-                console.log('[useP2PUploader] Connected via direct P2P:', localCandidate?.candidateType);
               }
             }
           });
-        } catch (err) {
-          console.warn('[useP2PUploader] Failed to check connection type:', err);
+        } catch {
         }
       } else if (pc.iceConnectionState === 'failed') {
         clearTimeout(connectionTimeout);
-        console.log('[useP2PUploader] ICE connection failed (including TURN)');
         setConnectionFailed(true);
         setStatus('waiting');
       }
@@ -315,7 +300,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       return;
     }
 
-    console.log('[useP2PUploader] Setting up WebSocket connection');
     isCleaningUpRef.current = false;
 
     const ws = createWebSocketConnection((message: SignalingMessage) => {
@@ -325,7 +309,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     wsRef.current = ws;
 
     ws.onopen = () => {
-      console.log('[useP2PUploader] WebSocket connected, sending uploader_ready');
       sendSignalingMessage(ws, {
         type: 'uploader_ready',
         share_code: shareCode,
@@ -341,19 +324,15 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       }
     };
 
-    ws.onclose = (event) => {
-      console.log('[useP2PUploader] WebSocket closed - Code:', event.code);
+    ws.onclose = () => {
     };
 
     const handleSignalingMessage = async (message: SignalingMessage) => {
       const ws = wsRef.current;
       if (!ws) return;
 
-      console.log('[useP2PUploader] Received signaling message:', message.type, message.file_name);
-
       switch (message.type) {
         case 'peer_matched':
-          console.log('[useP2PUploader] Peer matched! Requested file:', message.file_name, 'Device:', message.device_info);
           setStatus('connected');
           if (message.device_info) {
             setPeerDeviceInfo(message.device_info);
@@ -389,7 +368,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
           break;
 
         case 'answer':
-          console.log('[useP2PUploader] Received answer from downloader');
           if (message.sdp && pcRef.current) {
             await pcRef.current.setRemoteDescription(new RTCSessionDescription({
               type: 'answer',
@@ -403,14 +381,12 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
             try {
               const candidate = JSON.parse(message.candidate);
               await pcRef.current.addIceCandidate(new RTCIceCandidate(candidate));
-            } catch (err) {
-              console.warn('[useP2PUploader] Failed to add ICE candidate:', err);
+            } catch {
             }
           }
           break;
 
         case 'downloader_offline':
-          console.log('[useP2PUploader] Downloader went offline');
           if (isTransferringRef.current) {
             toast.warning(t('p2p.receiverDisconnected'));
             isTransferringRef.current = false;
@@ -456,7 +432,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
   }, [enabled, shareCode, retryCount]);
 
   const retry = useCallback(() => {
-    console.log('[useP2PUploader] Retrying P2P connection...');
     isCleaningUpRef.current = true;
     if (dataChannelRef.current) {
       dataChannelRef.current.close();
@@ -479,7 +454,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
   }, []);
 
   const cancelTransfer = useCallback((fileName: string) => {
-    console.log('[useP2PUploader] Cancelling transfer for:', fileName);
     cancelledRef.current = true;
     isTransferringRef.current = false;
 

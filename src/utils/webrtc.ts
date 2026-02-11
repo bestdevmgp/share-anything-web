@@ -34,7 +34,6 @@ const convertToRTCIceServers = (servers: IceServer[]): RTCIceServer[] => {
 
 // STUN 전용 폴백 서버
 const getFallbackIceServers = (): RTCIceServer[] => {
-  console.warn('[WebRTC] Using fallback STUN servers (no TURN)');
   return [
     { urls: 'stun:stun.cloudflare.com:3478' },
     { urls: 'stun:stun.l.google.com:19302' },
@@ -46,16 +45,13 @@ export const getIceServers = async (): Promise<RTCIceServer[]> => {
   const now = Date.now();
 
   if (cachedIceServers && now < cacheExpiry) {
-    console.log('[WebRTC] Using cached ICE servers');
     return cachedIceServers;
   }
 
   try {
-    console.log('[WebRTC] Fetching TURN credentials from server...');
     const response = await turnAPI.getCredentials();
     cachedIceServers = convertToRTCIceServers(response.ice_servers);
     cacheExpiry = now + CACHE_DURATION_MS;
-    console.log('[WebRTC] TURN credentials fetched successfully:', cachedIceServers.length, 'servers');
     return cachedIceServers;
   } catch (error) {
     console.error('[WebRTC] Failed to fetch TURN credentials:', error);
@@ -69,8 +65,6 @@ export const clearIceServerCache = (): void => {
 };
 
 export const createPeerConnection = async (): Promise<RTCPeerConnection> => {
-  console.log('[WebRTC] Creating PeerConnection with Cloudflare TURN servers...');
-
   const iceServers = await getIceServers();
 
   const config: RTCConfiguration = {
@@ -80,15 +74,7 @@ export const createPeerConnection = async (): Promise<RTCPeerConnection> => {
     rtcpMuxPolicy: 'require'
   };
 
-  const pc = new RTCPeerConnection(config);
-
-  console.log('[WebRTC] PeerConnection created:', {
-    signalingState: pc.signalingState,
-    iceGatheringState: pc.iceGatheringState,
-    iceConnectionState: pc.iceConnectionState
-  });
-
-  return pc;
+  return new RTCPeerConnection(config);
 };
 
 export const generatePeerId = (): string => {
@@ -97,9 +83,6 @@ export const generatePeerId = (): string => {
 
 export const sendSignalingMessage = (ws: WebSocket, message: SignalingMessage): void => {
   if (ws.readyState === WebSocket.OPEN) {
-    console.log('[WebRTC] Sending signaling message:', message.type, 'to share_code:', message.share_code);
     ws.send(JSON.stringify(message));
-  } else {
-    console.error('[WebRTC] Cannot send message - WebSocket not open. State:', ws.readyState, 'Message type:', message.type);
   }
 };

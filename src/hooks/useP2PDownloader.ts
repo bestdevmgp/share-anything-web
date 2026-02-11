@@ -50,8 +50,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
       return;
     }
 
-    console.log('[useP2PDownloader] Setting up P2P connection for:', fileInfo.file_name);
-
     setStatus('connecting');
     setProgress(0);
     setTimeRemaining('');
@@ -73,7 +71,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
         wsRef.current = ws;
 
         ws.onopen = () => {
-          console.log('[useP2PDownloader] WebSocket connected, sending downloader_join for file:', fileInfo.file_name);
           sendSignalingMessage(ws, {
             type: 'downloader_join',
             share_code: shareCode,
@@ -91,8 +88,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           }
         };
 
-        ws.onclose = (event) => {
-          console.log('[useP2PDownloader] WebSocket closed - Code:', event.code, 'Reason:', event.reason);
+        ws.onclose = () => {
         };
 
         const pc = await createPeerConnection();
@@ -101,7 +97,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
         // 10초 연결 타임아웃
         const connectionTimeout = setTimeout(() => {
           if (!isCleaningUpRef.current && !completedRef.current && pc.iceConnectionState !== 'connected' && pc.iceConnectionState !== 'completed') {
-            console.log('[useP2PDownloader] Connection timeout - ICE state:', pc.iceConnectionState);
             setStatus('error');
             toast.error(t('p2p.connectionTimeout'));
             cleanup();
@@ -113,21 +108,16 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
         let actualFileType = fileInfo.file_type;
 
         pc.ondatachannel = (event) => {
-          console.log('[useP2PDownloader] DataChannel received');
           clearTimeout(connectionTimeout);
           const dataChannel = event.channel;
 
           dataChannel.onopen = () => {
-            console.log('[useP2PDownloader] DataChannel opened');
             setStatus('downloading');
             downloadStartTimeRef.current = Date.now();
           };
 
           dataChannel.onclose = () => {
-            console.log('[useP2PDownloader] DataChannel closed, received:', receivedSizeRef.current, '/', actualFileSize);
-
             if (!completedRef.current && receivedSizeRef.current > 0 && receivedSizeRef.current >= actualFileSize * 0.95) {
-              console.log('[useP2PDownloader] Connection closed but got most data, completing transfer');
               completedRef.current = true;
               const blob = new Blob(receivedChunksRef.current, { type: actualFileType });
               setStatus('completed');
@@ -142,7 +132,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
             if (typeof event.data === 'string') {
               if (event.data === '__EOF__') {
                 if (completedRef.current) return;
-                console.log('[useP2PDownloader] Received EOF marker, completing transfer');
                 completedRef.current = true;
                 const blob = new Blob(receivedChunksRef.current, { type: actualFileType });
                 setStatus('completed');
@@ -166,7 +155,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
                 try {
                   const metadata = JSON.parse(event.data);
                   if (metadata.type === 'file_metadata') {
-                    console.log('[useP2PDownloader] Received metadata:', metadata);
                     actualFileSize = metadata.fileSize;
                     actualFileType = metadata.fileType;
                     metadataReceived = true;
@@ -222,7 +210,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
         };
 
         pc.oniceconnectionstatechange = async () => {
-          console.log('[useP2PDownloader] ICE connection state:', pc.iceConnectionState);
           if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
             clearTimeout(connectionTimeout);
             setStatus('downloading');
@@ -233,21 +220,16 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
                 if (report.type === 'candidate-pair' && report.state === 'succeeded') {
                   const localCandidate = stats.get(report.localCandidateId);
                   if (localCandidate?.candidateType === 'relay') {
-                    console.log('[useP2PDownloader] Connected via TURN relay');
                     toast.info(t('p2p.turnFallback'));
-                  } else {
-                    console.log('[useP2PDownloader] Connected via direct P2P:', localCandidate?.candidateType);
                   }
                 }
               });
-            } catch (err) {
-              console.warn('[useP2PDownloader] Failed to check connection type:', err);
+            } catch {
             }
           } else if (pc.iceConnectionState === 'failed') {
             clearTimeout(connectionTimeout);
             // 연결 실패 시 수신 데이터가 충분하면 완료 처리
             if (!completedRef.current && receivedSizeRef.current > 0 && receivedSizeRef.current >= actualFileSize * 0.95) {
-              console.log('[useP2PDownloader] ICE failed but got most data, completing');
               completedRef.current = true;
               const blob = new Blob(receivedChunksRef.current, { type: actualFileType });
               setStatus('completed');
@@ -277,14 +259,12 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
 
       switch (message.type) {
         case 'peer_matched':
-          console.log('[useP2PDownloader] Peer matched! Device:', message.device_info, 'Waiting for offer...');
           if (message.device_info) {
             setPeerDeviceInfo(message.device_info);
           }
           break;
 
         case 'offer':
-          console.log('[useP2PDownloader] Received offer from uploader');
           if (message.sdp) {
             await pc.setRemoteDescription(new RTCSessionDescription({
               type: 'offer',
@@ -308,8 +288,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
             try {
               const candidate = JSON.parse(message.candidate);
               await pc.addIceCandidate(new RTCIceCandidate(candidate));
-            } catch (err) {
-              console.warn('[useP2PDownloader] Failed to add ICE candidate:', err);
+            } catch {
             }
           }
           break;
@@ -362,7 +341,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
   }, []);
 
   const cancelDownload = useCallback(() => {
-    console.log('[useP2PDownloader] Cancelling download');
     isCleaningUpRef.current = true;
     if (pcRef.current) {
       pcRef.current.close();

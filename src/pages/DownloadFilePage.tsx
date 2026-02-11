@@ -51,7 +51,6 @@ const DownloadFilePage: React.FC = () => {
   const [p2pCompletedFileIds, setP2pCompletedFileIds] = useState<Set<string>>(new Set());
 
   const handleP2PDownloadComplete = useCallback((blob: Blob, fileName: string) => {
-    console.log('[DownloadFilePage] P2P download completed:', { fileName, blobSize: blob.size });
     downloadFile(blob, fileName);
     toast.success(t('download.downloadComplete'));
     setP2pCompletedFileIds(prev => new Set(prev).add(p2pActiveFileId || ''));
@@ -123,13 +122,7 @@ const DownloadFilePage: React.FC = () => {
       const list = await fileAPI.getFileList(code, token);
       setFileList(list);
 
-      console.log('[DownloadFilePage] File list loaded:');
-      console.log('  - Full list:', list);
-      console.log('  - Transfer type (group level):', list.transfer_type);
-      console.log('  - Uploader online (group level):', list.uploader_online);
-
       if (list.transfer_type === 'p2p') {
-        console.log('[DownloadFilePage] P2P file detected');
         setIsP2PDownload(true);
 
         if (list.uploader_online === false) {
@@ -137,8 +130,6 @@ const DownloadFilePage: React.FC = () => {
           setError(t('download.senderOfflineDesc'));
           return;
         }
-      } else {
-        console.log('[DownloadFilePage] Regular file (not P2P)');
       }
 
       if (!list.has_password) {
