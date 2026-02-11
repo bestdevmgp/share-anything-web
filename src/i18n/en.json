@@ -80,10 +80,10 @@
   "home": {
     "heroTitle": "Effortless File Sharing",
     "heroDescription": "Share large files quickly and securely without signing up. Select files to create a share link, or enter a code to download.",
-    "uploadTitle": "Upload Files",
+    "uploadTitle": "Send Files",
     "uploadDescription": "Select files to get a secure link.",
-    "uploadButton": "Upload",
-    "downloadTitle": "Download Files",
+    "uploadButton": "Send",
+    "downloadTitle": "Receive Files",
     "downloadDescription": "Enter a 6-digit share code.",
     "downloadButton": "Download"
   },
@@ -110,8 +110,8 @@
     "redirectingToLogin": "Redirecting to sign-in page..."
   },
   "upload": {
-    "pageTitle": "Upload Files",
-    "title": "File Transfer",
+    "pageTitle": "Send Files",
+    "title": "Send Files",
     "subtitle": "Files and passwords are encrypted and automatically deleted after the expiration period.",
     "serverTransfer": "Standard",
     "p2pTransfer": "Secure",
@@ -179,7 +179,7 @@
     "switchToServer": "Would you like to switch to standard transfer?"
   },
   "download": {
-    "pageTitle": "Download Files",
+    "pageTitle": "Receive Files",
     "invalidCode": "Invalid Code",
     "downloadComplete": "File download is complete.",
     "senderOffline": "Sender Offline",

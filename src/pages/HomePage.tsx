@@ -17,6 +17,17 @@ const HomePage: React.FC = () => {
     }
   }, [location.state]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '/' && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        downloadCodeInputRef.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleDownload = () => {
     if (downloadCode.length === 6) {
       navigate(`/download/${downloadCode}`);
