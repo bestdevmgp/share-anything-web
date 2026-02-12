@@ -473,6 +473,10 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       pcRef.current.close();
       pcRef.current = null;
     }
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
 
     setFileProgresses(prev => {
       const newMap = new Map(prev);

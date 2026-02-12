@@ -29,6 +29,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
   const fileIdRef = useRef<string>('');
   const completedRef = useRef<boolean>(false);
   const isCleaningUpRef = useRef<boolean>(false);
+  const pendingErrorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const formatTime = useCallback((seconds: number): string => {
     if (seconds < 60) return t('format.secondsShort', { seconds: Math.ceil(seconds) });
@@ -189,12 +190,13 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
 
           dataChannel.onerror = (error) => {
             console.error('DataChannel error:', error);
-            setTimeout(() => {
+            pendingErrorTimerRef.current = setTimeout(() => {
               if (!isCleaningUpRef.current && !completedRef.current) {
                 setStatus('error');
                 toast.error(t('p2p.receiveError'));
               }
-            }, 500);
+              pendingErrorTimerRef.current = null;
+            }, 2000);
           };
         };
 
@@ -238,12 +240,13 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
               setProgress(100);
               onComplete(blob);
             } else {
-              setTimeout(() => {
+              pendingErrorTimerRef.current = setTimeout(() => {
                 if (!completedRef.current && !isCleaningUpRef.current) {
                   setStatus('error');
                   toast.error(t('p2p.connectionFailed'));
                 }
-              }, 500);
+                pendingErrorTimerRef.current = null;
+              }, 2000);
             }
           }
         };
@@ -300,10 +303,14 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           break;
 
         case 'uploader_offline':
+          if (pendingErrorTimerRef.current) {
+            clearTimeout(pendingErrorTimerRef.current);
+            pendingErrorTimerRef.current = null;
+          }
           isCleaningUpRef.current = true;
           if (!completedRef.current) {
             setStatus('cancelled');
-            toast.error(t('p2p.senderDisconnected'));
+            toast.warning(t('p2p.senderDisconnected'));
           }
           cleanup();
           break;
