@@ -12,6 +12,8 @@ import { useThumbnail } from '../hooks/useThumbnail';
 import FilePreviewModal from '../components/FilePreviewModal';
 import { useTranslation } from '../i18n';
 
+const PRESIGNED_URL_MAX_AGE_MS = 50 * 60 * 1000; // 50 minutes
+
 const PdfPreview: React.FC<{ source: string; fileName: string; width?: number }> = ({ source, fileName, width = 600 }) => {
   const { url, loading } = useThumbnail(source, fileName, width);
   if (loading) {
@@ -197,8 +199,6 @@ const UploadHistoryPage: React.FC = () => {
       setLoadingLogs({ ...loadingLogs, [fileId]: false });
     }
   };
-
-  const PRESIGNED_URL_MAX_AGE_MS = 50 * 60 * 1000; // 50 minutes
 
   const refreshPresignedUrlIfNeeded = useCallback(async (upload: UploadHistoryItem) => {
     if (isExpired(upload.expires_at)) return;
