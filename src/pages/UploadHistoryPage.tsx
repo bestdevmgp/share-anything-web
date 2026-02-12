@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userAPI, fileAPI } from '../services/api';
 import { UploadHistoryItem, DownloadLog } from '../types';
@@ -45,6 +45,8 @@ const UploadHistoryPage: React.FC = () => {
   const [showAllLogsModal, setShowAllLogsModal] = useState(false);
   const [selectedFileForLogs, setSelectedFileForLogs] = useState<string | null>(null);
   const [presignedUrls, setPresignedUrls] = useState<Record<string, string>>({});
+  const [failedPreviews, setFailedPreviews] = useState<Set<string>>(new Set());
+  const presignedUrlsFetchedAt = useRef<number>(0);
   const [closingRow, setClosingRow] = useState<string | null>(null);
   const [previewModalFile, setPreviewModalFile] = useState<{ fileName: string; fileSize: number; source: string; presignedUrl?: string } | null>(null);
   const [showQRModal, setShowQRModal] = useState(false);
@@ -145,23 +147,30 @@ const UploadHistoryPage: React.FC = () => {
     };
   }, [showQRModal]);
 
+  const fetchPresignedUrls = useCallback(async (items: UploadHistoryItem[]): Promise<Record<string, string>> => {
+    const urls: Record<string, string> = {};
+    const promises = items
+      .filter(u => new Date(u.expires_at) >= new Date() && (u.file_type.startsWith('image/') || isPdfFile(u.file_name)))
+      .map(async (upload) => {
+        try {
+          const result = await fileAPI.getDownloadUrl(upload.share_code, upload.id, undefined, true, true);
+          urls[upload.id] = result.download_url;
+        } catch {}
+      });
+    await Promise.all(promises);
+    presignedUrlsFetchedAt.current = Date.now();
+    return urls;
+  }, []);
+
   const fetchUploads = async () => {
     try {
       setLoading(true);
       const response = await userAPI.getUploads(limit, offset);
 
-      const urls: Record<string, string> = {};
-      const promises = response.items
-        .filter(u => new Date(u.expires_at) >= new Date() && (u.file_type.startsWith('image/') || isPdfFile(u.file_name)))
-        .map(async (upload) => {
-          try {
-            const result = await fileAPI.getDownloadUrl(upload.share_code, upload.id, undefined, true, true);
-            urls[upload.id] = result.download_url;
-          } catch {}
-        });
-      await Promise.all(promises);
+      const urls = await fetchPresignedUrls(response.items);
 
       setPresignedUrls(urls);
+      setFailedPreviews(new Set());
       setUploads(response.items);
       setTotal(response.total);
     } catch (error: any) {
@@ -189,6 +198,31 @@ const UploadHistoryPage: React.FC = () => {
     }
   };
 
+  const PRESIGNED_URL_MAX_AGE_MS = 50 * 60 * 1000; // 50 minutes
+
+  const refreshPresignedUrlIfNeeded = useCallback(async (upload: UploadHistoryItem) => {
+    if (isExpired(upload.expires_at)) return;
+    if (!(upload.file_type.startsWith('image/') || isPdfFile(upload.file_name))) return;
+
+    const isStale = Date.now() - presignedUrlsFetchedAt.current > PRESIGNED_URL_MAX_AGE_MS;
+    const isMissing = !presignedUrls[upload.id];
+
+    if (isStale || isMissing) {
+      try {
+        const result = await fileAPI.getDownloadUrl(upload.share_code, upload.id, undefined, true, true);
+        setPresignedUrls(prev => ({ ...prev, [upload.id]: result.download_url }));
+        setFailedPreviews(prev => {
+          const next = new Set(prev);
+          next.delete(upload.id);
+          return next;
+        });
+        if (isStale && !isMissing) {
+          presignedUrlsFetchedAt.current = Date.now();
+        }
+      } catch {}
+    }
+  }, [presignedUrls]);
+
   const handleRowClick = (fileId: string) => {
     if (expandedRow === fileId) {
       setExpandedRow(null);
@@ -199,18 +233,24 @@ const UploadHistoryPage: React.FC = () => {
     } else {
       setExpandedRow(fileId);
       fetchDownloadLogs(fileId);
+      const upload = uploads.find(u => u.id === fileId);
+      if (upload) {
+        refreshPresignedUrlIfNeeded(upload);
+      }
     }
   };
 
   const openPreviewModal = async (upload: UploadHistoryItem) => {
     if (isExpired(upload.expires_at)) return;
     let url = presignedUrls[upload.id];
-    if (!url) {
+    const isStale = Date.now() - presignedUrlsFetchedAt.current > PRESIGNED_URL_MAX_AGE_MS;
+    if (!url || isStale) {
       try {
         const result = await fileAPI.getDownloadUrl(upload.share_code, upload.id, undefined, true, true);
         url = result.download_url;
+        setPresignedUrls(prev => ({ ...prev, [upload.id]: url! }));
       } catch {
-        return;
+        if (!url) return;
       }
     }
     setPreviewModalFile({
@@ -291,6 +331,10 @@ const UploadHistoryPage: React.FC = () => {
 
     return nameWithoutExt.substring(0, maxNameLength) + '...' + extension;
   };
+
+  const handlePreviewError = useCallback((uploadId: string) => {
+    setFailedPreviews(prev => new Set(prev).add(uploadId));
+  }, []);
 
   const getThumbnailSource = (upload: UploadHistoryItem): string | null => {
     if (isExpired(upload.expires_at)) return null;
@@ -470,23 +514,26 @@ const UploadHistoryPage: React.FC = () => {
                                         <p className="text-sm text-gray-500 dark:text-[#888888] text-center px-4">{t('history.expiredFile')}</p>
                                       </div>
                                     ) : isImageFileByType(upload.file_type) ? (
-                                      presignedUrls[upload.id] ? (
+                                      presignedUrls[upload.id] && !failedPreviews.has(upload.id) ? (
                                         <img
                                           src={presignedUrls[upload.id]}
                                           alt={upload.file_name}
                                           className="w-full h-full object-contain"
+                                          onError={() => handlePreviewError(upload.id)}
                                         />
                                       ) : (
-                                        <div className="flex items-center justify-center h-full bg-gray-100 dark:bg-white/5">
-                                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+                                        <div className="flex flex-col items-center justify-center h-full bg-gray-100 dark:bg-white/5 p-4 gap-4">
+                                          <FileThumbnail source={null} fileName={upload.file_name} size="md" />
+                                          <p className="text-sm text-gray-500 dark:text-[#888888] text-center">{t('history.clickToPreview')}</p>
                                         </div>
                                       )
                                     ) : isPdfFile(upload.file_name) ? (
-                                      presignedUrls[upload.id] ? (
+                                      presignedUrls[upload.id] && !failedPreviews.has(upload.id) ? (
                                         <PdfPreview source={presignedUrls[upload.id]} fileName={upload.file_name} />
                                       ) : (
-                                        <div className="flex items-center justify-center h-full bg-gray-100 dark:bg-white/5">
-                                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+                                        <div className="flex flex-col items-center justify-center h-full bg-gray-100 dark:bg-white/5 p-4 gap-4">
+                                          <FileThumbnail source={null} fileName={upload.file_name} size="md" />
+                                          <p className="text-sm text-gray-500 dark:text-[#888888] text-center">{t('history.clickToPreview')}</p>
                                         </div>
                                       )
                                     ) : (
@@ -692,23 +739,26 @@ const UploadHistoryPage: React.FC = () => {
                               <p className="text-xs text-gray-500 dark:text-[#888888] text-center px-4">{t('history.expiredFile')}</p>
                             </div>
                           ) : isImageFileByType(upload.file_type) ? (
-                            presignedUrls[upload.id] ? (
+                            presignedUrls[upload.id] && !failedPreviews.has(upload.id) ? (
                               <img
                                 src={presignedUrls[upload.id]}
                                 alt={upload.file_name}
                                 className="w-full h-full object-contain"
+                                onError={() => handlePreviewError(upload.id)}
                               />
                             ) : (
-                              <div className="flex items-center justify-center h-full bg-gray-100 dark:bg-white/5">
-                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+                              <div className="flex flex-col items-center justify-center h-full bg-gray-100 dark:bg-white/5 p-4 gap-4">
+                                <FileThumbnail source={null} fileName={upload.file_name} size="md" />
+                                <p className="text-xs text-gray-500 dark:text-[#888888] text-center">{t('history.clickToPreview')}</p>
                               </div>
                             )
                           ) : isPdfFile(upload.file_name) ? (
-                            presignedUrls[upload.id] ? (
+                            presignedUrls[upload.id] && !failedPreviews.has(upload.id) ? (
                               <PdfPreview source={presignedUrls[upload.id]} fileName={upload.file_name} />
                             ) : (
-                              <div className="flex items-center justify-center h-full bg-gray-100 dark:bg-white/5">
-                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+                              <div className="flex flex-col items-center justify-center h-full bg-gray-100 dark:bg-white/5 p-4 gap-4">
+                                <FileThumbnail source={null} fileName={upload.file_name} size="md" />
+                                <p className="text-xs text-gray-500 dark:text-[#888888] text-center">{t('history.clickToPreview')}</p>
                               </div>
                             )
                           ) : (
