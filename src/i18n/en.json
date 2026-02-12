@@ -292,7 +292,7 @@
     "fileNotFound": "Requested file not found.",
     "transferError": "An error occurred during file transfer.",
     "transferComplete": "{{fileName}} transfer complete!",
-    "turnFallback": "P2P connection failed. Connecting via TURN server.",
+    "turnFallback": "Switching to TURN server.",
     "connectionError": "A connection error occurred.",
     "receiverDisconnected": "The receiver has disconnected.",
     "transferCancelled": "Transfer has been cancelled.",
