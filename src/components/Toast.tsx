@@ -174,7 +174,7 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
       onTouchEnd={handleTouchEnd}
     >
       <div
-        className="bg-white dark:bg-[#1A1A1A] dark:border dark:border-white/10 rounded-full pl-2.5 pr-4 py-2 flex items-center gap-2.5 max-w-[calc(100vw-32px)] sm:max-w-[520px]"
+        className="bg-white dark:bg-[#1A1A1A] dark:border dark:border-white/10 rounded-3xl pl-2.5 pr-4 py-2 flex items-center gap-2.5 max-w-full sm:max-w-[520px]"
         style={{
           boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.12), 0 2px 8px -2px rgba(0, 0, 0, 0.08)',
         }}
@@ -196,7 +196,7 @@ export const ToastContainer: React.FC = () => {
   }, [addToast]);
 
   return (
-    <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-2.5 pointer-events-none">
+    <div className="fixed top-5 left-4 right-4 z-50 flex flex-col items-center gap-2.5 pointer-events-none">
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
       ))}
