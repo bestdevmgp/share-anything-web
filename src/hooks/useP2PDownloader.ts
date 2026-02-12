@@ -171,28 +171,30 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
             receivedChunksRef.current.push(chunk);
             receivedSizeRef.current += chunk.byteLength;
 
-            const progressPercent = Math.min((receivedSizeRef.current / actualFileSize) * 100, 99);
-            setProgress(Math.round(progressPercent));
-
             const now = Date.now();
-            const elapsedMs = now - downloadStartTimeRef.current;
-            if (elapsedMs > 500 && receivedSizeRef.current > 0) {
-              if (now - lastTimeUpdateRef.current >= 1000) {
+            if (now - lastTimeUpdateRef.current >= 1000) {
+              const progressPercent = Math.min((receivedSizeRef.current / actualFileSize) * 100, 99);
+              setProgress(Math.round(progressPercent));
+
+              const elapsedMs = now - downloadStartTimeRef.current;
+              if (elapsedMs > 500 && receivedSizeRef.current > 0) {
                 const bytesPerMs = receivedSizeRef.current / elapsedMs;
                 const remainingBytes = actualFileSize - receivedSizeRef.current;
                 const remainingSeconds = remainingBytes / bytesPerMs / 1000;
                 setTimeRemaining(formatTime(remainingSeconds));
-                lastTimeUpdateRef.current = now;
               }
+              lastTimeUpdateRef.current = now;
             }
           };
 
           dataChannel.onerror = (error) => {
             console.error('DataChannel error:', error);
-            if (!isCleaningUpRef.current && !completedRef.current) {
-              setStatus('error');
-              toast.error(t('p2p.receiveError'));
-            }
+            setTimeout(() => {
+              if (!isCleaningUpRef.current && !completedRef.current) {
+                setStatus('error');
+                toast.error(t('p2p.receiveError'));
+              }
+            }, 500);
           };
         };
 
@@ -235,9 +237,13 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
               setStatus('completed');
               setProgress(100);
               onComplete(blob);
-            } else if (!completedRef.current && !isCleaningUpRef.current) {
-              setStatus('error');
-              toast.error(t('p2p.connectionFailed'));
+            } else {
+              setTimeout(() => {
+                if (!completedRef.current && !isCleaningUpRef.current) {
+                  setStatus('error');
+                  toast.error(t('p2p.connectionFailed'));
+                }
+              }, 500);
             }
           }
         };
@@ -294,8 +300,9 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           break;
 
         case 'uploader_offline':
-          if (!isCleaningUpRef.current && !completedRef.current) {
-            setStatus('error');
+          isCleaningUpRef.current = true;
+          if (!completedRef.current) {
+            setStatus('cancelled');
             toast.error(t('p2p.senderDisconnected'));
           }
           cleanup();

@@ -145,35 +145,34 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
         dataChannel.send(chunk);
         offset += chunkSize;
 
-        const progressPercent = Math.min((offset / buffer.byteLength) * 100, 100);
-
         const now = Date.now();
-        const elapsedMs = now - transferStartTimeRef.current;
-        let timeRemainingStr = '';
+        if (now - lastTimeUpdateRef.current >= 1000) {
+          const progressPercent = Math.min((offset / buffer.byteLength) * 100, 100);
+          const elapsedMs = now - transferStartTimeRef.current;
+          let timeRemainingStr = '';
 
-        if (elapsedMs > 500 && offset > 0) {
-          if (now - lastTimeUpdateRef.current >= 1000) {
+          if (elapsedMs > 500 && offset > 0) {
             const bytesPerMs = offset / elapsedMs;
             const remainingBytes = buffer.byteLength - offset;
             const remainingSeconds = remainingBytes / bytesPerMs / 1000;
             timeRemainingStr = formatTime(remainingSeconds);
-            lastTimeUpdateRef.current = now;
           }
-        }
 
-        setFileProgresses(prev => {
-          const newMap = new Map(prev);
-          const fileProgress = newMap.get(file.name);
-          if (fileProgress) {
-            newMap.set(file.name, {
-              ...fileProgress,
-              progress: Math.round(progressPercent),
-              status: 'transferring',
-              timeRemaining: timeRemainingStr || fileProgress.timeRemaining
-            });
-          }
-          return newMap;
-        });
+          setFileProgresses(prev => {
+            const newMap = new Map(prev);
+            const fileProgress = newMap.get(file.name);
+            if (fileProgress) {
+              newMap.set(file.name, {
+                ...fileProgress,
+                progress: Math.round(progressPercent),
+                status: 'transferring',
+                timeRemaining: timeRemainingStr || fileProgress.timeRemaining
+              });
+            }
+            return newMap;
+          });
+          lastTimeUpdateRef.current = now;
+        }
 
         setTimeout(sendChunk, 0);
       };
