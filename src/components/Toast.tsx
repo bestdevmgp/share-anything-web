@@ -161,7 +161,7 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
 
   return (
     <div
-      className="pointer-events-auto cursor-pointer select-none"
+      className="pointer-events-auto cursor-pointer select-none max-w-full"
       style={{
         transform: getTransform(),
         opacity: getOpacity(),
