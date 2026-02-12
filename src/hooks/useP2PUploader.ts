@@ -465,6 +465,13 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     cancelledRef.current = true;
     isTransferringRef.current = false;
 
+    if (wsRef.current) {
+      sendSignalingMessage(wsRef.current, {
+        type: 'uploader_cancelled',
+        share_code: shareCode,
+      });
+    }
+
     if (dataChannelRef.current) {
       dataChannelRef.current.close();
       dataChannelRef.current = null;
@@ -472,10 +479,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     if (pcRef.current) {
       pcRef.current.close();
       pcRef.current = null;
-    }
-    if (wsRef.current) {
-      wsRef.current.close();
-      wsRef.current = null;
     }
 
     setFileProgresses(prev => {
@@ -496,7 +499,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     setCurrentFileName('');
     toast.info(t('p2p.transferCancelled'));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [shareCode]);
 
   return { status, fileProgresses, currentFileName, peerDeviceInfo, connectionFailed, retry, cancelTransfer };
 };

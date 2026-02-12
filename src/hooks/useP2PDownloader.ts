@@ -315,6 +315,19 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           cleanup();
           break;
 
+        case 'uploader_cancelled':
+          if (pendingErrorTimerRef.current) {
+            clearTimeout(pendingErrorTimerRef.current);
+            pendingErrorTimerRef.current = null;
+          }
+          isCleaningUpRef.current = true;
+          if (!completedRef.current) {
+            setStatus('cancelled');
+            toast.warning(t('p2p.senderDisconnected'));
+          }
+          cleanup();
+          break;
+
         case 'error':
           console.error('Signaling error:', message.message);
           if (!isCleaningUpRef.current && !completedRef.current) {
