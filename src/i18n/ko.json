@@ -306,7 +306,8 @@
     "verifyNotRobot": "로봇이 아닌지 확인해주세요.",
     "downloadStarted": "다운로드가 시작되었습니다.",
     "downloadFailed": "다운로드에 실패하였습니다.",
-    "uploadedFrom": "{{device}}에서 업로드"
+    "uploadedFrom": "{{device}}에서 업로드",
+    "fileCount": "{{count}}개"
   },
   "p2p": {
     "fileNotFound": "요청된 파일을 찾을 수 없습니다.",

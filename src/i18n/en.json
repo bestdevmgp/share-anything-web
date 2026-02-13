@@ -306,7 +306,8 @@
     "verifyNotRobot": "Please verify you are not a robot.",
     "downloadStarted": "Download started.",
     "downloadFailed": "Download failed.",
-    "uploadedFrom": "From {{device}}"
+    "uploadedFrom": "From {{device}}",
+    "fileCount": "{{count}}"
   },
   "p2p": {
     "fileNotFound": "Requested file not found.",
