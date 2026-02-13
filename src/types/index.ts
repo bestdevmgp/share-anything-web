@@ -259,6 +259,21 @@ export interface IceServer {
   credential?: string;
 }
 
+export interface QuickAccessFile {
+  id: string;
+  file_name: string;
+  file_size: number;
+  file_type: string;
+  storage_key: string;
+  uploaded_from?: string;
+  expires_at: string;
+  created_at: string;
+}
+
+export interface QuickAccessListResponse {
+  files: QuickAccessFile[];
+}
+
 export interface TurnCredentialsResponse {
   ice_servers: IceServer[];
 }

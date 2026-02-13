@@ -288,6 +288,25 @@
     "shareLink": "Share Link",
     "copyLink": "Copy link"
   },
+  "quickAccess": {
+    "title": "Send to a signed-in device",
+    "description": "Instantly download files from another device signed in with the same account.",
+    "dragOrClick": "Drag files here or click to add",
+    "uploading": "Uploading...",
+    "uploadComplete": "Upload complete",
+    "uploadFailed": "Upload failed.",
+    "deleteConfirm": "Delete this file?",
+    "deleteSuccess": "Deleted.",
+    "deleteFailed": "Failed to delete.",
+    "loginRequired": "Sign in to use this feature.",
+    "hoursRemaining": "Deletes in {{hours}}h",
+    "minutesRemaining": "Deletes in {{minutes}}m",
+    "fetchError": "Failed to load file list.",
+    "verifyNotRobot": "Please verify you are not a robot.",
+    "downloadStarted": "Download started.",
+    "downloadFailed": "Download failed.",
+    "uploadedFrom": "From {{device}}"
+  },
   "p2p": {
     "fileNotFound": "Requested file not found.",
     "transferError": "An error occurred during file transfer.",

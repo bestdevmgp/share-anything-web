@@ -288,6 +288,25 @@
     "shareLink": "공유 링크",
     "copyLink": "링크 복사"
   },
+  "quickAccess": {
+    "title": "로그인된 다른 기기로 전송",
+    "description": "같은 계정으로 로그인된 다른 기기에서 파일을 즉시 다운로드할 수 있습니다.",
+    "dragOrClick": "파일을 드래그하거나 클릭하여 추가",
+    "uploading": "업로드 중...",
+    "uploadComplete": "업로드 완료",
+    "uploadFailed": "업로드에 실패하였습니다.",
+    "deleteConfirm": "파일을 삭제하시겠습니까?",
+    "deleteSuccess": "삭제되었습니다.",
+    "deleteFailed": "삭제에 실패하였습니다.",
+    "loginRequired": "로그인 후 사용할 수 있습니다.",
+    "hoursRemaining": "{{hours}}시간 후 삭제",
+    "minutesRemaining": "{{minutes}}분 후 삭제",
+    "fetchError": "파일 목록을 불러오는데 실패하였습니다.",
+    "verifyNotRobot": "로봇이 아닌지 확인해주세요.",
+    "downloadStarted": "다운로드가 시작되었습니다.",
+    "downloadFailed": "다운로드에 실패하였습니다.",
+    "uploadedFrom": "{{device}}에서 업로드"
+  },
   "p2p": {
     "fileNotFound": "요청된 파일을 찾을 수 없습니다.",
     "transferError": "파일 전송 중 오류가 발생하였습니다.",

@@ -16,7 +16,9 @@ import type {
   GetPartUrlsRequest,
   GetPartUrlsResponse,
   CompleteMultipartUploadRequest,
-  TurnCredentialsResponse
+  TurnCredentialsResponse,
+  QuickAccessListResponse,
+  MultipartUploadFileInfo,
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
@@ -500,6 +502,44 @@ export const userAPI = {
 
   deleteFile: async (fileId: string): Promise<void> => {
     await api.delete(`/user/uploads/${fileId}`);
+  },
+};
+
+export const quickAccessAPI = {
+  initUpload: async (
+    files: MultipartUploadFileInfo[],
+    chunkSize: number,
+    deviceInfo?: string
+  ): Promise<InitMultipartUploadResponse> => {
+    const response = await api.post<InitMultipartUploadResponse>('/user/quick-access/init', {
+      files,
+      chunk_size: chunkSize,
+      device_info: deviceInfo,
+    });
+    return response.data;
+  },
+
+  list: async (): Promise<QuickAccessListResponse> => {
+    const response = await api.get<QuickAccessListResponse>('/user/quick-access');
+    return response.data;
+  },
+
+  deleteFile: async (fileId: string): Promise<void> => {
+    await api.delete(`/user/quick-access/${fileId}`);
+  },
+
+  previewFile: async (fileId: string): Promise<{ preview_url: string; file_name: string; expires_in_secs: number }> => {
+    const response = await api.get<{ preview_url: string; file_name: string; expires_in_secs: number }>(
+      `/user/quick-access/preview/${fileId}`
+    );
+    return response.data;
+  },
+
+  downloadFile: async (fileId: string): Promise<{ download_url: string; file_name: string; expires_in_secs: number }> => {
+    const response = await api.get<{ download_url: string; file_name: string; expires_in_secs: number }>(
+      `/user/quick-access/download/${fileId}`
+    );
+    return response.data;
   },
 };
 

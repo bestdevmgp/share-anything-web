@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowUpTrayIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from '../i18n';
+import QuickAccess from '../components/QuickAccess';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
@@ -43,13 +44,8 @@ const HomePage: React.FC = () => {
 
   return (
     <div>
-      <div className="text-center pt-20 pb-16 px-4">
-        <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-[#EDEDED] mb-6">
-          {t('home.heroTitle')}
-        </h1>
-        <p className="text-lg text-gray-600 dark:text-[#888888] max-w-3xl mx-auto">
-          {t('home.heroDescription')}
-        </p>
+      <div className="max-w-5xl mx-auto px-4 pt-12 pb-8">
+        <QuickAccess />
       </div>
 
       <div className="max-w-5xl mx-auto px-4 pb-20">
