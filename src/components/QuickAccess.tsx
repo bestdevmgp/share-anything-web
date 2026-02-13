@@ -144,7 +144,7 @@ const QuickAccess: React.FC = () => {
         const timeRemaining = formatTimeRemaining(remainingSeconds, language);
         return { ...uf, progress, timeRemaining };
       }));
-    }, 500);
+    }, 1000);
   }, [language]);
 
   const stopProgressUpdates = useCallback(() => {
@@ -475,23 +475,23 @@ const QuickAccess: React.FC = () => {
                     <FileThumbnail source={null} fileName={uf.fileName} size="sm" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 dark:text-[#EDEDED] truncate">
-                      {uf.fileName}
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-medium text-gray-900 dark:text-[#EDEDED] truncate">
+                        {uf.fileName}
+                      </p>
+                      <span className="text-xs text-gray-500 dark:text-[#888888] whitespace-nowrap ml-2 flex-shrink-0">
+                        {uf.timeRemaining || `${uf.progress}%`}
+                      </span>
+                    </div>
                     <p className="text-xs text-gray-500 dark:text-[#888888]">
                       {formatFileSize(uf.fileSize)}
                     </p>
-                    <div className="flex items-center mt-0.5">
-                      <div className="w-full flex items-center gap-2">
-                        <div className="flex-1 bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden">
-                          <div
-                            className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
-                            style={{ width: `${uf.progress}%` }}
-                          />
-                        </div>
-                        <span className="text-xs text-gray-500 dark:text-[#888888] whitespace-nowrap flex-shrink-0">
-                          {uf.timeRemaining || `${uf.progress}%`}
-                        </span>
+                    <div className="mt-0.5">
+                      <div className="w-full bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className="bg-blue-600 h-full transition-all duration-1000 ease-out rounded-full"
+                          style={{ width: `${uf.progress}%` }}
+                        />
                       </div>
                     </div>
                   </div>
