@@ -486,7 +486,7 @@ const QuickAccess: React.FC = () => {
                     <p className="text-xs text-gray-500 dark:text-[#888888]">
                       {formatFileSize(uf.fileSize)}
                     </p>
-                    <div className="mt-0.5">
+                    <div className="mt-0.5 py-[5px]">
                       <div className="w-full bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden">
                         <div
                           className="bg-blue-600 h-full transition-all duration-1000 ease-out rounded-full"
