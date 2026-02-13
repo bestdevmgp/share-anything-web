@@ -45,6 +45,8 @@ const QuickAccess: React.FC = () => {
   const abortControllerRef = useRef<AbortController | null>(null);
   const fileTrackingRef = useRef<Map<string, FileTrackingData>>(new Map());
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const lastTimeUpdateRef = useRef<number>(0);
+  const lastValidTimeRef = useRef<Map<string, string>>(new Map());
 
   // Preview state
   const [previewUrls, setPreviewUrls] = useState<Map<string, string>>(new Map());
@@ -131,8 +133,13 @@ const QuickAccess: React.FC = () => {
 
   const startProgressUpdates = useCallback(() => {
     if (progressIntervalRef.current) return;
+    lastTimeUpdateRef.current = 0;
+    lastValidTimeRef.current.clear();
     progressIntervalRef.current = setInterval(() => {
       const tracking = fileTrackingRef.current;
+      const now = Date.now();
+      const shouldUpdateTime = now - lastTimeUpdateRef.current >= 1000;
+
       setUploadingFiles(prev => prev.map(uf => {
         if (uf.completed) return uf;
         const data = tracking.get(uf.id);
@@ -140,11 +147,24 @@ const QuickAccess: React.FC = () => {
         const inProgressBytes = Object.values(data.partProgress).reduce((sum, b) => sum + b, 0);
         const totalUploaded = data.completedBytes + inProgressBytes;
         const progress = Math.min(Math.round((totalUploaded / uf.fileSize) * 100), 99);
-        const remainingSeconds = calculateTimeRemaining(data.startTime, totalUploaded, uf.fileSize);
-        const timeRemaining = formatTimeRemaining(remainingSeconds, language);
+
+        let timeRemaining = uf.timeRemaining;
+        if (shouldUpdateTime) {
+          const remainingSeconds = calculateTimeRemaining(data.startTime, totalUploaded, uf.fileSize);
+          if (isFinite(remainingSeconds) && remainingSeconds > 0) {
+            timeRemaining = formatTimeRemaining(remainingSeconds, language);
+            lastValidTimeRef.current.set(uf.id, timeRemaining);
+          } else {
+            timeRemaining = lastValidTimeRef.current.get(uf.id) || '';
+          }
+        }
         return { ...uf, progress, timeRemaining };
       }));
-    }, 1000);
+
+      if (shouldUpdateTime) {
+        lastTimeUpdateRef.current = now;
+      }
+    }, 500);
   }, [language]);
 
   const stopProgressUpdates = useCallback(() => {
