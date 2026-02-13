@@ -500,11 +500,13 @@ const QuickAccess: React.FC = () => {
                         <span className="text-xs font-semibold text-blue-600">{uf.progress}%</span>
                       </div>
                     </div>
-                    <div className="w-full bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden mt-1">
-                      <div
-                        className="bg-blue-600 h-full transition-all duration-1000 ease-out rounded-full"
-                        style={{ width: `${uf.progress}%` }}
-                      />
+                    <div className="flex items-center h-4 mt-0.5">
+                      <div className="w-full bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className="bg-blue-600 h-full transition-all duration-1000 ease-out rounded-full"
+                          style={{ width: `${uf.progress}%` }}
+                        />
+                      </div>
                     </div>
                   </div>
                   <div className="flex-shrink-0">
