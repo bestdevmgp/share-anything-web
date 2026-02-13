@@ -94,7 +94,7 @@ const HomePage: React.FC = () => {
               <button
                 onClick={handleDownload}
                 disabled={downloadCode.length !== 6}
-                className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-colors ${
+                className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-colors ${
                   downloadCode.length === 6
                     ? 'bg-blue-600 text-white hover:bg-blue-700'
                     : 'bg-gray-300 dark:bg-white/10 text-gray-500 dark:text-[#666666] cursor-not-allowed'

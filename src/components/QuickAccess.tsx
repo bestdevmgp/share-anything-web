@@ -326,7 +326,10 @@ const QuickAccess: React.FC = () => {
     }
   }, [fetchFiles, t, startProgressUpdates, stopProgressUpdates]);
 
+  const [isFileDialogOpen, setIsFileDialogOpen] = useState(false);
+
   const onDrop = useCallback((acceptedFiles: File[]) => {
+    setIsFileDialogOpen(false);
     if (!isAuthenticated) return;
     if (isUploading) return;
     handleUpload(acceptedFiles);
@@ -337,6 +340,8 @@ const QuickAccess: React.FC = () => {
     multiple: true,
     noClick: isUploading,
     noDrag: isUploading,
+    onFileDialogOpen: () => setIsFileDialogOpen(true),
+    onFileDialogCancel: () => setIsFileDialogOpen(false),
   });
 
   const handleDelete = async (fileId: string) => {
@@ -432,7 +437,9 @@ const QuickAccess: React.FC = () => {
         className={`bg-white dark:bg-[#0B0A0B] rounded-2xl border-[3px] border-dashed transition-colors ${CONTAINER_HEIGHT} flex flex-col cursor-pointer ${
           isDragActive
             ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10'
-            : 'border-gray-100 dark:border-white/10 hover:border-gray-200 dark:hover:border-white/15 active:border-gray-200 dark:active:border-white/15'
+            : isFileDialogOpen
+              ? 'border-gray-200 dark:border-white/15'
+              : 'border-gray-100 dark:border-white/10 can-hover:hover:border-gray-200 dark:can-hover:hover:border-white/15 active:border-gray-200 dark:active:border-white/15'
         }`}
       >
         <input {...getInputProps()} />
@@ -445,7 +452,7 @@ const QuickAccess: React.FC = () => {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">
               {t('quickAccess.title')}
             </h3>
-            <p className="text-sm text-gray-500 dark:text-[#888888] mb-1">
+            <p className="text-sm text-gray-500 dark:text-[#888888] mb-2.5">
               {t('quickAccess.description')}
             </p>
             <p className="text-xs text-gray-400 dark:text-[#666666]">
