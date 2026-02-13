@@ -452,7 +452,7 @@ const QuickAccess: React.FC = () => {
             <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">
               {t('quickAccess.title')}
             </h3>
-            <p className="text-sm text-gray-500 dark:text-[#888888] mb-2.5">
+            <p className="text-sm text-gray-500 dark:text-[#888888] mb-1.5">
               {t('quickAccess.description')}
             </p>
             <p className="text-xs text-gray-400 dark:text-[#666666]">
