@@ -143,10 +143,23 @@ export const authAPI = {
     return `${API_BASE_URL}/auth/naver?redirect_uri=${encodeURIComponent(callbackUrl)}`;
   },
 
-  handleOAuthCallback: async (provider: 'google' | 'naver', code: string, state?: string) => {
+  getKakaoLoginUrl: () => {
+    const callbackUrl = `${window.location.origin}/auth/callback/kakao`;
+    return `${API_BASE_URL}/auth/kakao?redirect_uri=${encodeURIComponent(callbackUrl)}`;
+  },
+
+  getAppleLoginUrl: () => {
+    const callbackUrl = `${window.location.origin}/auth/callback/apple`;
+    return `${API_BASE_URL}/auth/apple?redirect_uri=${encodeURIComponent(callbackUrl)}`;
+  },
+
+  handleOAuthCallback: async (provider: 'google' | 'naver' | 'kakao' | 'apple', code: string, state?: string, appleUser?: string) => {
     const params: any = { code };
     if (state) {
       params.state = state;
+    }
+    if (appleUser) {
+      params.apple_user = appleUser;
     }
 
     const response = await api.get(`/auth/callback/${provider}`, { params });

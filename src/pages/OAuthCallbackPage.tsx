@@ -8,7 +8,7 @@ import { useTranslation } from '../i18n';
 
 const OAuthCallbackPage: React.FC = () => {
   const navigate = useNavigate();
-  const { provider } = useParams<{ provider: 'google' | 'naver' }>();
+  const { provider } = useParams<{ provider: 'google' | 'naver' | 'kakao' | 'apple' }>();
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -31,6 +31,7 @@ const OAuthCallbackPage: React.FC = () => {
       const errorParam = searchParams.get('error');
       const token = searchParams.get('token');
       const userParam = searchParams.get('user');
+      const appleUser = searchParams.get('apple_user');
 
       const processedKey = `oauth_processed_${code}`;
       if (code && localStorage.getItem(processedKey)) {
@@ -76,7 +77,8 @@ const OAuthCallbackPage: React.FC = () => {
         const data: AuthResponse = await authAPI.handleOAuthCallback(
           provider,
           code,
-          state || provider
+          state || provider,
+          appleUser || undefined
         );
 
         if (data.token && data.user) {

@@ -93,6 +93,8 @@
     "subtitle": "Choose an account to sign in. Your information is securely stored.",
     "continueWithGoogle": "Continue with Google",
     "continueWithNaver": "Continue with Naver",
+    "continueWithApple": "Continue with Apple",
+    "continueWithKakao": "Continue with Kakao",
     "termsNotice": "By using this service, you agree to ShareAnything's ",
     "termsAnd": " and ",
     "termsAgree": "."
