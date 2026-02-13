@@ -108,7 +108,7 @@ const UploadHistoryPage: React.FC = () => {
     }
 
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate('/signin');
       return;
     }
     fetchUploads();

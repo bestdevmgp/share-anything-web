@@ -30,7 +30,7 @@ const AppContent: React.FC = () => {
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signin" element={<LoginPage />} />
           <Route path="/upload" element={<UploadPage />} />
           <Route path="/upload/success" element={<UploadSuccessPage />} />
           <Route path="/history" element={<UploadHistoryPage />} />

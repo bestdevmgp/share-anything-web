@@ -88,7 +88,7 @@ const Header: React.FC = () => {
               </Menu>
             ) : (
               <Link
-                to="/login"
+                to="/signin"
                 className="px-4 py-2 text-sm text-primary-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg font-medium"
               >
                 {t('header.login')}

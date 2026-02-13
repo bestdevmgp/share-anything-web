@@ -53,20 +53,20 @@ const OAuthCallbackPage: React.FC = () => {
           return;
         } catch (err) {
           setError(t('oauth.userParseError'));
-          setTimeout(() => navigate('/login', { replace: true }), 2000);
+          setTimeout(() => navigate('/signin', { replace: true }), 2000);
           return;
         }
       }
 
       if (errorParam) {
         setError(t('oauth.loginCancelledOrError', { error: errorParam }));
-        setTimeout(() => navigate('/login', { replace: true }), 3000);
+        setTimeout(() => navigate('/signin', { replace: true }), 3000);
         return;
       }
 
       if (!code) {
         setError(t('oauth.noAuthCode'));
-        setTimeout(() => navigate('/login', { replace: true }), 3000);
+        setTimeout(() => navigate('/signin', { replace: true }), 3000);
         return;
       }
 
@@ -88,12 +88,12 @@ const OAuthCallbackPage: React.FC = () => {
           navigate('/', { replace: true });
         } else {
           toast.error(t('oauth.noLoginInfo'));
-          setTimeout(() => navigate('/login', { replace: true }), 3000);
+          setTimeout(() => navigate('/signin', { replace: true }), 3000);
         }
       } catch (err: any) {
         const errorMessage = err.response?.data?.message || err.message || t('oauth.loginFailed');
         toast.error(errorMessage);
-        setTimeout(() => navigate('/login', { replace: true }), 3000);
+        setTimeout(() => navigate('/signin', { replace: true }), 3000);
       }
     };
 
