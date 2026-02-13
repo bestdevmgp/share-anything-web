@@ -491,14 +491,16 @@ const QuickAccess: React.FC = () => {
                     <p className="text-sm font-medium text-gray-900 dark:text-[#EDEDED] truncate">
                       {uf.fileName}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-[#888888]">
-                      {formatFileSize(uf.fileSize)}
-                    </p>
-                    <div className="flex items-center justify-end gap-2 mt-0.5 mb-0.5">
-                      {uf.timeRemaining && <span className="text-xs text-gray-500 dark:text-[#888888]">{uf.timeRemaining}</span>}
-                      <span className="text-xs font-semibold text-blue-600">{uf.progress}%</span>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-500 dark:text-[#888888]">
+                        {formatFileSize(uf.fileSize)}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        {uf.timeRemaining && <span className="text-xs text-gray-500 dark:text-[#888888]">{uf.timeRemaining}</span>}
+                        <span className="text-xs font-semibold text-blue-600">{uf.progress}%</span>
+                      </div>
                     </div>
-                    <div className="w-full bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden">
+                    <div className="w-full bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden mt-1">
                       <div
                         className="bg-blue-600 h-full transition-all duration-1000 ease-out rounded-full"
                         style={{ width: `${uf.progress}%` }}
