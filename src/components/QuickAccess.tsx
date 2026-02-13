@@ -52,6 +52,9 @@ const QuickAccess: React.FC = () => {
 
   const isUploading = uploadingFiles.length > 0;
 
+  const tRef = useRef(t);
+  tRef.current = t;
+
   const fetchFiles = useCallback(async () => {
     if (!isAuthenticated) return;
     try {
@@ -59,11 +62,11 @@ const QuickAccess: React.FC = () => {
       const response = await quickAccessAPI.list();
       setFiles(response.files);
     } catch {
-      toast.error(t('quickAccess.fetchError'));
+      toast.error(tRef.current('quickAccess.fetchError'));
     } finally {
       setIsLoading(false);
     }
-  }, [isAuthenticated, t]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     fetchFiles();
