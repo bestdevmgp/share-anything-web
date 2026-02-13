@@ -144,12 +144,12 @@ export const isHwpFile = (filename: string): boolean => {
 };
 
 export const formatTimeRemaining = (remainingSeconds: number, language: Language = 'ko'): string => {
-  if (remainingSeconds <= 0 || !isFinite(remainingSeconds)) {
+  if (remainingSeconds < 0 || !isFinite(remainingSeconds)) {
     return translate(language, 'format.calculating');
   }
 
   if (remainingSeconds < 60) {
-    return translate(language, 'format.secondsRemaining', { seconds: Math.ceil(remainingSeconds) });
+    return translate(language, 'format.secondsRemaining', { seconds: Math.max(1, Math.ceil(remainingSeconds)) });
   } else if (remainingSeconds < 3600) {
     const minutes = Math.floor(remainingSeconds / 60);
     const seconds = Math.ceil(remainingSeconds % 60);

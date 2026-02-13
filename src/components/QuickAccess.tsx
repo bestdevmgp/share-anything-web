@@ -24,6 +24,7 @@ interface FileTrackingData {
   completedBytes: number;
   partProgress: { [key: string]: number };
   startTime: number;
+  peakUploaded: number;
 }
 
 interface PreviewModalFile {
@@ -46,7 +47,6 @@ const QuickAccess: React.FC = () => {
   const fileTrackingRef = useRef<Map<string, FileTrackingData>>(new Map());
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastTimeUpdateRef = useRef<number>(0);
-  const lastValidTimeRef = useRef<Map<string, string>>(new Map());
 
   // Preview state
   const [previewUrls, setPreviewUrls] = useState<Map<string, string>>(new Map());
@@ -134,7 +134,6 @@ const QuickAccess: React.FC = () => {
   const startProgressUpdates = useCallback(() => {
     if (progressIntervalRef.current) return;
     lastTimeUpdateRef.current = 0;
-    lastValidTimeRef.current.clear();
     progressIntervalRef.current = setInterval(() => {
       const tracking = fileTrackingRef.current;
       const now = Date.now();
@@ -145,18 +144,15 @@ const QuickAccess: React.FC = () => {
         const data = tracking.get(uf.id);
         if (!data) return uf;
         const inProgressBytes = Object.values(data.partProgress).reduce((sum, b) => sum + b, 0);
-        const totalUploaded = data.completedBytes + inProgressBytes;
+        const rawTotal = data.completedBytes + inProgressBytes;
+        const totalUploaded = Math.max(rawTotal, data.peakUploaded);
+        data.peakUploaded = totalUploaded;
         const progress = Math.min(Math.round((totalUploaded / uf.fileSize) * 100), 99);
 
         let timeRemaining = uf.timeRemaining;
         if (shouldUpdateTime) {
           const remainingSeconds = calculateTimeRemaining(data.startTime, totalUploaded, uf.fileSize);
-          if (isFinite(remainingSeconds) && remainingSeconds > 0) {
-            timeRemaining = formatTimeRemaining(remainingSeconds, language);
-            lastValidTimeRef.current.set(uf.id, timeRemaining);
-          } else {
-            timeRemaining = lastValidTimeRef.current.get(uf.id) || '';
-          }
+          timeRemaining = formatTimeRemaining(remainingSeconds, language);
         }
         return { ...uf, progress, timeRemaining };
       }));
@@ -203,6 +199,7 @@ const QuickAccess: React.FC = () => {
         completedBytes: 0,
         partProgress: {},
         startTime: Date.now(),
+        peakUploaded: 0,
       });
     });
 
