@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import { useAuth } from '../context/AuthContext';
 import { quickAccessAPI, fileAPI, workerAPI } from '../services/api';
 import { QuickAccessFile } from '../types';
-import { formatFileSize, calculateTimeRemaining, formatTimeRemaining, getDeviceInfo } from '../utils/format';
+import { formatFileSize, formatTimeRemaining, getDeviceInfo } from '../utils/format';
 import { PlusIcon, TrashIcon, ArrowDownTrayIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { toast } from '../context/ToastContext';
 import { useTranslation } from '../i18n';
@@ -20,11 +20,17 @@ interface UploadingFile {
   completed: boolean;
 }
 
+interface SpeedSample {
+  time: number;
+  bytes: number;
+}
+
 interface FileTrackingData {
   completedBytes: number;
   partProgress: { [key: string]: number };
   startTime: number;
   peakUploaded: number;
+  speedSamples: SpeedSample[];
 }
 
 interface PreviewModalFile {
@@ -131,6 +137,9 @@ const QuickAccess: React.FC = () => {
     return `${month}.${day} ${hours}:${mins}`;
   };
 
+  const SPEED_WINDOW_MS = 5000;
+  const MIN_SAMPLES_FOR_ESTIMATE = 2;
+
   const startProgressUpdates = useCallback(() => {
     if (progressIntervalRef.current) return;
     lastTimeUpdateRef.current = 0;
@@ -151,8 +160,28 @@ const QuickAccess: React.FC = () => {
 
         let timeRemaining = uf.timeRemaining;
         if (shouldUpdateTime) {
-          const remainingSeconds = calculateTimeRemaining(data.startTime, totalUploaded, uf.fileSize);
-          timeRemaining = formatTimeRemaining(remainingSeconds, language);
+          data.speedSamples.push({ time: now, bytes: totalUploaded });
+
+          const cutoff = now - SPEED_WINDOW_MS;
+          data.speedSamples = data.speedSamples.filter(s => s.time >= cutoff);
+
+          if (data.speedSamples.length >= MIN_SAMPLES_FOR_ESTIMATE) {
+            const oldest = data.speedSamples[0];
+            const newest = data.speedSamples[data.speedSamples.length - 1];
+            const timeDiffMs = newest.time - oldest.time;
+            const bytesDiff = newest.bytes - oldest.bytes;
+
+            if (timeDiffMs > 0 && bytesDiff > 0) {
+              const bytesPerMs = bytesDiff / timeDiffMs;
+              const remainingBytes = uf.fileSize - totalUploaded;
+              const remainingSeconds = (remainingBytes / bytesPerMs) / 1000;
+              timeRemaining = formatTimeRemaining(remainingSeconds, language);
+            } else {
+              timeRemaining = formatTimeRemaining(Infinity, language);
+            }
+          } else {
+            timeRemaining = formatTimeRemaining(Infinity, language);
+          }
         }
         return { ...uf, progress, timeRemaining };
       }));
@@ -200,6 +229,7 @@ const QuickAccess: React.FC = () => {
         partProgress: {},
         startTime: Date.now(),
         peakUploaded: 0,
+        speedSamples: [],
       });
     });
 
@@ -513,8 +543,14 @@ const QuickAccess: React.FC = () => {
                         {formatFileSize(uf.fileSize)}
                       </span>
                       <div className="flex items-center gap-2">
-                        {uf.timeRemaining && <span className="text-xs text-gray-500 dark:text-[#888888]">{uf.timeRemaining}</span>}
-                        <span className="text-xs font-semibold text-blue-600">{uf.progress}%</span>
+                        {uf.completed ? (
+                          <span className="text-xs text-gray-500 dark:text-[#888888]">{t('upload.pleaseWait')}</span>
+                        ) : (
+                          <>
+                            {uf.timeRemaining && <span className="text-xs text-gray-500 dark:text-[#888888]">{uf.timeRemaining}</span>}
+                            <span className="text-xs font-semibold text-blue-600">{uf.progress}%</span>
+                          </>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center h-4 mt-0.5">
