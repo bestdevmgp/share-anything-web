@@ -126,7 +126,7 @@ const QuickAccess: React.FC = () => {
     const day = date.getDate();
     const hours = date.getHours().toString().padStart(2, '0');
     const mins = date.getMinutes().toString().padStart(2, '0');
-    return `${month}/${day} ${hours}:${mins}`;
+    return `${month}.${day} ${hours}:${mins}`;
   };
 
   const startProgressUpdates = useCallback(() => {
@@ -389,11 +389,13 @@ const QuickAccess: React.FC = () => {
     });
   };
 
+  const CONTAINER_HEIGHT = 'h-[260px]';
+
   // Not logged in state
   if (!isAuthenticated) {
     return (
-      <div className="bg-white dark:bg-[#0B0A0B] rounded-2xl border-[3px] border-dashed border-gray-100 dark:border-white/10 p-8 md:p-12 text-center">
-        <div className="w-14 h-14 bg-gray-100 dark:bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+      <div className={`bg-white dark:bg-[#0B0A0B] rounded-2xl border-[3px] border-dashed border-gray-100 dark:border-white/10 ${CONTAINER_HEIGHT} flex flex-col items-center justify-center text-center px-6`}>
+        <div className="w-14 h-14 bg-gray-100 dark:bg-white/10 rounded-2xl flex items-center justify-center mb-4">
           <PlusIcon className="w-7 h-7 text-gray-400 dark:text-[#666666]" />
         </div>
         <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">
@@ -404,7 +406,7 @@ const QuickAccess: React.FC = () => {
         </p>
         <button
           onClick={() => navigate('/login')}
-          className="px-6 py-2 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors"
+          className="px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-colors"
         >
           {t('quickAccess.loginRequired')}
         </button>
@@ -414,21 +416,32 @@ const QuickAccess: React.FC = () => {
 
   const hasContent = files.length > 0 || uploadingFiles.length > 0;
 
+  // Loading state
+  if (isLoading && !hasContent) {
+    return (
+      <div className={`bg-white dark:bg-[#0B0A0B] rounded-2xl border-[3px] border-dashed border-gray-100 dark:border-white/10 ${CONTAINER_HEIGHT} flex items-center justify-center`}>
+        <p className="text-sm text-gray-400 dark:text-[#666666]">{t('common.loading')}</p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div
         {...getRootProps()}
-        className={`bg-white dark:bg-[#0B0A0B] rounded-2xl border-[3px] border-dashed transition-colors cursor-pointer ${
+        className={`bg-white dark:bg-[#0B0A0B] rounded-2xl border-[3px] border-dashed transition-colors ${CONTAINER_HEIGHT} flex flex-col ${
           isDragActive
             ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10'
-            : 'border-gray-100 dark:border-white/10 hover:border-gray-200 dark:hover:border-white/15'
-        } ${hasContent ? 'p-4 md:p-6' : 'p-8 md:p-12 text-center'}`}
+            : hasContent
+              ? 'border-gray-100 dark:border-white/10'
+              : 'border-gray-100 dark:border-white/10 hover:border-gray-200 dark:hover:border-white/15 cursor-pointer'
+        }`}
       >
         <input {...getInputProps()} />
 
         {!hasContent ? (
-          <div className="flex flex-col items-center justify-center">
-            <div className="w-14 h-14 bg-blue-100 dark:bg-blue-500/15 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
+            <div className="w-14 h-14 bg-blue-100 dark:bg-blue-500/15 rounded-2xl flex items-center justify-center mb-4">
               <PlusIcon className="w-7 h-7 text-blue-600" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">
@@ -442,20 +455,23 @@ const QuickAccess: React.FC = () => {
             </p>
           </div>
         ) : (
-          <div>
-            <div className="flex items-center justify-between mb-3">
+          <>
+            <div className="flex items-center justify-between px-4 pt-4 pb-3 md:px-5 md:pt-5 md:pb-4 flex-shrink-0">
               <h3 className="text-base font-semibold text-gray-900 dark:text-[#EDEDED]">
-                {t('quickAccess.title')}
+                {t('quickAccess.titleShort')}
               </h3>
               <span className="text-xs text-gray-400 dark:text-[#666666]">
                 {t('quickAccess.dragOrClick')}
               </span>
             </div>
-            <div className="space-y-2" onClick={(e) => e.stopPropagation()}>
+            <div
+              className="flex-1 overflow-y-auto px-4 pb-4 md:px-5 md:pb-5 space-y-1.5"
+              onClick={(e) => e.stopPropagation()}
+            >
               {uploadingFiles.map((uf) => (
                 <div
                   key={uf.id}
-                  className="flex items-center p-3 bg-gray-50 dark:bg-white/5 rounded-lg"
+                  className="flex items-center px-3 py-2 bg-gray-50 dark:bg-white/5 rounded-lg"
                 >
                   <div className="flex-shrink-0 mr-3">
                     <FileThumbnail source={null} fileName={uf.fileName} size="sm" />
@@ -464,10 +480,10 @@ const QuickAccess: React.FC = () => {
                     <p className="text-sm font-medium text-gray-900 dark:text-[#EDEDED] truncate">
                       {uf.fileName}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-[#888888] mt-0.5">
+                    <p className="text-xs text-gray-500 dark:text-[#888888]">
                       {formatFileSize(uf.fileSize)}
                     </p>
-                    <div className="h-5 flex items-center mt-1">
+                    <div className="flex items-center mt-0.5">
                       <div className="w-full flex items-center gap-2">
                         <div className="flex-1 bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden">
                           <div
@@ -486,7 +502,7 @@ const QuickAccess: React.FC = () => {
               {files.map((file) => (
                 <div
                   key={file.id}
-                  className="flex items-center p-3 bg-gray-50 dark:bg-white/5 rounded-lg"
+                  className="flex items-center px-3 py-2 bg-gray-50 dark:bg-white/5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
                 >
                   <div
                     className="flex-shrink-0 mr-3 cursor-pointer"
@@ -502,15 +518,13 @@ const QuickAccess: React.FC = () => {
                     <p className="text-sm font-medium text-gray-900 dark:text-[#EDEDED] truncate">
                       {file.file_name}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-[#888888] mt-0.5">
+                    <p className="text-xs text-gray-500 dark:text-[#888888]">
                       {formatFileSize(file.file_size)} · {getRemainingTime(file.expires_at)}
                     </p>
-                    <div className="h-5 flex items-center mt-1">
-                      <p className="text-xs text-gray-400 dark:text-[#666666] truncate">
-                        {formatCompactDate(file.created_at)}
-                        {file.uploaded_from && <> · {t('quickAccess.uploadedFrom', { device: file.uploaded_from })}</>}
-                      </p>
-                    </div>
+                    <p className="text-xs text-gray-400 dark:text-[#666666] truncate mt-0.5">
+                      {formatCompactDate(file.created_at)}
+                      {file.uploaded_from && <> · {t('quickAccess.uploadedFrom', { device: file.uploaded_from })}</>}
+                    </p>
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <button
@@ -518,28 +532,22 @@ const QuickAccess: React.FC = () => {
                       className="p-1.5 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded-lg transition-colors"
                       title={t('common.download')}
                     >
-                      <ArrowDownTrayIcon className="w-4.5 h-4.5 text-blue-600" />
+                      <ArrowDownTrayIcon className="w-5 h-5 text-blue-600" />
                     </button>
                     <button
                       onClick={() => handleDelete(file.id)}
                       className="p-1.5 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg transition-colors"
                       title={t('common.delete')}
                     >
-                      <XMarkIcon className="w-4.5 h-4.5 text-red-500" />
+                      <XMarkIcon className="w-5 h-5 text-red-500" />
                     </button>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
+          </>
         )}
       </div>
-
-      {isLoading && files.length === 0 && (
-        <div className="mt-4 text-center">
-          <p className="text-sm text-gray-400 dark:text-[#666666]">{t('common.loading')}</p>
-        </div>
-      )}
 
       {previewModalFile && (
         <FilePreviewModal

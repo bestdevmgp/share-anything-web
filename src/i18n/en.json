@@ -290,6 +290,7 @@
   },
   "quickAccess": {
     "title": "Send to a signed-in device",
+    "titleShort": "Quick Access",
     "description": "Instantly download files from another device signed in with the same account.",
     "dragOrClick": "Drag files here or click to add",
     "uploading": "Uploading...",
