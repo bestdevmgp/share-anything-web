@@ -299,7 +299,7 @@
     "deleteConfirm": "Delete this file?",
     "deleteSuccess": "Deleted.",
     "deleteFailed": "Failed to delete.",
-    "loginRequired": "Sign in to use this feature.",
+    "loginRequired": "Sign in",
     "hoursRemaining": "Deletes in {{hours}}h",
     "minutesRemaining": "Deletes in {{minutes}}m",
     "fetchError": "Failed to load file list.",
