@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { quickAccessAPI, fileAPI, workerAPI } from '../services/api';
 import { QuickAccessFile } from '../types';
 import { formatFileSize, calculateTimeRemaining, formatTimeRemaining, getDeviceInfo } from '../utils/format';
-import { PlusIcon, TrashIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, TrashIcon, ArrowDownTrayIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { toast } from '../context/ToastContext';
 import { useTranslation } from '../i18n';
 import { useNavigate } from 'react-router-dom';
@@ -344,6 +344,12 @@ const QuickAccess: React.FC = () => {
     onFileDialogCancel: () => setIsFileDialogOpen(false),
   });
 
+  const handleCancelUpload = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+  }, []);
+
   const handleDelete = async (fileId: string) => {
     try {
       await quickAccessAPI.deleteFile(fileId);
@@ -461,7 +467,7 @@ const QuickAccess: React.FC = () => {
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-between px-4 pt-4 pb-3 md:px-5 md:pt-5 md:pb-4 flex-shrink-0">
+            <div className="flex items-center justify-between px-7 pt-4 pb-3 md:px-8 md:pt-5 md:pb-4 flex-shrink-0">
               <h3 className="text-base font-semibold text-gray-900 dark:text-[#EDEDED]">
                 {t('quickAccess.titleShort')}{files.length > 0 && <span className="text-gray-400 dark:text-[#666666] font-normal ml-1">({t('quickAccess.fileCount', { count: files.length })})</span>}
               </h3>
@@ -470,7 +476,7 @@ const QuickAccess: React.FC = () => {
               </span>
             </div>
             <div
-              className="flex-1 overflow-y-auto px-4 pb-4 md:px-5 md:pb-5 space-y-1.5"
+              className="flex-1 overflow-y-auto px-4 pb-1 md:px-5 md:pb-1 mb-3 md:mb-4 space-y-2"
             >
               {uploadingFiles.map((uf) => (
                 <div
@@ -481,19 +487,19 @@ const QuickAccess: React.FC = () => {
                   <div className="flex-shrink-0 mr-3">
                     <FileThumbnail source={null} fileName={uf.fileName} size="sm" />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm font-medium text-gray-900 dark:text-[#EDEDED] truncate">
-                        {uf.fileName}
-                      </p>
-                      <span className="text-xs text-gray-500 dark:text-[#888888] whitespace-nowrap ml-2 flex-shrink-0">
-                        {uf.timeRemaining || `${uf.progress}%`}
-                      </span>
-                    </div>
+                  <div className="flex-1 min-w-0 mr-3">
+                    <p className="text-sm font-medium text-gray-900 dark:text-[#EDEDED] truncate">
+                      {uf.fileName}
+                    </p>
                     <p className="text-xs text-gray-500 dark:text-[#888888]">
                       {formatFileSize(uf.fileSize)}
                     </p>
                     <div className="mt-0.5 py-[5px]">
+                      <div className="flex items-center justify-end mb-0.5">
+                        <span className="text-xs text-gray-500 dark:text-[#888888]">
+                          {uf.timeRemaining || `${uf.progress}%`}
+                        </span>
+                      </div>
                       <div className="w-full bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden">
                         <div
                           className="bg-blue-600 h-full transition-all duration-1000 ease-out rounded-full"
@@ -501,6 +507,15 @@ const QuickAccess: React.FC = () => {
                         />
                       </div>
                     </div>
+                  </div>
+                  <div className="flex-shrink-0">
+                    <button
+                      onClick={handleCancelUpload}
+                      className="p-1.5 rounded-lg transition-colors text-gray-400 dark:text-[#666666] can-hover:hover:text-red-500 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100 dark:can-hover:hover:bg-red-500/20 active:text-red-500 dark:active:text-red-400 active:bg-red-100 dark:active:bg-red-500/20"
+                      title={t('common.cancel')}
+                    >
+                      <XMarkIcon className="w-5 h-5" />
+                    </button>
                   </div>
                 </div>
               ))}
