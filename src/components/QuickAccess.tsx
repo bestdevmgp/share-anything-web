@@ -389,7 +389,7 @@ const QuickAccess: React.FC = () => {
     });
   };
 
-  const CONTAINER_HEIGHT = 'h-[260px] md:h-[320px]';
+  const CONTAINER_HEIGHT = 'h-[280px] md:h-[380px]';
 
   // Not logged in state
   if (!isAuthenticated) {
