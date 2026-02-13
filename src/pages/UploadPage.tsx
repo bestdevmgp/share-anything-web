@@ -504,7 +504,7 @@ const UploadPage: React.FC = () => {
                         e.stopPropagation();
                         setPreviewFile(file);
                       }}
-                      className="flex items-center justify-between p-3.5 bg-gray-50 dark:bg-white/5 rounded-lg md:hover:bg-gray-100 dark:md:hover:bg-white/10 transition-colors cursor-pointer"
+                      className="flex items-center justify-between p-3.5 bg-gray-100 dark:bg-white/5 rounded-lg md:hover:bg-gray-200/70 dark:md:hover:bg-white/10 transition-colors cursor-pointer"
                     >
                       <div className="flex items-center space-x-3 flex-1 min-w-0">
                         <FileThumbnail source={file} fileName={file.name} size="sm" />

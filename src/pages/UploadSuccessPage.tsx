@@ -300,7 +300,7 @@ const UploadSuccessPage: React.FC = () => {
                         {t('common.file')}
                       </label>
                       <div
-                        className="p-4 rounded-xl border-2 bg-gray-50 dark:bg-white/5 border-transparent cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                        className="p-4 rounded-xl border-2 bg-gray-100 dark:bg-white/5 border-transparent cursor-pointer hover:bg-gray-200/70 dark:hover:bg-white/10 transition-colors"
                         onClick={() => setPreviewFile(file)}
                       >
                         <div className="flex items-center space-x-3">
@@ -338,7 +338,7 @@ const UploadSuccessPage: React.FC = () => {
                           className={`p-4 rounded-xl border-2 transition-all ${
                             isTransferring ? 'bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30' :
                             isCompleted ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30' :
-                            'bg-gray-50 dark:bg-white/5 border-transparent cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10'
+                            'bg-gray-100 dark:bg-white/5 border-transparent cursor-pointer hover:bg-gray-200/70 dark:hover:bg-white/10'
                           }`}
                           onClick={() => {
                             if (!isTransferring && !isCompleted) setPreviewFile(file);

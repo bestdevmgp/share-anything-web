@@ -829,7 +829,7 @@ const DownloadFilePage: React.FC = () => {
                   <div
                     key={file.id}
                     className={`p-4 rounded-xl border-2 transition-all ${
-                      isActive ? 'bg-blue-50 border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/30' : 'bg-gray-50 border-transparent dark:bg-white/5'
+                      isActive ? 'bg-blue-50 border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/30' : 'bg-gray-100 border-transparent dark:bg-white/5'
                     }`}
                   >
                     <div className="flex items-center space-x-4">
@@ -949,7 +949,7 @@ const DownloadFilePage: React.FC = () => {
                 className={`flex items-center space-x-4 p-4 rounded-xl cursor-pointer transition-all ${
                   selectedFiles.has(file.id)
                     ? 'bg-blue-50 border-2 border-blue-500 dark:bg-blue-500/10'
-                    : 'bg-gray-50 border-2 border-transparent hover:bg-gray-100 dark:bg-white/5 dark:hover:bg-white/10'
+                    : 'bg-gray-100 border-2 border-transparent hover:bg-gray-200/70 dark:bg-white/5 dark:hover:bg-white/10'
                 }`}
               >
                 <div className="flex-shrink-0">

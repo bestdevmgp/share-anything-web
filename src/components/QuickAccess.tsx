@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { quickAccessAPI, fileAPI, workerAPI } from '../services/api';
 import { QuickAccessFile } from '../types';
 import { formatFileSize, calculateTimeRemaining, formatTimeRemaining, getDeviceInfo } from '../utils/format';
-import { PlusIcon, XMarkIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, TrashIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import { toast } from '../context/ToastContext';
 import { useTranslation } from '../i18n';
 import { useNavigate } from 'react-router-dom';
@@ -389,7 +389,7 @@ const QuickAccess: React.FC = () => {
     });
   };
 
-  const CONTAINER_HEIGHT = 'h-[260px]';
+  const CONTAINER_HEIGHT = 'h-[260px] md:h-[320px]';
 
   // Not logged in state
   if (!isAuthenticated) {
@@ -429,12 +429,10 @@ const QuickAccess: React.FC = () => {
     <div>
       <div
         {...getRootProps()}
-        className={`bg-white dark:bg-[#0B0A0B] rounded-2xl border-[3px] border-dashed transition-colors ${CONTAINER_HEIGHT} flex flex-col ${
+        className={`bg-white dark:bg-[#0B0A0B] rounded-2xl border-[3px] border-dashed transition-colors ${CONTAINER_HEIGHT} flex flex-col cursor-pointer ${
           isDragActive
             ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10'
-            : hasContent
-              ? 'border-gray-100 dark:border-white/10'
-              : 'border-gray-100 dark:border-white/10 hover:border-gray-200 dark:hover:border-white/15 cursor-pointer'
+            : 'border-gray-100 dark:border-white/10 hover:border-gray-200 dark:hover:border-white/15 active:border-gray-200 dark:active:border-white/15'
         }`}
       >
         <input {...getInputProps()} />
@@ -466,12 +464,12 @@ const QuickAccess: React.FC = () => {
             </div>
             <div
               className="flex-1 overflow-y-auto px-4 pb-4 md:px-5 md:pb-5 space-y-1.5"
-              onClick={(e) => e.stopPropagation()}
             >
               {uploadingFiles.map((uf) => (
                 <div
                   key={uf.id}
-                  className="flex items-center px-3 py-2 bg-gray-50 dark:bg-white/5 rounded-lg"
+                  className="flex items-center px-3 py-2 bg-gray-100 dark:bg-white/5 rounded-lg"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <div className="flex-shrink-0 mr-3">
                     <FileThumbnail source={null} fileName={uf.fileName} size="sm" />
@@ -502,7 +500,8 @@ const QuickAccess: React.FC = () => {
               {files.map((file) => (
                 <div
                   key={file.id}
-                  className="flex items-center px-3 py-2 bg-gray-50 dark:bg-white/5 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                  className="flex items-center px-3 py-2 bg-gray-100 dark:bg-white/5 rounded-lg hover:bg-gray-200/70 dark:hover:bg-white/10 transition-colors"
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <div
                     className="flex-shrink-0 mr-3 cursor-pointer"
@@ -529,17 +528,17 @@ const QuickAccess: React.FC = () => {
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <button
                       onClick={() => handleDownload(file)}
-                      className="p-1.5 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded-lg transition-colors"
+                      className="p-1.5 rounded-lg transition-colors text-gray-400 dark:text-[#666666] hover:text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-500/20"
                       title={t('common.download')}
                     >
-                      <ArrowDownTrayIcon className="w-5 h-5 text-blue-600" />
+                      <ArrowDownTrayIcon className="w-5 h-5" />
                     </button>
                     <button
                       onClick={() => handleDelete(file.id)}
-                      className="p-1.5 hover:bg-red-100 dark:hover:bg-red-500/20 rounded-lg transition-colors"
+                      className="p-1.5 rounded-lg transition-colors text-gray-400 dark:text-[#666666] hover:text-red-500 hover:bg-red-100 dark:hover:bg-red-500/20"
                       title={t('common.delete')}
                     >
-                      <XMarkIcon className="w-5 h-5 text-red-500" />
+                      <TrashIcon className="w-5 h-5" />
                     </button>
                   </div>
                 </div>
