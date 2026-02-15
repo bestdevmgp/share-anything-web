@@ -2,12 +2,20 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Document, Page } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
-import { XMarkIcon, DocumentIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
+import { DocumentIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { formatFileSize, isImageFile, isVideoFile, isAudioFile, isTextFile, isPdfFile, isCsvFile, isExcelFile, isDocxFile, isPptxFile, isHwpFile } from '../utils/format';
 import { readTextContent, getMediaUrl, getArrayBuffer, generatePptxThumbnail } from '../utils/filePreview';
 import { useTranslation } from '../i18n';
 import { GlobalWorkerOptions } from 'pdfjs-dist';
 import { PDF_WORKER_SRC } from '../utils/pdfWorkerSetup';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from './ui/dialog';
+import { Button } from './ui/button';
 
 interface FilePreviewModalProps {
   file: {
@@ -31,21 +39,6 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   const [numPages, setNumPages] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pdfSource, setPdfSource] = useState<File | { url: string } | null>(null);
-
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', handleEsc);
-    return () => document.removeEventListener('keydown', handleEsc);
-  }, [onClose]);
 
   useEffect(() => {
     let objectUrl: string | null = null;
@@ -142,7 +135,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
         <thead className="sticky top-0">
           <tr>
             {(data[0] || []).map((cell, i) => (
-              <th key={i} className="bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2 text-left font-medium text-gray-700 dark:text-[#EDEDED] whitespace-nowrap">
+              <th key={i} className="bg-muted border border-border px-3 py-2 text-left font-medium text-foreground whitespace-nowrap">
                 {cell}
               </th>
             ))}
@@ -150,9 +143,9 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
         </thead>
         <tbody>
           {data.slice(1).map((row, ri) => (
-            <tr key={ri} className="hover:bg-gray-50 dark:hover:bg-white/5">
+            <tr key={ri} className="hover:bg-muted/50">
               {row.map((cell, ci) => (
-                <td key={ci} className="border border-gray-200 dark:border-white/10 px-3 py-1.5 text-gray-800 dark:text-[#EDEDED] whitespace-nowrap">
+                <td key={ci} className="border border-border px-3 py-1.5 text-foreground whitespace-nowrap">
                   {cell}
                 </td>
               ))}
@@ -166,8 +159,8 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   const renderContent = () => {
     if (loading) {
       return (
-        <div className="flex flex-col items-center py-16 text-gray-400 dark:text-[#666666]">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mb-3" />
+        <div className="flex flex-col items-center py-16 text-muted-foreground">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mb-3" />
           <p className="text-sm">{t('preview.loading')}</p>
         </div>
       );
@@ -193,7 +186,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
             file={pdfSource}
             onLoadSuccess={onDocumentLoadSuccess}
             loading={
-              <div className="py-16 text-gray-400 dark:text-[#666666] text-sm">{t('preview.pdfLoading')}</div>
+              <div className="py-16 text-muted-foreground text-sm">{t('preview.pdfLoading')}</div>
             }
           >
             <Page
@@ -205,23 +198,25 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
           </Document>
           {numPages && numPages > 1 && (
             <div className="flex items-center gap-4 mt-4">
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage <= 1}
-                className="p-1.5 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg disabled:opacity-30 transition-colors"
               >
-                <ChevronLeftIcon className="w-5 h-5 text-gray-600 dark:text-[#888888]" />
-              </button>
-              <span className="text-sm text-gray-600 dark:text-[#888888]">
+                <ChevronLeftIcon className="w-5 h-5" />
+              </Button>
+              <span className="text-sm text-muted-foreground">
                 {currentPage} / {numPages}
               </span>
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setCurrentPage(p => Math.min(numPages, p + 1))}
                 disabled={currentPage >= numPages}
-                className="p-1.5 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg disabled:opacity-30 transition-colors"
               >
-                <ChevronRightIcon className="w-5 h-5 text-gray-600 dark:text-[#888888]" />
-              </button>
+                <ChevronRightIcon className="w-5 h-5" />
+              </Button>
             </div>
           )}
         </div>
@@ -264,8 +259,8 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
 
     if (isTextFile(fileName) && textContent !== null) {
       return (
-        <div className="w-full max-h-[70vh] overflow-auto bg-gray-50 dark:bg-white/5 rounded-xl p-6">
-          <pre className="text-sm text-gray-800 dark:text-[#EDEDED] whitespace-pre-wrap break-words font-mono">
+        <div className="w-full max-h-[70vh] overflow-auto bg-muted rounded-xl p-6">
+          <pre className="text-sm text-foreground whitespace-pre-wrap break-words font-mono">
             {textContent}
           </pre>
         </div>
@@ -273,7 +268,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
     }
 
     return (
-      <div className="flex flex-col items-center py-12 text-gray-400 dark:text-[#666666]">
+      <div className="flex flex-col items-center py-12 text-muted-foreground">
         <DocumentIcon className="w-16 h-16 mb-3" />
         <p className="text-sm">{t('preview.unsupported')}</p>
       </div>
@@ -281,33 +276,19 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   };
 
   return (
-    <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 dark:bg-black/70 dark:backdrop-blur-sm p-4"
-      onClick={onClose}
-    >
-      <div
-        className="relative bg-white dark:bg-[#0B0A0B] rounded-2xl max-w-3xl w-full max-h-[85vh] overflow-hidden shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-white/10">
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-gray-900 dark:text-[#EDEDED] truncate">{fileName}</p>
-            <p className="text-xs text-gray-500 dark:text-[#888888]">{formatFileSize(fileSize)}</p>
-          </div>
-          <button
-            onClick={onClose}
-            className="ml-3 p-1.5 hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg transition-colors"
-          >
-            <XMarkIcon className="w-5 h-5 text-gray-500 dark:text-[#888888]" />
-          </button>
-        </div>
-        <div className="p-4 flex overflow-auto max-h-[calc(85vh-4rem)]">
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden p-0">
+        <DialogHeader className="p-4 border-b border-border">
+          <DialogTitle className="text-sm font-semibold truncate">{fileName}</DialogTitle>
+          <DialogDescription className="text-xs">{formatFileSize(fileSize)}</DialogDescription>
+        </DialogHeader>
+        <div className="p-4 flex overflow-auto max-h-[calc(85vh-5rem)]">
           <div className="m-auto">
             {renderContent()}
           </div>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 

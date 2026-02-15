@@ -5,6 +5,7 @@ import { authAPI } from '../services/api';
 import { AuthResponse } from '../types';
 import { toast } from '../context/ToastContext';
 import { useTranslation } from '../i18n';
+import { Card, CardContent } from '../components/ui/card';
 
 const OAuthCallbackPage: React.FC = () => {
   const navigate = useNavigate();
@@ -105,16 +106,18 @@ const OAuthCallbackPage: React.FC = () => {
     return (
       <div className="flex items-center justify-center px-4 py-20">
         <div className="max-w-md w-full text-center">
-          <div className="bg-white rounded-3xl shadow-lg p-8">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">{t('oauth.loginFailedTitle')}</h2>
-            <p className="text-gray-600 mb-6">{error}</p>
-            <p className="text-sm text-gray-500">{t('oauth.redirectingToLogin')}</p>
-          </div>
+          <Card className="rounded-3xl shadow-lg p-8">
+            <CardContent className="p-0">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-foreground mb-2">{t('oauth.loginFailedTitle')}</h2>
+              <p className="text-muted-foreground mb-6">{error}</p>
+              <p className="text-sm text-muted-foreground/70">{t('oauth.redirectingToLogin')}</p>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -123,8 +126,8 @@ const OAuthCallbackPage: React.FC = () => {
   return (
     <div className="flex items-center justify-center py-20">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">{t('oauth.loggingIn')}</p>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+        <p className="mt-4 text-muted-foreground">{t('oauth.loggingIn')}</p>
       </div>
     </div>
   );

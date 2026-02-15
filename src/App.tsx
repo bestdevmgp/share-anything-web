@@ -23,7 +23,7 @@ import ScrollToTop from './components/ScrollToTop';
 
 const AppContent: React.FC = () => {
   return (
-    <div className="min-h-screen bg-[#F9FAFB] dark:bg-[#010001] flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col">
       <Header />
       <ToastContainer />
       <div className="flex-1">

@@ -12,6 +12,11 @@ import { createWebSocketConnection, generatePeerId, sendSignalingMessage } from 
 import FileThumbnail from '../components/FileThumbnail';
 import FilePreviewModal from '../components/FilePreviewModal';
 import { useThumbnail } from '../hooks/useThumbnail';
+import { Button } from '../components/ui/button';
+import { Card } from '../components/ui/card';
+import { Input } from '../components/ui/input';
+import { Progress } from '../components/ui/progress';
+import { cn } from 'lib/utils';
 
 const DownloadFilePage: React.FC = () => {
   const { code } = useParams<{ code: string }>();
@@ -376,8 +381,8 @@ const DownloadFilePage: React.FC = () => {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 mb-8 text-gray-600 dark:text-[#888888]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 mb-8 text-muted-foreground">
             {loading ? t('download.loadingFileInfo') : t('download.verifyingRequest')}
           </p>
           <TurnstileWidget
@@ -398,8 +403,8 @@ const DownloadFilePage: React.FC = () => {
     return (
       <div className="flex items-center justify-center py-20">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-[#888888]">{t('download.loadingFileInfo')}</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">{t('download.loadingFileInfo')}</p>
         </div>
       </div>
     );
@@ -409,22 +414,22 @@ const DownloadFilePage: React.FC = () => {
     return (
       <div className="flex items-center justify-center px-4 py-20">
         <div className="max-w-md w-full text-center">
-          <div className="bg-white rounded-3xl border-2 border-gray-200 dark:bg-[#0B0A0B] dark:border-white/10 p-8">
+          <Card className="rounded-3xl border-2 p-8">
             <div className="w-16 h-16 bg-red-100 dark:bg-red-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M6 18L18 6" className="error-x-path-1" />
                 <path d="M6 6l12 12" className="error-x-path-2" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-[#EDEDED] mb-2">{errorTitle}</h2>
-            <p className="text-gray-600 dark:text-[#888888] mb-6">{error}</p>
-            <button
+            <h2 className="text-2xl font-bold text-foreground mb-2">{errorTitle}</h2>
+            <p className="text-muted-foreground mb-6">{error}</p>
+            <Button
               onClick={() => navigate('/', { state: { autoFocus: true } })}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              className="px-6 py-2"
             >
               {t('common.retry')}
-            </button>
-          </div>
+            </Button>
+          </Card>
           <style>{`
             .error-x-path-1,
             .error-x-path-2 {
@@ -456,13 +461,13 @@ const DownloadFilePage: React.FC = () => {
     return (
       <div className="flex items-center justify-center px-4 py-20">
         <div className="max-w-md w-full">
-          <div className="bg-white rounded-3xl border-2 border-gray-200 dark:bg-[#0B0A0B] dark:border-white/10 p-10">
+          <Card className="rounded-3xl border-2 p-10">
             <div className="text-center mb-8">
               <div className="w-16 h-16 bg-blue-100 dark:bg-blue-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
-                <LockClosedIcon className="w-8 h-8 text-blue-600" />
+                <LockClosedIcon className="w-8 h-8 text-primary" />
               </div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-[#EDEDED] mb-2">{t('download.passwordTitle')}</h1>
-              <p className="text-gray-600 dark:text-[#888888]">
+              <h1 className="text-3xl font-bold text-foreground mb-2">{t('download.passwordTitle')}</h1>
+              <p className="text-muted-foreground">
                 {t('download.passwordProtected')}
               </p>
             </div>
@@ -470,18 +475,18 @@ const DownloadFilePage: React.FC = () => {
             <form onSubmit={handlePasswordSubmit}>
               <div className="mb-6">
                 <div className="relative">
-                  <input
+                  <Input
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder={t('download.passwordPlaceholder')}
-                    className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-white/15 dark:bg-[#0B0A0B] dark:text-[#EDEDED] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="h-12 pr-12 rounded-lg"
                     autoFocus
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700 dark:text-[#888888] dark:hover:text-[#EDEDED]"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
                   >
                     {showPassword ? (
                       <EyeIcon className="w-5 h-5" />
@@ -492,14 +497,14 @@ const DownloadFilePage: React.FC = () => {
                 </div>
               </div>
 
-              <button
+              <Button
                 type="submit"
-                className="w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700"
+                className="w-full h-12 text-base font-semibold rounded-lg"
               >
                 {t('common.confirm')}
-              </button>
+              </Button>
             </form>
-          </div>
+          </Card>
         </div>
       </div>
     );
@@ -513,11 +518,12 @@ const DownloadFilePage: React.FC = () => {
     <div className="max-w-2xl w-full">
           <div className="text-center mb-10">
             <div className="flex justify-center mb-5">
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+              <div className={cn(
+                'w-16 h-16 rounded-full flex items-center justify-center',
                 isP2PDownload && p2pStatus === 'downloading' ? 'bg-blue-100 dark:bg-blue-500/15' : 'bg-green-100 dark:bg-green-500/15'
-              }`}>
+              )}>
                 {isP2PDownload && p2pStatus === 'downloading' ? (
-                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
                 ) : (
                   <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke={isP2PDownload && p2pStatus === 'completed' ? '#16a34a' : '#16a34a'} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M5 13l4 4L19 7" className="download-checkmark-path" />
@@ -525,7 +531,7 @@ const DownloadFilePage: React.FC = () => {
                 )}
               </div>
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">
+            <h1 className="text-4xl font-bold text-foreground mb-3">
               {isP2PDownload ? (
                 p2pStatus === 'waiting' || p2pStatus === 'connecting' ? t('download.readyToReceive') :
                 p2pStatus === 'downloading' ? t('download.downloading') :
@@ -533,7 +539,7 @@ const DownloadFilePage: React.FC = () => {
                 t('download.readyToDownload')
               ) : t('download.readyToDownload')}
             </h1>
-            <p className="text-gray-600 dark:text-[#888888]">
+            <p className="text-muted-foreground">
               {isP2PDownload ? (
                 p2pStatus === 'downloading' ? (p2pPeerDeviceInfo ? t('download.receivingFrom', { device: p2pPeerDeviceInfo }) : t('download.receivingPleaseWait')) :
                 p2pStatus === 'completed' ? t('download.receivedSuccessfully') :
@@ -554,11 +560,11 @@ const DownloadFilePage: React.FC = () => {
             }
           `}</style>
 
-          <div className="bg-white rounded-3xl border-2 border-gray-200 dark:bg-[#0B0A0B] dark:border-white/10 p-6 md:p-8">
+          <Card className="rounded-3xl border-2 p-6 md:p-8">
             <div className="flex justify-center mb-5">
               {loadingPreview ? (
                 <div className="w-24 h-24 bg-blue-100 dark:bg-blue-500/15 rounded-full flex items-center justify-center">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                 </div>
               ) : singleFilePreviewUrl && isImageFile(file.file_name) ? (
                 <div
@@ -591,37 +597,37 @@ const DownloadFilePage: React.FC = () => {
                 </div>
               ) : (
                 <div className="w-24 h-24 bg-blue-100 dark:bg-blue-500/15 rounded-full flex items-center justify-center">
-                  <DocumentIcon className="w-12 h-12 text-blue-600" />
+                  <DocumentIcon className="w-12 h-12 text-primary" />
                 </div>
               )}
             </div>
 
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3 text-center break-all">
+              <h2 className="text-2xl font-bold text-foreground mb-3 text-center break-all">
                 {file.file_name}
               </h2>
               {fileList.description && (
-                <p className="text-gray-600 dark:text-[#888888] text-center mb-6 break-words whitespace-pre-wrap">
+                <p className="text-muted-foreground text-center mb-6 break-words whitespace-pre-wrap">
                   {fileList.description}
                 </p>
               )}
             </div>
 
             <div className="space-y-3 mb-8">
-              <div className="flex justify-between py-2 border-b border-gray-200 dark:border-white/10">
-                <span className="text-gray-600 dark:text-[#888888]">{t('download.fileSize')}</span>
-                <span className="font-semibold text-gray-900 dark:text-[#EDEDED]">{formatFileSize(file.file_size)}</span>
+              <div className="flex justify-between py-2 border-b border-border">
+                <span className="text-muted-foreground">{t('download.fileSize')}</span>
+                <span className="font-semibold text-foreground">{formatFileSize(file.file_size)}</span>
               </div>
               {fileList.description && (
-                <div className="flex justify-between py-2 border-b border-gray-200 dark:border-white/10">
-                  <span className="text-gray-600 dark:text-[#888888]">{t('download.uploader')}</span>
-                  <span className="font-semibold text-gray-900 dark:text-[#EDEDED]">{t('common.anonymousUser')}</span>
+                <div className="flex justify-between py-2 border-b border-border">
+                  <span className="text-muted-foreground">{t('download.uploader')}</span>
+                  <span className="font-semibold text-foreground">{t('common.anonymousUser')}</span>
                 </div>
               )}
               {!isP2PDownload && (
                 <div className="flex justify-between py-2">
-                  <span className="text-gray-600 dark:text-[#888888]">{t('download.expiresAt')}</span>
-                  <span className="font-semibold text-gray-900 dark:text-[#EDEDED]">{formatDateTime(fileList.expires_at, language)}</span>
+                  <span className="text-muted-foreground">{t('download.expiresAt')}</span>
+                  <span className="font-semibold text-foreground">{formatDateTime(fileList.expires_at, language)}</span>
                 </div>
               )}
             </div>
@@ -633,25 +639,20 @@ const DownloadFilePage: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <div className="flex-1 pl-2">
                         <div className="flex justify-between mb-2">
-                          <span className="text-sm font-medium text-gray-700 dark:text-[#EDEDED] self-start">
+                          <span className="text-sm font-medium text-foreground self-start">
                             {p2pStatus === 'connecting' ? t('download.connectingP2P') : t('download.downloadingP2P')}
                           </span>
                           {p2pStatus === 'downloading' && (
                             <div className="flex items-center gap-2 self-end">
                               {p2pTimeRemaining && (
-                                <span className="text-xs text-gray-500">{p2pTimeRemaining}</span>
+                                <span className="text-xs text-muted-foreground">{p2pTimeRemaining}</span>
                               )}
-                              <span className="text-xs font-semibold text-blue-600">{p2pProgress}%</span>
+                              <span className="text-xs font-semibold text-primary">{p2pProgress}%</span>
                             </div>
                           )}
                         </div>
                         {p2pStatus === 'downloading' && (
-                          <div className="bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden">
-                            <div
-                              className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
-                              style={{ width: `${p2pProgress}%` }}
-                            />
-                          </div>
+                          <Progress value={p2pProgress} className="h-1.5 bg-muted" />
                         )}
                       </div>
                       <button
@@ -659,7 +660,7 @@ const DownloadFilePage: React.FC = () => {
                         className="p-1 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded transition-colors flex-shrink-0"
                         title={t('download.cancelDownload')}
                       >
-                        <XMarkIcon className="w-6 h-6 text-gray-600 dark:text-[#888888]" />
+                        <XMarkIcon className="w-6 h-6 text-muted-foreground" />
                       </button>
                     </div>
                   </div>
@@ -668,67 +669,63 @@ const DownloadFilePage: React.FC = () => {
                     ✓ {t('download.receiveCompleteMark')}
                   </div>
                 ) : (
-                  <button
+                  <Button
                     onClick={() => setP2pEnabled(true)}
-                    className="w-full px-6 py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+                    className="w-full h-auto px-6 py-4 text-lg font-semibold rounded-xl space-x-2"
                   >
                     <ArrowDownTrayIcon className="w-5 h-5" />
                     <span>{t('download.startDownload')}</span>
-                  </button>
+                  </Button>
                 )
               ) : downloading ? (
                 <div className="bg-blue-50 dark:bg-blue-500/10 rounded-xl px-4 py-4">
                   <div className="flex items-center gap-2">
                     <div className="flex-1 pl-2">
                       <div className="flex justify-between mb-2">
-                        <span className="text-sm font-medium text-gray-700 dark:text-[#EDEDED] self-start">
+                        <span className="text-sm font-medium text-foreground self-start">
                           {downloadProgress === 100 ? t('download.pleaseWait') : t('download.downloadingP2P')}
                         </span>
                         {downloadProgress < 100 && (
                           <div className="flex items-center gap-2 self-end">
                             {downloadTimeRemaining && (
-                              <span className="text-xs text-gray-500">{downloadTimeRemaining}</span>
+                              <span className="text-xs text-muted-foreground">{downloadTimeRemaining}</span>
                             )}
-                            <span className="text-xs font-semibold text-blue-600">{downloadProgress}%</span>
+                            <span className="text-xs font-semibold text-primary">{downloadProgress}%</span>
                           </div>
                         )}
                       </div>
-                      <div className="bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden">
-                        <div
-                          className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
-                          style={{ width: `${downloadProgress}%` }}
-                        />
-                      </div>
+                      <Progress value={downloadProgress} className="h-1.5 bg-muted" />
                     </div>
                     <button
                       onClick={handleCancelDownload}
                       className="p-1 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded transition-colors flex-shrink-0"
                       title={t('download.cancelDownload')}
                     >
-                      <XMarkIcon className="w-6 h-6 text-gray-600 dark:text-[#888888]" />
+                      <XMarkIcon className="w-6 h-6 text-muted-foreground" />
                     </button>
                   </div>
                 </div>
               ) : (
-                <button
+                <Button
                   onClick={() => handleDownload(false)}
-                  className="w-full px-6 py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center space-x-2"
+                  className="w-full h-auto px-6 py-4 text-lg font-semibold rounded-xl space-x-2"
                 >
                   <ArrowDownTrayIcon className="w-5 h-5" />
                   <span>{t('download.downloadFile')}</span>
-                </button>
+                </Button>
               )}
             </div>
 
             <div className="mt-4 text-center">
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => navigate('/')}
-                className="text-sm text-gray-500 hover:text-gray-700 dark:text-[#888888] dark:hover:text-[#EDEDED]"
+                className="text-sm text-muted-foreground hover:text-foreground"
               >
                 {t('common.back')}
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         </div>
 
         {previewFile && (
@@ -770,11 +767,12 @@ const DownloadFilePage: React.FC = () => {
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-10">
             <div className="flex justify-center mb-5">
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
+              <div className={cn(
+                'w-16 h-16 rounded-full flex items-center justify-center',
                 anyP2PDownloading ? 'bg-blue-100 dark:bg-blue-500/15' : 'bg-green-100 dark:bg-green-500/15'
-              }`}>
+              )}>
                 {anyP2PDownloading ? (
-                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
                 ) : (
                   <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M5 13l4 4L19 7" className="download-checkmark-path" />
@@ -782,12 +780,12 @@ const DownloadFilePage: React.FC = () => {
                 )}
               </div>
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">
+            <h1 className="text-4xl font-bold text-foreground mb-3">
               {allP2PCompleted ? t('download.receiveCompleteTitle') :
                anyP2PDownloading ? t('download.downloading') :
                t('download.readyToReceive')}
             </h1>
-            <p className="text-gray-600 dark:text-[#888888]">
+            <p className="text-muted-foreground">
               {allP2PCompleted ? t('download.receivedSuccessfully') :
                anyP2PDownloading ? (p2pPeerDeviceInfo ? t('download.receivingFrom', { device: p2pPeerDeviceInfo }) : t('download.receivingPleaseWait')) :
                p2pPeerDeviceInfo ? t('download.connectedToDevice', { device: p2pPeerDeviceInfo }) : t('download.connectionSuccess')}
@@ -806,15 +804,15 @@ const DownloadFilePage: React.FC = () => {
             }
           `}</style>
 
-          <div className="bg-white rounded-3xl border-2 border-gray-200 dark:bg-[#0B0A0B] dark:border-white/10 p-10">
+          <Card className="rounded-3xl border-2 p-10">
             {fileList.description && (
-              <div className="mb-8 p-4 bg-gray-50 dark:bg-white/5 rounded-lg">
-                <p className="text-gray-700 dark:text-[#EDEDED] break-words whitespace-pre-wrap">{fileList.description}</p>
+              <div className="mb-8 p-4 bg-muted rounded-lg">
+                <p className="text-foreground break-words whitespace-pre-wrap">{fileList.description}</p>
               </div>
             )}
 
             <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
                 {t('download.fileListCount', { count: fileList.total_count })}
               </h3>
             </div>
@@ -828,9 +826,10 @@ const DownloadFilePage: React.FC = () => {
                 return (
                   <div
                     key={file.id}
-                    className={`p-4 rounded-xl border-2 transition-all ${
-                      isActive ? 'bg-blue-50 border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/30' : 'bg-gray-100 border-transparent dark:bg-white/5'
-                    }`}
+                    className={cn(
+                      'p-4 rounded-xl border-2 transition-all',
+                      isActive ? 'bg-blue-50 border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/30' : 'bg-muted border-transparent'
+                    )}
                   >
                     <div className="flex items-center space-x-4">
                       <div className="flex-shrink-0">
@@ -838,20 +837,15 @@ const DownloadFilePage: React.FC = () => {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-base font-semibold text-gray-900 dark:text-[#EDEDED] truncate">
+                        <h4 className="text-base font-semibold text-foreground truncate">
                           {file.file_name}
                         </h4>
                         {isDownloading ? (
                           <div className="mt-1.5">
-                            <div className="bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden">
-                              <div
-                                className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
-                                style={{ width: `${p2pProgress}%` }}
-                              />
-                            </div>
+                            <Progress value={p2pProgress} className="h-1.5 bg-secondary" />
                           </div>
                         ) : (
-                          <p className="text-sm text-gray-500 dark:text-[#888888]">{formatFileSize(file.file_size)}</p>
+                          <p className="text-sm text-muted-foreground">{formatFileSize(file.file_size)}</p>
                         )}
                       </div>
 
@@ -862,9 +856,9 @@ const DownloadFilePage: React.FC = () => {
                       ) : isDownloading ? (
                         <div className="flex-shrink-0 flex items-center gap-2">
                           <div className="text-right">
-                            <span className="text-blue-600 text-sm font-medium">{p2pProgress}%</span>
+                            <span className="text-primary text-sm font-medium">{p2pProgress}%</span>
                             {p2pTimeRemaining && (
-                              <p className="text-xs text-gray-500">{p2pTimeRemaining}</p>
+                              <p className="text-xs text-muted-foreground">{p2pTimeRemaining}</p>
                             )}
                           </div>
                           <button
@@ -872,17 +866,18 @@ const DownloadFilePage: React.FC = () => {
                             className="p-1 [@media(hover:hover)]:hover:bg-blue-100 [@media(hover:hover)]:dark:hover:bg-blue-500/20 active:bg-blue-100 dark:active:bg-blue-500/20 rounded transition-colors"
                             title={t('download.cancelDownload')}
                           >
-                            <XMarkIcon className="w-5 h-5 text-gray-500 dark:text-[#888888]" />
+                            <XMarkIcon className="w-5 h-5 text-muted-foreground" />
                           </button>
                         </div>
                       ) : (
-                        <button
+                        <Button
                           onClick={() => startP2PDownload(file.id)}
                           disabled={p2pEnabled && !isActive}
-                          className="flex-shrink-0 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-white/10 disabled:cursor-not-allowed transition-colors"
+                          size="sm"
+                          className="flex-shrink-0 rounded-lg"
                         >
                           {t('common.download')}
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -891,14 +886,15 @@ const DownloadFilePage: React.FC = () => {
             </div>
 
             <div className="mt-4 text-center">
-              <button
+              <Button
+                variant="ghost"
                 onClick={() => navigate('/')}
-                className="text-sm text-gray-500 hover:text-gray-700 dark:text-[#888888] dark:hover:text-[#EDEDED]"
+                className="text-sm text-muted-foreground hover:text-foreground"
               >
                 {t('common.back')}
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     );
@@ -908,36 +904,38 @@ const DownloadFilePage: React.FC = () => {
     <div className="py-12 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">{t('download.pageTitle')}</h1>
-          <p className="text-gray-600 dark:text-[#888888]">
+          <h1 className="text-4xl font-bold text-foreground mb-3">{t('download.pageTitle')}</h1>
+          <p className="text-muted-foreground">
             {t('download.totalFilesAvailable', { count: fileList.total_count })}
           </p>
         </div>
 
-        <div className="bg-white rounded-3xl border-2 border-gray-200 dark:bg-[#0B0A0B] dark:border-white/10 p-10">
+        <Card className="rounded-3xl border-2 p-10">
           {fileList.description && (
-            <div className="mb-8 p-4 bg-gray-50 dark:bg-white/5 rounded-lg">
-              <p className="text-gray-700 dark:text-[#EDEDED] break-words whitespace-pre-wrap">{fileList.description}</p>
+            <div className="mb-8 p-4 bg-muted rounded-lg">
+              <p className="text-foreground break-words whitespace-pre-wrap">{fileList.description}</p>
             </div>
           )}
 
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED]">
+            <h3 className="text-lg font-semibold text-foreground">
               {t('download.fileListSelected', { selected: selectedFiles.size, total: fileList.total_count })}
             </h3>
             <div className="flex gap-1">
-              <button
+              <Button
+                variant="ghost"
                 onClick={selectAllFiles}
-                className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-lg"
+                className="px-3 py-1.5 text-sm text-primary hover:bg-primary/10"
               >
                 {t('download.selectAll')}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="ghost"
                 onClick={deselectAllFiles}
-                className="px-3 py-1.5 text-sm text-gray-600 dark:text-[#888888] hover:bg-gray-100 dark:hover:bg-white/10 rounded-lg"
+                className="px-3 py-1.5 text-sm text-muted-foreground hover:bg-accent"
               >
                 {t('download.deselectAll')}
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -946,18 +944,20 @@ const DownloadFilePage: React.FC = () => {
               <div
                 key={file.id}
                 onClick={() => toggleFileSelection(file.id)}
-                className={`flex items-center space-x-4 p-4 rounded-xl cursor-pointer transition-all ${
+                className={cn(
+                  'flex items-center space-x-4 p-4 rounded-xl cursor-pointer transition-all',
                   selectedFiles.has(file.id)
                     ? 'bg-blue-50 border-2 border-blue-500 dark:bg-blue-500/10'
-                    : 'bg-gray-100 border-2 border-transparent hover:bg-gray-200/70 dark:bg-white/5 dark:hover:bg-white/10'
-                }`}
+                    : 'bg-muted border-2 border-transparent hover:bg-accent'
+                )}
               >
                 <div className="flex-shrink-0">
-                  <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center ${
+                  <div className={cn(
+                    'w-6 h-6 rounded-md border-2 flex items-center justify-center',
                     selectedFiles.has(file.id)
-                      ? 'bg-blue-600 border-blue-600'
-                      : 'border-gray-300 dark:border-white/15'
-                  }`}>
+                      ? 'bg-primary border-primary'
+                      : 'border-input'
+                  )}>
                     {selectedFiles.has(file.id) && (
                       <CheckIcon className="w-4 h-4 text-white" />
                     )}
@@ -969,10 +969,10 @@ const DownloadFilePage: React.FC = () => {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-base font-semibold text-gray-900 dark:text-[#EDEDED] truncate">
+                  <h4 className="text-base font-semibold text-foreground truncate">
                     {file.file_name}
                   </h4>
-                  <p className="text-sm text-gray-500 dark:text-[#888888]">{formatFileSize(file.file_size)}</p>
+                  <p className="text-sm text-muted-foreground">{formatFileSize(file.file_size)}</p>
                 </div>
               </div>
             ))}
@@ -984,31 +984,26 @@ const DownloadFilePage: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <div className="flex-1 pl-2">
                     <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-700 dark:text-[#EDEDED] self-start">
+                      <span className="text-sm font-medium text-foreground self-start">
                         {downloadProgress === 100 ? t('download.pleaseWait') : (downloadAsZip ? t('download.creatingZip') : t('download.downloadingP2P'))}
                       </span>
                       {downloadProgress < 100 && (
                         <div className="flex items-center gap-2 self-end">
                           {downloadTimeRemaining && (
-                            <span className="text-xs text-gray-500">{downloadTimeRemaining}</span>
+                            <span className="text-xs text-muted-foreground">{downloadTimeRemaining}</span>
                           )}
-                          <span className="text-xs font-semibold text-blue-600">{downloadProgress}%</span>
+                          <span className="text-xs font-semibold text-primary">{downloadProgress}%</span>
                         </div>
                       )}
                     </div>
-                    <div className="bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden">
-                      <div
-                        className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
-                        style={{ width: `${downloadProgress}%` }}
-                      />
-                    </div>
+                    <Progress value={downloadProgress} className="h-1.5 bg-muted" />
                   </div>
                   <button
                     onClick={handleCancelDownload}
                     className="p-1 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded transition-colors flex-shrink-0"
                     title={t('download.cancelDownload')}
                   >
-                    <XMarkIcon className="w-6 h-6 text-gray-600 dark:text-[#888888]" />
+                    <XMarkIcon className="w-6 h-6 text-muted-foreground" />
                   </button>
                 </div>
               </div>
@@ -1022,26 +1017,27 @@ const DownloadFilePage: React.FC = () => {
 
                 return canDownloadAsZip ? (
                   <div className="flex gap-3">
-                    <button
+                    <Button
+                      variant="secondary"
                       onClick={() => handleDownload(true)}
                       disabled={selectedFiles.size === 0}
-                      className="flex-1 px-4 py-3 md:py-4 bg-gray-100 text-gray-700 text-base font-semibold rounded-xl hover:bg-gray-200 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors dark:bg-white/5 dark:text-[#EDEDED] dark:hover:bg-white/10"
+                      className="flex-1 h-auto px-4 py-3 md:py-4 text-base font-semibold rounded-xl"
                     >
                       {t('download.zipDownload')}
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       onClick={() => handleDownload(false)}
                       disabled={selectedFiles.size === 0}
-                      className="flex-1 px-4 py-3 md:py-4 bg-blue-600 text-white text-base font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-white/10 disabled:cursor-not-allowed transition-colors"
+                      className="flex-1 h-auto px-4 py-3 md:py-4 text-base font-semibold rounded-xl"
                     >
                       {t('common.download')}
-                    </button>
+                    </Button>
                   </div>
                 ) : (
-                  <button
+                  <Button
                     onClick={() => handleDownload(false)}
                     disabled={selectedFiles.size === 0}
-                    className="w-full px-6 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-white/10 disabled:cursor-not-allowed transition-colors"
+                    className="w-full h-auto px-6 py-3 md:py-4 text-lg font-semibold rounded-xl"
                   >
                     {selectedFiles.size === 0
                       ? t('download.selectFilePrompt')
@@ -1049,21 +1045,22 @@ const DownloadFilePage: React.FC = () => {
                       ? t('common.download')
                       : t('download.multiFileDownload', { count: selectedFiles.size })
                     }
-                  </button>
+                  </Button>
                 );
               })()
             )}
           </div>
 
           <div className="mt-4 text-center">
-            <button
+            <Button
+              variant="ghost"
               onClick={() => navigate('/')}
-              className="text-sm text-gray-500 hover:text-gray-700 dark:text-[#888888] dark:hover:text-[#EDEDED]"
+              className="text-sm text-muted-foreground hover:text-foreground"
             >
               {t('common.back')}
-            </button>
+            </Button>
           </div>
-        </div>
+        </Card>
       </div>
 
       {previewFile && (

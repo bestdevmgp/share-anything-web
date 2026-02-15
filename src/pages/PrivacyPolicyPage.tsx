@@ -42,8 +42,8 @@ const PrivacyPolicyPage: React.FC = () => {
     return (
         <div>
             <div className="max-w-4xl mx-auto px-4 py-12">
-                <div className="bg-white dark:bg-[#0B0A0B] rounded-2xl shadow-sm dark:shadow-none dark:border dark:border-white/10 px-12 py-8 md:px-20 md:py-12">
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-8">
+                <div className="bg-card rounded-2xl shadow-sm dark:shadow-none border border-border px-12 py-8 md:px-20 md:py-12">
+                    <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
                         {headingMap[language] || headingMap.en}
                     </h1>
                     <Content />

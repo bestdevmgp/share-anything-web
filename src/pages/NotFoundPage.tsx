@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Lottie from 'lottie-react';
 import { useTranslation } from '../i18n';
+import { Button } from '../components/ui/button';
 import animationData from '../assets/lottie-404.json';
 
 const NotFoundPage: React.FC = () => {
@@ -16,15 +17,15 @@ const NotFoundPage: React.FC = () => {
           loop
           className="w-80 md:w-96 mx-auto dark:invert -mt-[3px] md:-mt-1"
         />
-        <p className="text-gray-600 dark:text-[#888888] mb-8 mt-2">
+        <p className="text-muted-foreground mb-8 mt-2">
           {t('notFound.description')}
         </p>
-        <button
+        <Button
           onClick={() => navigate('/')}
-          className="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+          className="px-6 py-2.5 rounded-lg font-semibold"
         >
           {t('notFound.goHome')}
-        </button>
+        </Button>
       </div>
     </div>
   );

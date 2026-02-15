@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect, Fragment } from 'react';
+import React from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { SunIcon, MoonIcon, ComputerDesktopIcon, ChevronUpIcon, GlobeAltIcon, CheckIcon } from '@heroicons/react/24/outline';
-import { Transition } from '@headlessui/react';
 import { useTranslation } from '../i18n';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 const langOptions = [
   { key: 'ko' as const, label: '한국어' },
@@ -29,39 +29,22 @@ const Footer: React.FC = () => {
     { key: 'dark' as const, label: t('footer.themeDark') },
     { key: 'system' as const, label: t('footer.themeSystem') },
   ];
-  const [themeOpen, setThemeOpen] = useState(false);
-  const [langOpen, setLangOpen] = useState(false);
-  const themeRef = useRef<HTMLDivElement>(null);
-  const langRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (themeRef.current && !themeRef.current.contains(e.target as Node)) {
-        setThemeOpen(false);
-      }
-      if (langRef.current && !langRef.current.contains(e.target as Node)) {
-        setLangOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const currentLang = langOptions.find((o) => o.key === lang)!;
 
   return (
-    <footer className="bg-white dark:bg-[#010001] border-t border-gray-200 dark:border-white/10 py-8">
+    <footer className="bg-card dark:bg-background border-t border-border py-8">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-center items-center gap-8 mb-6">
           <a
             href="/privacy-policy"
-            className="text-gray-600 dark:text-[#888888] hover:text-gray-900 dark:hover:text-[#EDEDED] text-sm transition-colors"
+            className="text-muted-foreground hover:text-foreground text-sm transition-colors"
           >
             {t('footer.privacyPolicy')}
           </a>
           <a
             href="/terms-of-use"
-            className="text-gray-600 dark:text-[#888888] hover:text-gray-900 dark:hover:text-[#EDEDED] text-sm transition-colors"
+            className="text-muted-foreground hover:text-foreground text-sm transition-colors"
           >
             {t('footer.termsOfUse')}
           </a>
@@ -72,7 +55,7 @@ const Footer: React.FC = () => {
             href="https://github.com/bestdevmgp"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-gray-500 dark:text-[#666666] hover:text-gray-700 dark:hover:text-[#EDEDED] transition-colors"
+            className="text-muted-foreground/70 hover:text-foreground transition-colors"
             aria-label="GitHub"
           >
             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -84,7 +67,7 @@ const Footer: React.FC = () => {
             href="https://mingyu.dev"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-gray-500 dark:text-[#666666] hover:text-gray-700 dark:hover:text-[#EDEDED] transition-colors"
+            className="text-muted-foreground/70 hover:text-foreground transition-colors"
             aria-label="Portfolio"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -94,7 +77,7 @@ const Footer: React.FC = () => {
 
           <a
             href="mailto:me@mingyu.dev"
-            className="text-gray-500 dark:text-[#666666] hover:text-gray-700 dark:hover:text-[#EDEDED] transition-colors"
+            className="text-muted-foreground/70 hover:text-foreground transition-colors"
             aria-label="Email"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -104,94 +87,72 @@ const Footer: React.FC = () => {
         </div>
 
         <div className="text-center mb-5">
-          <p className="text-sm text-gray-500 dark:text-[#666666]">
+          <p className="text-sm text-muted-foreground/70">
             © 2026 ShareAnything. All rights reserved.
           </p>
         </div>
 
         <div className="flex justify-center items-end gap-[12px]">
           {/* Language Dropdown */}
-          <div className="relative" ref={langRef}>
-            <button
-              onClick={() => { setLangOpen((v) => !v); setThemeOpen(false); }}
-              className="flex items-center justify-between w-40 h-10 px-2.5 border border-gray-200 dark:border-white/10 bg-white dark:bg-[#010001] text-gray-600 dark:text-[#AAAAAA] hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-sm"
-            >
-              <div className="flex items-center gap-2">
-                <GlobeAltIcon className="w-4 h-4" />
-                <span>{currentLang.label}</span>
-              </div>
-              <ChevronUpIcon className={`w-3 h-3 transition-transform ${langOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            <Transition
-              as={Fragment}
-              show={langOpen}
-              enter="transition ease-out duration-200"
-              enterFrom="opacity-0 translate-y-1"
-              enterTo="opacity-100 translate-y-0"
-              leave="transition ease-in duration-150"
-              leaveFrom="opacity-100 translate-y-0"
-              leaveTo="opacity-0 translate-y-1"
-            >
-              <div className="absolute bottom-full left-0 mb-1 w-40 border border-gray-200 dark:border-white/10 bg-white dark:bg-[#010001] shadow-lg overflow-hidden">
-                <div className="px-2.5 py-1.5 text-xs text-gray-400 dark:text-[#666666]">{t('footer.language')}</div>
-                {langOptions.map((option) => (
-                  <button
-                    key={option.key}
-                    onClick={() => { setLang(option.key); setLangOpen(false); }}
-                    className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors ${
-                      lang === option.key
-                        ? 'text-gray-900 dark:text-[#EDEDED]'
-                        : 'text-gray-600 dark:text-[#888888] hover:bg-gray-50 dark:hover:bg-white/5'
-                    }`}
-                  >
-                    <CheckIcon className={`w-3.5 h-3.5 flex-shrink-0 ${lang === option.key ? 'opacity-100' : 'opacity-0'}`} />
-                    <span>{option.label}</span>
-                  </button>
-                ))}
-              </div>
-            </Transition>
-          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                className="flex items-center justify-between w-40 h-10 px-2.5 border border-border bg-card dark:bg-background text-muted-foreground hover:bg-accent transition-colors text-sm"
+              >
+                <div className="flex items-center gap-2">
+                  <GlobeAltIcon className="w-4 h-4" />
+                  <span>{currentLang.label}</span>
+                </div>
+                <ChevronUpIcon className="w-3 h-3" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent side="top" align="start" className="w-40 p-0 rounded-none border border-border bg-card dark:bg-background">
+              <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('footer.language')}</div>
+              {langOptions.map((option) => (
+                <button
+                  key={option.key}
+                  onClick={() => setLang(option.key)}
+                  className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors ${
+                    lang === option.key
+                      ? 'text-foreground'
+                      : 'text-muted-foreground hover:bg-accent'
+                  }`}
+                >
+                  <CheckIcon className={`w-3.5 h-3.5 flex-shrink-0 ${lang === option.key ? 'opacity-100' : 'opacity-0'}`} />
+                  <span>{option.label}</span>
+                </button>
+              ))}
+            </PopoverContent>
+          </Popover>
 
           {/* Theme Dropdown */}
-          <div className="relative" ref={themeRef}>
-            <button
-              onClick={() => { setThemeOpen((v) => !v); setLangOpen(false); }}
-              className="flex items-center justify-between w-16 h-10 px-2.5 border border-gray-200 dark:border-white/10 bg-white dark:bg-[#010001] text-gray-600 dark:text-[#AAAAAA] hover:bg-gray-50 dark:hover:bg-white/5 transition-colors text-sm"
-            >
-              {themeIcons[theme]}
-              <ChevronUpIcon className={`w-3 h-3 transition-transform ${themeOpen ? 'rotate-180' : ''}`} />
-            </button>
-
-            <Transition
-              as={Fragment}
-              show={themeOpen}
-              enter="transition ease-out duration-200"
-              enterFrom="opacity-0 translate-y-1"
-              enterTo="opacity-100 translate-y-0"
-              leave="transition ease-in duration-150"
-              leaveFrom="opacity-100 translate-y-0"
-              leaveTo="opacity-0 translate-y-1"
-            >
-              <div className="absolute bottom-full right-0 mb-1 w-28 border border-gray-200 dark:border-white/10 bg-white dark:bg-[#010001] shadow-lg overflow-hidden">
-                <div className="px-2.5 py-1.5 text-xs text-gray-400 dark:text-[#666666]">{t('footer.theme')}</div>
-                {themeOptions.map((option) => (
-                  <button
-                    key={option.key}
-                    onClick={() => { setTheme(option.key); setThemeOpen(false); }}
-                    className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors ${
-                      theme === option.key
-                        ? 'text-gray-900 dark:text-[#EDEDED]'
-                        : 'text-gray-600 dark:text-[#888888] hover:bg-gray-50 dark:hover:bg-white/5'
-                    }`}
-                  >
-                    <CheckIcon className={`w-3.5 h-3.5 flex-shrink-0 ${theme === option.key ? 'opacity-100' : 'opacity-0'}`} />
-                    <span>{option.label}</span>
-                  </button>
-                ))}
-              </div>
-            </Transition>
-          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                className="flex items-center justify-between w-16 h-10 px-2.5 border border-border bg-card dark:bg-background text-muted-foreground hover:bg-accent transition-colors text-sm"
+              >
+                {themeIcons[theme]}
+                <ChevronUpIcon className="w-3 h-3" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent side="top" align="end" className="w-28 p-0 rounded-none border border-border bg-card dark:bg-background">
+              <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('footer.theme')}</div>
+              {themeOptions.map((option) => (
+                <button
+                  key={option.key}
+                  onClick={() => setTheme(option.key)}
+                  className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors ${
+                    theme === option.key
+                      ? 'text-foreground'
+                      : 'text-muted-foreground hover:bg-accent'
+                  }`}
+                >
+                  <CheckIcon className={`w-3.5 h-3.5 flex-shrink-0 ${theme === option.key ? 'opacity-100' : 'opacity-0'}`} />
+                  <span>{option.label}</span>
+                </button>
+              ))}
+            </PopoverContent>
+          </Popover>
         </div>
 
       </div>

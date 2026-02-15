@@ -4,6 +4,13 @@ import { DownloadLog } from '../types';
 import { toast } from '../context/ToastContext';
 import { useTranslation } from '../i18n';
 import { formatDateTime } from '../utils/format';
+import { Button } from './ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from './ui/dialog';
 
 interface DownloadLogsModalProps {
   fileId: string;
@@ -53,113 +60,90 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
   const formatDate = (dateString: string) => formatDateTime(dateString, language);
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto" onClick={onClose}>
-      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75 dark:bg-black/70" />
+    <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-4xl max-h-[80vh] p-0 overflow-hidden flex flex-col">
+        <DialogHeader className="px-4 pt-5 pb-4 sm:p-6 border-b border-border">
+          <DialogTitle>{t('downloadLogs.title')}</DialogTitle>
+        </DialogHeader>
 
-        <div
-          className="inline-block align-bottom bg-white dark:bg-[#0B0A0B] rounded-lg text-left overflow-hidden shadow-xl transform transition-all max-w-full sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="bg-white dark:bg-[#0B0A0B] px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-[#EDEDED]">
-                {t('downloadLogs.title')}
-              </h3>
-              <button
-                onClick={onClose}
-                className="text-gray-400 hover:text-gray-500 dark:text-[#666666] dark:hover:text-[#888888]"
-              >
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+        <div className="flex-1 min-h-0 overflow-auto relative">
+          {loading ? (
+            <div className="text-center py-8">
+              <div className="text-muted-foreground">{t('common.loading')}</div>
             </div>
-
-            {loading ? (
-              <div className="text-center py-8">
-                <div className="text-gray-500 dark:text-[#888888]">{t('common.loading')}</div>
-              </div>
-            ) : logs.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-gray-500 dark:text-[#888888]">{t('downloadLogs.noLogs')}</p>
-              </div>
-            ) : (
-              <div className="relative">
-                <div ref={scrollContainerRef} className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200 dark:divide-white/10">
-                    <thead className="bg-gray-50 dark:bg-white/5">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider">
-                          {t('downloadLogs.downloader')}
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider">
-                          {t('downloadLogs.ipAddress')}
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider">
-                          {t('downloadLogs.platform')}
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-[#888888] uppercase tracking-wider">
-                          {t('downloadLogs.downloadDate')}
-                        </th>
+          ) : logs.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">{t('downloadLogs.noLogs')}</p>
+            </div>
+          ) : (
+            <div className="relative">
+              <div ref={scrollContainerRef} className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-border">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        {t('downloadLogs.downloader')}
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        {t('downloadLogs.ipAddress')}
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        {t('downloadLogs.platform')}
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        {t('downloadLogs.downloadDate')}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-card divide-y divide-border">
+                    {logs.map((log) => (
+                      <tr key={log.id}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                          {log.downloader_name || t('common.anonymous')}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                          {log.ip_address}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                          {log.device_platform}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                          {formatDate(log.downloaded_at)}
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody className="bg-white dark:bg-[#0B0A0B] divide-y divide-gray-200 dark:divide-white/10">
-                      {logs.map((log) => (
-                        <tr key={log.id}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-[#EDEDED]">
-                            {log.downloader_name || t('common.anonymous')}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#888888]">
-                            {log.ip_address}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#888888]">
-                            {log.device_platform}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#888888]">
-                            {formatDate(log.downloaded_at)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {showScrollHint && (
-                  <div
-                    className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center cursor-pointer"
-                    onClick={dismissScrollHint}
-                    onTouchStart={dismissScrollHint}
-                  >
-                    <div className="flex flex-col items-center gap-3">
-                      <svg
-                        className="w-12 h-12 text-white animate-scroll-hint-hand"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth={1.5}
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
-                      </svg>
-                      <span className="text-white text-sm font-medium">{t('common.scrollHorizontally')}</span>
-                    </div>
-                  </div>
-                )}
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            )}
-          </div>
 
-          <div className="bg-gray-50 dark:bg-white/5 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            <button
-              type="button"
-              onClick={onClose}
-              className="w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-white/15 shadow-sm px-4 py-2 bg-white dark:bg-[#1A1A1A] text-base font-medium text-gray-700 dark:text-[#EDEDED] hover:bg-gray-50 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
-            >
-              {t('common.close')}
-            </button>
-          </div>
+              {showScrollHint && (
+                <div
+                  className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center cursor-pointer"
+                  onClick={dismissScrollHint}
+                  onTouchStart={dismissScrollHint}
+                >
+                  <div className="flex flex-col items-center gap-3">
+                    <svg
+                      className="w-12 h-12 text-white animate-scroll-hint-hand"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                    </svg>
+                    <span className="text-white text-sm font-medium">{t('common.scrollHorizontally')}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-      </div>
+
+        <div className="bg-muted px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <Button variant="outline" onClick={onClose}>{t('common.close')}</Button>
+        </div>
+      </DialogContent>
 
       <style>{`
         @keyframes scroll-hint-hand {
@@ -170,7 +154,7 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
           animation: scroll-hint-hand 1.5s ease-in-out infinite;
         }
       `}</style>
-    </div>
+    </Dialog>
   );
 };
 

@@ -11,6 +11,8 @@ import { useTranslation } from '../i18n';
 import TurnstileWidget from '../components/TurnstileWidget';
 import FileThumbnail from '../components/FileThumbnail';
 import FilePreviewModal from '../components/FilePreviewModal';
+import { Button } from '../components/ui/button';
+import { cn } from 'lib/utils';
 
 const UploadPage: React.FC = () => {
   const navigate = useNavigate();
@@ -378,14 +380,14 @@ const UploadPage: React.FC = () => {
     <div>
       <div className="max-w-4xl mx-auto px-4 py-12 md:pb-32">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-[#EDEDED] mb-3">{t('upload.title')}</h1>
-          <p className="text-lg text-gray-600 dark:text-[#888888]">{t('upload.subtitle')}</p>
+          <h1 className="text-4xl font-bold text-foreground mb-3">{t('upload.title')}</h1>
+          <p className="text-lg text-muted-foreground">{t('upload.subtitle')}</p>
         </div>
 
         <div className="mb-10">
-          <div className="relative flex gap-1.5 w-full max-w-md bg-gray-100 dark:bg-[#0B0A0B] rounded-xl p-1.5">
+          <div className="relative flex gap-1.5 w-full max-w-md bg-muted dark:bg-card rounded-xl p-1.5">
             <div
-              className="absolute top-1.5 h-[calc(100%-12px)] bg-white dark:bg-[#222222] rounded-lg transition-all duration-200 ease-out"
+              className="absolute top-1.5 h-[calc(100%-12px)] bg-card dark:bg-[#222222] rounded-lg transition-all duration-200 ease-out"
               style={{
                 width: 'calc(50% - 9px)',
                 left: transferType === 'server' ? '6px' : 'calc(50% + 3px)',
@@ -395,11 +397,12 @@ const UploadPage: React.FC = () => {
             <button
               type="button"
               onClick={() => handleTransferTypeChange('server')}
-              className={`relative z-10 flex-1 px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
+              className={cn(
+                'relative z-10 flex-1 px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200',
                 transferType === 'server'
-                  ? 'text-gray-900 dark:text-[#EDEDED]'
-                  : 'text-gray-600 dark:text-[#888888] hover:bg-gray-200/50 dark:hover:bg-white/5 hover:text-gray-800 dark:hover:text-[#EDEDED]'
-              }`}
+                  ? 'text-foreground'
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+              )}
             >
               {t('upload.serverTransfer')}
             </button>
@@ -407,11 +410,12 @@ const UploadPage: React.FC = () => {
               ref={p2pButtonRef}
               type="button"
               onClick={() => handleTransferTypeChange('p2p')}
-              className={`relative z-10 flex-1 px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200 ${
+              className={cn(
+                'relative z-10 flex-1 px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200',
                 transferType === 'p2p'
-                  ? 'text-gray-900 dark:text-[#EDEDED]'
-                  : 'text-gray-600 dark:text-[#888888] hover:bg-gray-200/50 dark:hover:bg-white/5 hover:text-gray-800 dark:hover:text-[#EDEDED]'
-              }`}
+                  ? 'text-foreground'
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+              )}
             >
               {t('upload.p2pTransfer')}
             </button>
@@ -419,42 +423,42 @@ const UploadPage: React.FC = () => {
             {p2pTooltipMounted && (
               <div
                 ref={tooltipRef}
-                className={`absolute bg-white dark:bg-[#1A1A1A] border border-gray-200 dark:border-white/10 rounded-xl shadow-lg p-4 text-sm text-gray-700 dark:text-[#888888] z-50 transition-all duration-300 break-keep
-                  ${tooltipPosition === 'bottom'
+                className={cn(
+                  'absolute bg-popover border border-border rounded-xl shadow-lg p-4 text-sm text-muted-foreground z-50 transition-all duration-300 break-keep',
+                  tooltipPosition === 'bottom'
                     ? 'top-full left-0 right-0 mt-3'
-                    : 'top-1/2 left-full w-[32rem] ml-3 -translate-y-1/2'
-                  }
-                  ${p2pTooltipVisible ? 'opacity-100' : 'opacity-0'}
-                `}
+                    : 'top-1/2 left-full w-[32rem] ml-3 -translate-y-1/2',
+                  p2pTooltipVisible ? 'opacity-100' : 'opacity-0'
+                )}
               >
                 {tooltipPosition === 'bottom' && (
-                  <div className="absolute -top-[7px] right-[25%] w-3.5 h-3.5 bg-white dark:bg-[#1A1A1A] border-l border-t border-gray-200 dark:border-white/10 transform rotate-45" />
+                  <div className="absolute -top-[7px] right-[25%] w-3.5 h-3.5 bg-popover border-l border-t border-border transform rotate-45" />
                 )}
                 {tooltipPosition === 'right' && (
-                  <div className="absolute top-1/2 -left-[7px] -translate-y-1/2 w-3.5 h-3.5 bg-white dark:bg-[#1A1A1A] border-l border-b border-gray-200 dark:border-white/10 transform rotate-45" />
+                  <div className="absolute top-1/2 -left-[7px] -translate-y-1/2 w-3.5 h-3.5 bg-popover border-l border-b border-border transform rotate-45" />
                 )}
-                <p className="font-semibold text-blue-600 mb-2 flex items-center gap-1">
-                  <InformationCircleIcon className="w-5 h-5 text-blue-600" />
+                <p className="font-semibold text-primary mb-2 flex items-center gap-1">
+                  <InformationCircleIcon className="w-5 h-5 text-primary" />
                   {t('upload.p2pNotice')}
                 </p>
                 <p className="mb-1 flex"><span className="flex-shrink-0 mr-1.5">•</span><span>{t('upload.p2pBullet1')}</span></p>
                 <p className="mb-1 flex"><span className="flex-shrink-0 mr-1.5">•</span><span>{t('upload.p2pBullet2')}</span></p>
                 <p className="mb-3 flex"><span className="flex-shrink-0 mr-1.5">•</span><span>{t('upload.p2pBullet3')}</span></p>
-                <div className="border-t border-gray-100 dark:border-white/10 pt-3 px-1 flex items-center justify-between">
+                <div className="border-t border-border pt-3 px-1 flex items-center justify-between">
                   <button
                     type="button"
                     onClick={() => handleDismissP2PTooltip(true)}
-                    className="text-xs text-gray-400 dark:text-[#666666] hover:text-gray-600 dark:hover:text-[#888888] underline underline-offset-2 transition-colors"
+                    className="text-xs text-muted-foreground/60 hover:text-muted-foreground underline underline-offset-2 transition-colors"
                   >
                     {t('upload.dontShowAgain')}
                   </button>
-                  <button
-                    type="button"
+                  <Button
+                    size="sm"
                     onClick={() => closeP2PTooltip()}
-                    className="px-5 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+                    className="px-5 text-xs font-semibold"
                   >
                     {t('common.confirm')}
-                  </button>
+                  </Button>
                 </div>
               </div>
             )}
@@ -464,38 +468,37 @@ const UploadPage: React.FC = () => {
         <div className="mb-10">
           <div
             {...getRootProps()}
-            className={`border-2 border-dashed rounded-2xl cursor-pointer transition-colors h-[calc(100vw-2rem)] md:h-[30rem] ${
+            className={cn(
+              'border-2 border-dashed rounded-2xl cursor-pointer transition-colors h-[calc(100vw-2rem)] md:h-[30rem]',
               isDragActive
-                ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10'
-                : 'border-gray-300 bg-white hover:border-gray-400 dark:border-white/15 dark:bg-[#0B0A0B] dark:hover:border-white/25'
-            } ${files.length > 0 ? 'p-4 md:p-6 flex flex-col' : 'p-6 md:p-16 text-center'}`}
+                ? 'border-primary bg-primary/5'
+                : 'border-input bg-card hover:border-muted-foreground/30',
+              files.length > 0 ? 'p-4 md:p-6 flex flex-col' : 'p-6 md:p-16 text-center'
+            )}
           >
             <input {...getInputProps()} />
 
             {files.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full">
-                <div className="w-14 h-14 md:w-20 md:h-20 bg-blue-100 dark:bg-blue-500/15 rounded-2xl flex items-center justify-center mx-auto mb-3 md:mb-6">
-                  <DocumentIcon className="w-7 h-7 md:w-10 md:h-10 text-blue-600" />
+                <div className="w-14 h-14 md:w-20 md:h-20 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-3 md:mb-6">
+                  <DocumentIcon className="w-7 h-7 md:w-10 md:h-10 text-primary" />
                 </div>
-                <p className="text-sm md:text-xl font-semibold text-gray-900 dark:text-[#EDEDED] mb-1 md:mb-2">
+                <p className="text-sm md:text-xl font-semibold text-foreground mb-1 md:mb-2">
                   {t('upload.dropzoneText', { action: transferType === 'p2p' ? t('upload.dropzoneActionTransfer') : t('upload.dropzoneActionUpload') })}
                 </p>
                 {transferType !== 'p2p' && (
-                  <p className="text-xs md:text-sm text-gray-500 dark:text-[#888888] mb-3 md:mb-6">
+                  <p className="text-xs md:text-sm text-muted-foreground mb-3 md:mb-6">
                     {t('upload.maxSizeNotice')}
                   </p>
                 )}
                 {transferType === 'p2p' && <div className="mb-3 md:mb-6" />}
-                <button
-                  type="button"
-                  className="px-6 py-2 md:px-8 md:py-3 bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-[#EDEDED] text-sm md:text-base font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-white/15 transition-colors"
-                >
+                <Button variant="secondary" className="px-6 py-2 md:px-8 md:py-3 h-auto rounded-lg">
                   {t('upload.selectFiles')}
-                </button>
+                </Button>
               </div>
             ) : (
               <>
-                <h3 className="font-semibold text-gray-900 dark:text-[#EDEDED] mt-0.5 md:mt-0 mb-3.5 md:mb-4 flex-shrink-0">{t('upload.selectedFiles', { count: files.length })}</h3>
+                <h3 className="font-semibold text-foreground mt-0.5 md:mt-0 mb-3.5 md:mb-4 flex-shrink-0">{t('upload.selectedFiles', { count: files.length })}</h3>
                 <div className="flex-1 overflow-y-auto space-y-2 min-h-0">
                   {files.map((file, index) => (
                     <div
@@ -504,26 +507,26 @@ const UploadPage: React.FC = () => {
                         e.stopPropagation();
                         setPreviewFile(file);
                       }}
-                      className="flex items-center justify-between p-3.5 bg-gray-100 dark:bg-white/5 rounded-lg md:hover:bg-gray-200/70 dark:md:hover:bg-white/10 transition-colors cursor-pointer"
+                      className="flex items-center justify-between p-3.5 bg-muted rounded-lg md:hover:bg-accent transition-colors cursor-pointer"
                     >
                       <div className="flex items-center space-x-3 flex-1 min-w-0">
                         <FileThumbnail source={file} fileName={file.name} size="sm" />
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-gray-900 dark:text-[#EDEDED] truncate">{file.name}</p>
-                          <p className="text-xs text-gray-500 dark:text-[#888888]">{formatFileSize(file.size)}</p>
+                          <p className="text-sm font-medium text-foreground truncate">{file.name}</p>
+                          <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
                         </div>
                       </div>
                       <button
                         onClick={(e) => { e.stopPropagation(); removeFile(index); }}
-                        className="ml-2 p-1 hover:bg-gray-200 dark:hover:bg-white/10 rounded"
+                        className="ml-2 p-1 hover:bg-accent rounded"
                       >
-                        <XMarkIcon className="w-5 h-5 text-gray-500 dark:text-[#888888]" />
+                        <XMarkIcon className="w-5 h-5 text-muted-foreground" />
                       </button>
                     </div>
                   ))}
                   <button
                     type="button"
-                    className="w-full p-3.5 border-2 border-dashed border-gray-300 dark:border-white/15 rounded-lg flex items-center justify-center text-gray-400 dark:text-[#666666] hover:text-gray-600 dark:hover:text-[#888888] hover:border-gray-400 dark:hover:border-white/25 transition-colors"
+                    className="w-full p-3.5 border-2 border-dashed border-input rounded-lg flex items-center justify-center text-muted-foreground/50 hover:text-muted-foreground hover:border-muted-foreground/30 transition-colors"
                   >
                     <PlusIcon className="w-6 h-6" />
                   </button>
@@ -534,19 +537,19 @@ const UploadPage: React.FC = () => {
         </div>
 
         {isProcessingFiles && (
-          <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-200 dark:border-blue-500/30">
-            <p className="text-sm font-medium text-gray-700 dark:text-[#EDEDED]">{t('upload.processingFiles')}</p>
+          <div className="mb-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
+            <p className="text-sm font-medium text-foreground">{t('upload.processingFiles')}</p>
           </div>
         )}
 
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-[#EDEDED] mb-8">{t('upload.transferSettings')}</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-8">{t('upload.transferSettings')}</h2>
 
           {transferType !== 'p2p' && (
             <div className="mb-8">
-              <h3 className={`text-base font-semibold text-gray-900 dark:text-[#EDEDED] ${!isAuthenticated ? 'mb-1' : 'mb-4'}`}>{t('upload.expiration')}</h3>
+              <h3 className={cn('text-base font-semibold text-foreground', !isAuthenticated ? 'mb-1' : 'mb-4')}>{t('upload.expiration')}</h3>
               {!isAuthenticated && (
-                <p className="mb-4 text-sm text-gray-500 dark:text-[#888888]">
+                <p className="mb-4 text-sm text-muted-foreground">
                   {t('upload.loginRequired')}
                 </p>
               )}
@@ -556,11 +559,13 @@ const UploadPage: React.FC = () => {
                     key={option.value}
                     onClick={() => setExpiration(option.value)}
                     disabled={!isAuthenticated && option.value !== 'five_minutes'}
-                    className={`px-4 py-2 md:px-6 md:py-3 rounded-xl text-sm md:text-base font-medium transition-colors ${
+                    className={cn(
+                      'px-4 py-2 md:px-6 md:py-3 rounded-xl text-sm md:text-base font-medium transition-colors',
                       expiration === option.value
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 dark:bg-white/5 text-gray-700 dark:text-[#EDEDED] hover:bg-gray-200 dark:hover:bg-white/10'
-                    } ${!isAuthenticated && option.value !== 'five_minutes' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted text-foreground hover:bg-accent',
+                      !isAuthenticated && option.value !== 'five_minutes' && 'opacity-50 cursor-not-allowed'
+                    )}
                   >
                     {option.label}
                   </button>
@@ -579,20 +584,21 @@ const UploadPage: React.FC = () => {
                       />
                       <div
                         onClick={() => setIsOneTime(!isOneTime)}
-                        className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors cursor-pointer ${
+                        className={cn(
+                          'w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors cursor-pointer',
                           isOneTime
-                            ? 'bg-blue-600 border-blue-600'
-                            : 'border-gray-300 dark:border-white/15 bg-white dark:bg-[#0B0A0B]'
-                        }`}
+                            ? 'bg-primary border-primary'
+                            : 'border-input bg-card'
+                        )}
                       >
                         {isOneTime && (
-                          <CheckIcon className="w-4 h-4 text-white" strokeWidth={3} />
+                          <CheckIcon className="w-4 h-4 text-primary-foreground" strokeWidth={3} />
                         )}
                       </div>
                     </div>
                     <span
                       onClick={() => setIsOneTime(!isOneTime)}
-                      className="ml-2.5 text-base font-medium cursor-pointer text-gray-900 dark:text-[#EDEDED]"
+                      className="ml-2.5 text-base font-medium cursor-pointer text-foreground"
                     >
                       {t('upload.oneTimeDownload')}
                     </span>
@@ -603,8 +609,8 @@ const UploadPage: React.FC = () => {
           )}
 
           <div className="mb-8">
-            <h3 className="text-base font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
-              {t('upload.password')} <span className="text-sm text-gray-400 dark:text-[#666666] font-normal">{t('common.optional')}</span>
+            <h3 className="text-base font-semibold text-foreground mb-4">
+              {t('upload.password')} <span className="text-sm text-muted-foreground/60 font-normal">{t('common.optional')}</span>
             </h3>
             <div className="relative">
               <input
@@ -613,13 +619,13 @@ const UploadPage: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={!isAuthenticated}
                 placeholder={isAuthenticated ? t('upload.passwordPlaceholder') : t('upload.passwordPlaceholderDisabled')}
-                className="w-full px-4 py-3 pr-12 border border-gray-300 dark:border-white/15 dark:bg-[#0B0A0B] dark:text-[#EDEDED] dark:placeholder-[#666666] rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500/50 focus:border-transparent disabled:bg-gray-200 disabled:text-gray-400 dark:disabled:bg-white/5 dark:disabled:text-[#666666]"
+                className="w-full px-4 py-3 pr-12 border border-input bg-card text-foreground placeholder:text-muted-foreground/50 rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent disabled:bg-muted disabled:text-muted-foreground"
               />
               {isAuthenticated ? (
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-500 dark:text-[#888888] hover:text-gray-700 dark:hover:text-[#EDEDED]"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
                 >
                   {showPassword ? (
                     <EyeIcon className="w-5 h-5" />
@@ -629,7 +635,7 @@ const UploadPage: React.FC = () => {
                 </button>
               ) : (
                 <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                  <svg className="w-5 h-5 text-gray-400 dark:text-[#666666]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
@@ -638,50 +644,50 @@ const UploadPage: React.FC = () => {
           </div>
 
           <div>
-            <h3 className="text-base font-semibold text-gray-900 dark:text-[#EDEDED] mb-4">
-              {t('upload.description')} <span className="text-sm text-gray-400 dark:text-[#666666] font-normal">{t('common.optional')}</span>
+            <h3 className="text-base font-semibold text-foreground mb-4">
+              {t('upload.description')} <span className="text-sm text-muted-foreground/60 font-normal">{t('common.optional')}</span>
             </h3>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder={t('upload.descriptionPlaceholder')}
               rows={4}
-              className="w-full px-4 py-3 border border-gray-300 dark:border-white/15 dark:bg-[#0B0A0B] dark:text-[#EDEDED] dark:placeholder-[#666666] rounded-lg focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500/50 focus:border-transparent resize-none"
+              className="w-full px-4 py-3 border border-input bg-card text-foreground placeholder:text-muted-foreground/50 rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent resize-none"
             />
           </div>
         </div>
 
         <div className="mt-7">
           {isUploading && transferType !== 'p2p' ? (
-            <div className="bg-blue-50 dark:bg-blue-500/10 rounded-xl px-4 py-4">
+            <div className="bg-primary/5 rounded-xl px-4 py-4">
               <div className="flex items-center gap-2">
                 <div className="flex-1 pl-2">
                   <div className="flex justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700 dark:text-[#EDEDED] self-start">
+                    <span className="text-sm font-medium text-foreground self-start">
                       {uploadProgress === 100 ? t('upload.pleaseWait') : t('upload.uploading')}
                     </span>
                     {uploadProgress < 100 && (
                       <div className="flex items-center gap-2 self-end">
                         {uploadTimeRemaining && (
-                          <span className="text-xs text-gray-500 dark:text-[#888888]">{uploadTimeRemaining}</span>
+                          <span className="text-xs text-muted-foreground">{uploadTimeRemaining}</span>
                         )}
-                        <span className="text-xs font-semibold text-blue-600">{uploadProgress}%</span>
+                        <span className="text-xs font-semibold text-primary">{uploadProgress}%</span>
                       </div>
                     )}
                   </div>
-                  <div className="bg-gray-200 dark:bg-white/10 rounded-full h-1.5 overflow-hidden">
+                  <div className="bg-secondary rounded-full h-1.5 overflow-hidden">
                     <div
-                      className="bg-blue-600 h-full transition-all duration-300 ease-out rounded-full"
+                      className="bg-primary h-full transition-all duration-300 ease-out rounded-full"
                       style={{ width: `${uploadProgress}%` }}
                     />
                   </div>
                 </div>
                 <button
                   onClick={handleCancelUpload}
-                  className="p-1 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded transition-colors flex-shrink-0"
+                  className="p-1 hover:bg-primary/10 rounded transition-colors flex-shrink-0"
                   title={t('upload.cancelUpload')}
                 >
-                  <XMarkIcon className="w-6 h-6 text-gray-600 dark:text-[#888888]" />
+                  <XMarkIcon className="w-6 h-6 text-muted-foreground" />
                 </button>
               </div>
             </div>
@@ -701,13 +707,13 @@ const UploadPage: React.FC = () => {
               </div>
 
               <div className="flex justify-center md:justify-end">
-                <button
+                <Button
                   onClick={handleUpload}
                   disabled={files.length === 0 || !turnstileToken || (isUploading && transferType === 'p2p')}
-                  className="w-full md:w-auto min-w-[120px] px-10 py-3 md:py-4 bg-blue-600 text-white text-lg font-semibold rounded-xl hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-white/10 dark:disabled:text-[#666666] disabled:cursor-not-allowed transition-colors"
+                  className="w-full md:w-auto min-w-[120px] px-10 py-3 md:py-4 text-lg font-semibold rounded-xl h-auto"
                 >
                   {isUploading && transferType === 'p2p' ? t('upload.requesting') : (transferType === 'p2p' ? t('upload.transfer') : t('common.upload'))}
-                </button>
+                </Button>
               </div>
             </div>
           )}

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useToast, setToastFunctions, Toast as ToastType } from '../context/ToastContext';
+import { cn } from 'lib/utils';
 
 const ToastIcon: React.FC<{ type: ToastType['type'] }> = ({ type }) => {
   const iconConfig = {
@@ -40,7 +41,7 @@ const ToastIcon: React.FC<{ type: ToastType['type'] }> = ({ type }) => {
   const config = iconConfig[type];
 
   return (
-    <div className={`w-6 h-6 rounded-full ${config.bgColor} flex items-center justify-center flex-shrink-0`}>
+    <div className={cn('w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0', config.bgColor)}>
       {config.icon}
     </div>
   );
@@ -174,13 +175,13 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
       onTouchEnd={handleTouchEnd}
     >
       <div
-        className="bg-white dark:bg-[#1A1A1A] dark:border dark:border-white/10 rounded-3xl pl-2.5 pr-4 py-2 flex items-center gap-2.5 max-w-full sm:max-w-[520px]"
+        className="bg-card dark:border dark:border-border rounded-3xl pl-2.5 pr-4 py-2 flex items-center gap-2.5 max-w-full sm:max-w-[520px]"
         style={{
           boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.12), 0 2px 8px -2px rgba(0, 0, 0, 0.08)',
         }}
       >
         <ToastIcon type={toast.type} />
-        <span className="text-gray-800 dark:text-[#EDEDED] text-sm font-medium">
+        <span className="text-foreground text-sm font-medium">
           {toast.message}
         </span>
       </div>
