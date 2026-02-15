@@ -36,15 +36,15 @@ const UploadProgressBar: React.FC<UploadProgressBarProps> = ({
   return (
     <div className="mt-7">
       {isUploading && transferType !== 'p2p' ? (
-        <div className="bg-muted rounded-xl border border-border px-4 py-4">
+        <div>
           <div className="flex items-center gap-2">
-            <div className="flex-1 pl-2">
+            <div className="flex-1">
               <div className="flex justify-between mb-2">
-                <span className="text-sm font-medium text-foreground self-start">
+                <span className="text-sm font-medium text-foreground">
                   {uploadProgress === 100 ? t('upload.pleaseWait') : t('upload.uploading')}
                 </span>
                 {uploadProgress < 100 && (
-                  <div className="flex items-center gap-2 self-end">
+                  <div className="flex items-center gap-2">
                     {uploadTimeRemaining && (
                       <span className="text-xs text-muted-foreground">{uploadTimeRemaining}</span>
                     )}
@@ -61,7 +61,7 @@ const UploadProgressBar: React.FC<UploadProgressBarProps> = ({
             </div>
             <button
               onClick={onCancelUpload}
-              className="p-1 hover:bg-primary/10 rounded transition-colors flex-shrink-0"
+              className="p-1 hover:bg-accent rounded transition-colors flex-shrink-0"
               title={t('upload.cancelUpload')}
             >
               <XMarkIcon className="w-6 h-6 text-muted-foreground" />
