@@ -74,7 +74,7 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                       e.stopPropagation();
                       onPreviewFile(file);
                     }}
-                    className="flex items-center justify-between p-3.5 bg-muted rounded-lg border border-foreground/8 md:hover:bg-accent transition-colors cursor-pointer"
+                    className="flex items-center justify-between p-3.5 bg-muted rounded-lg border border-foreground/[0.09] md:hover:bg-accent transition-colors cursor-pointer"
                   >
                     <div className="flex items-center space-x-3 flex-1 min-w-0">
                       <FileThumbnail source={file} fileName={file.name} size="sm" />

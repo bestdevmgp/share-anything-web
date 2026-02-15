@@ -489,7 +489,7 @@ const QuickAccess: React.FC = () => {
             ? 'border-primary bg-primary/5'
             : isFileDialogOpen
               ? 'border-input'
-              : 'border-foreground/8 can-hover:hover:border-foreground/40 active:border-foreground/40'
+              : 'border-foreground/[0.09] can-hover:hover:border-foreground/40 active:border-foreground/40'
         )}
       >
         <input {...getInputProps()} />
@@ -525,7 +525,7 @@ const QuickAccess: React.FC = () => {
               {uploadingFiles.map((uf) => (
                 <div
                   key={uf.id}
-                  className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/8"
+                  className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/[0.09]"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="flex-shrink-0 mr-3">
@@ -573,7 +573,7 @@ const QuickAccess: React.FC = () => {
               {files.map((file) => (
                 <div
                   key={file.id}
-                  className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/8 can-hover:hover:bg-accent active:bg-accent transition-colors"
+                  className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/[0.09] can-hover:hover:bg-accent active:bg-accent transition-colors"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div
