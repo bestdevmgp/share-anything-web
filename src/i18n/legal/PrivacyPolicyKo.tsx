@@ -27,6 +27,8 @@ const PrivacyPolicyKo: React.FC = () => (
                 <ul className="list-disc list-inside space-y-1 ml-4 mb-4">
                     <li>Google OAuth 로그인 시: 이메일 주소, 이름, 프로필 사진</li>
                     <li>Naver OAuth 로그인 시: 이메일 주소, 이름</li>
+                    <li>Kakao OAuth 로그인 시: 이메일 주소, 닉네임, 프로필 사진</li>
+                    <li>Apple OAuth 로그인 시: 이메일 주소, 이름</li>
                 </ul>
 
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">자동 수집 항목</h3>
@@ -35,11 +37,14 @@ const PrivacyPolicyKo: React.FC = () => (
                 </ul>
 
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">파일 관련 정보</h3>
-                <ul className="list-disc list-inside space-y-1 ml-4">
+                <ul className="list-disc list-inside space-y-1 ml-4 mb-4">
                     <li>업로드한 파일명, 파일 크기, 업로드 일시</li>
                     <li>공유 코드, 파일 유효기간</li>
                     <li>파일 비밀번호(암호화 저장)</li>
                 </ul>
+
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">P2P 보안 전송 관련</h3>
+                <p className="ml-4">P2P 보안 전송을 이용하는 경우, 파일은 서버에 저장되지 않으며 발신자와 수신자 간에 직접 전송됩니다. 회사는 P2P 전송 파일의 내용에 접근하지 않으며, 전송 이력(전송 일시, 파일 크기 등)만을 기록합니다.</p>
             </div>
         </section>
 
@@ -56,7 +61,7 @@ const PrivacyPolicyKo: React.FC = () => (
                 <li>서비스 이용 기록: 3개월 보관 후 파기</li>
             </ul>
 
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">관계 법령에 따른 보유</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">관계 법령에 따른 보유</h3>
             <ul className="list-disc list-inside space-y-1 ml-4">
                 <li>계약 또는 청약철회 등에 관한 기록: 5년 (전자상거래법)</li>
                 <li>소비자의 불만 또는 분쟁처리에 관한 기록: 3년 (전자상거래법)</li>
@@ -102,12 +107,20 @@ const PrivacyPolicyKo: React.FC = () => (
                         <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">OAuth 인증 서비스</td>
                     </tr>
                     <tr>
+                        <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">Kakao Corp.</td>
+                        <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">OAuth 인증 서비스</td>
+                    </tr>
+                    <tr>
+                        <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">Apple Inc.</td>
+                        <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">OAuth 인증 서비스</td>
+                    </tr>
+                    <tr>
                         <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">Amazon Web Services, Inc.</td>
                         <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">서버 호스팅</td>
                     </tr>
                     <tr>
                         <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">Cloudflare, Inc.</td>
-                        <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">파일 저장</td>
+                        <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">파일 저장, TURN 릴레이 서비스(P2P 보안 전송)</td>
                     </tr>
                     </tbody>
                 </table>
@@ -144,18 +157,18 @@ const PrivacyPolicyKo: React.FC = () => (
                 회사는 개인정보 보유기간의 경과, 처리목적 달성 등 개인정보가 불필요하게 되었을 때에는 지체없이 해당 개인정보를 파기합니다.
             </p>
 
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">파기 절차</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">파기 절차</h3>
             <p className="leading-relaxed mb-4">
                 불필요한 개인정보는 개인정보 보호책임자의 승인 절차를 거쳐 파기합니다.
             </p>
 
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">파기 방법</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">파기 방법</h3>
             <ul className="list-disc list-inside space-y-1 ml-4 mb-4">
                 <li>전자적 파일: 복구 및 재생이 불가능한 방법으로 영구 삭제</li>
                 <li>기록물, 인쇄물: 분쇄 또는 소각</li>
             </ul>
 
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">파일 자동 파기</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">파일 자동 파기</h3>
             <p className="leading-relaxed">
                 사용자가 업로드한 파일은 지정한 유효기간이 만료되면 자동으로 즉시 파기되며, 복구가 불가능합니다.
             </p>
@@ -170,7 +183,7 @@ const PrivacyPolicyKo: React.FC = () => (
             </p>
             <ul className="list-disc list-inside space-y-1 ml-4">
                 <li>관리적 조치: 내부관리계획 수립·시행, 직원 교육</li>
-                <li>기술적 조치: 비밀번호 암호화 저장, 해킹 등에 대비한 보안프로그램 설치 및 주기적 갱신, 접속기록의 보관 및 위변조 방지</li>
+                <li>기술적 조치: 비밀번호 암호화 저장, 해킹 등에 대비한 보안프로그램 설치 및 주기적 갱신, 접속기록의 보관 및 위변조 방지, P2P 보안 전송 시 종단간 암호화(E2E Encryption) 적용</li>
                 <li>물리적 조치: 전산실, 자료보관실 등의 접근통제</li>
             </ul>
         </section>
@@ -203,10 +216,10 @@ const PrivacyPolicyKo: React.FC = () => (
 
         <div className="mt-12 pt-8 border-t border-gray-200 dark:border-white/10">
             <p className="text-sm text-gray-600 dark:text-[#888888]">
-                공고일자: 2025년 11월 22일
+                공고일자: 2026년 2월 15일
             </p>
             <p className="text-sm text-gray-600 dark:text-[#888888]">
-                시행일자: 2025년 11월 22일
+                시행일자: 2026년 2월 15일
             </p>
         </div>
     </div>

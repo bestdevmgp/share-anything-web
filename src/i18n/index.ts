@@ -1,8 +1,11 @@
 import { useLanguage, Language } from '../context/LanguageContext';
 import ko from './ko.json';
 import en from './en.json';
+import ja from './ja.json';
+import zhCN from './zh-CN.json';
+import zhTW from './zh-TW.json';
 
-const translations: Record<Language, Record<string, Record<string, string>>> = { ko, en };
+const translations: Record<Language, Record<string, Record<string, string>>> = { ko, en, ja, 'zh-CN': zhCN, 'zh-TW': zhTW };
 
 export function translate(language: Language, key: string, params?: Record<string, string | number>): string {
   const [scope, ...rest] = key.split('.');

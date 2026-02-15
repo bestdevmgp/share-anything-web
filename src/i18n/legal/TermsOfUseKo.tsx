@@ -20,6 +20,8 @@ const TermsOfUseKo: React.FC = () => (
                 <li>"이용자"란 본 약관에 따라 회사가 제공하는 서비스를 이용하는 자를 말합니다.</li>
                 <li>"공유 코드"란 업로드된 파일을 다운로드하기 위해 생성되는 고유 식별 코드를 의미합니다.</li>
                 <li>"유효기간"이란 이용자가 파일 업로드 시 설정한 파일의 보관 기간을 의미합니다.</li>
+                <li>"P2P 보안 전송"이란 WebRTC 기술을 기반으로 발신자와 수신자 간에 파일을 직접 전송하는 종단간 암호화 전송 방식을 의미합니다.</li>
+                <li>"TURN 서버"란 P2P 직접 연결이 불가능한 네트워크 환경에서 종단간 암호화된 파일 전송을 중계하는 Cloudflare Realtime TURN 서버를 의미합니다.</li>
             </ul>
         </section>
 
@@ -40,7 +42,7 @@ const TermsOfUseKo: React.FC = () => (
                 제4조 (회원가입)
             </h2>
             <ul className="list-decimal list-inside space-y-2 ml-4">
-                <li>서비스 이용을 원하는 자는 Google 또는 Naver OAuth 인증을 통해 회원가입을 신청합니다.</li>
+                <li>서비스 이용을 원하는 자는 Google, Naver, Kakao 또는 Apple OAuth 인증을 통해 회원가입을 신청합니다.</li>
                 <li>회사는 다음 각 호에 해당하는 신청에 대하여는 승인을 하지 않거나 사후에 이용계약을 해지할 수 있습니다.
                     <ul className="list-disc list-inside space-y-1 ml-8 mt-2">
                         <li>타인의 정보를 도용한 경우</li>
@@ -63,6 +65,8 @@ const TermsOfUseKo: React.FC = () => (
                         <li>공유 코드를 통한 파일 다운로드</li>
                         <li>파일 비밀번호 설정 기능</li>
                         <li>파일 유효기간 설정 기능</li>
+                        <li>P2P 보안 전송: WebRTC 기반의 종단간 암호화 직접 파일 전송</li>
+                        <li>TURN 릴레이: P2P 직접 연결이 불가능한 경우 Cloudflare TURN 서버를 통한 종단간 암호화 파일 중계 전송</li>
                     </ul>
                 </li>
                 <li>회사는 컴퓨터 등 정보통신설비의 보수점검, 교체 및 고장, 통신두절 또는 운영상 상당한 이유가 있는 경우 서비스의 제공을 일시적으로 중단할 수 있습니다.</li>
@@ -176,7 +180,7 @@ const TermsOfUseKo: React.FC = () => (
         <div className="mt-12 pt-8 border-t border-gray-200 dark:border-white/10">
             <p className="text-sm text-gray-600 dark:text-[#888888] font-semibold mb-2">부칙</p>
             <p className="text-sm text-gray-600 dark:text-[#888888]">
-                본 약관은 2025년 11월 22일부터 적용됩니다.
+                본 약관은 2026년 2월 15일부터 적용됩니다.
             </p>
         </div>
     </div>

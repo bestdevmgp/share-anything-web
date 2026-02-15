@@ -20,6 +20,8 @@ const TermsOfUseEn: React.FC = () => (
                 <li>"User" refers to a person who uses the Service provided by the Company in accordance with these Terms.</li>
                 <li>"Share Code" refers to a unique identification code generated for downloading uploaded files.</li>
                 <li>"Expiration Period" refers to the file retention period set by the User when uploading a file.</li>
+                <li>"P2P Secure Transfer" refers to an end-to-end encrypted transfer method that directly transfers files between the sender and receiver based on WebRTC technology.</li>
+                <li>"TURN Server" refers to the Cloudflare Realtime TURN server that relays end-to-end encrypted file transfers in network environments where direct P2P connection is not possible.</li>
             </ul>
         </section>
 
@@ -40,7 +42,7 @@ const TermsOfUseEn: React.FC = () => (
                 Article 4 (Membership Registration)
             </h2>
             <ul className="list-decimal list-inside space-y-2 ml-4">
-                <li>Those who wish to use the Service shall apply for membership registration through Google or Naver OAuth authentication.</li>
+                <li>Those who wish to use the Service shall apply for membership registration through Google, Naver, Kakao, or Apple OAuth authentication.</li>
                 <li>The Company may refuse to approve or subsequently terminate the service agreement for applications that fall under any of the following:
                     <ul className="list-disc list-inside space-y-1 ml-8 mt-2">
                         <li>Using another person's information fraudulently</li>
@@ -63,6 +65,8 @@ const TermsOfUseEn: React.FC = () => (
                         <li>File download via share code</li>
                         <li>File password protection feature</li>
                         <li>File expiration period setting feature</li>
+                        <li>P2P Secure Transfer: End-to-end encrypted direct file transfer based on WebRTC</li>
+                        <li>TURN Relay: End-to-end encrypted file relay transfer via Cloudflare TURN server when direct P2P connection is unavailable</li>
                     </ul>
                 </li>
                 <li>The Company may temporarily suspend the provision of the Service in cases of maintenance, replacement, or malfunction of information and communication facilities such as computers, network disruption, or other significant operational reasons.</li>
@@ -176,7 +180,7 @@ const TermsOfUseEn: React.FC = () => (
         <div className="mt-12 pt-8 border-t border-gray-200 dark:border-white/10">
             <p className="text-sm text-gray-600 dark:text-[#888888] font-semibold mb-2">Addendum</p>
             <p className="text-sm text-gray-600 dark:text-[#888888]">
-                These terms take effect from November 22, 2025.
+                These terms take effect from February 15, 2026.
             </p>
         </div>
     </div>

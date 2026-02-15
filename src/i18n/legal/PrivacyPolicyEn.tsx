@@ -27,6 +27,8 @@ const PrivacyPolicyEn: React.FC = () => (
                 <ul className="list-disc list-inside space-y-1 ml-4 mb-4">
                     <li>When logging in via Google OAuth: Email address, name, profile picture</li>
                     <li>When logging in via Naver OAuth: Email address, name</li>
+                    <li>When logging in via Kakao OAuth: Email address, nickname, profile picture</li>
+                    <li>When logging in via Apple OAuth: Email address, name</li>
                 </ul>
 
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">Automatically Collected Items</h3>
@@ -35,11 +37,14 @@ const PrivacyPolicyEn: React.FC = () => (
                 </ul>
 
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">File-Related Information</h3>
-                <ul className="list-disc list-inside space-y-1 ml-4">
+                <ul className="list-disc list-inside space-y-1 ml-4 mb-4">
                     <li>Uploaded file name, file size, upload date and time</li>
                     <li>Share code, file expiration period</li>
                     <li>File password (stored encrypted)</li>
                 </ul>
+
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">P2P Secure Transfer</h3>
+                <p className="ml-4">When using P2P secure transfer, files are not stored on the server and are transferred directly between the sender and receiver. The Company does not access the contents of P2P-transferred files and only records transfer metadata (transfer time, file size, etc.).</p>
             </div>
         </section>
 
@@ -56,7 +61,7 @@ const PrivacyPolicyEn: React.FC = () => (
                 <li>Service usage records: Destroyed after 3 months of retention</li>
             </ul>
 
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Retention Under Relevant Laws</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">Retention Under Relevant Laws</h3>
             <ul className="list-disc list-inside space-y-1 ml-4">
                 <li>Records of contracts or subscription withdrawal: 5 years (Act on Consumer Protection in Electronic Commerce)</li>
                 <li>Records of consumer complaints or dispute resolution: 3 years (Act on Consumer Protection in Electronic Commerce)</li>
@@ -102,12 +107,20 @@ const PrivacyPolicyEn: React.FC = () => (
                         <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">OAuth authentication service</td>
                     </tr>
                     <tr>
+                        <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">Kakao Corp.</td>
+                        <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">OAuth authentication service</td>
+                    </tr>
+                    <tr>
+                        <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">Apple Inc.</td>
+                        <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">OAuth authentication service</td>
+                    </tr>
+                    <tr>
                         <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">Amazon Web Services, Inc.</td>
                         <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">Server hosting</td>
                     </tr>
                     <tr>
                         <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">Cloudflare, Inc.</td>
-                        <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">File storage</td>
+                        <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">File storage, TURN relay service (P2P secure transfer)</td>
                     </tr>
                     </tbody>
                 </table>
@@ -144,18 +157,18 @@ const PrivacyPolicyEn: React.FC = () => (
                 The Company destroys personal information without delay when it becomes unnecessary, such as when the retention period has expired or the purpose of processing has been achieved.
             </p>
 
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Destruction Procedure</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">Destruction Procedure</h3>
             <p className="leading-relaxed mb-4">
                 Unnecessary personal information is destroyed after approval by the Personal Information Protection Officer.
             </p>
 
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Destruction Method</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">Destruction Method</h3>
             <ul className="list-disc list-inside space-y-1 ml-4 mb-4">
                 <li>Electronic files: Permanently deleted using methods that make recovery and reproduction impossible</li>
                 <li>Records and printed materials: Shredded or incinerated</li>
             </ul>
 
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Automatic File Destruction</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-[#EDEDED] mb-2">Automatic File Destruction</h3>
             <p className="leading-relaxed">
                 Files uploaded by users are automatically and immediately destroyed when the designated expiration period expires, and recovery is not possible.
             </p>
@@ -170,7 +183,7 @@ const PrivacyPolicyEn: React.FC = () => (
             </p>
             <ul className="list-disc list-inside space-y-1 ml-4">
                 <li>Administrative measures: Establishment and implementation of internal management plans, employee training</li>
-                <li>Technical measures: Encrypted storage of passwords, installation and periodic updates of security programs against hacking, retention and prevention of falsification of access logs</li>
+                <li>Technical measures: Encrypted storage of passwords, installation and periodic updates of security programs against hacking, retention and prevention of falsification of access logs, end-to-end encryption (E2E) applied for P2P secure transfers</li>
                 <li>Physical measures: Access control to server rooms, data storage facilities, etc.</li>
             </ul>
         </section>
@@ -203,10 +216,10 @@ const PrivacyPolicyEn: React.FC = () => (
 
         <div className="mt-12 pt-8 border-t border-gray-200 dark:border-white/10">
             <p className="text-sm text-gray-600 dark:text-[#888888]">
-                Announcement date: November 22, 2025
+                Announcement date: February 15, 2026
             </p>
             <p className="text-sm text-gray-600 dark:text-[#888888]">
-                Effective date: November 22, 2025
+                Effective date: February 15, 2026
             </p>
         </div>
     </div>

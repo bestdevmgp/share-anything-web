@@ -8,6 +8,9 @@ import { useTranslation } from '../i18n';
 const langOptions = [
   { key: 'ko' as const, label: '한국어' },
   { key: 'en' as const, label: 'English' },
+  { key: 'ja' as const, label: '日本語' },
+  { key: 'zh-CN' as const, label: '简体中文' },
+  { key: 'zh-TW' as const, label: '繁體中文' },
 ];
 
 const themeIcons: Record<string, React.ReactNode> = {
