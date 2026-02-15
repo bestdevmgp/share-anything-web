@@ -182,15 +182,15 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
           <div className="">
             {isP2PDownload ? (
               p2pStatus === 'downloading' || p2pStatus === 'connecting' ? (
-                <div className="bg-muted rounded-xl border border-border px-4 py-4">
+                <div>
                   <div className="flex items-center gap-2">
-                    <div className="flex-1 pl-2">
+                    <div className="flex-1">
                       <div className="flex justify-between mb-2">
-                        <span className="text-sm font-medium text-foreground self-start">
+                        <span className="text-sm font-medium text-foreground">
                           {p2pStatus === 'connecting' ? t('download.connectingP2P') : t('download.downloadingP2P')}
                         </span>
                         {p2pStatus === 'downloading' && (
-                          <div className="flex items-center gap-2 self-end">
+                          <div className="flex items-center gap-2">
                             {p2pTimeRemaining && (
                               <span className="text-xs text-muted-foreground">{p2pTimeRemaining}</span>
                             )}
@@ -199,7 +199,7 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
                         )}
                       </div>
                       {p2pStatus === 'downloading' && (
-                        <Progress value={p2pProgress} className="h-1.5 bg-muted" />
+                        <Progress value={p2pProgress} className="h-1.5 bg-secondary" />
                       )}
                     </div>
                     <button
@@ -226,15 +226,15 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
                 </Button>
               )
             ) : downloading ? (
-              <div className="bg-muted rounded-xl border border-border px-4 py-4">
+              <div>
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 pl-2">
+                  <div className="flex-1">
                     <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium text-foreground self-start">
+                      <span className="text-sm font-medium text-foreground">
                         {downloadProgress === 100 ? t('download.pleaseWait') : t('download.downloadingP2P')}
                       </span>
                       {downloadProgress < 100 && (
-                        <div className="flex items-center gap-2 self-end">
+                        <div className="flex items-center gap-2">
                           {downloadTimeRemaining && (
                             <span className="text-xs text-muted-foreground">{downloadTimeRemaining}</span>
                           )}
@@ -242,7 +242,7 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
                         </div>
                       )}
                     </div>
-                    <Progress value={downloadProgress} className="h-1.5 bg-muted" />
+                    <Progress value={downloadProgress} className="h-1.5 bg-secondary" />
                   </div>
                   <button
                     onClick={handleCancelDownload}

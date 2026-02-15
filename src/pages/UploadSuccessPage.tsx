@@ -174,7 +174,7 @@ const UploadSuccessPage: React.FC = () => {
             <label className="block text-sm font-medium text-muted-foreground mb-3 text-center">
               {t('uploadSuccess.transferCode')}
             </label>
-            <div className="relative bg-muted rounded-xl px-4 md:px-8 py-4 md:py-6 mb-4 border border-input">
+            <div className="relative bg-muted rounded-xl px-4 md:px-8 py-4 md:py-6 mb-4 border border-foreground/20">
               <p className="text-4xl md:text-5xl font-bold text-center text-foreground break-all" style={{ letterSpacing: '0.1em' }}>
                 {displayCode}
               </p>
@@ -212,7 +212,7 @@ const UploadSuccessPage: React.FC = () => {
                 type="text"
                 value={downloadUrl}
                 readOnly
-                className="w-full pr-12 bg-muted border-input rounded-lg text-sm text-foreground"
+                className="w-full pr-12 bg-muted border-foreground/20 rounded-lg text-sm text-foreground"
               />
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -273,15 +273,15 @@ const UploadSuccessPage: React.FC = () => {
 
                   if (isTransferring || p2pStatus === 'connected') {
                     return (
-                      <div className="bg-muted rounded-xl border border-border px-4 py-4">
+                      <div>
                         <div className="flex items-center gap-2">
-                          <div className="flex-1 pl-2">
+                          <div className="flex-1">
                             <div className="flex justify-between mb-2">
-                              <span className="text-sm font-medium text-muted-foreground self-start">
+                              <span className="text-sm font-medium text-muted-foreground">
                                 {isTransferring ? t('uploadSuccess.sending') : t('uploadSuccess.connecting')}
                               </span>
                               {isTransferring && (
-                                <div className="flex items-center gap-2 self-end">
+                                <div className="flex items-center gap-2">
                                   {progress?.timeRemaining && (
                                     <span className="text-xs text-muted-foreground">{progress.timeRemaining}</span>
                                   )}
@@ -292,7 +292,7 @@ const UploadSuccessPage: React.FC = () => {
                             {isTransferring && (
                               <Progress
                                 value={progress?.progress || 0}
-                                className="h-1.5 bg-muted"
+                                className="h-1.5 bg-secondary"
                               />
                             )}
                           </div>
@@ -316,7 +316,7 @@ const UploadSuccessPage: React.FC = () => {
                         {t('common.file')}
                       </label>
                       <div
-                        className="p-4 rounded-xl border-2 bg-muted border-border cursor-pointer hover:bg-accent transition-colors"
+                        className="p-4 rounded-xl border-2 bg-muted border-foreground/20 cursor-pointer hover:bg-accent transition-colors"
                         onClick={() => setPreviewFile(file)}
                       >
                         <div className="flex items-center space-x-3">
@@ -355,7 +355,7 @@ const UploadSuccessPage: React.FC = () => {
                             'p-4 rounded-xl border-2 transition-all',
                             isTransferring ? 'bg-accent border-primary' :
                             isCompleted ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30' :
-                            'bg-muted border-border cursor-pointer hover:bg-accent'
+                            'bg-muted border-foreground/20 cursor-pointer hover:bg-accent'
                           )}
                           onClick={() => {
                             if (!isTransferring && !isCompleted) setPreviewFile(file);

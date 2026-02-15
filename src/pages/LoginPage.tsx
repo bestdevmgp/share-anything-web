@@ -28,7 +28,7 @@ const LoginPage: React.FC = () => {
     return (
         <div className="flex items-center justify-center px-4 py-20">
             <div className="max-w-md w-full">
-                <Card className="rounded-3xl border-2 dark:bg-black dark:border-white/30 p-10">
+                <Card className="rounded-3xl border-2 p-10">
                     <CardContent className="p-0">
                         <div className="text-center mb-10">
                             <h1 className="text-4xl font-bold text-foreground mb-3">{t('login.welcome')}</h1>
@@ -40,7 +40,7 @@ const LoginPage: React.FC = () => {
                         <div className="space-y-4 mb-8">
                             <button
                                 onClick={handleGoogleLogin}
-                                className="w-full relative flex items-center justify-center px-6 py-3 bg-card border border-border rounded-lg hover:bg-accent transition-colors"
+                                className="w-full relative flex items-center justify-center px-6 py-3 bg-[#F2F2F2] dark:bg-[#131314] border border-border rounded-lg hover:bg-[#E8E8E8] dark:hover:bg-[#1f1f1f] transition-colors"
                             >
                                 <svg className="absolute left-4 w-5 h-5" viewBox="0 0 24 24">
                                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -48,7 +48,7 @@ const LoginPage: React.FC = () => {
                                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                                 </svg>
-                                <span className="text-foreground/80 font-medium text-sm">{t('login.continueWithGoogle')}</span>
+                                <span className="text-[#1F1F1F] dark:text-[#E3E3E3] font-medium text-sm">{t('login.continueWithGoogle')}</span>
                             </button>
 
                             <button

@@ -91,7 +91,7 @@ const HomePage: React.FC = () => {
                   }
                 }}
                 placeholder="123456"
-                className="w-full px-5 py-3 md:px-6 md:py-3 pr-12 border border-input bg-card text-foreground placeholder:text-muted-foreground/50 rounded-xl text-center font-mono text-base md:text-lg focus:ring-2 focus:ring-ring focus:border-transparent"
+                className="w-full px-5 py-3 md:px-6 md:py-3 pr-12 border border-input bg-card text-foreground placeholder:text-muted-foreground/50 rounded-xl text-center font-mono text-base md:text-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                 maxLength={6}
               />
               <Tooltip>

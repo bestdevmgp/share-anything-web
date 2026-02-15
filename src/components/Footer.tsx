@@ -33,7 +33,7 @@ const Footer: React.FC = () => {
   const currentLang = langOptions.find((o) => o.key === lang)!;
 
   return (
-    <footer className="bg-card dark:bg-background border-t border-border py-8">
+    <footer className="bg-card dark:bg-background border-t border-border/80 py-8">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-center items-center gap-8 mb-6">
           <a
@@ -97,7 +97,7 @@ const Footer: React.FC = () => {
           <Popover>
             <PopoverTrigger asChild>
               <button
-                className="flex items-center justify-between w-40 h-10 px-2.5 border border-border bg-card dark:bg-background text-muted-foreground hover:bg-accent transition-colors text-sm"
+                className="flex items-center justify-between w-40 h-10 px-2.5 border border-border bg-card  text-muted-foreground hover:bg-accent transition-colors text-sm"
               >
                 <div className="flex items-center gap-2">
                   <GlobeAltIcon className="w-4 h-4" />
@@ -106,7 +106,7 @@ const Footer: React.FC = () => {
                 <ChevronUpIcon className="w-3 h-3" />
               </button>
             </PopoverTrigger>
-            <PopoverContent side="top" align="start" className="w-40 p-0 rounded-none border border-border bg-card dark:bg-background">
+            <PopoverContent side="top" align="start" className="w-40 p-0 rounded-none border border-border bg-card ">
               <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('footer.language')}</div>
               {langOptions.map((option) => (
                 <button
@@ -129,13 +129,13 @@ const Footer: React.FC = () => {
           <Popover>
             <PopoverTrigger asChild>
               <button
-                className="flex items-center justify-between w-16 h-10 px-2.5 border border-border bg-card dark:bg-background text-muted-foreground hover:bg-accent transition-colors text-sm"
+                className="flex items-center justify-between w-16 h-10 px-2.5 border border-border bg-card  text-muted-foreground hover:bg-accent transition-colors text-sm"
               >
                 {themeIcons[theme]}
                 <ChevronUpIcon className="w-3 h-3" />
               </button>
             </PopoverTrigger>
-            <PopoverContent side="top" align="end" className="w-28 p-0 rounded-none border border-border bg-card dark:bg-background">
+            <PopoverContent side="top" align="end" className="w-28 p-0 rounded-none border border-border bg-card ">
               <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('footer.theme')}</div>
               {themeOptions.map((option) => (
                 <button

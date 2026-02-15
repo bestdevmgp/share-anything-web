@@ -53,7 +53,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
 
         <Card className="rounded-3xl border-2 p-10">
           {fileList.description && (
-            <div className="mb-8 p-4 bg-muted rounded-lg border border-border">
+            <div className="mb-8 p-4 bg-muted rounded-lg border border-foreground/20">
               <p className="text-foreground break-words whitespace-pre-wrap">{fileList.description}</p>
             </div>
           )}
@@ -91,7 +91,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                   'flex items-center space-x-4 p-4 rounded-xl cursor-pointer transition-all',
                   selectedFiles.has(file.id)
                     ? 'bg-accent border-2 border-primary'
-                    : 'bg-muted border-2 border-border hover:bg-accent'
+                    : 'bg-muted border-2 border-foreground/20 hover:bg-accent'
                 )}
               >
                 <div className="flex-shrink-0">
@@ -117,15 +117,15 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
 
           <div className="">
             {downloading ? (
-              <div className="bg-muted rounded-xl border border-border px-4 py-4">
+              <div>
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 pl-2">
+                  <div className="flex-1">
                     <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium text-foreground self-start">
+                      <span className="text-sm font-medium text-foreground">
                         {downloadProgress === 100 ? t('download.pleaseWait') : (downloadAsZip ? t('download.creatingZip') : t('download.downloadingP2P'))}
                       </span>
                       {downloadProgress < 100 && (
-                        <div className="flex items-center gap-2 self-end">
+                        <div className="flex items-center gap-2">
                           {downloadTimeRemaining && (
                             <span className="text-xs text-muted-foreground">{downloadTimeRemaining}</span>
                           )}
@@ -133,7 +133,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                         </div>
                       )}
                     </div>
-                    <Progress value={downloadProgress} className="h-1.5 bg-muted" />
+                    <Progress value={downloadProgress} className="h-1.5 bg-secondary" />
                   </div>
                   <button
                     onClick={handleCancelDownload}

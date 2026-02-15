@@ -101,7 +101,7 @@ const TransferSettings: React.FC<TransferSettingsProps> = ({
             onChange={(e) => onPasswordChange(e.target.value)}
             disabled={!isAuthenticated}
             placeholder={isAuthenticated ? t('upload.passwordPlaceholder') : t('upload.passwordPlaceholderDisabled')}
-            className="w-full px-4 py-3 pr-12 border border-input bg-card text-foreground placeholder:text-muted-foreground/50 rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent disabled:bg-muted disabled:text-muted-foreground"
+            className="w-full px-4 py-3 pr-12 border border-input bg-card text-foreground placeholder:text-muted-foreground/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:bg-muted disabled:text-muted-foreground"
           />
           {isAuthenticated ? (
             <button
@@ -134,7 +134,7 @@ const TransferSettings: React.FC<TransferSettingsProps> = ({
           onChange={(e) => onDescriptionChange(e.target.value)}
           placeholder={t('upload.descriptionPlaceholder')}
           rows={4}
-          className="w-full px-4 py-3 border border-input bg-card text-foreground placeholder:text-muted-foreground/50 rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent resize-none"
+          className="w-full px-4 py-3 border border-input bg-card text-foreground placeholder:text-muted-foreground/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent resize-none"
         />
       </div>
     </div>

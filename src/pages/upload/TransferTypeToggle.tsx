@@ -31,12 +31,12 @@ const TransferTypeToggle: React.FC<TransferTypeToggleProps> = ({
 
   return (
     <div className="mb-10">
-      <div className="relative flex gap-1.5 w-full max-w-md bg-muted dark:bg-card rounded-xl p-1.5">
+      <div className="relative flex w-full max-w-md bg-muted border border-border rounded-md">
         <div
-          className="absolute top-1.5 h-[calc(100%-12px)] bg-background ring-1 ring-black/15 dark:ring-white/40 rounded-lg transition-all duration-200 ease-out"
+          className="absolute top-0 h-full bg-card ring-1 ring-inset ring-black/15 dark:ring-white/40 rounded-md transition-all duration-200 ease-out"
           style={{
-            width: 'calc(50% - 9px)',
-            left: transferType === 'server' ? '6px' : 'calc(50% + 3px)',
+            width: '50%',
+            left: transferType === 'server' ? '0' : '50%',
           }}
         />
 
@@ -44,7 +44,7 @@ const TransferTypeToggle: React.FC<TransferTypeToggleProps> = ({
           type="button"
           onClick={() => onTransferTypeChange('server')}
           className={cn(
-            'relative z-10 flex-1 px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200',
+            'relative z-10 flex-1 px-6 py-3 rounded-md text-sm font-semibold transition-all duration-200',
             transferType === 'server'
               ? 'text-foreground'
               : 'text-muted-foreground hover:text-foreground'
@@ -57,7 +57,7 @@ const TransferTypeToggle: React.FC<TransferTypeToggleProps> = ({
           type="button"
           onClick={() => onTransferTypeChange('p2p')}
           className={cn(
-            'relative z-10 flex-1 px-6 py-3 rounded-lg text-sm font-semibold transition-all duration-200',
+            'relative z-10 flex-1 px-6 py-3 rounded-md text-sm font-semibold transition-all duration-200',
             transferType === 'p2p'
               ? 'text-foreground'
               : 'text-muted-foreground hover:text-foreground'

@@ -6,6 +6,7 @@ import { AuthResponse } from '../types';
 import { toast } from '../context/ToastContext';
 import { useTranslation } from '../i18n';
 import { Card, CardContent } from '../components/ui/card';
+import { Spinner } from '../components/ui/spinner';
 
 const OAuthCallbackPage: React.FC = () => {
   const navigate = useNavigate();
@@ -106,9 +107,9 @@ const OAuthCallbackPage: React.FC = () => {
     return (
       <div className="flex items-center justify-center px-4 py-20">
         <div className="max-w-md w-full text-center">
-          <Card className="rounded-3xl shadow-lg p-8">
+          <Card className="rounded-3xl border-2 dark:bg-black dark:border-white/30 p-8">
             <CardContent className="p-0">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-red-100 dark:bg-red-500/15 rounded-full border border-border flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
@@ -126,7 +127,7 @@ const OAuthCallbackPage: React.FC = () => {
   return (
     <div className="flex items-center justify-center py-20">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+        <Spinner size="xl" />
         <p className="mt-4 text-muted-foreground">{t('oauth.loggingIn')}</p>
       </div>
     </div>
