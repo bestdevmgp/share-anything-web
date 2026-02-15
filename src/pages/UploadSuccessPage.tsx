@@ -13,6 +13,8 @@ import { Card } from '../components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
 import { Input } from '../components/ui/input';
 import { Progress } from '../components/ui/progress';
+import { Spinner } from '../components/ui/spinner';
+import { Tooltip, TooltipTrigger, TooltipContent } from '../components/ui/tooltip';
 import { cn } from 'lib/utils';
 
 const UploadSuccessPage: React.FC = () => {
@@ -118,7 +120,7 @@ const UploadSuccessPage: React.FC = () => {
               'w-16 h-16 rounded-full flex items-center justify-center',
               !isP2PTransfer || allFilesCompleted || overallStatus === 'connected'
                 ? 'bg-green-100 dark:bg-green-500/15'
-                : 'bg-blue-100 dark:bg-blue-500/15'
+                : 'bg-muted border border-border'
             )}>
               {isP2PTransfer && !allFilesCompleted ? (
                 overallStatus === 'connected' ? (
@@ -127,7 +129,7 @@ const UploadSuccessPage: React.FC = () => {
                     <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
                   </svg>
                 ) : (
-                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+                  <Spinner size="xl" />
                 )
               ) : (
                 <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
@@ -176,19 +178,23 @@ const UploadSuccessPage: React.FC = () => {
               <p className="text-4xl md:text-5xl font-bold text-center text-foreground break-all" style={{ letterSpacing: '0.1em' }}>
                 {displayCode}
               </p>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleCopy(groupShareCode, 'code')}
-                className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2"
-                title={t('uploadSuccess.copyCode')}
-              >
-                {copiedField === 'code' ? (
-                  <CheckIcon className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
-                ) : (
-                  <ClipboardDocumentIcon className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
-                )}
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleCopy(groupShareCode, 'code')}
+                    className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2"
+                  >
+                    {copiedField === 'code' ? (
+                      <CheckIcon className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
+                    ) : (
+                      <ClipboardDocumentIcon className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{t('uploadSuccess.copyCode')}</TooltipContent>
+              </Tooltip>
             </div>
             {!isP2PTransfer && uploadResult.files[0]?.expires_at && (
               <p className="text-sm text-muted-foreground text-center">
@@ -208,19 +214,23 @@ const UploadSuccessPage: React.FC = () => {
                 readOnly
                 className="w-full pr-12 bg-muted border-input rounded-lg text-sm text-foreground"
               />
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleCopy(downloadUrl, 'link')}
-                className="absolute right-2 top-1/2 -translate-y-1/2"
-                title={t('uploadSuccess.copyLink')}
-              >
-                {copiedField === 'link' ? (
-                  <CheckIcon className="w-5 h-5 text-green-600" />
-                ) : (
-                  <ClipboardDocumentIcon className="w-5 h-5 text-muted-foreground" />
-                )}
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleCopy(downloadUrl, 'link')}
+                    className="absolute right-2 top-1/2 -translate-y-1/2"
+                  >
+                    {copiedField === 'link' ? (
+                      <CheckIcon className="w-5 h-5 text-green-600" />
+                    ) : (
+                      <ClipboardDocumentIcon className="w-5 h-5 text-muted-foreground" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{t('uploadSuccess.copyLink')}</TooltipContent>
+              </Tooltip>
             </div>
           </div>
 
@@ -263,7 +273,7 @@ const UploadSuccessPage: React.FC = () => {
 
                   if (isTransferring || p2pStatus === 'connected') {
                     return (
-                      <div className="bg-blue-50 dark:bg-blue-500/10 rounded-xl px-4 py-4">
+                      <div className="bg-muted rounded-xl border border-border px-4 py-4">
                         <div className="flex items-center gap-2">
                           <div className="flex-1 pl-2">
                             <div className="flex justify-between mb-2">
@@ -290,7 +300,7 @@ const UploadSuccessPage: React.FC = () => {
                             variant="ghost"
                             size="icon"
                             onClick={() => cancelTransfer(file.name)}
-                            className="flex-shrink-0 hover:bg-blue-100 dark:hover:bg-blue-500/20"
+                            className="flex-shrink-0 hover:bg-accent"
                             title={t('uploadSuccess.cancelTransfer')}
                           >
                             <XMarkIcon className="w-6 h-6 text-muted-foreground" />
@@ -306,7 +316,7 @@ const UploadSuccessPage: React.FC = () => {
                         {t('common.file')}
                       </label>
                       <div
-                        className="p-4 rounded-xl border-2 bg-muted border-transparent cursor-pointer hover:bg-accent transition-colors"
+                        className="p-4 rounded-xl border-2 bg-muted border-border cursor-pointer hover:bg-accent transition-colors"
                         onClick={() => setPreviewFile(file)}
                       >
                         <div className="flex items-center space-x-3">
@@ -343,9 +353,9 @@ const UploadSuccessPage: React.FC = () => {
                           key={file.name}
                           className={cn(
                             'p-4 rounded-xl border-2 transition-all',
-                            isTransferring ? 'bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30' :
+                            isTransferring ? 'bg-accent border-primary' :
                             isCompleted ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30' :
-                            'bg-muted border-transparent cursor-pointer hover:bg-accent'
+                            'bg-muted border-border cursor-pointer hover:bg-accent'
                           )}
                           onClick={() => {
                             if (!isTransferring && !isCompleted) setPreviewFile(file);
@@ -391,7 +401,7 @@ const UploadSuccessPage: React.FC = () => {
                                     variant="ghost"
                                     size="icon"
                                     onClick={() => cancelTransfer(file.name)}
-                                    className="h-8 w-8 hover:bg-blue-100 dark:hover:bg-blue-500/20"
+                                    className="h-8 w-8 hover:bg-accent"
                                     title={t('uploadSuccess.cancelTransfer')}
                                   >
                                     <XMarkIcon className="w-5 h-5 text-muted-foreground" />
@@ -428,7 +438,8 @@ const UploadSuccessPage: React.FC = () => {
         <div className="mt-10">
           <Button
             onClick={() => navigate('/')}
-            className="w-full px-8 py-3 md:py-4 h-auto text-lg font-semibold rounded-xl"
+            size="lg"
+            className="w-full"
           >
             {t('common.done')}
           </Button>
@@ -456,13 +467,13 @@ const UploadSuccessPage: React.FC = () => {
             <Button
               variant="outline"
               onClick={handleRetryP2P}
-              className="flex-1 py-3 h-auto font-medium rounded-xl"
+              className="flex-1"
             >
               {t('common.retry')}
             </Button>
             <Button
               onClick={handleSwitchToServerUpload}
-              className="flex-1 py-3 h-auto font-medium rounded-xl"
+              className="flex-1"
             >
               {t('common.switchBtn')}
             </Button>

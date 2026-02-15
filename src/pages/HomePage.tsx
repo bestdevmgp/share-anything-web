@@ -4,6 +4,7 @@ import { ArrowUpTrayIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import { useTranslation } from '../i18n';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
+import { Tooltip, TooltipTrigger, TooltipContent } from '../components/ui/tooltip';
 import QuickAccess from '../components/QuickAccess';
 
 const HomePage: React.FC = () => {
@@ -62,7 +63,7 @@ const HomePage: React.FC = () => {
             </p>
             <Button
               onClick={() => navigate('/upload')}
-              className="w-full max-w-sm md:max-w-xs px-5 py-3 md:px-10 md:py-3 text-base md:text-lg font-semibold rounded-xl h-auto"
+              className="w-full max-w-sm md:max-w-xs h-auto px-5 py-3 text-base md:text-lg font-semibold rounded-xl"
             >
               {t('home.uploadButton')}
             </Button>
@@ -93,20 +94,24 @@ const HomePage: React.FC = () => {
                 className="w-full px-5 py-3 md:px-6 md:py-3 pr-12 border border-input bg-card text-foreground placeholder:text-muted-foreground/50 rounded-xl text-center font-mono text-base md:text-lg focus:ring-2 focus:ring-ring focus:border-transparent"
                 maxLength={6}
               />
-              <button
-                onClick={handleDownload}
-                disabled={downloadCode.length !== 6}
-                className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-colors ${
-                  downloadCode.length === 6
-                    ? 'bg-primary text-primary-foreground hover:bg-primary/90'
-                    : 'bg-muted text-muted-foreground cursor-not-allowed'
-                }`}
-                title={t('home.downloadButton')}
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={handleDownload}
+                    disabled={downloadCode.length !== 6}
+                    className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-colors ${
+                      downloadCode.length === 6
+                        ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                        : 'bg-muted text-muted-foreground cursor-not-allowed'
+                    }`}
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{t('home.downloadButton')}</TooltipContent>
+              </Tooltip>
             </div>
           </Card>
         </div>

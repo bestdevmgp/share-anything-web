@@ -22,7 +22,6 @@ const NotFoundPage: React.FC = () => {
         </p>
         <Button
           onClick={() => navigate('/')}
-          className="px-6 py-2.5 rounded-lg font-semibold"
         >
           {t('notFound.goHome')}
         </Button>

@@ -5,6 +5,7 @@ import {
   isCsvFile, isExcelFile, isDocxFile, isPptxFile, isHwpFile
 } from '../utils/format';
 import { DocumentIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon, TableCellsIcon, PresentationChartBarIcon } from '@heroicons/react/24/outline';
+import { Spinner } from './ui/spinner';
 import { cn } from 'lib/utils';
 
 interface FileThumbnailProps {
@@ -32,7 +33,7 @@ const FileThumbnail: React.FC<FileThumbnailProps> = ({ source, fileName, size = 
   if (loading) {
     return (
       <div className={cn(boxClass, 'flex-shrink-0 bg-muted rounded flex items-center justify-center')}>
-        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary" />
+        <Spinner size="default" />
       </div>
     );
   }
@@ -93,8 +94,8 @@ const FileThumbnail: React.FC<FileThumbnailProps> = ({ source, fileName, size = 
 
   if (isDocxFile(fileName)) {
     return (
-      <div className={cn(boxClass, 'flex-shrink-0 bg-blue-50 dark:bg-blue-500/10 rounded flex items-center justify-center')}>
-        <DocumentTextIcon className={cn(iconClass, 'text-blue-600 dark:text-blue-400')} />
+      <div className={cn(boxClass, 'flex-shrink-0 bg-muted rounded flex items-center justify-center')}>
+        <DocumentTextIcon className={cn(iconClass, 'text-muted-foreground')} />
       </div>
     );
   }

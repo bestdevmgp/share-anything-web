@@ -16,6 +16,16 @@ import {
   DialogDescription,
 } from './ui/dialog';
 import { Button } from './ui/button';
+import { Spinner } from './ui/spinner';
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from './ui/table';
+import { Separator } from './ui/separator';
 
 interface FilePreviewModalProps {
   file: {
@@ -131,28 +141,28 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
 
   const renderTable = (data: string[][]) => (
     <div className="w-full overflow-auto max-h-[70vh]">
-      <table className="min-w-full text-sm border-collapse">
-        <thead className="sticky top-0">
-          <tr>
+      <Table className="min-w-full text-sm border-collapse">
+        <TableHeader className="sticky top-0">
+          <TableRow>
             {(data[0] || []).map((cell, i) => (
-              <th key={i} className="bg-muted border border-border px-3 py-2 text-left font-medium text-foreground whitespace-nowrap">
+              <TableHead key={i} className="bg-muted border border-border px-3 py-2 text-left font-medium text-foreground whitespace-nowrap h-auto">
                 {cell}
-              </th>
+              </TableHead>
             ))}
-          </tr>
-        </thead>
-        <tbody>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {data.slice(1).map((row, ri) => (
-            <tr key={ri} className="hover:bg-muted/50">
+            <TableRow key={ri} className="hover:bg-muted/50">
               {row.map((cell, ci) => (
-                <td key={ci} className="border border-border px-3 py-1.5 text-foreground whitespace-nowrap">
+                <TableCell key={ci} className="border border-border px-3 py-1.5 text-foreground whitespace-nowrap">
                   {cell}
-                </td>
+                </TableCell>
               ))}
-            </tr>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 
@@ -160,7 +170,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
     if (loading) {
       return (
         <div className="flex flex-col items-center py-16 text-muted-foreground">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mb-3" />
+          <Spinner size="xl" className="mb-3" />
           <p className="text-sm">{t('preview.loading')}</p>
         </div>
       );
@@ -278,10 +288,11 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden p-0">
-        <DialogHeader className="p-4 border-b border-border">
+        <DialogHeader className="p-4">
           <DialogTitle className="text-sm font-semibold truncate">{fileName}</DialogTitle>
           <DialogDescription className="text-xs">{formatFileSize(fileSize)}</DialogDescription>
         </DialogHeader>
+        <Separator />
         <div className="p-4 flex overflow-auto max-h-[calc(85vh-5rem)]">
           <div className="m-auto">
             {renderContent()}

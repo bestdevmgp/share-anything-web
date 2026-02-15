@@ -28,7 +28,7 @@ const LoginPage: React.FC = () => {
     return (
         <div className="flex items-center justify-center px-4 py-20">
             <div className="max-w-md w-full">
-                <Card className="rounded-3xl border-2 p-10">
+                <Card className="rounded-3xl border-2 dark:bg-black dark:border-white/30 p-10">
                     <CardContent className="p-0">
                         <div className="text-center mb-10">
                             <h1 className="text-4xl font-bold text-foreground mb-3">{t('login.welcome')}</h1>

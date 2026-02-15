@@ -11,6 +11,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from './ui/dialog';
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from './ui/table';
+import { Separator } from './ui/separator';
 
 interface DownloadLogsModalProps {
   fileId: string;
@@ -62,9 +71,10 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogContent className="max-w-4xl max-h-[80vh] p-0 overflow-hidden flex flex-col">
-        <DialogHeader className="px-4 pt-5 pb-4 sm:p-6 border-b border-border">
+        <DialogHeader className="px-4 pt-5 pb-4 sm:p-6">
           <DialogTitle>{t('downloadLogs.title')}</DialogTitle>
         </DialogHeader>
+        <Separator />
 
         <div className="flex-1 min-h-0 overflow-auto relative">
           {loading ? (
@@ -78,42 +88,42 @@ const DownloadLogsModal: React.FC<DownloadLogsModalProps> = ({ fileId, onClose }
           ) : (
             <div className="relative">
               <div ref={scrollContainerRef} className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-border">
-                  <thead className="bg-muted">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <Table className="min-w-full">
+                  <TableHeader className="bg-muted">
+                    <TableRow>
+                      <TableHead className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider h-auto">
                         {t('downloadLogs.downloader')}
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      </TableHead>
+                      <TableHead className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider h-auto">
                         {t('downloadLogs.ipAddress')}
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      </TableHead>
+                      <TableHead className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider h-auto">
                         {t('downloadLogs.platform')}
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                      </TableHead>
+                      <TableHead className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider h-auto">
                         {t('downloadLogs.downloadDate')}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-card divide-y divide-border">
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody className="bg-card">
                     {logs.map((log) => (
-                      <tr key={log.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
+                      <TableRow key={log.id}>
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
                           {log.downloader_name || t('common.anonymous')}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                        </TableCell>
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                           {log.ip_address}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                        </TableCell>
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                           {log.device_platform}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                        </TableCell>
+                        <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                           {formatDate(log.downloaded_at)}
-                        </td>
-                      </tr>
+                        </TableCell>
+                      </TableRow>
                     ))}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
               </div>
 
               {showScrollHint && (

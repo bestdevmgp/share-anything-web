@@ -5,6 +5,7 @@ import { ToastProvider } from './context/ToastContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
 import ToastContainer from './components/Toast';
+import { TooltipProvider } from './components/ui/tooltip';
 import './utils/pdfWorkerSetup';
 
 import HomePage from './pages/HomePage';
@@ -52,9 +53,11 @@ const App: React.FC = () => {
       <LanguageProvider>
         <AuthProvider>
           <ToastProvider>
-            <Router>
-              <AppContent />
-            </Router>
+            <TooltipProvider>
+              <Router>
+                <AppContent />
+              </Router>
+            </TooltipProvider>
           </ToastProvider>
         </AuthProvider>
       </LanguageProvider>

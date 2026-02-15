@@ -460,7 +460,6 @@ const QuickAccess: React.FC = () => {
         </p>
         <Button
           onClick={() => navigate('/signin')}
-          className="px-4 py-2 text-sm font-semibold rounded-xl"
         >
           {t('quickAccess.loginRequired')}
         </Button>
@@ -526,7 +525,7 @@ const QuickAccess: React.FC = () => {
               {uploadingFiles.map((uf) => (
                 <div
                   key={uf.id}
-                  className="flex items-center px-3 py-2.5 bg-muted rounded-lg"
+                  className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-border"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="flex-shrink-0 mr-3">
@@ -574,7 +573,7 @@ const QuickAccess: React.FC = () => {
               {files.map((file) => (
                 <div
                   key={file.id}
-                  className="flex items-center px-3 py-2.5 bg-muted rounded-lg can-hover:hover:bg-accent active:bg-accent transition-colors"
+                  className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-border can-hover:hover:bg-accent active:bg-accent transition-colors"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div
@@ -602,7 +601,7 @@ const QuickAccess: React.FC = () => {
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <button
                       onClick={() => handleDownload(file)}
-                      className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-blue-600 dark:can-hover:hover:text-blue-400 can-hover:hover:bg-blue-100 dark:can-hover:hover:bg-blue-500/20 active:text-blue-600 dark:active:text-blue-400 active:bg-blue-100 dark:active:bg-blue-500/20"
+                      className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-foreground can-hover:hover:bg-accent active:text-foreground active:bg-accent"
                       title={t('common.download')}
                     >
                       <ArrowDownTrayIcon className="w-5 h-5" />
