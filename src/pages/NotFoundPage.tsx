@@ -1,17 +1,22 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import Lottie from 'lottie-react';
 import { useTranslation } from '../i18n';
+import animationData from '../assets/lottie-404.json';
 
 const NotFoundPage: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
   return (
-    <div className="flex items-center justify-center px-4 py-20">
+    <div className="flex items-start justify-center px-4 pt-0 pb-[119px] md:pb-[169px]">
       <div className="text-center">
-        <h1 className="text-7xl font-bold text-gray-300 dark:text-white/15 mb-4">404</h1>
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-[#EDEDED] mb-2">Not Found</h2>
-        <p className="text-gray-600 dark:text-[#888888] mb-8">
+        <Lottie
+          animationData={animationData}
+          loop
+          className="w-80 md:w-96 mx-auto dark:invert -mt-[3px] md:-mt-1"
+        />
+        <p className="text-gray-600 dark:text-[#888888] mb-8 mt-2">
           {t('notFound.description')}
         </p>
         <button
