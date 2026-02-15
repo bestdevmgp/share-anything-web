@@ -1,6 +1,7 @@
 import React from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { Button } from '../../components/ui/button';
+import { Spinner } from '../../components/ui/spinner';
 import { useTranslation } from '../../i18n';
 import TurnstileWidget from '../../components/TurnstileWidget';
 
@@ -85,7 +86,7 @@ const UploadProgressBar: React.FC<UploadProgressBarProps> = ({
               size="lg"
               className="w-full md:w-auto min-w-[120px]"
             >
-              {isUploading && transferType === 'p2p' ? t('upload.requesting') : (transferType === 'p2p' ? t('upload.transfer') : t('common.upload'))}
+              {isUploading && transferType === 'p2p' ? <Spinner size="sm" className="text-primary-foreground" /> : (transferType === 'p2p' ? t('upload.transfer') : t('common.upload'))}
             </Button>
           </div>
         </div>

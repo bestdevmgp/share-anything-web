@@ -39,7 +39,7 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
             'border-2 border-dashed rounded-2xl cursor-pointer transition-colors h-[calc(100vw-2rem)] md:h-[30rem]',
             isDragActive
               ? 'border-primary bg-primary/5'
-              : 'border-input bg-card hover:border-muted-foreground/30',
+              : 'border-input bg-card hover:border-foreground/40',
             files.length > 0 ? 'p-4 md:p-6 flex flex-col' : 'p-6 md:p-16 text-center'
           )}
         >
@@ -74,7 +74,7 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                       e.stopPropagation();
                       onPreviewFile(file);
                     }}
-                    className="flex items-center justify-between p-3.5 bg-muted rounded-lg border border-foreground/20 md:hover:bg-accent transition-colors cursor-pointer"
+                    className="flex items-center justify-between p-3.5 bg-muted rounded-lg border border-foreground/8 md:hover:bg-accent transition-colors cursor-pointer"
                   >
                     <div className="flex items-center space-x-3 flex-1 min-w-0">
                       <FileThumbnail source={file} fileName={file.name} size="sm" />

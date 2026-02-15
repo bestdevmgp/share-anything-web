@@ -551,7 +551,7 @@ const DownloadFilePage: React.FC = () => {
 
           <Card className="rounded-3xl border-2 p-10">
             {fileList.description && (
-              <div className="mb-8 p-4 bg-muted rounded-lg border border-foreground/20">
+              <div className="mb-8 p-4 bg-muted rounded-lg border border-foreground/8">
                 <p className="text-foreground break-words whitespace-pre-wrap">{fileList.description}</p>
               </div>
             )}
@@ -573,7 +573,7 @@ const DownloadFilePage: React.FC = () => {
                     key={file.id}
                     className={cn(
                       'p-4 rounded-xl border-2 transition-all',
-                      isActive ? 'bg-accent border-primary' : 'bg-muted border-foreground/20'
+                      isActive ? 'bg-accent border-primary' : 'bg-muted border-foreground/8'
                     )}
                   >
                     <div className="flex items-center space-x-4">

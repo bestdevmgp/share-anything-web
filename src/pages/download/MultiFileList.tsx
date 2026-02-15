@@ -53,7 +53,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
 
         <Card className="rounded-3xl border-2 p-10">
           {fileList.description && (
-            <div className="mb-8 p-4 bg-muted rounded-lg border border-foreground/20">
+            <div className="mb-8 p-4 bg-muted rounded-lg border border-foreground/8">
               <p className="text-foreground break-words whitespace-pre-wrap">{fileList.description}</p>
             </div>
           )}
@@ -91,7 +91,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                   'flex items-center space-x-4 p-4 rounded-xl cursor-pointer transition-all',
                   selectedFiles.has(file.id)
                     ? 'bg-accent border-2 border-primary'
-                    : 'bg-muted border-2 border-foreground/20 hover:bg-accent'
+                    : 'bg-muted border-2 border-foreground/8 hover:bg-accent'
                 )}
               >
                 <div className="flex-shrink-0">
