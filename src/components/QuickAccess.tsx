@@ -445,7 +445,7 @@ const QuickAccess: React.FC = () => {
     });
   };
 
-  const CONTAINER_HEIGHT = 'h-[310px] md:h-[410px]';
+  const CONTAINER_HEIGHT = 'h-[315px] md:h-[411px]';
 
   if (!isAuthenticated) {
     return (
