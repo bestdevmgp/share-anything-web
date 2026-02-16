@@ -40,7 +40,7 @@ const TransferSettings: React.FC<TransferSettingsProps> = ({
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-foreground mb-8">{t('upload.transferSettings')}</h2>
+      <h2 className="text-2xl font-bold text-foreground mb-5">{t('upload.transferSettings')}</h2>
 
       {transferType !== 'p2p' && (
         <div className="mb-8">

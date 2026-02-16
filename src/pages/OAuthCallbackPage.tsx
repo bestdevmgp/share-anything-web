@@ -126,7 +126,7 @@ const OAuthCallbackPage: React.FC = () => {
 
   return (
     <div className="flex items-center justify-center py-20">
-      <div className="text-center">
+      <div className="flex flex-col items-center">
         <Spinner size="xl" />
         <p className="mt-4 text-muted-foreground">{t('oauth.loggingIn')}</p>
       </div>

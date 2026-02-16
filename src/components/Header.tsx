@@ -32,7 +32,7 @@ const Header: React.FC = () => {
                 <path
                     d="M120-160v-640l760 320-760 320Zm80-120 474-200-474-200v140l240 60-240 60v140Zm0 0v-400 400Z"/>
             </svg>
-            <h1 className="text-2xl font-bold text-foreground">ShareAnything</h1>
+            <h1 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Geist', sans-serif" }}>ShareAnything</h1>
           </Link>
 
           <div className="flex items-center space-x-2">
