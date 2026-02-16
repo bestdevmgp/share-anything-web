@@ -479,7 +479,7 @@ const QuickAccess: React.FC = () => {
         </div>
         <div className="flex-1 overflow-hidden px-4 md:px-5 space-y-2">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex items-center px-3 py-3 rounded-lg">
+            <div key={i} className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/[0.09]">
               <Skeleton className="h-10 w-10 rounded-lg flex-shrink-0 mr-3" />
               <div className="flex-1 min-w-0">
                 <Skeleton className="h-4 w-[90%] mb-1.5" />
