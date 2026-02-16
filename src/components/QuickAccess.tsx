@@ -480,7 +480,7 @@ const QuickAccess: React.FC = () => {
         <div className="flex-1 overflow-hidden px-4 md:px-5 pb-1 md:pb-1 mb-3 md:mb-4 flex flex-col gap-1.5 md:gap-2.5">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className={cn(
-              'flex items-center px-3 py-3.5 md:py-3 rounded-lg border border-foreground/[0.09]',
+              'flex items-center px-3 py-[13.5px] md:py-3 rounded-lg border border-foreground/[0.09]',
               i >= 3 && 'hidden md:flex'
             )}>
               <Skeleton className="h-10 w-10 rounded-lg flex-shrink-0 mr-3" />
