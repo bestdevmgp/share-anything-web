@@ -478,12 +478,12 @@ const QuickAccess: React.FC = () => {
           <Skeleton className="h-3 w-28" />
         </div>
         <div className="flex-1 px-4 md:px-5 space-y-2">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex items-center px-3 py-2.5 rounded-lg">
-              <Skeleton className="h-9 w-9 rounded-lg flex-shrink-0 mr-3" />
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="flex items-center px-3 py-3 rounded-lg">
+              <Skeleton className="h-10 w-10 rounded-lg flex-shrink-0 mr-3" />
               <div className="flex-1 min-w-0">
-                <Skeleton className="h-4 w-32 mb-1.5" />
-                <Skeleton className="h-3 w-16" />
+                <Skeleton className="h-4 w-full max-w-[80%] mb-1.5" />
+                <Skeleton className="h-3 w-20" />
               </div>
             </div>
           ))}
