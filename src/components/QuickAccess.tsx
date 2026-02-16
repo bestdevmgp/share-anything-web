@@ -445,7 +445,7 @@ const QuickAccess: React.FC = () => {
     });
   };
 
-  const CONTAINER_HEIGHT = 'h-[315px] md:h-[411px]';
+  const CONTAINER_HEIGHT = 'h-[316px] md:h-[412px]';
 
   if (!isAuthenticated) {
     return (
@@ -477,9 +477,12 @@ const QuickAccess: React.FC = () => {
           <Skeleton className="h-5 w-24" />
           <Skeleton className="h-3 w-28" />
         </div>
-        <div className="flex-1 overflow-hidden px-4 md:px-5 space-y-2">
+        <div className="flex-1 overflow-hidden px-4 md:px-5 pb-1 md:pb-1 mb-3 md:mb-4 flex flex-col gap-1.5 md:gap-2.5">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex items-center px-3 py-2.5 rounded-lg border border-foreground/[0.09]">
+            <div key={i} className={cn(
+              'flex items-center px-3 py-3.5 md:py-3 rounded-lg border border-foreground/[0.09]',
+              i >= 3 && 'hidden md:flex'
+            )}>
               <Skeleton className="h-10 w-10 rounded-lg flex-shrink-0 mr-3" />
               <div className="flex-1 min-w-0 mr-3">
                 <Skeleton className="h-4 w-[70%] mb-1.5" />
