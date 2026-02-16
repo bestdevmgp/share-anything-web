@@ -474,10 +474,10 @@ const QuickAccess: React.FC = () => {
     return (
       <div className={cn('bg-card rounded-2xl border-[3px] border-dashed border-border', CONTAINER_HEIGHT, 'flex flex-col')}>
         <div className="flex items-center justify-between px-7 pt-4 pb-3 md:px-8 md:pt-5 md:pb-4 flex-shrink-0">
-          <Skeleton className="h-5 w-24" />
+          <Skeleton className="h-6 w-24" />
           <Skeleton className="h-3 w-28" />
         </div>
-        <div className="flex-1 overflow-hidden px-4 md:px-5 pb-1 md:pb-1 mb-3 md:mb-4 flex flex-col gap-1.5 md:gap-2.5">
+        <div className="flex-1 overflow-hidden px-4 md:px-5 pb-1 md:pb-1 mb-3 md:mb-4 flex flex-col gap-1.5 md:gap-[9px]">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className={cn(
               'flex items-center px-3 py-[13.5px] md:py-3 rounded-lg border border-foreground/[0.09]',
