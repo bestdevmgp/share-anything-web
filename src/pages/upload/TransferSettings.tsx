@@ -1,5 +1,6 @@
 import React from 'react';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { Button } from '../../components/ui/button';
 import { Checkbox } from '../../components/ui/checkbox';
 import { cn } from 'lib/utils';
 import { useTranslation } from '../../i18n';
@@ -50,22 +51,18 @@ const TransferSettings: React.FC<TransferSettingsProps> = ({
               {t('upload.loginRequired')}
             </p>
           )}
-          <div className="flex flex-wrap gap-2 md:gap-3 mb-4">
+          <div className="flex flex-wrap gap-2 md:gap-2.5 mb-4">
             {expirationOptions.map(option => (
-              <button
+              <Button
                 key={option.value}
+                variant={expiration === option.value ? 'default' : 'secondary'}
+                size="xl"
                 onClick={() => onExpirationChange(option.value)}
                 disabled={!isAuthenticated && option.value !== 'five_minutes'}
-                className={cn(
-                  'px-4 py-2 md:px-6 md:py-3 rounded-xl text-sm md:text-base font-medium transition-colors',
-                  expiration === option.value
-                    ? 'bg-primary text-primary-foreground border border-transparent'
-                    : 'bg-background border border-input text-foreground hover:bg-accent',
-                  !isAuthenticated && option.value !== 'five_minutes' && 'opacity-50 cursor-not-allowed'
-                )}
+                className={expiration === option.value ? 'border border-transparent' : ''}
               >
                 {option.label}
-              </button>
+              </Button>
             ))}
           </div>
 
@@ -101,7 +98,7 @@ const TransferSettings: React.FC<TransferSettingsProps> = ({
             onChange={(e) => onPasswordChange(e.target.value)}
             disabled={!isAuthenticated}
             placeholder={isAuthenticated ? t('upload.passwordPlaceholder') : t('upload.passwordPlaceholderDisabled')}
-            className="w-full px-4 py-3 pr-12 border border-input bg-card text-foreground placeholder:text-muted-foreground/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:bg-muted disabled:text-muted-foreground"
+            className="w-full h-12 px-4 pr-12 border border-input bg-card text-foreground placeholder:text-muted-foreground/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:bg-muted disabled:text-muted-foreground"
           />
           {isAuthenticated ? (
             <button
