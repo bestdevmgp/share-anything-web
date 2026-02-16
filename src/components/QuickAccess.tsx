@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import FileThumbnail from './FileThumbnail';
 import FilePreviewModal from './FilePreviewModal';
 import { Button } from './ui/button';
+import { Skeleton } from './ui/skeleton';
 import { cn } from 'lib/utils';
 
 interface UploadingFile {
@@ -471,8 +472,22 @@ const QuickAccess: React.FC = () => {
 
   if (isLoading && !hasContent) {
     return (
-      <div className={cn('bg-card rounded-2xl border-[3px] border-dashed border-border', CONTAINER_HEIGHT, 'flex items-center justify-center')}>
-        <p className="text-sm text-muted-foreground/50">{t('common.loading')}</p>
+      <div className={cn('bg-card rounded-2xl border-[3px] border-dashed border-border', CONTAINER_HEIGHT, 'flex flex-col')}>
+        <div className="flex items-center justify-between px-7 pt-4 pb-3 md:px-8 md:pt-5 md:pb-4 flex-shrink-0">
+          <Skeleton className="h-5 w-24" />
+          <Skeleton className="h-3 w-28" />
+        </div>
+        <div className="flex-1 px-4 md:px-5 space-y-2">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="flex items-center px-3 py-2.5 rounded-lg">
+              <Skeleton className="h-9 w-9 rounded-lg flex-shrink-0 mr-3" />
+              <div className="flex-1 min-w-0">
+                <Skeleton className="h-4 w-32 mb-1.5" />
+                <Skeleton className="h-3 w-16" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }

@@ -120,7 +120,7 @@ const UploadSuccessPage: React.FC = () => {
               'w-16 h-16 rounded-full flex items-center justify-center',
               !isP2PTransfer || allFilesCompleted || overallStatus === 'connected'
                 ? 'bg-green-100 dark:bg-green-500/15'
-                : 'bg-muted border border-border'
+                : 'bg-muted border border-foreground/[0.09]'
             )}>
               {isP2PTransfer && !allFilesCompleted ? (
                 overallStatus === 'connected' ? (
@@ -231,6 +231,19 @@ const UploadSuccessPage: React.FC = () => {
                 </TooltipTrigger>
                 <TooltipContent>{t('uploadSuccess.copyLink')}</TooltipContent>
               </Tooltip>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center mb-8">
+            <label className="block text-sm font-medium text-muted-foreground mb-3">
+              {t('uploadSuccess.qrDownload')}
+            </label>
+            <div className="p-4 bg-white border-2 border-border rounded-2xl">
+              <QRCodeSVG
+                value={downloadUrl}
+                size={140}
+                level="M"
+              />
             </div>
           </div>
 
@@ -353,7 +366,7 @@ const UploadSuccessPage: React.FC = () => {
                           key={file.name}
                           className={cn(
                             'p-4 rounded-xl border-2 transition-all',
-                            isTransferring ? 'bg-accent border-primary' :
+                            isTransferring ? 'bg-muted border-primary' :
                             isCompleted ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30' :
                             'bg-muted border-foreground/[0.09] cursor-pointer hover:bg-accent'
                           )}
@@ -421,18 +434,6 @@ const UploadSuccessPage: React.FC = () => {
             </div>
           )}
 
-          <div className="flex flex-col items-center">
-            <label className="block text-sm font-medium text-muted-foreground mb-3">
-              {t('uploadSuccess.qrDownload')}
-            </label>
-            <div className="p-4 bg-white border-2 border-border rounded-2xl">
-              <QRCodeSVG
-                value={downloadUrl}
-                size={140}
-                level="M"
-              />
-            </div>
-          </div>
         </Card>
 
         <div className="mt-10">

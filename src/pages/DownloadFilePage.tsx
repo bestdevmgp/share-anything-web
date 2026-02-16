@@ -573,7 +573,7 @@ const DownloadFilePage: React.FC = () => {
                     key={file.id}
                     className={cn(
                       'p-4 rounded-xl border-2 transition-all',
-                      isActive ? 'bg-accent border-primary' : 'bg-muted border-foreground/[0.09]'
+                      isActive ? 'bg-muted border-primary' : 'bg-muted border-foreground/[0.09]'
                     )}
                   >
                     <div className="flex items-center space-x-4">
