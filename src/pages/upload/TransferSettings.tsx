@@ -59,8 +59,8 @@ const TransferSettings: React.FC<TransferSettingsProps> = ({
                 className={cn(
                   'px-4 py-2 md:px-6 md:py-3 rounded-xl text-sm md:text-base font-medium transition-colors',
                   expiration === option.value
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-background border border-input dark:border-white/40 text-foreground hover:bg-accent',
+                    ? 'bg-primary text-primary-foreground border border-transparent'
+                    : 'bg-background border border-input text-foreground hover:bg-accent',
                   !isAuthenticated && option.value !== 'five_minutes' && 'opacity-50 cursor-not-allowed'
                 )}
               >
