@@ -288,7 +288,11 @@
     "qrCode": "QR Code",
     "scanQR": "Scan the QR code to download the file.",
     "shareLink": "Share Link",
-    "copyLink": "Copy link"
+    "copyLink": "Copy link",
+    "deleteAll": "Delete All",
+    "confirmDeleteAll": "Are you sure you want to delete all upload history? Deleted files can no longer be downloaded.",
+    "deleteAllSuccess": "All files have been deleted.",
+    "deleteAllFailed": "Failed to delete all files."
   },
   "quickAccess": {
     "title": "Send to a signed-in device",

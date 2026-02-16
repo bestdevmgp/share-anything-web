@@ -288,7 +288,11 @@
     "qrCode": "QR Code",
     "scanQR": "掃描 QR Code 下載檔案。",
     "shareLink": "分享連結",
-    "copyLink": "複製連結"
+    "copyLink": "複製連結",
+    "deleteAll": "全部刪除",
+    "confirmDeleteAll": "確定要刪除所有上傳紀錄嗎？刪除後的檔案將無法下載。",
+    "deleteAllSuccess": "所有檔案已刪除。",
+    "deleteAllFailed": "全部刪除失敗。"
   },
   "quickAccess": {
     "title": "傳送至其他已登入裝置",

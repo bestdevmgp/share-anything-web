@@ -288,7 +288,11 @@
     "qrCode": "二维码",
     "scanQR": "扫描二维码下载文件。",
     "shareLink": "共享链接",
-    "copyLink": "复制链接"
+    "copyLink": "复制链接",
+    "deleteAll": "全部删除",
+    "confirmDeleteAll": "确定要删除所有上传记录吗？删除后的文件将无法下载。",
+    "deleteAllSuccess": "所有文件已删除。",
+    "deleteAllFailed": "全部删除失败。"
   },
   "quickAccess": {
     "title": "传输到已登录的其他设备",

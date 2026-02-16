@@ -288,7 +288,11 @@
     "qrCode": "QRコード",
     "scanQR": "QRコードをスキャンしてファイルをダウンロードしてください。",
     "shareLink": "共有リンク",
-    "copyLink": "リンクをコピー"
+    "copyLink": "リンクをコピー",
+    "deleteAll": "すべて削除",
+    "confirmDeleteAll": "すべてのアップロード履歴を削除しますか？削除されたファイルはダウンロードできなくなります。",
+    "deleteAllSuccess": "すべてのファイルが削除されました。",
+    "deleteAllFailed": "全削除に失敗しました。"
   },
   "quickAccess": {
     "title": "ログイン済みの他のデバイスに転送",

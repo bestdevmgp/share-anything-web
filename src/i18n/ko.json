@@ -288,7 +288,11 @@
     "qrCode": "QR 코드",
     "scanQR": "QR 코드를 스캔하여 파일을 다운로드하세요.",
     "shareLink": "공유 링크",
-    "copyLink": "링크 복사"
+    "copyLink": "링크 복사",
+    "deleteAll": "모두 삭제",
+    "confirmDeleteAll": "모든 업로드 기록을 삭제하시겠습니까? 삭제된 파일은 더 이상 다운로드할 수 없습니다.",
+    "deleteAllSuccess": "모든 파일이 삭제되었습니다.",
+    "deleteAllFailed": "전체 삭제에 실패하였습니다."
   },
   "quickAccess": {
     "title": "로그인된 다른 기기로 전송",

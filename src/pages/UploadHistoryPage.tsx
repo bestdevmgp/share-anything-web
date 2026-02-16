@@ -277,6 +277,26 @@ const UploadHistoryPage: React.FC = () => {
     }
   };
 
+  const handleDeleteAll = async () => {
+    if (!window.confirm(t('history.confirmDeleteAll'))) {
+      return;
+    }
+
+    try {
+      await userAPI.deleteAllFiles();
+      toast.success(t('history.deleteAllSuccess'));
+      setUploads([]);
+      setTotal(0);
+      setExpandedRow(null);
+      setDownloadLogs({});
+      setPresignedUrls({});
+      setFailedPreviews(new Set());
+    } catch (error: any) {
+      console.error('Failed to delete all files:', error);
+      toast.error(t('history.deleteAllFailed'));
+    }
+  };
+
   const handleViewAllLogs = (fileId: string, e: React.MouseEvent) => {
     e.stopPropagation();
     setSelectedFileForLogs(fileId);
@@ -403,7 +423,18 @@ const UploadHistoryPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 md:pt-16 pb-32">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-foreground">{t('history.pageTitle')}</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold text-foreground">{t('history.pageTitle')}</h1>
+          {uploads.length > 0 && (
+            <Button
+              variant="ghost"
+              onClick={handleDeleteAll}
+              className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+            >
+              {t('history.deleteAll')}
+            </Button>
+          )}
+        </div>
         <p className="text-muted-foreground mt-2">{t('history.validFileCount', { count: uploads.filter(u => !isExpired(u.expires_at)).length })}</p>
       </div>
 

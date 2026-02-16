@@ -516,6 +516,10 @@ export const userAPI = {
   deleteFile: async (fileId: string): Promise<void> => {
     await api.delete(`/user/uploads/${fileId}`);
   },
+
+  deleteAllFiles: async (): Promise<void> => {
+    await api.delete('/user/uploads');
+  },
 };
 
 export const quickAccessAPI = {
