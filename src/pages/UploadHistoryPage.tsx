@@ -377,7 +377,7 @@ const UploadHistoryPage: React.FC = () => {
 
   if (authLoading || loading) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 md:pt-16 pb-32">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 md:pt-16 pb-20">
         <div className="mb-6">
           <Skeleton className="h-9 w-36 mb-2" />
           <div className="flex items-center justify-between mt-2">
@@ -431,7 +431,7 @@ const UploadHistoryPage: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 md:pt-16 pb-32">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 md:pt-16 pb-20">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-foreground">{t('history.pageTitle')}</h1>
         <div className="flex items-center justify-between mt-2">

@@ -513,7 +513,7 @@ const DownloadFilePage: React.FC = () => {
     const anyP2PDownloading = p2pActiveFileId && (p2pStatus === 'downloading' || p2pStatus === 'connecting');
 
     return (
-      <div className="py-12 px-4">
+      <div className="pt-12 pb-20 px-4">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-10">
             <div className="flex justify-center mb-5">

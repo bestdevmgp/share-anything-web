@@ -61,7 +61,7 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
   language,
 }) => {
   return (
-    <div className="flex items-center justify-center px-4 py-12">
+    <div className="flex items-center justify-center px-4 pt-12 pb-20">
       <div className="max-w-2xl w-full">
         <div className="text-center mb-10">
           <div className="flex justify-center mb-5">
