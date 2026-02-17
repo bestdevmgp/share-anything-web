@@ -389,7 +389,7 @@ const DownloadFilePage: React.FC = () => {
 
   if (!turnstileVerified) {
     return (
-      <div className="flex items-center justify-center py-32">
+      <div className="flex items-center justify-center pt-32 pb-20">
         <div className="text-center">
           <Spinner size="lg" className="mx-auto" />
           <p className="mt-4 mb-8 text-muted-foreground">
@@ -411,7 +411,7 @@ const DownloadFilePage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-32">
+      <div className="flex items-center justify-center pt-32 pb-20">
         <div className="text-center">
           <Spinner size="lg" className="mx-auto" />
           <p className="mt-4 text-muted-foreground">{t('download.loadingFileInfo')}</p>
@@ -618,7 +618,7 @@ const DownloadFilePage: React.FC = () => {
                           </div>
                           <button
                             onClick={handleCancelP2PDownload}
-                            className="p-1 [@media(hover:hover)]:hover:bg-accent active:bg-accent rounded transition-colors"
+                            className="p-1 can-hover:hover:bg-accent active:bg-accent rounded transition-colors"
                             title={t('download.cancelDownload')}
                           >
                             <XMarkIcon className="w-5 h-5 text-muted-foreground" />
@@ -644,7 +644,7 @@ const DownloadFilePage: React.FC = () => {
               <Button
                 variant="ghost"
                 onClick={() => navigate('/')}
-                className="text-sm text-muted-foreground can-hover:hover:text-foreground"
+                className="text-sm text-muted-foreground can-hover:hover:text-foreground active:text-foreground"
               >
                 {t('common.back')}
               </Button>

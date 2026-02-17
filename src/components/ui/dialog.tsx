@@ -37,7 +37,7 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4 p-1.5 rounded-lg opacity-70 transition-opacity can-hover:hover:opacity-100 can-hover:hover:bg-accent focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+      <DialogPrimitive.Close className="absolute right-4 top-4 p-1.5 rounded-lg opacity-70 transition-opacity can-hover:hover:opacity-100 can-hover:hover:bg-accent active:opacity-100 active:bg-accent focus:outline-none disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
         </svg>

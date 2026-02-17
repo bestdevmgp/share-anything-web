@@ -313,7 +313,7 @@ const UploadSuccessPage: React.FC = () => {
                             variant="ghost"
                             size="icon"
                             onClick={() => cancelTransfer(file.name)}
-                            className="flex-shrink-0 can-hover:hover:bg-accent"
+                            className="flex-shrink-0 can-hover:hover:bg-accent active:bg-accent"
                             title={t('uploadSuccess.cancelTransfer')}
                           >
                             <XMarkIcon className="w-6 h-6 text-muted-foreground" />
@@ -329,7 +329,7 @@ const UploadSuccessPage: React.FC = () => {
                         {t('common.file')}
                       </label>
                       <div
-                        className="p-4 rounded-xl border-2 bg-muted border-foreground/[0.09] cursor-pointer can-hover:hover:bg-accent transition-colors"
+                        className="p-4 rounded-xl border-2 bg-muted border-foreground/[0.09] cursor-pointer can-hover:hover:bg-accent active:bg-accent transition-colors"
                         onClick={() => setPreviewFile(file)}
                       >
                         <div className="flex items-center space-x-3">
@@ -368,7 +368,7 @@ const UploadSuccessPage: React.FC = () => {
                             'p-4 rounded-xl border-2 transition-all',
                             isTransferring ? 'bg-muted border-primary' :
                             isCompleted ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30' :
-                            'bg-muted border-foreground/[0.09] cursor-pointer can-hover:hover:bg-accent'
+                            'bg-muted border-foreground/[0.09] cursor-pointer can-hover:hover:bg-accent active:bg-accent'
                           )}
                           onClick={() => {
                             if (!isTransferring && !isCompleted) setPreviewFile(file);
@@ -414,7 +414,7 @@ const UploadSuccessPage: React.FC = () => {
                                     variant="ghost"
                                     size="icon"
                                     onClick={() => cancelTransfer(file.name)}
-                                    className="h-8 w-8 can-hover:hover:bg-accent"
+                                    className="h-8 w-8 can-hover:hover:bg-accent active:bg-accent"
                                     title={t('uploadSuccess.cancelTransfer')}
                                   >
                                     <XMarkIcon className="w-5 h-5 text-muted-foreground" />

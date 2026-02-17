@@ -67,7 +67,7 @@ const Header: React.FC = () => {
             ) : (
               <Link
                 to="/signin"
-                className="px-4 py-2 text-sm text-primary can-hover:hover:bg-primary/10 rounded-lg font-medium"
+                className="px-4 py-2 text-sm text-primary can-hover:hover:bg-primary/10 active:bg-primary/10 rounded-lg font-medium"
               >
                 {t('header.login')}
               </Link>

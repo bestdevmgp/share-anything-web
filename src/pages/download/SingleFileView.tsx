@@ -218,7 +218,7 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
                     </div>
                     <button
                       onClick={handleCancelP2PDownload}
-                      className="p-1 can-hover:hover:bg-accent rounded transition-colors flex-shrink-0"
+                      className="p-1 can-hover:hover:bg-accent active:bg-accent rounded transition-colors flex-shrink-0"
                       title={t('download.cancelDownload')}
                     >
                       <XMarkIcon className="w-6 h-6 text-muted-foreground" />
@@ -260,7 +260,7 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
                   </div>
                   <button
                     onClick={handleCancelDownload}
-                    className="p-1 can-hover:hover:bg-accent rounded transition-colors flex-shrink-0"
+                    className="p-1 can-hover:hover:bg-accent active:bg-accent rounded transition-colors flex-shrink-0"
                     title={t('download.cancelDownload')}
                   >
                     <XMarkIcon className="w-6 h-6 text-muted-foreground" />
@@ -283,7 +283,7 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
             <Button
               variant="ghost"
               onClick={() => navigate('/')}
-              className="text-sm text-muted-foreground can-hover:hover:text-foreground"
+              className="text-sm text-muted-foreground can-hover:hover:text-foreground active:text-foreground"
             >
               {t('common.back')}
             </Button>

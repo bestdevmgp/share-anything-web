@@ -440,7 +440,7 @@ const UploadHistoryPage: React.FC = () => {
             <Button
               variant="ghost"
               onClick={handleDeleteAll}
-              className="text-red-600 dark:text-red-400 can-hover:hover:bg-red-50 can-hover:hover:text-red-600 dark:can-hover:hover:bg-red-500/10 dark:can-hover:hover:text-red-400 -mr-3"
+              className="text-red-600 dark:text-red-400 can-hover:hover:bg-red-50 can-hover:hover:text-red-600 dark:can-hover:hover:bg-red-500/10 dark:can-hover:hover:text-red-400 active:bg-red-50 active:text-red-600 dark:active:bg-red-500/10 dark:active:text-red-400 -mr-3"
             >
               {t('history.deleteAll')}
             </Button>
@@ -549,7 +549,7 @@ const UploadHistoryPage: React.FC = () => {
                 </TableHeader>
                 <TableBody className="bg-card">
                   {selectedFileForLogs && downloadLogs[selectedFileForLogs].map((log) => (
-                    <TableRow key={log.id} className="can-hover:hover:bg-muted">
+                    <TableRow key={log.id} className="can-hover:hover:bg-muted active:bg-muted">
                       <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground text-center">
                         {log.downloader_name || t('common.anonymousUser')}
                       </TableCell>
