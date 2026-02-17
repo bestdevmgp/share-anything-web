@@ -16,9 +16,20 @@ function getCacheKey(source: File | string, fileName: string, width: number): st
   return `url:${fileName}:${source}:${width}`;
 }
 
+function needsThumbnail(fileName: string): boolean {
+  return isImageFile(fileName) || isPdfFile(fileName) || isVideoFile(fileName) || isPptxFile(fileName);
+}
+
 export function useThumbnail(source: File | string | null, fileName: string, thumbnailWidth = 200): ThumbnailResult {
-  const [url, setUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [url, setUrl] = useState<string | null>(() => {
+    if (!source) return null;
+    return cache.get(getCacheKey(source, fileName, thumbnailWidth)) || null;
+  });
+  const [loading, setLoading] = useState(() => {
+    if (!source) return false;
+    if (cache.has(getCacheKey(source, fileName, thumbnailWidth))) return false;
+    return needsThumbnail(fileName);
+  });
 
   useEffect(() => {
     if (!source) {

@@ -80,14 +80,10 @@ export function generateVideoThumbnail(source: File | string): Promise<string> {
       document.body.appendChild(video);
 
       video.onloadeddata = () => {
-        const target = isRemote ? 0.5 : Math.min(1, video.duration / 2);
-        const seekFallback = setTimeout(() => doCapture(video), 2000);
-        video.onseeked = () => {
-          clearTimeout(seekFallback);
-          doCapture(video);
-        };
-        video.currentTime = target;
+        video.currentTime = Math.min(1, video.duration / 2);
       };
+
+      video.onseeked = () => doCapture(video);
 
       video.onerror = () => {
         cleanup(video);
