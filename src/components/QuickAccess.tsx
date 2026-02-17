@@ -585,7 +585,7 @@ const QuickAccess: React.FC = () => {
                   <div className="flex-shrink-0">
                     <button
                       onClick={handleCancelUpload}
-                      className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-red-500 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100 dark:can-hover:hover:bg-red-500/20 active:text-red-500 dark:active:text-red-400 active:bg-red-100 dark:active:bg-red-500/20"
+                      className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
                       title={t('common.cancel')}
                     >
                       <XMarkIcon className="w-5 h-5" />

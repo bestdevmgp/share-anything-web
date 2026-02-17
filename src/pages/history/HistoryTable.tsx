@@ -107,7 +107,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                 <tr
                   onClick={() => handleRowClick(upload.id)}
                   className={cn(
-                    'cursor-pointer transition-colors hover:bg-muted',
+                    'cursor-pointer transition-colors can-hover:hover:bg-muted',
                     expandedRow === upload.id ? 'bg-muted' : 'bg-card'
                   )}
                 >
@@ -196,7 +196,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                           <div className="h-0 min-h-full flex flex-col overflow-hidden">
                             <h3 className="text-lg font-semibold text-foreground mb-4 flex-shrink-0">{t('history.preview')}</h3>
                             <div
-                              className="bg-card rounded-lg border border-border overflow-hidden w-full flex-1 max-w-md cursor-pointer hover:border-primary/50 transition-colors"
+                              className="bg-card rounded-lg border border-border overflow-hidden w-full flex-1 max-w-md cursor-pointer can-hover:hover:border-primary/50 transition-colors"
                               onClick={(e) => { e.stopPropagation(); openPreviewModal(upload); }}
                             >
                               {isExpired(upload.expires_at) ? (

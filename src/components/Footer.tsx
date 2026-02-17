@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { useLanguage } from '../context/LanguageContext';
 import { SunIcon, MoonIcon, ComputerDesktopIcon, ChevronUpIcon, GlobeAltIcon, CheckIcon } from '@heroicons/react/24/outline';
@@ -30,6 +30,8 @@ const Footer: React.FC = () => {
     { key: 'system' as const, label: t('footer.themeSystem') },
   ];
 
+  const [langOpen, setLangOpen] = useState(false);
+  const [themeOpen, setThemeOpen] = useState(false);
   const currentLang = langOptions.find((o) => o.key === lang)!;
 
   return (
@@ -94,7 +96,7 @@ const Footer: React.FC = () => {
 
         <div className="flex justify-center items-end gap-[12px]">
           {/* Language Dropdown */}
-          <Popover>
+          <Popover open={langOpen} onOpenChange={setLangOpen}>
             <PopoverTrigger asChild>
               <button
                 className="flex items-center justify-between w-40 h-10 px-2.5 border border-border bg-card  text-muted-foreground hover:bg-accent transition-colors text-sm"
@@ -111,7 +113,7 @@ const Footer: React.FC = () => {
               {langOptions.map((option) => (
                 <button
                   key={option.key}
-                  onClick={() => setLang(option.key)}
+                  onClick={() => { setLang(option.key); setLangOpen(false); }}
                   className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors ${
                     lang === option.key
                       ? 'text-foreground'
@@ -126,7 +128,7 @@ const Footer: React.FC = () => {
           </Popover>
 
           {/* Theme Dropdown */}
-          <Popover>
+          <Popover open={themeOpen} onOpenChange={setThemeOpen}>
             <PopoverTrigger asChild>
               <button
                 className="flex items-center justify-between w-16 h-10 px-2.5 border border-border bg-card  text-muted-foreground hover:bg-accent transition-colors text-sm"
@@ -140,7 +142,7 @@ const Footer: React.FC = () => {
               {themeOptions.map((option) => (
                 <button
                   key={option.key}
-                  onClick={() => setTheme(option.key)}
+                  onClick={() => { setTheme(option.key); setThemeOpen(false); }}
                   className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors ${
                     theme === option.key
                       ? 'text-foreground'
