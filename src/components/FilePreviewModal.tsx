@@ -320,7 +320,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
         </DialogHeader>
         <Separator className="flex-shrink-0" />
         <div className="px-4 pt-2 pb-4 flex flex-1 min-h-0 overflow-auto">
-          <div className="m-auto">
+          <div className="m-auto max-w-full">
             {renderContent()}
           </div>
         </div>
