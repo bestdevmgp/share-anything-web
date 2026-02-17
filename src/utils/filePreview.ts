@@ -35,11 +35,12 @@ export async function generatePdfThumbnail(source: File | string, width = 200): 
 export function generateVideoThumbnail(source: File | string): Promise<string> {
   return new Promise((resolve, reject) => {
     let blobUrl: string | null = null;
-    const isPartial = typeof source === 'string' && !source.startsWith('blob:');
+    const isRemote = typeof source === 'string' && !source.startsWith('blob:');
 
-    const cleanup = () => {
+    const cleanup = (video?: HTMLVideoElement) => {
       clearTimeout(overallTimeout);
       if (blobUrl) URL.revokeObjectURL(blobUrl);
+      if (video?.parentNode) video.parentNode.removeChild(video);
     };
 
     const overallTimeout = setTimeout(() => {
@@ -50,7 +51,7 @@ export function generateVideoThumbnail(source: File | string): Promise<string> {
     const doCapture = (video: HTMLVideoElement) => {
       try {
         if (video.videoWidth === 0 || video.videoHeight === 0) {
-          cleanup();
+          cleanup(video);
           reject(new Error('Video has no dimensions'));
           return;
         }
@@ -60,10 +61,10 @@ export function generateVideoThumbnail(source: File | string): Promise<string> {
         const ctx = canvas.getContext('2d')!;
         ctx.drawImage(video, 0, 0);
         const dataUrl = canvas.toDataURL('image/png');
-        cleanup();
+        cleanup(video);
         resolve(dataUrl);
       } catch (e) {
-        cleanup();
+        cleanup(video);
         reject(e);
       }
     };
@@ -74,47 +75,66 @@ export function generateVideoThumbnail(source: File | string): Promise<string> {
       video.muted = true;
       video.playsInline = true;
 
-      if (isPartial) {
-        // Partial data (Range fetch): capture first available frame immediately
-        video.onloadeddata = () => doCapture(video);
-      } else {
-        // Full data (File/blob): seek to early position for a better frame
-        video.onloadeddata = () => {
-          video.currentTime = Math.min(1, video.duration / 2);
+      // iOS Safari requires video element in DOM for reliable data loading
+      video.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0';
+      document.body.appendChild(video);
+
+      video.onloadeddata = () => {
+        const target = isRemote ? 0.5 : Math.min(1, video.duration / 2);
+        const seekFallback = setTimeout(() => doCapture(video), 2000);
+        video.onseeked = () => {
+          clearTimeout(seekFallback);
+          doCapture(video);
         };
-        video.onseeked = () => doCapture(video);
-      }
+        video.currentTime = target;
+      };
 
       video.onerror = () => {
-        cleanup();
+        cleanup(video);
         reject(new Error('Failed to load video'));
       };
 
       video.src = videoSrc;
+      video.load();
     };
 
     if (source instanceof File) {
       blobUrl = URL.createObjectURL(source);
       loadAndCapture(blobUrl);
-    } else if (source.startsWith('blob:')) {
+    } else if (typeof source === 'string' && source.startsWith('blob:')) {
       loadAndCapture(source);
     } else {
-      // Remote URL: fetch first 5MB as blob to avoid CORS canvas taint
-      const controller = new AbortController();
-      const fetchTimer = setTimeout(() => controller.abort(), 5000);
+      const fetchBlob = async (): Promise<Blob> => {
+        const ctrl1 = new AbortController();
+        const timer1 = setTimeout(() => ctrl1.abort(), 5000);
+        try {
+          const res = await fetch(source as string, {
+            signal: ctrl1.signal,
+            headers: { Range: 'bytes=0-5242879' },
+          });
+          clearTimeout(timer1);
+          return await res.blob();
+        } catch {
+          clearTimeout(timer1);
+        }
+        const ctrl2 = new AbortController();
+        const timer2 = setTimeout(() => ctrl2.abort(), 6000);
+        try {
+          const res = await fetch(source as string, { signal: ctrl2.signal });
+          clearTimeout(timer2);
+          return await res.blob();
+        } catch {
+          clearTimeout(timer2);
+          throw new Error('Failed to fetch video');
+        }
+      };
 
-      fetch(source, {
-        signal: controller.signal,
-        headers: { Range: 'bytes=0-5242879' },
-      })
-        .then(res => res.blob())
+      fetchBlob()
         .then(blob => {
-          clearTimeout(fetchTimer);
           blobUrl = URL.createObjectURL(blob);
           loadAndCapture(blobUrl);
         })
         .catch(() => {
-          clearTimeout(fetchTimer);
           cleanup();
           reject(new Error('Failed to fetch video for thumbnail'));
         });
