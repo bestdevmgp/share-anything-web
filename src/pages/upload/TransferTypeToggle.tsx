@@ -47,7 +47,7 @@ const TransferTypeToggle: React.FC<TransferTypeToggleProps> = ({
             'relative z-10 flex-1 px-6 py-3 rounded-md text-sm font-semibold transition-all duration-200',
             transferType === 'server'
               ? 'text-foreground'
-              : 'text-muted-foreground hover:text-foreground'
+              : 'text-muted-foreground can-hover:hover:text-foreground'
           )}
         >
           {t('upload.serverTransfer')}
@@ -60,7 +60,7 @@ const TransferTypeToggle: React.FC<TransferTypeToggleProps> = ({
             'relative z-10 flex-1 px-6 py-3 rounded-md text-sm font-semibold transition-all duration-200',
             transferType === 'p2p'
               ? 'text-foreground'
-              : 'text-muted-foreground hover:text-foreground'
+              : 'text-muted-foreground can-hover:hover:text-foreground'
           )}
         >
           {t('upload.p2pTransfer')}
@@ -94,7 +94,7 @@ const TransferTypeToggle: React.FC<TransferTypeToggleProps> = ({
               <button
                 type="button"
                 onClick={() => onDismissP2PTooltip(true)}
-                className="text-xs text-muted-foreground/60 hover:text-muted-foreground underline underline-offset-2 transition-colors"
+                className="text-xs text-muted-foreground/60 can-hover:hover:text-muted-foreground underline underline-offset-2 transition-colors"
               >
                 {t('upload.dontShowAgain')}
               </button>

@@ -38,7 +38,7 @@ const Header: React.FC = () => {
           <div className="flex items-center space-x-2">
             {isAuthenticated && user ? (
               <DropdownMenu>
-                <DropdownMenuTrigger className="flex items-center space-x-2 active:bg-accent sm:hover:bg-accent rounded-lg px-3 py-2 transition-colors focus:outline-none data-[state=open]:bg-accent">
+                <DropdownMenuTrigger className="flex items-center space-x-2 active:bg-accent can-hover:hover:bg-accent rounded-lg px-3 py-2 transition-colors focus:outline-none data-[state=open]:bg-accent">
                   {user.profile_image && (
                     <img
                       src={user.profile_image}
@@ -67,7 +67,7 @@ const Header: React.FC = () => {
             ) : (
               <Link
                 to="/signin"
-                className="px-4 py-2 text-sm text-primary hover:bg-primary/10 rounded-lg font-medium"
+                className="px-4 py-2 text-sm text-primary can-hover:hover:bg-primary/10 rounded-lg font-medium"
               >
                 {t('header.login')}
               </Link>

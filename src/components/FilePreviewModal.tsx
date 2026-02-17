@@ -178,7 +178,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
         </TableHeader>
         <TableBody>
           {data.slice(1).map((row, ri) => (
-            <TableRow key={ri} className="hover:bg-muted/50">
+            <TableRow key={ri} className="can-hover:hover:bg-muted/50">
               {row.map((cell, ci) => (
                 <TableCell key={ci} className="border border-border px-3 py-1.5 text-foreground whitespace-nowrap">
                   {cell}

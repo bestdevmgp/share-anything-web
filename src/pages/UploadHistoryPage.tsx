@@ -382,7 +382,7 @@ const UploadHistoryPage: React.FC = () => {
           <Skeleton className="h-9 w-36 mb-2" />
           <div className="flex items-center justify-between mt-2">
             <Skeleton className="h-5 w-56" />
-            <Skeleton className="h-9 w-20" />
+            <Skeleton className="h-8 w-16" />
           </div>
         </div>
         <div className="hidden md:block bg-card rounded-xl border-2 border-border overflow-hidden">
@@ -402,7 +402,10 @@ const UploadHistoryPage: React.FC = () => {
               <Skeleton className="h-4 w-28" />
               <Skeleton className="h-4 w-12" />
               <Skeleton className="h-6 w-16 rounded-full" />
-              <Skeleton className="h-8 w-20" />
+              <div className="flex gap-0.5">
+                <Skeleton className="h-8 w-8 rounded" />
+                <Skeleton className="h-8 w-8 rounded" />
+              </div>
             </div>
           ))}
         </div>
@@ -437,7 +440,7 @@ const UploadHistoryPage: React.FC = () => {
             <Button
               variant="ghost"
               onClick={handleDeleteAll}
-              className="text-red-600 dark:text-red-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400 -mr-3"
+              className="text-red-600 dark:text-red-400 can-hover:hover:bg-red-50 can-hover:hover:text-red-600 dark:can-hover:hover:bg-red-500/10 dark:can-hover:hover:text-red-400 -mr-3"
             >
               {t('history.deleteAll')}
             </Button>
@@ -546,7 +549,7 @@ const UploadHistoryPage: React.FC = () => {
                 </TableHeader>
                 <TableBody className="bg-card">
                   {selectedFileForLogs && downloadLogs[selectedFileForLogs].map((log) => (
-                    <TableRow key={log.id} className="sm:hover:bg-muted">
+                    <TableRow key={log.id} className="can-hover:hover:bg-muted">
                       <TableCell className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground text-center">
                         {log.downloader_name || t('common.anonymousUser')}
                       </TableCell>

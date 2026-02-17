@@ -67,7 +67,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                 variant="ghost"
                 onClick={selectAllFiles}
                 size="sm"
-                className="text-primary hover:bg-primary/10"
+                className="text-primary can-hover:hover:bg-primary/10"
               >
                 {t('download.selectAll')}
               </Button>
@@ -91,7 +91,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                   'flex items-center space-x-4 p-4 rounded-xl cursor-pointer transition-all',
                   selectedFiles.has(file.id)
                     ? 'bg-accent border-2 border-primary'
-                    : 'bg-muted border-2 border-foreground/[0.09] hover:bg-accent'
+                    : 'bg-muted border-2 border-foreground/[0.09] can-hover:hover:bg-accent'
                 )}
               >
                 <div className="flex-shrink-0">
@@ -137,7 +137,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                   </div>
                   <button
                     onClick={handleCancelDownload}
-                    className="p-1 hover:bg-accent rounded transition-colors flex-shrink-0"
+                    className="p-1 can-hover:hover:bg-accent rounded transition-colors flex-shrink-0"
                     title={t('download.cancelDownload')}
                   >
                     <XMarkIcon className="w-6 h-6 text-muted-foreground" />
@@ -195,7 +195,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
             <Button
               variant="ghost"
               onClick={() => navigate('/')}
-              className="text-sm text-muted-foreground hover:text-foreground"
+              className="text-sm text-muted-foreground can-hover:hover:text-foreground"
             >
               {t('common.back')}
             </Button>

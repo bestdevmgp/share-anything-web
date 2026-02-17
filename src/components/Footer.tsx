@@ -40,13 +40,13 @@ const Footer: React.FC = () => {
         <div className="flex justify-center items-center gap-8 mb-6">
           <a
             href="/privacy-policy"
-            className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+            className="text-muted-foreground can-hover:hover:text-foreground text-sm transition-colors"
           >
             {t('footer.privacyPolicy')}
           </a>
           <a
             href="/terms-of-use"
-            className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+            className="text-muted-foreground can-hover:hover:text-foreground text-sm transition-colors"
           >
             {t('footer.termsOfUse')}
           </a>
@@ -57,7 +57,7 @@ const Footer: React.FC = () => {
             href="https://github.com/bestdevmgp"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-muted-foreground/70 hover:text-foreground transition-colors"
+            className="text-muted-foreground/70 can-hover:hover:text-foreground transition-colors"
             aria-label="GitHub"
           >
             <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -69,7 +69,7 @@ const Footer: React.FC = () => {
             href="https://mingyu.dev"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-muted-foreground/70 hover:text-foreground transition-colors"
+            className="text-muted-foreground/70 can-hover:hover:text-foreground transition-colors"
             aria-label="Portfolio"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -79,7 +79,7 @@ const Footer: React.FC = () => {
 
           <a
             href="mailto:me@mingyu.dev"
-            className="text-muted-foreground/70 hover:text-foreground transition-colors"
+            className="text-muted-foreground/70 can-hover:hover:text-foreground transition-colors"
             aria-label="Email"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
@@ -99,7 +99,7 @@ const Footer: React.FC = () => {
           <Popover open={langOpen} onOpenChange={setLangOpen}>
             <PopoverTrigger asChild>
               <button
-                className="flex items-center justify-between w-40 h-10 px-2.5 border border-border bg-card  text-muted-foreground hover:bg-accent transition-colors text-sm"
+                className="flex items-center justify-between w-40 h-10 px-2.5 border border-border bg-card  text-muted-foreground can-hover:hover:bg-accent data-[state=open]:bg-accent transition-colors text-sm"
               >
                 <div className="flex items-center gap-2">
                   <GlobeAltIcon className="w-4 h-4" />
@@ -117,7 +117,7 @@ const Footer: React.FC = () => {
                   className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors ${
                     lang === option.key
                       ? 'text-foreground'
-                      : 'text-muted-foreground hover:bg-accent'
+                      : 'text-muted-foreground can-hover:hover:bg-accent'
                   }`}
                 >
                   <CheckIcon className={`w-3.5 h-3.5 flex-shrink-0 ${lang === option.key ? 'opacity-100' : 'opacity-0'}`} />
@@ -131,7 +131,7 @@ const Footer: React.FC = () => {
           <Popover open={themeOpen} onOpenChange={setThemeOpen}>
             <PopoverTrigger asChild>
               <button
-                className="flex items-center justify-between w-16 h-10 px-2.5 border border-border bg-card  text-muted-foreground hover:bg-accent transition-colors text-sm"
+                className="flex items-center justify-between w-16 h-10 px-2.5 border border-border bg-card  text-muted-foreground can-hover:hover:bg-accent data-[state=open]:bg-accent transition-colors text-sm"
               >
                 {themeIcons[theme]}
                 <ChevronUpIcon className="w-3 h-3" />
@@ -146,7 +146,7 @@ const Footer: React.FC = () => {
                   className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors ${
                     theme === option.key
                       ? 'text-foreground'
-                      : 'text-muted-foreground hover:bg-accent'
+                      : 'text-muted-foreground can-hover:hover:bg-accent'
                   }`}
                 >
                   <CheckIcon className={`w-3.5 h-3.5 flex-shrink-0 ${theme === option.key ? 'opacity-100' : 'opacity-0'}`} />

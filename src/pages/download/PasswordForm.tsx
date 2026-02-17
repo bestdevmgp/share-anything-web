@@ -51,7 +51,7 @@ const PasswordForm: React.FC<PasswordFormProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground can-hover:hover:text-foreground"
                 >
                   {showPassword ? (
                     <EyeIcon className="w-5 h-5" />

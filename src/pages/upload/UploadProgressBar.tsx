@@ -67,7 +67,7 @@ const UploadProgressBar: React.FC<UploadProgressBarProps> = ({
                 </div>
                 <button
                   onClick={onCancelUpload}
-                  className="p-1 hover:bg-accent rounded transition-colors flex-shrink-0"
+                  className="p-1 can-hover:hover:bg-accent rounded transition-colors flex-shrink-0"
                   title={t('upload.cancelUpload')}
                 >
                   <XMarkIcon className="w-6 h-6 text-muted-foreground" />

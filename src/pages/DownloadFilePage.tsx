@@ -644,7 +644,7 @@ const DownloadFilePage: React.FC = () => {
               <Button
                 variant="ghost"
                 onClick={() => navigate('/')}
-                className="text-sm text-muted-foreground hover:text-foreground"
+                className="text-sm text-muted-foreground can-hover:hover:text-foreground"
               >
                 {t('common.back')}
               </Button>

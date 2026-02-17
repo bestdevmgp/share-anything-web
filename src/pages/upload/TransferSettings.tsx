@@ -101,17 +101,19 @@ const TransferSettings: React.FC<TransferSettingsProps> = ({
             className="w-full h-12 px-4 pr-12 border border-input bg-card text-foreground placeholder:text-muted-foreground/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:bg-muted disabled:text-muted-foreground"
           />
           {isAuthenticated ? (
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               onClick={onShowPasswordToggle}
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+              className="absolute right-1 top-1/2 -translate-y-1/2 text-muted-foreground"
             >
               {showPassword ? (
                 <EyeIcon className="w-5 h-5" />
               ) : (
                 <EyeSlashIcon className="w-5 h-5" />
               )}
-            </button>
+            </Button>
           ) : (
             <div className="absolute right-4 top-1/2 -translate-y-1/2">
               <svg className="w-5 h-5 text-muted-foreground/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
