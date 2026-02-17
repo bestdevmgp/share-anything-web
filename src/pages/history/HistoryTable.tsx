@@ -6,6 +6,7 @@ import FileThumbnail from '../../components/FileThumbnail';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Tooltip, TooltipTrigger, TooltipContent } from '../../components/ui/tooltip';
+import { Skeleton } from '../../components/ui/skeleton';
 import { cn } from 'lib/utils';
 
 interface PdfPreviewProps {
@@ -321,7 +322,20 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                               </div>
                               <div className="bg-card rounded-lg border border-border p-4 flex-1 flex flex-col min-h-0 overflow-hidden">
                                 {loadingLogs[upload.id] ? (
-                                  <div className="text-sm text-muted-foreground text-center py-4 flex-1 flex items-center justify-center">{t('common.loading')}</div>
+                                  <div className="space-y-4 flex-1">
+                                    {[0, 1, 2].map((i) => (
+                                      <div key={i} className="border-b border-border pb-4 last:border-0 last:pb-0">
+                                        <div className="flex justify-between items-start gap-4">
+                                          <div className="min-w-0 flex-1">
+                                            <Skeleton className="h-4 w-24" />
+                                            <Skeleton className="h-3 w-32 mt-2" />
+                                            <Skeleton className="h-3 w-28 mt-1" />
+                                          </div>
+                                          <Skeleton className="h-3 w-20 flex-shrink-0" />
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
                                 ) : downloadLogs[upload.id]?.length > 0 ? (
                                   <div className="space-y-4 overflow-y-auto pr-2 flex-1">
                                     {downloadLogs[upload.id].map((log) => (

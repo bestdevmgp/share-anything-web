@@ -4,6 +4,7 @@ import { isPdfFile, isVideoFile, formatFileSize, formatDateTime } from '../../ut
 import { Language } from '../../context/LanguageContext';
 import FileThumbnail from '../../components/FileThumbnail';
 import { Button } from '../../components/ui/button';
+import { Skeleton } from '../../components/ui/skeleton';
 import { cn } from 'lib/utils';
 
 interface PdfPreviewProps {
@@ -241,7 +242,15 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                   </div>
                   <div className="bg-card rounded-lg border border-border p-4">
                     {loadingLogs[upload.id] ? (
-                      <div className="h-20 flex items-center justify-center text-xs text-muted-foreground text-center">{t('common.loading')}</div>
+                      <div className="space-y-4">
+                        {[0, 1].map((i) => (
+                          <div key={i} className="border-b border-border pb-4 last:border-0 last:pb-0">
+                            <Skeleton className="h-3.5 w-20" />
+                            <Skeleton className="h-3 w-36 mt-2" />
+                            <Skeleton className="h-3 w-28 mt-2" />
+                          </div>
+                        ))}
+                      </div>
                     ) : downloadLogs[upload.id]?.length > 0 ? (
                       <div className="space-y-4 overflow-y-auto pr-1" style={{
                         maxHeight: downloadLogs[upload.id].length <= 2 ? 'none' : '240px'
