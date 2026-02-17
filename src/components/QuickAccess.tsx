@@ -624,7 +624,7 @@ const QuickAccess: React.FC = () => {
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <button
                       onClick={() => handleDownload(file)}
-                      className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-foreground can-hover:hover:bg-accent active:text-foreground active:bg-accent"
+                      className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
                       title={t('common.download')}
                     >
                       <ArrowDownTrayIcon className="w-5 h-5" />
