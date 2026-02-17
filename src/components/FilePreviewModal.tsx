@@ -62,7 +62,15 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
           objectUrl = getMediaUrl(source);
           if (!cancelled) setMediaUrl(objectUrl);
         } else if (isVideoFile(fileName) || isAudioFile(fileName)) {
-          objectUrl = getMediaUrl(source);
+          if (source instanceof File) {
+            objectUrl = URL.createObjectURL(source);
+          } else if (typeof source === 'string' && source.startsWith('blob:')) {
+            objectUrl = source;
+          } else {
+            const res = await fetch(source as string);
+            const blob = await res.blob();
+            objectUrl = URL.createObjectURL(blob);
+          }
           if (!cancelled) setMediaUrl(objectUrl);
         } else if (isPdfFile(fileName)) {
           if (source instanceof File) {
@@ -130,7 +138,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
 
     return () => {
       cancelled = true;
-      if (objectUrl && source instanceof File) {
+      if (objectUrl && objectUrl.startsWith('blob:')) {
         URL.revokeObjectURL(objectUrl);
       }
     };
@@ -198,7 +206,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
     }
 
     if (isVideoFile(fileName) && mediaUrl) {
-      return <video src={mediaUrl} controls autoPlay className="max-w-full max-h-[calc(100vh-10rem)] rounded" />;
+      return <video src={mediaUrl} controls autoPlay playsInline className="max-w-full max-h-[calc(100vh-10rem)] rounded" />;
     }
 
     if (isAudioFile(fileName) && mediaUrl) {
@@ -305,13 +313,13 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="w-auto min-w-[18rem] max-w-[calc(100vw-3rem)] max-h-[calc(100vh-4rem)] overflow-hidden p-0 flex flex-col">
+      <DialogContent className="w-auto min-w-[18rem] max-w-[calc(100vw-3rem)] max-h-[calc(100vh-6rem)] overflow-hidden p-0 flex flex-col">
         <DialogHeader className="p-4 flex-shrink-0">
           <DialogTitle className="text-sm font-semibold truncate">{fileName}</DialogTitle>
           <DialogDescription className="text-xs">{formatFileSize(fileSize)}</DialogDescription>
         </DialogHeader>
         <Separator className="flex-shrink-0" />
-        <div className="p-4 flex flex-1 min-h-0 overflow-auto">
+        <div className="px-4 pt-2 pb-4 flex flex-1 min-h-0 overflow-auto">
           <div className="m-auto">
             {renderContent()}
           </div>

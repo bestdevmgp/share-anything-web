@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { DocumentIcon, ArrowDownTrayIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { FileListResponse, FileListItem } from '../../types';
-import { formatFileSize, formatDateTime, isImageFile } from '../../utils/format';
+import { formatFileSize, formatDateTime, isImageFile, isVideoFile } from '../../utils/format';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Progress } from '../../components/ui/progress';
@@ -131,7 +131,7 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
               </div>
             ) : singleFilePreviewUrl && singleFileThumbnail.url ? (
               <div
-                className="max-w-full max-h-[28rem] overflow-hidden rounded-2xl cursor-pointer"
+                className="max-w-full max-h-[28rem] overflow-hidden rounded-2xl cursor-pointer relative"
                 onClick={() => openPreview(file.file_name, file.file_size, file.id, singleFilePreviewUrl!)}
               >
                 <img
@@ -139,6 +139,15 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
                   alt={file.file_name}
                   className="max-w-full max-h-[28rem] object-contain rounded-2xl"
                 />
+                {isVideoFile(file.file_name) && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-12 h-12 bg-black/50 rounded-full flex items-center justify-center">
+                      <svg className="w-6 h-6 text-white ml-0.5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : singleFilePreviewUrl ? (
               <div

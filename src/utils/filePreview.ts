@@ -34,54 +34,77 @@ export async function generatePdfThumbnail(source: File | string, width = 200): 
 
 export function generateVideoThumbnail(source: File | string): Promise<string> {
   return new Promise((resolve, reject) => {
-    const video = document.createElement('video');
-    video.preload = 'metadata';
-    video.muted = true;
-    video.playsInline = true;
-    video.crossOrigin = 'anonymous';
-
-    const url = source instanceof File ? URL.createObjectURL(source) : source;
-    const isObjectUrl = source instanceof File;
+    let blobUrl: string | null = null;
 
     const cleanup = () => {
-      clearTimeout(timeout);
-      video.onloadeddata = null;
-      video.onseeked = null;
-      video.onerror = null;
-      if (isObjectUrl) URL.revokeObjectURL(url);
+      clearTimeout(overallTimeout);
+      if (blobUrl) URL.revokeObjectURL(blobUrl);
     };
 
-    const timeout = setTimeout(() => {
+    const overallTimeout = setTimeout(() => {
       cleanup();
       reject(new Error('Video thumbnail generation timed out'));
-    }, 10000);
+    }, 8000);
 
-    video.onloadeddata = () => {
-      video.currentTime = Math.min(1, video.duration / 2);
-    };
+    const captureFrame = (videoSrc: string) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.muted = true;
+      video.playsInline = true;
 
-    video.onseeked = () => {
-      try {
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext('2d')!;
-        ctx.drawImage(video, 0, 0);
-        const dataUrl = canvas.toDataURL('image/png');
+      video.onloadeddata = () => {
+        video.currentTime = Math.min(1, video.duration / 2);
+      };
+
+      video.onseeked = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext('2d')!;
+          ctx.drawImage(video, 0, 0);
+          const dataUrl = canvas.toDataURL('image/png');
+          cleanup();
+          resolve(dataUrl);
+        } catch (e) {
+          cleanup();
+          reject(e);
+        }
+      };
+
+      video.onerror = () => {
         cleanup();
-        resolve(dataUrl);
-      } catch (e) {
-        cleanup();
-        reject(e);
-      }
+        reject(new Error('Failed to load video'));
+      };
+
+      video.src = videoSrc;
     };
 
-    video.onerror = () => {
-      cleanup();
-      reject(new Error('Failed to load video'));
-    };
+    if (source instanceof File) {
+      blobUrl = URL.createObjectURL(source);
+      captureFrame(blobUrl);
+    } else if (source.startsWith('blob:')) {
+      captureFrame(source);
+    } else {
+      const controller = new AbortController();
+      const fetchTimer = setTimeout(() => controller.abort(), 4000);
 
-    video.src = url;
+      fetch(source, {
+        signal: controller.signal,
+        headers: { Range: 'bytes=0-2097151' },
+      })
+        .then(res => res.blob())
+        .then(blob => {
+          clearTimeout(fetchTimer);
+          blobUrl = URL.createObjectURL(blob);
+          captureFrame(blobUrl);
+        })
+        .catch(() => {
+          clearTimeout(fetchTimer);
+          cleanup();
+          reject(new Error('Failed to fetch video for thumbnail'));
+        });
+    }
   });
 }
 
