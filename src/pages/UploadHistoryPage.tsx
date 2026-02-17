@@ -423,8 +423,9 @@ const UploadHistoryPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 md:pt-16 pb-32">
       <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-foreground">{t('history.pageTitle')}</h1>
+        <h1 className="text-3xl font-bold text-foreground">{t('history.pageTitle')}</h1>
+        <div className="flex items-center justify-between mt-2">
+          <p className="text-muted-foreground">{t('history.validFileCount', { count: uploads.filter(u => !isExpired(u.expires_at)).length })}</p>
           {uploads.length > 0 && (
             <Button
               variant="ghost"
@@ -435,7 +436,6 @@ const UploadHistoryPage: React.FC = () => {
             </Button>
           )}
         </div>
-        <p className="text-muted-foreground mt-2">{t('history.validFileCount', { count: uploads.filter(u => !isExpired(u.expires_at)).length })}</p>
       </div>
 
       {uploads.length === 0 ? (
