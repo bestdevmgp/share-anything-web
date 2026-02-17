@@ -35,7 +35,6 @@ export async function generatePdfThumbnail(source: File | string, width = 200): 
 export function generateVideoThumbnail(source: File | string): Promise<string> {
   return new Promise((resolve, reject) => {
     let blobUrl: string | null = null;
-    const isRemote = typeof source === 'string' && !source.startsWith('blob:');
 
     const cleanup = (video?: HTMLVideoElement) => {
       clearTimeout(overallTimeout);
