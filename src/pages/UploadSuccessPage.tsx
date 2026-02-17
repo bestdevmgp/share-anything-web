@@ -220,7 +220,7 @@ const UploadSuccessPage: React.FC = () => {
                     variant="ghost"
                     size="icon"
                     onClick={() => handleCopy(downloadUrl, 'link')}
-                    className="absolute right-1 top-1/2 -translate-y-1/2"
+                    className="absolute right-0.5 top-1/2 -translate-y-1/2"
                   >
                     {copiedField === 'link' ? (
                       <CheckIcon className="w-5 h-5 text-green-600" />
