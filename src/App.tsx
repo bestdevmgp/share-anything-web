@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { QuickAccessUploadProvider } from './context/QuickAccessUploadContext';
 import ToastContainer from './components/Toast';
 import { TooltipProvider } from './components/ui/tooltip';
 import './utils/pdfWorkerSetup';
@@ -53,11 +54,13 @@ const App: React.FC = () => {
       <LanguageProvider>
         <AuthProvider>
           <ToastProvider>
-            <TooltipProvider>
-              <Router>
-                <AppContent />
-              </Router>
-            </TooltipProvider>
+            <QuickAccessUploadProvider>
+              <TooltipProvider>
+                <Router>
+                  <AppContent />
+                </Router>
+              </TooltipProvider>
+            </QuickAccessUploadProvider>
           </ToastProvider>
         </AuthProvider>
       </LanguageProvider>
