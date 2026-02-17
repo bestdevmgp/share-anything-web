@@ -247,7 +247,7 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                           <div key={i} className="border-b border-border pb-4 last:border-0 last:pb-0">
                             <Skeleton className="h-3.5 w-20" />
                             <Skeleton className="h-3 w-36 mt-2" />
-                            <Skeleton className="h-3 w-28 mt-2" />
+                            <Skeleton className="h-3 w-36 mt-2" />
                           </div>
                         ))}
                       </div>

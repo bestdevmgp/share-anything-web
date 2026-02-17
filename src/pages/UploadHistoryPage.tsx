@@ -379,8 +379,11 @@ const UploadHistoryPage: React.FC = () => {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 md:pt-16 pb-32">
         <div className="mb-6">
-          <Skeleton className="h-9 w-48 mb-2" />
-          <Skeleton className="h-5 w-32" />
+          <Skeleton className="h-9 w-36 mb-2" />
+          <div className="flex items-center justify-between mt-2">
+            <Skeleton className="h-5 w-56" />
+            <Skeleton className="h-9 w-20" />
+          </div>
         </div>
         <div className="hidden md:block bg-card rounded-xl border-2 border-border overflow-hidden">
           <div className="bg-muted px-6 py-4 flex gap-6">
@@ -405,8 +408,12 @@ const UploadHistoryPage: React.FC = () => {
         </div>
         <div className="md:hidden space-y-2">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="bg-card rounded-xl border-2 border-border p-4">
-              <div className="flex items-center gap-3">
+            <div key={i} className="bg-card rounded-xl border-2 border-border p-4 relative">
+              <div className="absolute top-1/2 -translate-y-1/2 right-3 flex gap-1">
+                <Skeleton className="h-8 w-8 rounded" />
+                <Skeleton className="h-8 w-8 rounded" />
+              </div>
+              <div className="flex items-center gap-3 pr-20">
                 <Skeleton className="h-12 w-12 rounded flex-shrink-0" />
                 <div className="flex-1">
                   <Skeleton className="h-4 w-32 mb-2" />
@@ -430,7 +437,7 @@ const UploadHistoryPage: React.FC = () => {
             <Button
               variant="ghost"
               onClick={handleDeleteAll}
-              className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 -mr-3"
+              className="text-red-600 dark:text-red-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400 -mr-3"
             >
               {t('history.deleteAll')}
             </Button>

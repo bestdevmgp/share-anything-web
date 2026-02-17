@@ -331,7 +331,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                                             <Skeleton className="h-3 w-32 mt-2" />
                                             <Skeleton className="h-3 w-28 mt-1" />
                                           </div>
-                                          <Skeleton className="h-3 w-20 flex-shrink-0" />
+                                          <Skeleton className="h-3 w-32 flex-shrink-0" />
                                         </div>
                                       </div>
                                     ))}
