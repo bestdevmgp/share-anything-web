@@ -149,8 +149,8 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   const getPdfPageWidth = () => {
     const maxWidth = Math.min(600, window.innerWidth - 64);
     if (!pdfPageSize) return maxWidth;
-    // (100vh - 4rem) modal - ~5rem header - ~3rem pagination - ~2rem padding
-    const availableHeight = window.innerHeight - 64 - 128;
+    // modal margin(64) + header(74) + separator(1) + content padding(32) + pagination(56) + safety(33)
+    const availableHeight = window.innerHeight - 260;
     const aspectRatio = pdfPageSize.width / pdfPageSize.height;
     const widthFromHeight = availableHeight * aspectRatio;
     return Math.min(maxWidth, widthFromHeight);
