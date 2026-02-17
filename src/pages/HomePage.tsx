@@ -99,7 +99,7 @@ const HomePage: React.FC = () => {
                   <button
                     onClick={handleDownload}
                     disabled={downloadCode.length !== 6}
-                    className={`absolute right-1.5 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-colors ${
+                    className={`absolute right-[5.5px] md:right-[7.5px] top-1/2 -translate-y-1/2 p-2 rounded-lg transition-colors ${
                       downloadCode.length === 6
                         ? 'bg-primary text-primary-foreground hover:bg-primary/90'
                         : 'bg-muted text-muted-foreground cursor-not-allowed'

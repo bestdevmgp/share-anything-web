@@ -34,8 +34,9 @@ const DownloadFilePage: React.FC = () => {
 
   const [fileList, setFileList] = useState<FileListResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [errorTitle, setErrorTitle] = useState('');
+  const [errorTitleKey, setErrorTitleKey] = useState('');
+  const [errorDescKey, setErrorDescKey] = useState('');
+  const [errorDescFallback, setErrorDescFallback] = useState('');
 
   const [password, setPassword] = useState('');
   const [passwordVerified, setPasswordVerified] = useState(false);
@@ -156,8 +157,8 @@ const DownloadFilePage: React.FC = () => {
         setIsP2PDownload(true);
 
         if (list.uploader_online === false) {
-          setErrorTitle(t('download.senderOffline'));
-          setError(t('download.senderOfflineDesc'));
+          setErrorTitleKey('download.senderOffline');
+          setErrorDescKey('download.senderOfflineDesc');
           return;
         }
       }
@@ -172,14 +173,18 @@ const DownloadFilePage: React.FC = () => {
       const statusCode = err.response?.status;
 
       if (statusCode === 404) {
-        setErrorTitle(t('download.invalidCode'));
-        setError(t('download.notFoundOrExpired'));
+        setErrorTitleKey('download.invalidCode');
+        setErrorDescKey('download.notFoundOrExpired');
       } else if (statusCode === 429) {
-        setErrorTitle(t('download.blockedIP'));
-        setError(t('download.blockedIPDesc'));
+        setErrorTitleKey('download.blockedIP');
+        setErrorDescKey('download.blockedIPDesc');
       } else {
-        setErrorTitle(t('download.unknownError'));
-        setError(err.response?.data?.message || t('download.tryAgainLater'));
+        setErrorTitleKey('download.unknownError');
+        if (err.response?.data?.message) {
+          setErrorDescFallback(err.response.data.message);
+        } else {
+          setErrorDescKey('download.tryAgainLater');
+        }
       }
     } finally {
       setLoading(false);
@@ -415,11 +420,11 @@ const DownloadFilePage: React.FC = () => {
     );
   }
 
-  if (error) {
+  if (errorTitleKey) {
     return (
       <DownloadErrorState
-        errorTitle={errorTitle}
-        error={error}
+        errorTitle={t(errorTitleKey)}
+        error={errorDescKey ? t(errorDescKey) : errorDescFallback}
         navigate={navigate}
         t={t}
       />
