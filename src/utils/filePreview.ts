@@ -35,6 +35,7 @@ export async function generatePdfThumbnail(source: File | string, width = 200): 
 export function generateVideoThumbnail(source: File | string): Promise<string> {
   return new Promise((resolve, reject) => {
     let blobUrl: string | null = null;
+    const isPartial = typeof source === 'string' && !source.startsWith('blob:');
 
     const cleanup = () => {
       clearTimeout(overallTimeout);
@@ -44,33 +45,45 @@ export function generateVideoThumbnail(source: File | string): Promise<string> {
     const overallTimeout = setTimeout(() => {
       cleanup();
       reject(new Error('Video thumbnail generation timed out'));
-    }, 8000);
+    }, 10000);
 
-    const captureFrame = (videoSrc: string) => {
+    const doCapture = (video: HTMLVideoElement) => {
+      try {
+        if (video.videoWidth === 0 || video.videoHeight === 0) {
+          cleanup();
+          reject(new Error('Video has no dimensions'));
+          return;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(video, 0, 0);
+        const dataUrl = canvas.toDataURL('image/png');
+        cleanup();
+        resolve(dataUrl);
+      } catch (e) {
+        cleanup();
+        reject(e);
+      }
+    };
+
+    const loadAndCapture = (videoSrc: string) => {
       const video = document.createElement('video');
-      video.preload = 'metadata';
+      video.preload = 'auto';
       video.muted = true;
       video.playsInline = true;
 
-      video.onloadeddata = () => {
-        video.currentTime = Math.min(1, video.duration / 2);
-      };
-
-      video.onseeked = () => {
-        try {
-          const canvas = document.createElement('canvas');
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          const ctx = canvas.getContext('2d')!;
-          ctx.drawImage(video, 0, 0);
-          const dataUrl = canvas.toDataURL('image/png');
-          cleanup();
-          resolve(dataUrl);
-        } catch (e) {
-          cleanup();
-          reject(e);
-        }
-      };
+      if (isPartial) {
+        // Partial data (Range fetch): capture first available frame immediately
+        video.onloadeddata = () => doCapture(video);
+      } else {
+        // Full data (File/blob): seek to early position for a better frame
+        video.onloadeddata = () => {
+          video.currentTime = Math.min(1, video.duration / 2);
+        };
+        video.onseeked = () => doCapture(video);
+      }
 
       video.onerror = () => {
         cleanup();
@@ -82,22 +95,23 @@ export function generateVideoThumbnail(source: File | string): Promise<string> {
 
     if (source instanceof File) {
       blobUrl = URL.createObjectURL(source);
-      captureFrame(blobUrl);
+      loadAndCapture(blobUrl);
     } else if (source.startsWith('blob:')) {
-      captureFrame(source);
+      loadAndCapture(source);
     } else {
+      // Remote URL: fetch first 5MB as blob to avoid CORS canvas taint
       const controller = new AbortController();
-      const fetchTimer = setTimeout(() => controller.abort(), 4000);
+      const fetchTimer = setTimeout(() => controller.abort(), 5000);
 
       fetch(source, {
         signal: controller.signal,
-        headers: { Range: 'bytes=0-2097151' },
+        headers: { Range: 'bytes=0-5242879' },
       })
         .then(res => res.blob())
         .then(blob => {
           clearTimeout(fetchTimer);
           blobUrl = URL.createObjectURL(blob);
-          captureFrame(blobUrl);
+          loadAndCapture(blobUrl);
         })
         .catch(() => {
           clearTimeout(fetchTimer);
