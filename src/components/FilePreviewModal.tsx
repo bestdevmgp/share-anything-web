@@ -49,6 +49,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   const [numPages, setNumPages] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pdfSource, setPdfSource] = useState<File | { url: string } | null>(null);
+  const [pdfPageSize, setPdfPageSize] = useState<{ width: number; height: number } | null>(null);
 
   useEffect(() => {
     let objectUrl: string | null = null;
@@ -139,6 +140,22 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
     setNumPages(numPages);
   }, []);
 
+  const onPageLoadSuccess = useCallback((page: { width: number; height: number }) => {
+    if (!pdfPageSize) {
+      setPdfPageSize({ width: page.width, height: page.height });
+    }
+  }, [pdfPageSize]);
+
+  const getPdfPageWidth = () => {
+    const maxWidth = Math.min(600, window.innerWidth - 80);
+    if (!pdfPageSize) return maxWidth;
+    // 85vh modal - ~5rem header - ~3rem pagination - ~2rem padding
+    const availableHeight = window.innerHeight * 0.85 - 160;
+    const aspectRatio = pdfPageSize.width / pdfPageSize.height;
+    const widthFromHeight = availableHeight * aspectRatio;
+    return Math.min(maxWidth, widthFromHeight);
+  };
+
   const renderTable = (data: string[][]) => (
     <div className="w-full overflow-auto max-h-[70vh]">
       <Table className="min-w-full text-sm border-collapse">
@@ -201,9 +218,10 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
           >
             <Page
               pageNumber={currentPage}
-              width={Math.min(600, window.innerWidth - 80)}
+              width={getPdfPageWidth()}
               renderAnnotationLayer={false}
               renderTextLayer={false}
+              onLoadSuccess={onPageLoadSuccess}
             />
           </Document>
           {numPages && numPages > 1 && (

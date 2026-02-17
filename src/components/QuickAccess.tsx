@@ -596,13 +596,10 @@ const QuickAccess: React.FC = () => {
               {files.map((file) => (
                 <div
                   key={file.id}
-                  className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/[0.09] can-hover:hover:bg-accent active:bg-accent transition-colors"
-                  onClick={(e) => e.stopPropagation()}
+                  className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/[0.09] can-hover:hover:bg-accent active:bg-accent transition-colors cursor-pointer"
+                  onClick={(e) => { e.stopPropagation(); handlePreviewClick(file); }}
                 >
-                  <div
-                    className="flex-shrink-0 mr-3 cursor-pointer"
-                    onClick={() => handlePreviewClick(file)}
-                  >
+                  <div className="flex-shrink-0 mr-3">
                     <FileThumbnail
                       source={previewUrls.get(file.id) || null}
                       fileName={file.file_name}
@@ -623,14 +620,14 @@ const QuickAccess: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-1 flex-shrink-0">
                     <button
-                      onClick={() => handleDownload(file)}
+                      onClick={(e) => { e.stopPropagation(); handleDownload(file); }}
                       className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
                       title={t('common.download')}
                     >
                       <ArrowDownTrayIcon className="w-5 h-5" />
                     </button>
                     <button
-                      onClick={() => handleDelete(file.id)}
+                      onClick={(e) => { e.stopPropagation(); handleDelete(file.id); }}
                       className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-red-500 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100 dark:can-hover:hover:bg-red-500/20 active:text-red-500 dark:active:text-red-400 active:bg-red-100 dark:active:bg-red-500/20"
                       title={t('common.delete')}
                     >
