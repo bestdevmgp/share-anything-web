@@ -518,9 +518,14 @@ const DownloadFilePage: React.FC = () => {
               )}>
                 {anyP2PDownloading ? (
                   <Spinner size="xl" />
-                ) : (
+                ) : allP2PCompleted ? (
                   <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M5 13l4 4L19 7" className="download-checkmark-path" />
+                  </svg>
+                ) : (
+                  <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
                   </svg>
                 )}
               </div>

@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { QRCodeSVG } from 'qrcode.react';
 import { CheckIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
 import FileThumbnail from '../components/FileThumbnail';
-import { isPdfFile, isPptxFile, formatDateTime } from '../utils/format';
+import { isPdfFile, isPptxFile, isVideoFile, formatDateTime } from '../utils/format';
 import { useThumbnail } from '../hooks/useThumbnail';
 import FilePreviewModal from '../components/FilePreviewModal';
 import { useTranslation } from '../i18n';
@@ -148,7 +148,7 @@ const UploadHistoryPage: React.FC = () => {
   const fetchPresignedUrls = useCallback(async (items: UploadHistoryItem[]): Promise<Record<string, string>> => {
     const urls: Record<string, string> = {};
     const promises = items
-      .filter(u => new Date(u.expires_at) >= new Date() && (u.file_type.startsWith('image/') || isPdfFile(u.file_name)))
+      .filter(u => new Date(u.expires_at) >= new Date() && (u.file_type.startsWith('image/') || isPdfFile(u.file_name) || isVideoFile(u.file_name)))
       .map(async (upload) => {
         try {
           const result = await fileAPI.getDownloadUrl(upload.share_code, upload.id, undefined, true, true);
@@ -354,7 +354,7 @@ const UploadHistoryPage: React.FC = () => {
 
   const getThumbnailSource = (upload: UploadHistoryItem): string | null => {
     if (isExpired(upload.expires_at)) return null;
-    if (isImageFileByType(upload.file_type) || isPdfFile(upload.file_name)) {
+    if (isImageFileByType(upload.file_type) || isPdfFile(upload.file_name) || isVideoFile(upload.file_name)) {
       return presignedUrls[upload.id] || null;
     }
     return null;

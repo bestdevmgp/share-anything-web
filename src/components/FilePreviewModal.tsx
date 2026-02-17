@@ -181,7 +181,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
     }
 
     if (isVideoFile(fileName) && mediaUrl) {
-      return <video src={mediaUrl} controls className="max-w-full max-h-[70vh] rounded" />;
+      return <video src={mediaUrl} controls autoPlay className="max-w-full max-h-[70vh] rounded" />;
     }
 
     if (isAudioFile(fileName) && mediaUrl) {

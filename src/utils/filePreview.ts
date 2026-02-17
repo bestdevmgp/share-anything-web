@@ -38,27 +38,46 @@ export function generateVideoThumbnail(source: File | string): Promise<string> {
     video.preload = 'metadata';
     video.muted = true;
     video.playsInline = true;
+    video.crossOrigin = 'anonymous';
 
     const url = source instanceof File ? URL.createObjectURL(source) : source;
     const isObjectUrl = source instanceof File;
+
+    const cleanup = () => {
+      clearTimeout(timeout);
+      video.onloadeddata = null;
+      video.onseeked = null;
+      video.onerror = null;
+      if (isObjectUrl) URL.revokeObjectURL(url);
+    };
+
+    const timeout = setTimeout(() => {
+      cleanup();
+      reject(new Error('Video thumbnail generation timed out'));
+    }, 10000);
 
     video.onloadeddata = () => {
       video.currentTime = Math.min(1, video.duration / 2);
     };
 
     video.onseeked = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d')!;
-      ctx.drawImage(video, 0, 0);
-      const dataUrl = canvas.toDataURL('image/png');
-      if (isObjectUrl) URL.revokeObjectURL(url);
-      resolve(dataUrl);
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(video, 0, 0);
+        const dataUrl = canvas.toDataURL('image/png');
+        cleanup();
+        resolve(dataUrl);
+      } catch (e) {
+        cleanup();
+        reject(e);
+      }
     };
 
     video.onerror = () => {
-      if (isObjectUrl) URL.revokeObjectURL(url);
+      cleanup();
       reject(new Error('Failed to load video'));
     };
 
