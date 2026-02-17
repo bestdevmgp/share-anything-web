@@ -389,7 +389,7 @@ const DownloadFilePage: React.FC = () => {
 
   if (!turnstileVerified) {
     return (
-      <div className="flex items-center justify-center py-20">
+      <div className="flex items-center justify-center py-32">
         <div className="text-center">
           <Spinner size="lg" className="mx-auto" />
           <p className="mt-4 mb-8 text-muted-foreground">
@@ -411,7 +411,7 @@ const DownloadFilePage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
+      <div className="flex items-center justify-center py-32">
         <div className="text-center">
           <Spinner size="lg" className="mx-auto" />
           <p className="mt-4 text-muted-foreground">{t('download.loadingFileInfo')}</p>
