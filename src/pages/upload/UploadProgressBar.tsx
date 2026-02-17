@@ -43,7 +43,7 @@ const UploadProgressBar: React.FC<UploadProgressBarProps> = ({
             <div className="h-[65px] md:hidden" />
             {/* Progress bar - full width on PC, vertically centered to match button position */}
             <div className="flex-1 md:min-h-[65px] md:flex md:items-center">
-              <div className="flex items-center gap-2 w-full pl-4">
+              <div className="flex items-center gap-2 w-full pl-1.5">
                 <div className="flex-1">
                   <div className="flex justify-between mb-2">
                     <span className="text-sm font-medium text-foreground">

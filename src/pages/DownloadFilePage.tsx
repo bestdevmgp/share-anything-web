@@ -392,7 +392,7 @@ const DownloadFilePage: React.FC = () => {
       <div className="flex items-center justify-center pt-32 pb-20">
         <div className="text-center">
           <Spinner size="lg" className="mx-auto" />
-          <p className="mt-4 mb-[37px] text-muted-foreground">
+          <p className="mt-4 mb-[42px] text-muted-foreground">
             {loading ? t('download.loadingFileInfo') : t('download.verifyingRequest')}
           </p>
           <TurnstileWidget
