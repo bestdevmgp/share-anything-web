@@ -12,6 +12,7 @@ import TransferTypeToggle from './upload/TransferTypeToggle';
 import FileDropzone from './upload/FileDropzone';
 import TransferSettings from './upload/TransferSettings';
 import UploadProgressBar from './upload/UploadProgressBar';
+import { storeUploadFiles, restoreUploadFiles, clearUploadFiles } from '../utils/uploadFileStorage';
 
 const UploadPage: React.FC = () => {
   const navigate = useNavigate();
@@ -44,9 +45,53 @@ const UploadPage: React.FC = () => {
   const tooltipRef = useRef<HTMLDivElement>(null);
   const lastTimeUpdateRef = useRef<number>(0);
 
+  const filesRef = useRef(files);
+  filesRef.current = files;
+  const isRestoringRef = useRef(false);
+
   useEffect(() => {
     document.title = t('upload.pageTitle');
   }, [t]);
+
+  // Restore files from IndexedDB on refresh
+  useEffect(() => {
+    const wasRefresh = sessionStorage.getItem('uploadPageRefreshing');
+    sessionStorage.removeItem('uploadPageRefreshing');
+
+    if (wasRefresh) {
+      isRestoringRef.current = true;
+      restoreUploadFiles().then(restored => {
+        if (restored.length > 0) {
+          setFiles(restored);
+        }
+        isRestoringRef.current = false;
+      });
+    } else {
+      clearUploadFiles();
+    }
+  }, []);
+
+  // Store files in IndexedDB when they change
+  useEffect(() => {
+    if (isRestoringRef.current) return;
+
+    if (files.length > 0) {
+      storeUploadFiles(files);
+    } else {
+      clearUploadFiles();
+    }
+  }, [files]);
+
+  // Set sessionStorage flag on page refresh/close
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (filesRef.current.length > 0) {
+        sessionStorage.setItem('uploadPageRefreshing', 'true');
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
 
   useEffect(() => {
     if (fromP2PFallback && fallbackFiles && fallbackFiles.length > 0 && !fallbackHandledRef.current) {
