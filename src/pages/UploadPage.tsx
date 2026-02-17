@@ -82,15 +82,23 @@ const UploadPage: React.FC = () => {
     }
   }, [files]);
 
-  // Set sessionStorage flag on page refresh/close
   useEffect(() => {
-    const handleBeforeUnload = () => {
+    const handlePageHide = () => {
       if (filesRef.current.length > 0) {
         sessionStorage.setItem('uploadPageRefreshing', 'true');
       }
     };
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) {
+        sessionStorage.removeItem('uploadPageRefreshing');
+      }
+    };
+    window.addEventListener('pagehide', handlePageHide);
+    window.addEventListener('pageshow', handlePageShow);
+    return () => {
+      window.removeEventListener('pagehide', handlePageHide);
+      window.removeEventListener('pageshow', handlePageShow);
+    };
   }, []);
 
   useEffect(() => {
