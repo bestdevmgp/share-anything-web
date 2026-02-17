@@ -33,6 +33,7 @@ const UploadPage: React.FC = () => {
   const [isOneTime, setIsOneTime] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [isCompleting, setIsCompleting] = useState(false);
   const [uploadTimeRemaining, setUploadTimeRemaining] = useState<string>('');
   const [uploadAbortController, setUploadAbortController] = useState<AbortController | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string>('');
@@ -310,6 +311,7 @@ const UploadPage: React.FC = () => {
       }
 
       setUploadProgress(100);
+      setIsCompleting(true);
 
       const response = await fileAPI.completeMultipartUpload({
         upload_session_id: initResponse.upload_session_id,
@@ -345,6 +347,7 @@ const UploadPage: React.FC = () => {
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
+      setIsCompleting(false);
       setUploadAbortController(null);
       setTurnstileToken('');
     }
@@ -479,6 +482,7 @@ const UploadPage: React.FC = () => {
           isUploading={isUploading}
           transferType={transferType}
           uploadProgress={uploadProgress}
+          isCompleting={isCompleting}
           uploadTimeRemaining={uploadTimeRemaining}
           files={files}
           turnstileToken={turnstileToken}

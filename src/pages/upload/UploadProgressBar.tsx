@@ -9,6 +9,7 @@ export interface UploadProgressBarProps {
   isUploading: boolean;
   transferType: 'server' | 'p2p';
   uploadProgress: number;
+  isCompleting: boolean;
   uploadTimeRemaining: string;
   files: File[];
   turnstileToken: string;
@@ -23,6 +24,7 @@ const UploadProgressBar: React.FC<UploadProgressBarProps> = ({
   isUploading,
   transferType,
   uploadProgress,
+  isCompleting,
   uploadTimeRemaining,
   files,
   turnstileToken,
@@ -47,9 +49,9 @@ const UploadProgressBar: React.FC<UploadProgressBarProps> = ({
                 <div className="flex-1">
                   <div className="flex justify-between mb-2">
                     <span className="text-sm font-medium text-foreground">
-                      {uploadProgress === 100 ? t('upload.pleaseWait') : t('upload.uploading')}
+                      {isCompleting ? t('upload.pleaseWait') : t('upload.uploading')}
                     </span>
-                    {uploadProgress < 100 && (
+                    {!isCompleting && (
                       <div className="flex items-center gap-2">
                         {uploadTimeRemaining && (
                           <span className="text-xs text-muted-foreground">{uploadTimeRemaining}</span>
