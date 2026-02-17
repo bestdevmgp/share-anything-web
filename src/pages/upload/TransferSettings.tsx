@@ -106,7 +106,7 @@ const TransferSettings: React.FC<TransferSettingsProps> = ({
               variant="ghost"
               size="icon"
               onClick={onShowPasswordToggle}
-              className="absolute right-[7px] top-1/2 -translate-y-1/2 text-muted-foreground"
+              className="absolute right-[6px] top-1/2 -translate-y-1/2 text-muted-foreground"
             >
               {showPassword ? (
                 <EyeIcon className="w-5 h-5" />
