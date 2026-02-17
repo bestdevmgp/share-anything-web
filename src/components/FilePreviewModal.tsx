@@ -147,17 +147,17 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   }, [pdfPageSize]);
 
   const getPdfPageWidth = () => {
-    const maxWidth = Math.min(600, window.innerWidth - 80);
+    const maxWidth = Math.min(600, window.innerWidth - 64);
     if (!pdfPageSize) return maxWidth;
-    // 85vh modal - ~5rem header - ~3rem pagination - ~2rem padding
-    const availableHeight = window.innerHeight * 0.85 - 160;
+    // (100vh - 4rem) modal - ~5rem header - ~3rem pagination - ~2rem padding
+    const availableHeight = window.innerHeight - 64 - 128;
     const aspectRatio = pdfPageSize.width / pdfPageSize.height;
     const widthFromHeight = availableHeight * aspectRatio;
     return Math.min(maxWidth, widthFromHeight);
   };
 
   const renderTable = (data: string[][]) => (
-    <div className="w-full overflow-auto max-h-[70vh]">
+    <div className="w-full overflow-auto max-h-[calc(100vh-10rem)]">
       <Table className="min-w-full text-sm border-collapse">
         <TableHeader className="sticky top-0">
           <TableRow>
@@ -194,11 +194,11 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
     }
 
     if (isImageFile(fileName) && mediaUrl) {
-      return <img src={mediaUrl} alt={fileName} className="max-w-full max-h-[70vh] object-contain rounded" />;
+      return <img src={mediaUrl} alt={fileName} className="max-w-full max-h-[calc(100vh-10rem)] object-contain rounded" />;
     }
 
     if (isVideoFile(fileName) && mediaUrl) {
-      return <video src={mediaUrl} controls autoPlay className="max-w-full max-h-[70vh] rounded" />;
+      return <video src={mediaUrl} controls autoPlay className="max-w-full max-h-[calc(100vh-10rem)] rounded" />;
     }
 
     if (isAudioFile(fileName) && mediaUrl) {
@@ -264,7 +264,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
         );
       }
       if (mediaUrl) {
-        return <img src={mediaUrl} alt={fileName} className="max-w-full max-h-[70vh] object-contain rounded" />;
+        return <img src={mediaUrl} alt={fileName} className="max-w-full max-h-[calc(100vh-10rem)] object-contain rounded" />;
       }
     }
 
@@ -279,7 +279,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
     if (isDocxFile(fileName) && docxHtml) {
       return (
         <div
-          className="w-full max-h-[70vh] overflow-auto prose prose-sm max-w-none px-4"
+          className="w-full max-h-[calc(100vh-10rem)] overflow-auto prose prose-sm max-w-none px-4"
           dangerouslySetInnerHTML={{ __html: docxHtml }}
         />
       );
@@ -287,7 +287,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
 
     if (isTextFile(fileName) && textContent !== null) {
       return (
-        <div className="w-full max-h-[70vh] overflow-auto bg-muted rounded-xl p-6">
+        <div className="w-full max-h-[calc(100vh-10rem)] overflow-auto bg-muted rounded-xl p-6">
           <pre className="text-sm text-foreground whitespace-pre-wrap break-words font-mono">
             {textContent}
           </pre>
@@ -305,13 +305,13 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden p-0">
-        <DialogHeader className="p-4">
+      <DialogContent className="w-auto min-w-[18rem] max-w-[calc(100vw-3rem)] max-h-[calc(100vh-4rem)] overflow-hidden p-0 flex flex-col">
+        <DialogHeader className="p-4 flex-shrink-0">
           <DialogTitle className="text-sm font-semibold truncate">{fileName}</DialogTitle>
           <DialogDescription className="text-xs">{formatFileSize(fileSize)}</DialogDescription>
         </DialogHeader>
-        <Separator />
-        <div className="p-4 flex overflow-auto max-h-[calc(85vh-5rem)]">
+        <Separator className="flex-shrink-0" />
+        <div className="p-4 flex flex-1 min-h-0 overflow-auto">
           <div className="m-auto">
             {renderContent()}
           </div>
