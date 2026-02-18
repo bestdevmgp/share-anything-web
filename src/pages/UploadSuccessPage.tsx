@@ -174,8 +174,8 @@ const UploadSuccessPage: React.FC = () => {
             <label className="block text-sm font-medium text-muted-foreground mb-3 text-center">
               {t('uploadSuccess.transferCode')}
             </label>
-            <div className="relative bg-muted rounded-xl px-4 md:px-8 py-4 md:py-6 mb-4 border border-foreground/[0.09]">
-              <p className="text-4xl md:text-5xl font-bold text-center text-foreground break-all" style={{ letterSpacing: '0.1em' }}>
+            <div className="relative bg-muted rounded-xl px-3 md:px-8 py-3 md:py-6 mb-4 border border-foreground/[0.09]">
+              <p className="text-[2.5rem] md:text-5xl font-bold text-center text-foreground break-all" style={{ letterSpacing: '0.1em' }}>
                 {displayCode}
               </p>
               <Tooltip>
