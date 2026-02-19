@@ -46,6 +46,7 @@ interface HistoryTableProps {
   isImageFileByType: (fileType: string) => boolean;
   PdfPreview: React.FC<PdfPreviewProps>;
   t: (key: string, params?: Record<string, any>) => string;
+  onUploadClick?: () => void;
 }
 
 const HistoryTable: React.FC<HistoryTableProps> = ({
@@ -71,6 +72,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
   isImageFileByType,
   PdfPreview,
   t,
+  onUploadClick,
 }) => {
   return (
     <Card className="hidden md:block rounded-xl border-2 border-border shadow-none overflow-hidden relative">
@@ -111,7 +113,18 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
             </TableRow>
           </TableHeader>
           <TableBody className="bg-card divide-y divide-border">
-            {uploads.map((upload) => (
+            {uploads.length === 0 ? (
+              <TableRow className="can-hover:hover:bg-transparent">
+                <TableCell colSpan={7} className="p-12 text-center">
+                  <p className="text-muted-foreground">{t('history.noFiles')}</p>
+                  {onUploadClick && (
+                    <Button onClick={onUploadClick} className="mt-4">
+                      {t('history.shareFiles')}
+                    </Button>
+                  )}
+                </TableCell>
+              </TableRow>
+            ) : uploads.map((upload) => (
               <React.Fragment key={upload.id}>
                 <TableRow
                   onClick={() => handleRowClick(upload.id)}

@@ -450,8 +450,34 @@ const UploadHistoryPage: React.FC = () => {
         </div>
       </div>
 
+      <HistoryTable
+        uploads={uploads}
+        expandedRow={expandedRow}
+        closingRow={closingRow}
+        downloadLogs={downloadLogs}
+        loadingLogs={loadingLogs}
+        presignedUrls={presignedUrls}
+        failedPreviews={failedPreviews}
+        tableScrollRef={tableScrollRef}
+        showTableScrollHint={showTableScrollHint}
+        language={language}
+        handleRowClick={handleRowClick}
+        handleShowQRCode={handleShowQRCode}
+        handleDelete={handleDelete}
+        handleViewAllLogs={handleViewAllLogs}
+        openPreviewModal={openPreviewModal}
+        handlePreviewError={handlePreviewError}
+        getThumbnailSource={getThumbnailSource}
+        truncateFileName={truncateFileName}
+        isExpired={isExpired}
+        isImageFileByType={isImageFileByType}
+        PdfPreview={PdfPreview}
+        t={t}
+        onUploadClick={() => navigate('/upload')}
+      />
+
       {uploads.length === 0 ? (
-        <Card className="rounded-xl border-2 border-border shadow-none">
+        <Card className="md:hidden rounded-xl border-2 border-border shadow-none">
           <CardContent className="p-12 text-center">
             <p className="text-muted-foreground">{t('history.noFiles')}</p>
             <Button
@@ -464,31 +490,6 @@ const UploadHistoryPage: React.FC = () => {
         </Card>
       ) : (
         <>
-          <HistoryTable
-            uploads={uploads}
-            expandedRow={expandedRow}
-            closingRow={closingRow}
-            downloadLogs={downloadLogs}
-            loadingLogs={loadingLogs}
-            presignedUrls={presignedUrls}
-            failedPreviews={failedPreviews}
-            tableScrollRef={tableScrollRef}
-            showTableScrollHint={showTableScrollHint}
-            language={language}
-            handleRowClick={handleRowClick}
-            handleShowQRCode={handleShowQRCode}
-            handleDelete={handleDelete}
-            handleViewAllLogs={handleViewAllLogs}
-            openPreviewModal={openPreviewModal}
-            handlePreviewError={handlePreviewError}
-            getThumbnailSource={getThumbnailSource}
-            truncateFileName={truncateFileName}
-            isExpired={isExpired}
-            isImageFileByType={isImageFileByType}
-            PdfPreview={PdfPreview}
-            t={t}
-          />
-
           <HistoryMobileCards
             uploads={uploads}
             expandedRow={expandedRow}
