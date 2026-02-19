@@ -2,6 +2,8 @@ import React from 'react';
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
 import { Button } from '../../components/ui/button';
 import { Checkbox } from '../../components/ui/checkbox';
+import { Input } from '../../components/ui/input';
+import { Textarea } from '../../components/ui/textarea';
 import { cn } from 'lib/utils';
 import { useTranslation } from '../../i18n';
 import { ExpirationOption } from '../../types';
@@ -92,13 +94,13 @@ const TransferSettings: React.FC<TransferSettingsProps> = ({
           {t('upload.password')} <span className="text-sm text-muted-foreground/60 font-normal">{t('common.optional')}</span>
         </h3>
         <div className="relative">
-          <input
+          <Input
             type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => onPasswordChange(e.target.value)}
             disabled={!isAuthenticated}
             placeholder={isAuthenticated ? t('upload.passwordPlaceholder') : t('upload.passwordPlaceholderDisabled')}
-            className="w-full h-12 px-4 pr-12 border border-input bg-card text-foreground placeholder:text-muted-foreground/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:bg-muted disabled:text-muted-foreground"
+            className="w-full h-12 px-4 pr-12 bg-card placeholder:text-muted-foreground/50 rounded-lg"
           />
           {isAuthenticated ? (
             <Button
@@ -128,12 +130,12 @@ const TransferSettings: React.FC<TransferSettingsProps> = ({
         <h3 className="text-base font-semibold text-foreground mb-4">
           {t('upload.description')} <span className="text-sm text-muted-foreground/60 font-normal">{t('common.optional')}</span>
         </h3>
-        <textarea
+        <Textarea
           value={description}
           onChange={(e) => onDescriptionChange(e.target.value)}
           placeholder={t('upload.descriptionPlaceholder')}
           rows={4}
-          className="w-full px-4 py-3 border border-input bg-card text-foreground placeholder:text-muted-foreground/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent resize-none"
+          className="px-4 py-3 bg-card placeholder:text-muted-foreground/50 rounded-lg resize-none"
         />
       </div>
     </div>

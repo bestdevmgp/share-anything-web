@@ -4,6 +4,7 @@ import { ArrowUpTrayIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline'
 import { useTranslation } from '../i18n';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
 import { Tooltip, TooltipTrigger, TooltipContent } from '../components/ui/tooltip';
 import QuickAccess from '../components/QuickAccess';
 
@@ -78,7 +79,7 @@ const HomePage: React.FC = () => {
               {t('home.downloadDescription')}
             </p>
             <div className="w-full max-w-sm md:max-w-xs relative">
-              <input
+              <Input
                 ref={downloadCodeInputRef}
                 type="text"
                 inputMode="numeric"
@@ -91,7 +92,7 @@ const HomePage: React.FC = () => {
                   }
                 }}
                 placeholder="123456"
-                className="w-full px-5 py-3 md:px-6 md:py-3 pr-12 border border-input bg-card text-foreground placeholder:text-muted-foreground/50 rounded-xl text-center font-mono text-base md:text-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                className="w-full h-auto px-5 py-3 md:px-6 md:py-3 pr-12 bg-card placeholder:text-muted-foreground/50 rounded-xl text-center font-mono text-base md:text-lg"
                 maxLength={6}
               />
               <Tooltip>
