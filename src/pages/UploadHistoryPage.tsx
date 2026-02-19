@@ -226,9 +226,8 @@ const UploadHistoryPage: React.FC = () => {
       setClosingRow(fileId);
       setTimeout(() => {
         setClosingRow(null);
-      }, 250);
+      }, 300);
     } else {
-      setClosingRow(null);
       setExpandedRow(fileId);
       fetchDownloadLogs(fileId);
       const upload = uploads.find(u => u.id === fileId);
@@ -654,6 +653,34 @@ const UploadHistoryPage: React.FC = () => {
       )}
 
       <style>{`
+        @keyframes expandDown {
+          from {
+            max-height: 0;
+            overflow: hidden;
+          }
+          to {
+            max-height: 800px;
+          }
+        }
+
+        @keyframes collapseUp {
+          from {
+            max-height: 800px;
+          }
+          to {
+            max-height: 0;
+            overflow: hidden;
+          }
+        }
+
+        .animate-expand-down {
+          animation: expandDown 0.3s ease-out forwards;
+        }
+
+        .animate-collapse-up {
+          animation: collapseUp 0.3s ease-in forwards;
+        }
+
         @keyframes scrollHint {
           0%, 100% { left: 2px; }
           50% { left: calc(100% - 26px); }

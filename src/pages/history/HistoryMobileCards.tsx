@@ -1,4 +1,4 @@
-import React, { useRef, useLayoutEffect } from 'react';
+import React from 'react';
 import { UploadHistoryItem, DownloadLog } from '../../types';
 import { isPdfFile, isVideoFile, formatFileSize, formatDateTime } from '../../utils/format';
 import { Language } from '../../context/LanguageContext';
@@ -59,38 +59,6 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
   PdfPreview,
   t,
 }) => {
-  const expandRef = useRef<HTMLDivElement>(null);
-
-  useLayoutEffect(() => {
-    const el = expandRef.current;
-    if (!el) return;
-
-    if (closingRow) {
-      const h = el.scrollHeight;
-      el.style.transition = 'none';
-      el.style.height = h + 'px';
-      el.style.overflow = 'hidden';
-      el.getBoundingClientRect();
-      el.style.transition = 'height 0.25s ease-in';
-      el.style.height = '0px';
-    } else if (expandedRow) {
-      const h = el.scrollHeight;
-      el.style.transition = 'none';
-      el.style.height = '0px';
-      el.style.overflow = 'hidden';
-      el.getBoundingClientRect();
-      el.style.transition = 'height 0.3s ease-out';
-      el.style.height = h + 'px';
-      const onEnd = () => {
-        el.style.height = 'auto';
-        el.style.overflow = '';
-        el.removeEventListener('transitionend', onEnd);
-      };
-      el.addEventListener('transitionend', onEnd);
-      return () => el.removeEventListener('transitionend', onEnd);
-    }
-  }, [expandedRow, closingRow]);
-
   return (
     <div className="md:hidden space-y-2">
       {uploads.map((upload) => (
@@ -154,7 +122,7 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
           </div>
 
           {(expandedRow === upload.id || closingRow === upload.id) && (
-            <div ref={expandRef} className="border-t border-border p-4 bg-background">
+            <div className={cn('border-t border-border p-4 bg-background', closingRow === upload.id ? 'animate-collapse-up' : 'animate-expand-down')}>
               <div className="space-y-4">
                 <div>
                   <h4 className="text-sm font-semibold text-foreground mb-2">{t('history.preview')}</h4>
