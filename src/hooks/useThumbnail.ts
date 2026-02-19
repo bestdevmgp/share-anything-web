@@ -34,6 +34,7 @@ export function useThumbnail(source: File | string | null, fileName: string, thu
   useEffect(() => {
     if (!source) {
       setUrl(null);
+      setLoading(false);
       return;
     }
 
@@ -41,6 +42,7 @@ export function useThumbnail(source: File | string | null, fileName: string, thu
     const cached = cache.get(key);
     if (cached) {
       setUrl(cached);
+      setLoading(false);
       return;
     }
 
