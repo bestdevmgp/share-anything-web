@@ -380,7 +380,7 @@ const UploadHistoryPage: React.FC = () => {
   if (authLoading || loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 md:pt-16 pb-20">
-        <div className="mb-4">
+        <div className="mb-5">
           <Skeleton className="h-9 w-36" />
           <div className="flex items-center justify-between mt-1 min-h-9">
             <Skeleton className="h-5 w-56" />
@@ -434,7 +434,7 @@ const UploadHistoryPage: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 md:pt-16 pb-20">
-      <div className="mb-4">
+      <div className="mb-5">
         <h1 className="text-3xl font-bold text-foreground">{t('history.pageTitle')}</h1>
         <div className="flex items-center justify-between mt-1">
           <p className="text-muted-foreground min-h-9 flex items-center">{t('history.validFileCount', { count: uploads.filter(u => !isExpired(u.expires_at)).length })}</p>
