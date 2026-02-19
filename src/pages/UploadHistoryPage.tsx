@@ -674,11 +674,11 @@ const UploadHistoryPage: React.FC = () => {
         }
 
         .animate-expand-down {
-          animation: expandDown 0.3s ease-out forwards;
+          animation: expandDown 0.2s ease-out forwards;
         }
 
         .animate-collapse-up {
-          animation: collapseUp 0.3s ease-in forwards;
+          animation: collapseUp 0.2s ease-in forwards;
         }
 
         @keyframes scrollHint {
