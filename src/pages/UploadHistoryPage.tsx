@@ -332,7 +332,7 @@ const UploadHistoryPage: React.FC = () => {
     return fileType.startsWith('image/');
   };
 
-  const truncateFileName = (fileName: string, maxLength: number = 50) => {
+  const truncateFileName = (fileName: string, maxLength: number = 40) => {
     const normalized = fileName.normalize('NFC');
     if (normalized.length <= maxLength) return normalized;
 
