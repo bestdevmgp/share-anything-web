@@ -5,6 +5,7 @@ import { Language } from '../../context/LanguageContext';
 import FileThumbnail from '../../components/FileThumbnail';
 import { Button } from '../../components/ui/button';
 import { Skeleton } from '../../components/ui/skeleton';
+import { Card, CardContent } from '../../components/ui/card';
 import { cn } from 'lib/utils';
 
 interface PdfPreviewProps {
@@ -61,7 +62,7 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
   return (
     <div className="md:hidden space-y-2">
       {uploads.map((upload) => (
-        <div key={upload.id} className="bg-card rounded-xl border-2 border-border overflow-hidden">
+        <Card key={upload.id} className="rounded-xl border-2 border-border shadow-none overflow-hidden">
           <div className="relative">
             <div className="absolute top-1/2 -translate-y-1/2 right-3 flex gap-1 z-10">
               {!isExpired(upload.expires_at) && (
@@ -125,9 +126,9 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
               <div className="space-y-4">
                 <div>
                   <h4 className="text-sm font-semibold text-foreground mb-2">{t('history.preview')}</h4>
-                  <div
+                  <Card
                     className={cn(
-                      'bg-card rounded-lg border border-border overflow-hidden cursor-pointer can-hover:hover:border-primary/50 active:border-primary/50 transition-colors',
+                      'rounded-lg shadow-none overflow-hidden cursor-pointer can-hover:hover:border-primary/50 active:border-primary/50 transition-colors',
                       isExpired(upload.expires_at) ? 'h-28' :
                       (isImageFileByType(upload.file_type) || isVideoFile(upload.file_name)) ? 'aspect-square' : 'h-32'
                     )}
@@ -189,12 +190,13 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                         <p className="text-xs text-muted-foreground text-center">{t('history.clickToPreview')}</p>
                       </div>
                     )}
-                  </div>
+                  </Card>
                 </div>
 
                 <div>
                   <h4 className="text-sm font-semibold text-foreground mb-2">{t('history.detailInfo')}</h4>
-                  <div className="bg-card rounded-lg border border-border p-3 space-y-2 text-xs">
+                  <Card className="rounded-lg shadow-none">
+                    <CardContent className="p-3 space-y-2 text-xs">
                     <div>
                       <span className="text-muted-foreground">{t('history.fileTypeLabel')}:</span>
                       <span className="ml-2 text-foreground">{upload.file_type}</span>
@@ -223,7 +225,8 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                       <span className="text-muted-foreground">{t('history.expirationDateLabel')}:</span>
                       <span className="ml-2 text-foreground">{formatDateTime(upload.expires_at, language)}</span>
                     </div>
-                  </div>
+                    </CardContent>
+                  </Card>
                 </div>
 
                 <div>
@@ -240,7 +243,8 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                       </Button>
                     )}
                   </div>
-                  <div className="bg-card rounded-lg border border-border p-4">
+                  <Card className="rounded-lg shadow-none">
+                    <CardContent className="p-4">
                     {loadingLogs[upload.id] ? (
                       <div className="space-y-4">
                         {[0, 1].map((i) => (
@@ -270,12 +274,13 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                         {t('history.noDownloadLogs')}
                       </div>
                     )}
-                  </div>
+                    </CardContent>
+                  </Card>
                 </div>
               </div>
             </div>
           )}
-        </div>
+        </Card>
       ))}
     </div>
   );

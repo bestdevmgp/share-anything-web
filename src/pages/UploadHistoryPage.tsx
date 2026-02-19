@@ -21,6 +21,7 @@ import {
 } from '../components/ui/dialog';
 import { Spinner } from '../components/ui/spinner';
 import { Skeleton } from '../components/ui/skeleton';
+import { Card, CardContent } from '../components/ui/card';
 import {
   Table,
   TableHeader,
@@ -449,15 +450,17 @@ const UploadHistoryPage: React.FC = () => {
       </div>
 
       {uploads.length === 0 ? (
-        <div className="bg-card rounded-lg shadow p-12 text-center dark:shadow-none dark:border dark:border-border">
-          <p className="text-muted-foreground">{t('history.noFiles')}</p>
-          <Button
-            onClick={() => navigate('/upload')}
-            className="mt-4"
-          >
-            {t('history.shareFiles')}
-          </Button>
-        </div>
+        <Card className="rounded-xl border-2 border-border shadow-none">
+          <CardContent className="p-12 text-center">
+            <p className="text-muted-foreground">{t('history.noFiles')}</p>
+            <Button
+              onClick={() => navigate('/upload')}
+              className="mt-4"
+            >
+              {t('history.shareFiles')}
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
         <>
           <HistoryTable

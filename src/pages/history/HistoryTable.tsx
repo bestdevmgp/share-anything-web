@@ -7,6 +7,14 @@ import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
 import { Tooltip, TooltipTrigger, TooltipContent } from '../../components/ui/tooltip';
 import { Skeleton } from '../../components/ui/skeleton';
+import { Card, CardContent } from '../../components/ui/card';
+import {
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from '../../components/ui/table';
 import { cn } from 'lib/utils';
 
 interface PdfPreviewProps {
@@ -65,7 +73,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
   t,
 }) => {
   return (
-    <div className="hidden md:block bg-card rounded-xl border-2 border-border overflow-hidden relative">
+    <Card className="hidden md:block rounded-xl border-2 border-border shadow-none overflow-hidden relative">
       <div ref={tableScrollRef} className="overflow-x-auto">
         <table className="w-full min-w-[1200px] divide-y divide-border table-fixed">
           <colgroup>
@@ -77,42 +85,42 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
             <col style={{ width: '9%' }} />
             <col style={{ width: '11%' }} />
           </colgroup>
-          <thead className="bg-muted">
-            <tr>
-              <th className="px-6 py-4 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap align-middle">
+          <TableHeader className="bg-muted">
+            <TableRow className="can-hover:hover:bg-transparent">
+              <TableHead className="px-6 py-4 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap align-middle h-auto">
                 {t('history.fileName')}
-              </th>
-              <th className="px-6 py-4 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap align-middle">
+              </TableHead>
+              <TableHead className="px-6 py-4 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap align-middle h-auto">
                 {t('history.size')}
-              </th>
-              <th className="px-6 py-4 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap align-middle">
+              </TableHead>
+              <TableHead className="px-6 py-4 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap align-middle h-auto">
                 {t('history.uploadDate')}
-              </th>
-              <th className="px-6 py-4 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap align-middle">
+              </TableHead>
+              <TableHead className="px-6 py-4 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap align-middle h-auto">
                 {t('history.expirationDate')}
-              </th>
-              <th className="px-6 py-4 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap align-middle">
+              </TableHead>
+              <TableHead className="px-6 py-4 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap align-middle h-auto">
                 {t('history.downloads')}
-              </th>
-              <th className="px-6 py-4 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap align-middle">
+              </TableHead>
+              <TableHead className="px-6 py-4 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap align-middle h-auto">
                 {t('history.status')}
-              </th>
-              <th className="px-6 py-4 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap align-middle">
+              </TableHead>
+              <TableHead className="px-6 py-4 text-center text-xs font-medium text-muted-foreground uppercase tracking-wider whitespace-nowrap align-middle h-auto">
                 {t('history.actions')}
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-card divide-y divide-border">
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody className="bg-card divide-y divide-border">
             {uploads.map((upload) => (
               <React.Fragment key={upload.id}>
-                <tr
+                <TableRow
                   onClick={() => handleRowClick(upload.id)}
                   className={cn(
-                    'cursor-pointer transition-colors can-hover:hover:bg-muted active:bg-muted',
+                    'cursor-pointer can-hover:hover:bg-muted active:bg-muted',
                     expandedRow === upload.id ? 'bg-muted' : 'bg-card'
                   )}
                 >
-                  <td className="px-6 py-4 max-w-0">
+                  <TableCell className="px-6 py-4 max-w-0">
                     <div className="flex items-center space-x-3 overflow-hidden">
                       <FileThumbnail source={getThumbnailSource(upload)} fileName={upload.file_name} size="md" />
                       <div className="min-w-0 flex-1">
@@ -126,20 +134,20 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                         )}
                       </div>
                     </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground text-center">
+                  </TableCell>
+                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground text-center">
                     {formatFileSize(upload.file_size)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground text-center">
+                  </TableCell>
+                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground text-center">
                     {formatDateTime(upload.created_at, language)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground text-center">
+                  </TableCell>
+                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground text-center">
                     {formatDateTime(upload.expires_at, language)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground text-center">
+                  </TableCell>
+                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-foreground text-center">
                     {t('common.countUnit', { count: upload.download_count })}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                  </TableCell>
+                  <TableCell className="px-6 py-4 whitespace-nowrap text-center">
                     {isExpired(upload.expires_at) ? (
                       <Badge variant="destructive" className="bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-400">
                         {t('history.expired')}
@@ -149,8 +157,8 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                         {t('history.active')}
                       </Badge>
                     )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                  </TableCell>
+                  <TableCell className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                     <div className="flex justify-end gap-0.5">
                       {!isExpired(upload.expires_at) && (
                         <Tooltip>
@@ -186,18 +194,18 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                         <TooltipContent>{t('common.delete')}</TooltipContent>
                       </Tooltip>
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
 
                 {(expandedRow === upload.id || closingRow === upload.id) && (
-                  <tr>
-                    <td colSpan={7} className="px-6 bg-background">
+                  <TableRow className="can-hover:hover:bg-transparent border-0">
+                    <TableCell colSpan={7} className="px-6 bg-background">
                       <div className={cn('py-6', closingRow === upload.id ? 'animate-collapse-up' : 'animate-expand-down')}>
                         <div className="grid grid-cols-3 gap-4">
                           <div className="h-0 min-h-full flex flex-col overflow-hidden">
                             <h3 className="text-lg font-semibold text-foreground mb-4 flex-shrink-0">{t('history.preview')}</h3>
-                            <div
-                              className="bg-card rounded-lg border border-border overflow-hidden w-full flex-1 max-w-md cursor-pointer can-hover:hover:border-primary/50 active:border-primary/50 transition-colors"
+                            <Card
+                              className="rounded-lg shadow-none overflow-hidden w-full flex-1 max-w-md cursor-pointer can-hover:hover:border-primary/50 active:border-primary/50 transition-colors"
                               onClick={(e) => { e.stopPropagation(); openPreviewModal(upload); }}
                             >
                               {isExpired(upload.expires_at) ? (
@@ -256,13 +264,14 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                                   <p className="text-sm text-muted-foreground text-center">{t('history.clickToPreview')}</p>
                                 </div>
                               )}
-                            </div>
+                            </Card>
                           </div>
 
                           <div className="col-span-2 grid grid-cols-2 gap-4">
                             <div className="flex flex-col">
                               <h3 className="text-lg font-semibold text-foreground mb-4">{t('history.detailInfo')}</h3>
-                              <div className="bg-card rounded-lg border border-border p-4 grid grid-cols-2 gap-x-6 gap-y-3">
+                              <Card className="rounded-lg shadow-none">
+                                <CardContent className="p-4 grid grid-cols-2 gap-x-6 gap-y-3">
                                 <div className="col-span-2">
                                   <span className="text-sm font-medium text-muted-foreground">{t('history.fileNameLabel')}</span>
                                   <p className="text-sm text-foreground break-all">{upload.file_name}</p>
@@ -303,7 +312,8 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                                   <span className="text-sm font-medium text-muted-foreground">{t('history.expirationDateLabel')}</span>
                                   <p className="text-sm text-foreground">{formatDateTime(upload.expires_at, language)}</p>
                                 </div>
-                              </div>
+                                </CardContent>
+                              </Card>
                             </div>
 
                             <div className="h-0 min-h-full flex flex-col overflow-hidden">
@@ -320,7 +330,8 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                                   </Button>
                                 )}
                               </div>
-                              <div className="bg-card rounded-lg border border-border p-4 flex-1 flex flex-col min-h-0 overflow-hidden">
+                              <Card className="rounded-lg shadow-none flex-1 flex flex-col min-h-0 overflow-hidden">
+                                <CardContent className="p-4 flex-1 flex flex-col min-h-0 overflow-hidden">
                                 {loadingLogs[upload.id] ? (
                                   <div className="space-y-4 flex-1">
                                     {[0, 1, 2].map((i) => (
@@ -367,17 +378,18 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                                     {t('history.noDownloadLogs')}
                                   </div>
                                 )}
-                              </div>
+                                </CardContent>
+                              </Card>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 )}
               </React.Fragment>
             ))}
-          </tbody>
+          </TableBody>
         </table>
       </div>
       {showTableScrollHint && (
@@ -390,7 +402,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
           </div>
         </div>
       )}
-    </div>
+    </Card>
   );
 };
 
