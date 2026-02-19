@@ -333,18 +333,19 @@ const UploadHistoryPage: React.FC = () => {
   };
 
   const truncateFileName = (fileName: string, maxLength: number = 50) => {
-    if (fileName.length <= maxLength) return fileName;
+    const normalized = fileName.normalize('NFC');
+    if (normalized.length <= maxLength) return normalized;
 
-    const lastDotIndex = fileName.lastIndexOf('.');
+    const lastDotIndex = normalized.lastIndexOf('.');
     if (lastDotIndex === -1) {
-      return fileName.substring(0, maxLength) + '...';
+      return normalized.substring(0, maxLength) + '...';
     }
 
-    const extension = fileName.substring(lastDotIndex);
-    const nameWithoutExt = fileName.substring(0, lastDotIndex);
+    const extension = normalized.substring(lastDotIndex);
+    const nameWithoutExt = normalized.substring(0, lastDotIndex);
     const maxNameLength = maxLength - extension.length - 3;
 
-    if (nameWithoutExt.length <= maxNameLength) return fileName;
+    if (nameWithoutExt.length <= maxNameLength) return normalized;
 
     return nameWithoutExt.substring(0, maxNameLength) + '...' + extension;
   };
@@ -393,7 +394,7 @@ const UploadHistoryPage: React.FC = () => {
             ))}
           </div>
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-6 px-6 py-4 border-t border-border">
+            <div key={i} className="flex items-center gap-6 px-6 py-3 border-t border-border">
               <div className="flex items-center gap-3 flex-1">
                 <Skeleton className="h-12 w-12 rounded" />
                 <Skeleton className="h-4 w-40" />

@@ -120,7 +120,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                     expandedRow === upload.id ? 'bg-muted' : 'bg-card'
                   )}
                 >
-                  <TableCell className="px-6 py-4 max-w-0">
+                  <TableCell className="px-6 py-3 max-w-0">
                     <div className="flex items-center space-x-3 overflow-hidden">
                       <FileThumbnail source={getThumbnailSource(upload)} fileName={upload.file_name} size="md" />
                       <div className="min-w-0 flex-1">
@@ -135,19 +135,19 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                       </div>
                     </div>
                   </TableCell>
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground text-center">
+                  <TableCell className="px-6 py-3 whitespace-nowrap text-sm text-muted-foreground text-center">
                     {formatFileSize(upload.file_size)}
                   </TableCell>
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground text-center">
+                  <TableCell className="px-6 py-3 whitespace-nowrap text-sm text-muted-foreground text-center">
                     {formatDateTime(upload.created_at, language)}
                   </TableCell>
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground text-center">
+                  <TableCell className="px-6 py-3 whitespace-nowrap text-sm text-muted-foreground text-center">
                     {formatDateTime(upload.expires_at, language)}
                   </TableCell>
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-sm text-foreground text-center">
+                  <TableCell className="px-6 py-3 whitespace-nowrap text-sm text-foreground text-center">
                     {t('common.countUnit', { count: upload.download_count })}
                   </TableCell>
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-center">
+                  <TableCell className="px-6 py-3 whitespace-nowrap text-center">
                     {isExpired(upload.expires_at) ? (
                       <Badge variant="destructive" className="bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-400">
                         {t('history.expired')}
@@ -158,7 +158,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                       </Badge>
                     )}
                   </TableCell>
-                  <TableCell className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                  <TableCell className="px-6 py-3 whitespace-nowrap text-center text-sm font-medium">
                     <div className="flex justify-end gap-0.5">
                       {!isExpired(upload.expires_at) && (
                         <Tooltip>

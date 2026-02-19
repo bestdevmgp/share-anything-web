@@ -98,7 +98,7 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                 <FileThumbnail source={getThumbnailSource(upload)} fileName={upload.file_name} size="md" />
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-medium text-foreground" title={upload.file_name}>
-                    {truncateFileName(upload.file_name, 25)}
+                    {truncateFileName(upload.file_name, 35)}
                   </h3>
                   <div className="mt-1 flex items-center space-x-2 text-xs text-muted-foreground">
                     <span>{formatFileSize(upload.file_size)}</span>
