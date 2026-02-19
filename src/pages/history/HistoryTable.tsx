@@ -74,38 +74,41 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
   t,
   onUploadClick,
 }) => {
-  const expandRef = useRef<HTMLDivElement>(null);
+  const expandRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   useLayoutEffect(() => {
-    const el = expandRef.current;
+    if (!closingRow) return;
+    const el = expandRefs.current.get(closingRow);
     if (!el) return;
+    const h = el.getBoundingClientRect().height;
+    el.style.transition = 'none';
+    el.style.height = h + 'px';
+    el.style.overflow = 'hidden';
+    el.getBoundingClientRect();
+    el.style.transition = 'height 0.2s ease';
+    el.style.height = '0px';
+  }, [closingRow]);
 
-    if (closingRow) {
-      const h = el.scrollHeight;
-      el.style.transition = 'none';
-      el.style.height = h + 'px';
-      el.style.overflow = 'hidden';
-      el.getBoundingClientRect();
-      el.style.transition = 'height 0.2s ease-in';
-      el.style.height = '0px';
-    } else if (expandedRow) {
-      const h = el.scrollHeight;
-      el.style.transition = 'none';
-      el.style.height = '0px';
-      el.style.overflow = 'hidden';
-      el.getBoundingClientRect();
-      el.style.transition = 'height 0.2s ease-out';
-      el.style.height = h + 'px';
-      const onEnd = (e: TransitionEvent) => {
-        if (e.propertyName !== 'height') return;
-        el.style.height = 'auto';
-        el.style.overflow = '';
-        el.removeEventListener('transitionend', onEnd);
-      };
-      el.addEventListener('transitionend', onEnd);
-      return () => el.removeEventListener('transitionend', onEnd);
-    }
-  }, [expandedRow, closingRow]);
+  useLayoutEffect(() => {
+    if (!expandedRow) return;
+    const el = expandRefs.current.get(expandedRow);
+    if (!el) return;
+    const h = el.scrollHeight;
+    el.style.transition = 'none';
+    el.style.height = '0px';
+    el.style.overflow = 'hidden';
+    el.getBoundingClientRect();
+    el.style.transition = 'height 0.2s ease';
+    el.style.height = h + 'px';
+    const onEnd = (e: TransitionEvent) => {
+      if (e.propertyName !== 'height') return;
+      el.style.height = 'auto';
+      el.style.overflow = '';
+      el.removeEventListener('transitionend', onEnd);
+    };
+    el.addEventListener('transitionend', onEnd);
+    return () => el.removeEventListener('transitionend', onEnd);
+  }, [expandedRow]);
 
   return (
     <Card className="hidden md:block rounded-xl border-2 border-border shadow-none overflow-hidden relative">
@@ -245,9 +248,12 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
 
                 {(expandedRow === upload.id || closingRow === upload.id) && (
                   <TableRow className="can-hover:hover:bg-transparent border-0">
-                    <TableCell colSpan={7} className="px-6 bg-background">
-                      <div ref={expandRef} className="py-6">
-                        <div className="grid grid-cols-3 gap-4">
+                    <TableCell colSpan={7} className="p-0 bg-background">
+                      <div ref={(el) => {
+                        if (el) expandRefs.current.set(upload.id, el);
+                        else expandRefs.current.delete(upload.id);
+                      }}>
+                        <div className="grid grid-cols-3 gap-4 px-6 py-6">
                           <div className="h-0 min-h-full flex flex-col overflow-hidden">
                             <h3 className="text-lg font-semibold text-foreground mb-4 flex-shrink-0">{t('history.preview')}</h3>
                             <Card

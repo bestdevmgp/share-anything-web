@@ -59,38 +59,41 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
   PdfPreview,
   t,
 }) => {
-  const expandRef = useRef<HTMLDivElement>(null);
+  const expandRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   useLayoutEffect(() => {
-    const el = expandRef.current;
+    if (!closingRow) return;
+    const el = expandRefs.current.get(closingRow);
     if (!el) return;
+    const h = el.getBoundingClientRect().height;
+    el.style.transition = 'none';
+    el.style.height = h + 'px';
+    el.style.overflow = 'hidden';
+    el.getBoundingClientRect();
+    el.style.transition = 'height 0.2s ease';
+    el.style.height = '0px';
+  }, [closingRow]);
 
-    if (closingRow) {
-      const h = el.scrollHeight;
-      el.style.transition = 'none';
-      el.style.height = h + 'px';
-      el.style.overflow = 'hidden';
-      el.getBoundingClientRect();
-      el.style.transition = 'height 0.2s ease-in';
-      el.style.height = '0px';
-    } else if (expandedRow) {
-      const h = el.scrollHeight;
-      el.style.transition = 'none';
-      el.style.height = '0px';
-      el.style.overflow = 'hidden';
-      el.getBoundingClientRect();
-      el.style.transition = 'height 0.2s ease-out';
-      el.style.height = h + 'px';
-      const onEnd = (e: TransitionEvent) => {
-        if (e.propertyName !== 'height') return;
-        el.style.height = 'auto';
-        el.style.overflow = '';
-        el.removeEventListener('transitionend', onEnd);
-      };
-      el.addEventListener('transitionend', onEnd);
-      return () => el.removeEventListener('transitionend', onEnd);
-    }
-  }, [expandedRow, closingRow]);
+  useLayoutEffect(() => {
+    if (!expandedRow) return;
+    const el = expandRefs.current.get(expandedRow);
+    if (!el) return;
+    const h = el.scrollHeight;
+    el.style.transition = 'none';
+    el.style.height = '0px';
+    el.style.overflow = 'hidden';
+    el.getBoundingClientRect();
+    el.style.transition = 'height 0.2s ease';
+    el.style.height = h + 'px';
+    const onEnd = (e: TransitionEvent) => {
+      if (e.propertyName !== 'height') return;
+      el.style.height = 'auto';
+      el.style.overflow = '';
+      el.removeEventListener('transitionend', onEnd);
+    };
+    el.addEventListener('transitionend', onEnd);
+    return () => el.removeEventListener('transitionend', onEnd);
+  }, [expandedRow]);
 
   return (
     <div className="md:hidden space-y-2">
@@ -155,8 +158,11 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
           </div>
 
           {(expandedRow === upload.id || closingRow === upload.id) && (
-            <div ref={expandRef} className="border-t border-border p-4 bg-background">
-              <div className="space-y-4">
+            <div ref={(el) => {
+              if (el) expandRefs.current.set(upload.id, el);
+              else expandRefs.current.delete(upload.id);
+            }}>
+              <div className="border-t border-border p-4 bg-background space-y-4">
                 <div>
                   <h4 className="text-sm font-semibold text-foreground mb-2">{t('history.preview')}</h4>
                   <Card

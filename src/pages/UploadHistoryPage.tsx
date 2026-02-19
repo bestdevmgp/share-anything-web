@@ -225,10 +225,16 @@ const UploadHistoryPage: React.FC = () => {
       setExpandedRow(null);
       setClosingRow(fileId);
       setTimeout(() => {
-        setClosingRow(null);
+        setClosingRow(prev => prev === fileId ? null : prev);
       }, 250);
     } else {
-      setClosingRow(null);
+      if (expandedRow) {
+        const prevRow = expandedRow;
+        setClosingRow(prevRow);
+        setTimeout(() => {
+          setClosingRow(prev => prev === prevRow ? null : prev);
+        }, 250);
+      }
       setExpandedRow(fileId);
       fetchDownloadLogs(fileId);
       const upload = uploads.find(u => u.id === fileId);
