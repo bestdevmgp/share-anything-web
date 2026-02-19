@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useLayoutEffect } from 'react';
 import { UploadHistoryItem, DownloadLog } from '../../types';
 import { isPdfFile, isVideoFile, formatFileSize, formatDateTime } from '../../utils/format';
 import { Language } from '../../context/LanguageContext';
@@ -74,6 +74,38 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
   t,
   onUploadClick,
 }) => {
+  const expandRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const el = expandRef.current;
+    if (!el) return;
+
+    if (closingRow) {
+      const h = el.scrollHeight;
+      el.style.transition = 'none';
+      el.style.height = h + 'px';
+      el.style.overflow = 'hidden';
+      el.getBoundingClientRect();
+      el.style.transition = 'height 0.25s ease-in';
+      el.style.height = '0px';
+    } else if (expandedRow) {
+      const h = el.scrollHeight;
+      el.style.transition = 'none';
+      el.style.height = '0px';
+      el.style.overflow = 'hidden';
+      el.getBoundingClientRect();
+      el.style.transition = 'height 0.3s ease-out';
+      el.style.height = h + 'px';
+      const onEnd = () => {
+        el.style.height = 'auto';
+        el.style.overflow = '';
+        el.removeEventListener('transitionend', onEnd);
+      };
+      el.addEventListener('transitionend', onEnd);
+      return () => el.removeEventListener('transitionend', onEnd);
+    }
+  }, [expandedRow, closingRow]);
+
   return (
     <Card className="hidden md:block rounded-xl border-2 border-border shadow-none overflow-hidden relative">
       <div ref={tableScrollRef} className="overflow-x-auto">
@@ -213,7 +245,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                 {(expandedRow === upload.id || closingRow === upload.id) && (
                   <TableRow className="can-hover:hover:bg-transparent border-0">
                     <TableCell colSpan={7} className="px-6 bg-background">
-                      <div className={cn('py-6', closingRow === upload.id ? 'animate-collapse-up' : 'animate-expand-down')}>
+                      <div ref={expandRef} className="py-6">
                         <div className="grid grid-cols-3 gap-4">
                           <div className="h-0 min-h-full flex flex-col overflow-hidden">
                             <h3 className="text-lg font-semibold text-foreground mb-4 flex-shrink-0">{t('history.preview')}</h3>
