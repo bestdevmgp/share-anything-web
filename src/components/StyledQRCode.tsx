@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import QRCodeStyling from 'qr-code-styling';
+import { useTheme } from '../context/ThemeContext';
 
 interface StyledQRCodeProps {
   value: string;
@@ -7,9 +8,16 @@ interface StyledQRCodeProps {
   className?: string;
 }
 
+const BRAND_COLOR = '#0065f4';
+
 const StyledQRCode: React.FC<StyledQRCodeProps> = ({ value, size = 200, className }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const qrCodeRef = useRef<QRCodeStyling | null>(null);
+  const { resolvedTheme } = useTheme();
+
+  const isDark = resolvedTheme === 'dark';
+  const fgColor = isDark ? '#ffffff' : '#000000';
+  const bgColor = isDark ? '#0a0a0a' : '#ffffff';
 
   useEffect(() => {
     if (!qrCodeRef.current) {
@@ -18,21 +26,22 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({ value, size = 200, classNam
         height: size,
         type: 'svg',
         data: value,
+        margin: 0,
         image: `${process.env.PUBLIC_URL}/logo-qr.svg`,
         dotsOptions: {
           type: 'dots',
-          color: '#000000',
+          color: fgColor,
         },
         cornersSquareOptions: {
           type: 'extra-rounded',
-          color: '#000000',
+          color: fgColor,
         },
         cornersDotOptions: {
           type: 'dot',
-          color: '#000000',
+          color: fgColor,
         },
         backgroundOptions: {
-          color: '#ffffff',
+          color: bgColor,
         },
         imageOptions: {
           crossOrigin: 'anonymous',
@@ -49,7 +58,8 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({ value, size = 200, classNam
         qrCodeRef.current.append(containerRef.current);
       }
     }
-  }, [size, value]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (qrCodeRef.current) {
@@ -62,6 +72,17 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({ value, size = 200, classNam
       qrCodeRef.current.update({ width: size, height: size });
     }
   }, [size]);
+
+  useEffect(() => {
+    if (qrCodeRef.current) {
+      qrCodeRef.current.update({
+        dotsOptions: { type: 'dots', color: fgColor },
+        cornersSquareOptions: { type: 'extra-rounded', color: fgColor },
+        cornersDotOptions: { type: 'dot', color: fgColor },
+        backgroundOptions: { color: bgColor },
+      });
+    }
+  }, [fgColor, bgColor]);
 
   return <div ref={containerRef} className={className} />;
 };

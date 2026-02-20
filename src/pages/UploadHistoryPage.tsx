@@ -607,7 +607,7 @@ const UploadHistoryPage: React.FC = () => {
             <DialogTitle>{t('history.qrCode')}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col items-center mt-2">
-            <div className="flex justify-center p-2 bg-white">
+            <div className="flex justify-center p-2">
               <StyledQRCode
                 value={selectedShareCode ? `${window.location.origin}/download/${selectedShareCode}` : ''}
                 size={256}

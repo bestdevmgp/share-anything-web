@@ -238,7 +238,7 @@ const UploadSuccessPage: React.FC = () => {
             <label className="block text-sm font-medium text-muted-foreground mb-3">
               {t('uploadSuccess.qrDownload')}
             </label>
-            <div className="p-4 bg-white border-2 border-border rounded-2xl">
+            <div className="p-4 border-2 border-border rounded-2xl">
               <StyledQRCode value={downloadUrl} size={140} />
             </div>
           </div>
