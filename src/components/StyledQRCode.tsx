@@ -8,8 +8,6 @@ interface StyledQRCodeProps {
   className?: string;
 }
 
-const BRAND_COLOR = '#0065f4';
-
 const StyledQRCode: React.FC<StyledQRCodeProps> = ({ value, size = 200, className }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const qrCodeRef = useRef<QRCodeStyling | null>(null);
