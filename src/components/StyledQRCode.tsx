@@ -8,20 +8,6 @@ interface StyledQRCodeProps {
   className?: string;
 }
 
-const BRAND_COLOR = '#0065f4';
-
-const createLogoDataUrl = (bgColor: string): string => {
-  const svg = [
-    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">',
-    `<circle cx="50" cy="50" r="50" fill="${bgColor}"/>`,
-    '<svg x="18" y="23" width="65" height="55" viewBox="120 -800 760 640">',
-    `<path d="M120-160v-640l760 320-760 320Zm80-120 474-200-474-200v140l240 60-240 60v140Zm0 0v-400 400Z" transform="translate(12,0)" fill="${BRAND_COLOR}"/>`,
-    '</svg>',
-    '</svg>',
-  ].join('');
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-};
-
 const StyledQRCode: React.FC<StyledQRCodeProps> = ({ value, size = 200, className }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const qrCodeRef = useRef<QRCodeStyling | null>(null);
@@ -39,7 +25,7 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({ value, size = 200, classNam
         type: 'svg',
         data: value,
         margin: 0,
-        image: createLogoDataUrl(bgColor),
+        image: `${process.env.PUBLIC_URL}/logo-qr.svg`,
         dotsOptions: {
           type: 'dots',
           roundSize: false,
@@ -58,8 +44,8 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({ value, size = 200, classNam
         },
         imageOptions: {
           crossOrigin: 'anonymous',
-          hideBackgroundDots: false,
-          margin: 0,
+          hideBackgroundDots: true,
+          margin: 5,
           imageSize: 0.32,
         },
         qrOptions: {
@@ -90,7 +76,6 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({ value, size = 200, classNam
   useEffect(() => {
     if (qrCodeRef.current) {
       qrCodeRef.current.update({
-        image: createLogoDataUrl(bgColor),
         dotsOptions: { type: 'dots', roundSize: false, color: fgColor },
         cornersSquareOptions: { type: 'extra-rounded', color: fgColor },
         cornersDotOptions: { type: 'dot', color: fgColor },
