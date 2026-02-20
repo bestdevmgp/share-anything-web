@@ -28,6 +28,7 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({ value, size = 200, classNam
         image: `${process.env.PUBLIC_URL}/logo-qr.svg`,
         dotsOptions: {
           type: 'dots',
+          roundSize: false,
           color: fgColor,
         },
         cornersSquareOptions: {
@@ -44,8 +45,8 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({ value, size = 200, classNam
         imageOptions: {
           crossOrigin: 'anonymous',
           hideBackgroundDots: true,
-          margin: 5,
-          imageSize: 0.45,
+          margin: 3,
+          imageSize: 0.55,
         },
         qrOptions: {
           errorCorrectionLevel: 'H',
@@ -75,7 +76,7 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({ value, size = 200, classNam
   useEffect(() => {
     if (qrCodeRef.current) {
       qrCodeRef.current.update({
-        dotsOptions: { type: 'dots', color: fgColor },
+        dotsOptions: { type: 'dots', roundSize: false, color: fgColor },
         cornersSquareOptions: { type: 'extra-rounded', color: fgColor },
         cornersDotOptions: { type: 'dot', color: fgColor },
         backgroundOptions: { color: bgColor },
