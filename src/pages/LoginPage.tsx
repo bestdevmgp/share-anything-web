@@ -124,9 +124,9 @@ const LoginPage: React.FC = () => {
 };
 
 const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
-    <span className="absolute left-full top-1/2 -translate-y-1/2 ml-[7px] animate-bubble-pop pointer-events-none">
+    <span className="absolute left-full top-1/2 -translate-y-1/2 ml-[7px] animate-bubble-pop pointer-events-none bg-popover border border-border rounded-md shadow-md px-2 py-0.5">
         <span className="absolute top-1/2 -left-[4px] -translate-y-1/2 w-[7px] h-[7px] bg-popover border-l border-b border-border rotate-45" />
-        <span className="relative block bg-popover border border-border rounded-md shadow-md px-2 py-0.5 text-[11px] font-medium text-popover-foreground whitespace-nowrap">
+        <span className="relative text-[11px] font-medium text-popover-foreground whitespace-nowrap">
             {label}
         </span>
     </span>
