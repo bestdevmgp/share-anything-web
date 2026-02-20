@@ -45,8 +45,8 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({ value, size = 200, classNam
         imageOptions: {
           crossOrigin: 'anonymous',
           hideBackgroundDots: true,
-          margin: 2,
-          imageSize: 0.35,
+          margin: 3,
+          imageSize: 0.32,
         },
         qrOptions: {
           errorCorrectionLevel: 'H',
