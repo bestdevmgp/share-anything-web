@@ -48,18 +48,28 @@ const UploadPage: React.FC = () => {
 
   const filesRef = useRef(files);
   filesRef.current = files;
+  const transferTypeRef = useRef(transferType);
+  transferTypeRef.current = transferType;
   const isRestoringRef = useRef(false);
 
   useEffect(() => {
     document.title = t('upload.pageTitle');
   }, [t]);
 
-  // Restore files from IndexedDB on refresh
+  // Restore files and transfer type from IndexedDB/sessionStorage on refresh
   useEffect(() => {
     const wasRefresh = sessionStorage.getItem('uploadPageRefreshing');
+    const savedTransferType = sessionStorage.getItem('uploadTransferType') as 'server' | 'p2p' | null;
     sessionStorage.removeItem('uploadPageRefreshing');
+    sessionStorage.removeItem('uploadTransferType');
 
     if (wasRefresh) {
+      if (savedTransferType) {
+        setTransferType(savedTransferType);
+        if (savedTransferType === 'p2p') {
+          setIsOneTime(true);
+        }
+      }
       isRestoringRef.current = true;
       restoreUploadFiles().then(restored => {
         if (restored.length > 0) {
@@ -87,6 +97,7 @@ const UploadPage: React.FC = () => {
     const handlePageHide = () => {
       if (filesRef.current.length > 0) {
         sessionStorage.setItem('uploadPageRefreshing', 'true');
+        sessionStorage.setItem('uploadTransferType', transferTypeRef.current);
       }
     };
     const handlePageShow = (e: PageTransitionEvent) => {

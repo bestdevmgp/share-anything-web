@@ -57,10 +57,16 @@ module.exports = {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: '0' },
         },
+        'bubble-pop': {
+          '0%': { opacity: '0', scale: '0.85' },
+          '60%': { opacity: '1', scale: '1.03' },
+          '100%': { opacity: '1', scale: '1' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'bubble-pop': 'bubble-pop 0.35s ease-out forwards',
       },
     },
   },

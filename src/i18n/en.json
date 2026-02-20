@@ -97,7 +97,8 @@
     "continueWithKakao": "Continue with Kakao",
     "termsNotice": "By using this service, you agree to ShareAnything's ",
     "termsAnd": " and ",
-    "termsAgree": "."
+    "termsAgree": ".",
+    "recentLogin": "Recently signed in"
   },
   "oauth": {
     "loggingIn": "Signing in...",

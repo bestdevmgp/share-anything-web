@@ -97,7 +97,8 @@
     "continueWithKakao": "カカオで続ける",
     "termsNotice": "本サービスのご利用により、ShareAnythingの",
     "termsAnd": "および",
-    "termsAgree": "に同意したものとみなされます。"
+    "termsAgree": "に同意したものとみなされます。",
+    "recentLogin": "最近のログイン"
   },
   "oauth": {
     "loggingIn": "ログイン中...",

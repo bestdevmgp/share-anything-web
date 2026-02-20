@@ -97,7 +97,8 @@
     "continueWithKakao": "使用 Kakao 继续",
     "termsNotice": "使用本服务即表示您同意 ShareAnything 的",
     "termsAnd": "和",
-    "termsAgree": "。"
+    "termsAgree": "。",
+    "recentLogin": "最近登录"
   },
   "oauth": {
     "loggingIn": "登录中...",

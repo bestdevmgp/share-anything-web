@@ -50,6 +50,7 @@ const OAuthCallbackPage: React.FC = () => {
           if (code) localStorage.setItem(processedKey, 'true');
 
           const user = JSON.parse(decodeURIComponent(userParam));
+          if (provider) localStorage.setItem('lastLoginProvider', provider);
           login(token, user);
           navigate('/', { replace: true });
           return;
@@ -84,6 +85,7 @@ const OAuthCallbackPage: React.FC = () => {
         );
 
         if (data.token && data.user) {
+          if (provider) localStorage.setItem('lastLoginProvider', provider);
           login(data.token, data.user);
           localStorage.removeItem(processedKey);
           toast.success(t('oauth.loginSuccess'));
