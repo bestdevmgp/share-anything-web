@@ -239,7 +239,7 @@ const UploadSuccessPage: React.FC = () => {
               {t('uploadSuccess.qrDownload')}
             </label>
             <div className="p-4 border-2 border-border rounded-2xl">
-              <StyledQRCode value={downloadUrl} size={200} />
+              <StyledQRCode value={downloadUrl} size={140} />
             </div>
           </div>
 
