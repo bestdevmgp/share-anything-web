@@ -8,8 +8,6 @@ interface StyledQRCodeProps {
   className?: string;
 }
 
-const RENDER_SIZE = 1000;
-
 const StyledQRCode: React.FC<StyledQRCodeProps> = ({ value, size = 200, className }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const qrCodeRef = useRef<QRCodeStyling | null>(null);
@@ -22,8 +20,8 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({ value, size = 200, classNam
   useEffect(() => {
     if (!qrCodeRef.current) {
       qrCodeRef.current = new QRCodeStyling({
-        width: RENDER_SIZE,
-        height: RENDER_SIZE,
+        width: size,
+        height: size,
         type: 'svg',
         data: value,
         margin: 0,
@@ -57,15 +55,6 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({ value, size = 200, classNam
       if (containerRef.current) {
         containerRef.current.innerHTML = '';
         qrCodeRef.current.append(containerRef.current);
-        const svg = containerRef.current.querySelector('svg');
-        if (svg) {
-          svg.setAttribute('viewBox', `0 0 ${RENDER_SIZE} ${RENDER_SIZE}`);
-          svg.removeAttribute('width');
-          svg.removeAttribute('height');
-          svg.style.width = '100%';
-          svg.style.height = '100%';
-          svg.style.display = 'block';
-        }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -79,6 +68,12 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({ value, size = 200, classNam
 
   useEffect(() => {
     if (qrCodeRef.current) {
+      qrCodeRef.current.update({ width: size, height: size });
+    }
+  }, [size]);
+
+  useEffect(() => {
+    if (qrCodeRef.current) {
       qrCodeRef.current.update({
         dotsOptions: { type: 'dots', color: fgColor },
         cornersSquareOptions: { type: 'extra-rounded', color: fgColor },
@@ -88,7 +83,7 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({ value, size = 200, classNam
     }
   }, [fgColor, bgColor]);
 
-  return <div ref={containerRef} className={className} style={{ width: size, height: size }} />;
+  return <div ref={containerRef} className={className} />;
 };
 
 export default StyledQRCode;
