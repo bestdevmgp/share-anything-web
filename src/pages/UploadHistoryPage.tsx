@@ -610,7 +610,7 @@ const UploadHistoryPage: React.FC = () => {
             <div className="flex justify-center p-2">
               <StyledQRCode
                 value={selectedShareCode ? `${window.location.origin}/download/${selectedShareCode}` : ''}
-                size={256}
+                size={380}
               />
             </div>
             <p className="text-sm text-muted-foreground text-center mt-3">
