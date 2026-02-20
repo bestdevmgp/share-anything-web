@@ -99,13 +99,13 @@ const Footer: React.FC = () => {
           <Popover open={langOpen} onOpenChange={setLangOpen}>
             <PopoverTrigger asChild>
               <button
-                className="flex items-center justify-between w-40 h-10 px-2.5 border border-border bg-card  text-muted-foreground can-hover:hover:bg-accent active:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors text-sm"
+                className="group flex items-center justify-between w-40 h-10 px-2.5 border border-border bg-card  text-muted-foreground can-hover:hover:bg-accent active:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors text-sm"
               >
                 <div className="flex items-center gap-2">
                   <GlobeAltIcon className="w-4 h-4" />
                   <span>{currentLang.label}</span>
                 </div>
-                <ChevronUpIcon className="w-3 h-3" />
+                <ChevronUpIcon className="w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
               </button>
             </PopoverTrigger>
             <PopoverContent side="top" align="start" className="w-40 p-0 rounded-none border border-border bg-card ">
@@ -131,10 +131,10 @@ const Footer: React.FC = () => {
           <Popover open={themeOpen} onOpenChange={setThemeOpen}>
             <PopoverTrigger asChild>
               <button
-                className="flex items-center justify-between w-16 h-10 px-2.5 border border-border bg-card  text-muted-foreground can-hover:hover:bg-accent active:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors text-sm"
+                className="group flex items-center justify-between w-16 h-10 px-2.5 border border-border bg-card  text-muted-foreground can-hover:hover:bg-accent active:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors text-sm"
               >
                 {themeIcons[theme]}
-                <ChevronUpIcon className="w-3 h-3" />
+                <ChevronUpIcon className="w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
               </button>
             </PopoverTrigger>
             <PopoverContent side="top" align="end" className="w-28 p-0 rounded-none border border-border bg-card ">

@@ -38,7 +38,7 @@ const Header: React.FC = () => {
           <div className="flex items-center space-x-2">
             {isAuthenticated && user ? (
               <DropdownMenu>
-                <DropdownMenuTrigger className="flex items-center space-x-2 active:bg-accent can-hover:hover:bg-accent rounded-lg px-3 py-2 transition-colors focus:outline-none data-[state=open]:bg-accent">
+                <DropdownMenuTrigger className="group flex items-center space-x-2 active:bg-accent can-hover:hover:bg-accent rounded-lg px-3 py-2 transition-colors focus:outline-none data-[state=open]:bg-accent">
                   {user.profile_image && (
                     <img
                       src={user.profile_image}
@@ -47,7 +47,7 @@ const Header: React.FC = () => {
                     />
                   )}
                   <span className="text-sm text-foreground/80">{user.name}</span>
-                  <ChevronDownIcon className="w-4 h-4 text-muted-foreground transition-transform duration-200" />
+                  <ChevronDownIcon className="w-4 h-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48">
                   <DropdownMenuItem

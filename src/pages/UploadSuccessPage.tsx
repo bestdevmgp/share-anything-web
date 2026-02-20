@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { QRCodeSVG } from 'qrcode.react';
+import StyledQRCode from '../components/StyledQRCode';
 import { FileUploadResponse } from '../types';
 import { copyToClipboard, formatDateTime, formatFileSize } from '../utils/format';
 import { CheckIcon, ClipboardDocumentIcon, ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/24/outline';
@@ -239,11 +239,7 @@ const UploadSuccessPage: React.FC = () => {
               {t('uploadSuccess.qrDownload')}
             </label>
             <div className="p-4 bg-white border-2 border-border rounded-2xl">
-              <QRCodeSVG
-                value={downloadUrl}
-                size={140}
-                level="M"
-              />
+              <StyledQRCode value={downloadUrl} size={140} />
             </div>
           </div>
 

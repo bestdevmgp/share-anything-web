@@ -28,6 +28,7 @@
     "lottie-react": "^2.4.1",
     "mammoth": "^1.11.0",
     "pdfjs-dist": "^5.4.296",
+    "qr-code-styling": "^1.9.2",
     "qrcode.react": "^4.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

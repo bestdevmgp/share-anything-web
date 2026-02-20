@@ -4,7 +4,7 @@ import { userAPI, fileAPI } from '../services/api';
 import { UploadHistoryItem, DownloadLog } from '../types';
 import { toast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
-import { QRCodeSVG } from 'qrcode.react';
+import StyledQRCode from '../components/StyledQRCode';
 import { CheckIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
 import FileThumbnail from '../components/FileThumbnail';
 import { isPdfFile, isPptxFile, isVideoFile, formatDateTime } from '../utils/format';
@@ -608,11 +608,9 @@ const UploadHistoryPage: React.FC = () => {
           </DialogHeader>
           <div className="flex flex-col items-center mt-2">
             <div className="flex justify-center p-2 bg-white">
-              <QRCodeSVG
+              <StyledQRCode
                 value={selectedShareCode ? `${window.location.origin}/download/${selectedShareCode}` : ''}
                 size={256}
-                level="H"
-                includeMargin={false}
               />
             </div>
             <p className="text-sm text-muted-foreground text-center mt-3">
