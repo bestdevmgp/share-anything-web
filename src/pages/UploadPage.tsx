@@ -371,6 +371,12 @@ const UploadPage: React.FC = () => {
   };
 
   const openP2PTooltip = useCallback(() => {
+    const container = p2pButtonRef.current?.closest('.relative') as HTMLElement | null;
+    if (container) {
+      const rect = container.getBoundingClientRect();
+      const tooltipWidth = 524;
+      setTooltipPosition(rect.right + tooltipWidth <= window.innerWidth ? 'right' : 'bottom');
+    }
     setP2PTooltipMounted(true);
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
@@ -465,6 +471,7 @@ const UploadPage: React.FC = () => {
         <FileDropzone
           files={files}
           transferType={transferType}
+          isAuthenticated={isAuthenticated}
           isDragActive={isDragActive}
           isProcessingFiles={isProcessingFiles}
           getRootProps={getRootProps}

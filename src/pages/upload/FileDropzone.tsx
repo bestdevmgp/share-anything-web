@@ -10,6 +10,7 @@ import { formatFileSize } from '../../utils/format';
 export interface FileDropzoneProps {
   files: File[];
   transferType: 'server' | 'p2p';
+  isAuthenticated: boolean;
   isDragActive: boolean;
   isProcessingFiles: boolean;
   getRootProps: <T extends DropzoneRootProps>(props?: T) => T;
@@ -21,6 +22,7 @@ export interface FileDropzoneProps {
 const FileDropzone: React.FC<FileDropzoneProps> = ({
   files,
   transferType,
+  isAuthenticated,
   isDragActive,
   isProcessingFiles,
   getRootProps,
@@ -53,12 +55,13 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
               <p className="text-sm md:text-xl font-semibold text-foreground mb-1 md:mb-2">
                 {t('upload.dropzoneText', { action: transferType === 'p2p' ? t('upload.dropzoneActionTransfer') : t('upload.dropzoneActionUpload') })}
               </p>
-              {transferType !== 'p2p' && (
-                <p className="text-xs md:text-sm text-muted-foreground mb-3 md:mb-6">
-                  {t('upload.maxSizeNotice')}
-                </p>
-              )}
-              {transferType === 'p2p' && <div className="mb-3 md:mb-6" />}
+              <p className="text-xs md:text-sm text-muted-foreground mb-3 md:mb-6">
+                {transferType === 'p2p'
+                  ? t('upload.p2pSizeNotice')
+                  : isAuthenticated
+                    ? t('upload.maxSizeNotice')
+                    : <><span className="inline-block">{t('upload.maxSizeNoticeGuest1')}</span>{' '}<span className="inline-block">{t('upload.maxSizeNoticeGuest2')}</span></>}
+              </p>
               <Button variant="secondary" size="lg">
                 {t('upload.selectFiles')}
               </Button>

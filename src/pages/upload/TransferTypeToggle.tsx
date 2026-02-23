@@ -40,31 +40,38 @@ const TransferTypeToggle: React.FC<TransferTypeToggleProps> = ({
           }}
         />
 
-        <button
-          type="button"
-          onClick={() => onTransferTypeChange('server')}
-          className={cn(
-            'relative z-10 flex-1 px-6 py-3 rounded-md text-sm font-semibold transition-all duration-200',
-            transferType === 'server'
-              ? 'text-foreground'
-              : 'text-muted-foreground can-hover:hover:text-foreground active:text-foreground'
-          )}
-        >
-          {t('upload.serverTransfer')}
-        </button>
-        <button
-          ref={p2pButtonRef}
-          type="button"
-          onClick={() => onTransferTypeChange('p2p')}
-          className={cn(
-            'relative z-10 flex-1 px-6 py-3 rounded-md text-sm font-semibold transition-all duration-200',
-            transferType === 'p2p'
-              ? 'text-foreground'
-              : 'text-muted-foreground can-hover:hover:text-foreground active:text-foreground'
-          )}
-        >
-          {t('upload.p2pTransfer')}
-        </button>
+        <div className="flex-1">
+          <button
+            type="button"
+            onClick={() => onTransferTypeChange('server')}
+            className={cn(
+              'relative z-10 w-full px-6 py-3 rounded-md text-sm font-semibold transition-all duration-200',
+              transferType === 'server'
+                ? 'text-foreground'
+                : 'text-muted-foreground can-hover:hover:text-foreground active:text-foreground'
+            )}
+          >
+            {t('upload.serverTransfer')}
+          </button>
+        </div>
+        <div className="relative flex-1">
+          <span className="absolute -top-1.5 -right-1.5 z-20 px-1.5 py-0.5 text-[10px] font-semibold leading-none bg-primary text-primary-foreground rounded-full">
+            {t('upload.unlimitedSize')}
+          </span>
+          <button
+            ref={p2pButtonRef}
+            type="button"
+            onClick={() => onTransferTypeChange('p2p')}
+            className={cn(
+              'relative z-10 w-full px-6 py-3 rounded-md text-sm font-semibold transition-all duration-200',
+              transferType === 'p2p'
+                ? 'text-foreground'
+                : 'text-muted-foreground can-hover:hover:text-foreground active:text-foreground'
+            )}
+          >
+            {t('upload.p2pTransfer')}
+          </button>
+        </div>
 
         {p2pTooltipMounted && (
           <div
