@@ -21,14 +21,15 @@
     "switchBtn": "Switch",
     "file": "File",
     "countUnit": "{{count}}x",
-    "countItems": "{{count}}"
+    "countItems": "{{count}}",
+    "downloadCount": "{{count}} downloads"
   },
   "format": {
     "expired": "Expired",
     "expiresInHours": "Expires in {{hours}}h",
     "expiresTomorrow": "Expires tomorrow",
     "expiresInDays": "Expires in {{days}} days",
-    "dateTime": "{{year}}-{{month}}-{{day}} {{hours}}:{{minutes}}:{{seconds}}",
+    "dateTime": "{{month}} {{day}}, {{year}} {{hours}}:{{minutes}}:{{seconds}}",
     "calculating": "Calculating...",
     "secondsRemaining": "{{seconds}}s remaining",
     "minutesSecondsRemaining": "{{minutes}}m {{seconds}}s remaining",

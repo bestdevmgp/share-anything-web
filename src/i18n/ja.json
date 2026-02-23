@@ -21,7 +21,8 @@
     "switchBtn": "切替",
     "file": "ファイル",
     "countUnit": "{{count}}回",
-    "countItems": "{{count}}件"
+    "countItems": "{{count}}件",
+    "downloadCount": "ダウンロード {{count}}回"
   },
   "format": {
     "expired": "期限切れ",

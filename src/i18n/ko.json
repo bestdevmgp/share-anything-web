@@ -21,7 +21,8 @@
     "switchBtn": "전환",
     "file": "파일",
     "countUnit": "{{count}}회",
-    "countItems": "{{count}}개"
+    "countItems": "{{count}}개",
+    "downloadCount": "다운로드 {{count}}회"
   },
   "format": {
     "expired": "만료됨",

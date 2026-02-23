@@ -14,6 +14,11 @@ interface PdfPreviewProps {
   width?: number;
 }
 
+interface VideoPreviewProps {
+  source: string;
+  fileName: string;
+}
+
 interface HistoryMobileCardsProps {
   uploads: UploadHistoryItem[];
   expandedRow: string | null;
@@ -34,6 +39,7 @@ interface HistoryMobileCardsProps {
   isExpired: (expiresAt: string) => boolean;
   isImageFileByType: (fileType: string) => boolean;
   PdfPreview: React.FC<PdfPreviewProps>;
+  VideoPreview: React.FC<VideoPreviewProps>;
   t: (key: string, params?: Record<string, any>) => string;
 }
 
@@ -57,6 +63,7 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
   isExpired,
   isImageFileByType,
   PdfPreview,
+  VideoPreview,
   t,
 }) => {
   const expandRefs = useRef<Map<string, HTMLDivElement>>(new Map());
@@ -139,7 +146,7 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                   <div className={cn("flex items-center space-x-2 text-xs text-muted-foreground leading-4", upload.description ? "mt-0.5" : "mt-1")}>
                     <span>{formatFileSize(upload.file_size)}</span>
                     <span>•</span>
-                    <span>{t('common.countUnit', { count: upload.download_count })}</span>
+                    <span>{t('common.downloadCount', { count: upload.download_count })}</span>
                     <span>•</span>
                     {isExpired(upload.expires_at) ? (
                       <span className="text-red-600 dark:text-red-400 font-medium">{t('history.expired')}</span>
@@ -193,21 +200,7 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                       )
                     ) : isVideoFile(upload.file_name) ? (
                       presignedUrls[upload.id] && !failedPreviews.has(upload.id) ? (
-                        <div className="relative w-full h-full">
-                          <video
-                            src={presignedUrls[upload.id]}
-                            className="w-full h-full object-contain"
-                            preload="metadata"
-                            muted
-                            playsInline
-                            onError={() => handlePreviewError(upload.id)}
-                          />
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                            <svg className="w-12 h-12 text-white drop-shadow-lg" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M8 5v14l11-7z" />
-                            </svg>
-                          </div>
-                        </div>
+                        <VideoPreview source={presignedUrls[upload.id]} fileName={upload.file_name} />
                       ) : (
                         <div className="flex flex-col items-center justify-center h-full bg-muted p-4 gap-4">
                           <FileThumbnail source={null} fileName={upload.file_name} size="md" />

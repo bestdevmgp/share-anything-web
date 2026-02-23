@@ -38,6 +38,34 @@ import HistoryPagination from './history/HistoryPagination';
 
 const PRESIGNED_URL_MAX_AGE_MS = 50 * 60 * 1000; // 50 minutes
 
+const VideoPreview: React.FC<{ source: string; fileName: string }> = ({ source, fileName }) => {
+  const { url, loading } = useThumbnail(source, fileName);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full bg-muted">
+        <Spinner size="lg" />
+      </div>
+    );
+  }
+  if (url) {
+    return (
+      <div className="relative w-full h-full">
+        <img src={url} alt={fileName} className="w-full h-full object-contain" />
+        <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+          <svg className="w-12 h-12 text-white drop-shadow-lg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="flex items-center justify-center h-full bg-muted">
+      <FileThumbnail source={null} fileName={fileName} size="md" />
+    </div>
+  );
+};
+
 const PdfPreview: React.FC<{ source: string; fileName: string; width?: number }> = ({ source, fileName, width = 600 }) => {
   const { url, loading } = useThumbnail(source, fileName, width);
   if (loading) {
@@ -479,6 +507,7 @@ const UploadHistoryPage: React.FC = () => {
         isExpired={isExpired}
         isImageFileByType={isImageFileByType}
         PdfPreview={PdfPreview}
+        VideoPreview={VideoPreview}
         t={t}
         onUploadClick={() => navigate('/upload')}
       />
@@ -517,6 +546,7 @@ const UploadHistoryPage: React.FC = () => {
             isExpired={isExpired}
             isImageFileByType={isImageFileByType}
             PdfPreview={PdfPreview}
+            VideoPreview={VideoPreview}
             t={t}
           />
 
