@@ -172,8 +172,8 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                   <TableCell className="px-6 py-3 max-w-0">
                     <div className="flex items-center space-x-3 overflow-hidden">
                       <FileThumbnail source={getThumbnailSource(upload)} fileName={upload.file_name} size="md" />
-                      <div className="min-w-0 flex-1">
-                        <div className="text-sm font-medium text-foreground" title={upload.file_name}>
+                      <div className="min-w-0 flex-1 h-12 overflow-hidden flex flex-col justify-center">
+                        <div className="text-sm font-medium text-foreground truncate" title={upload.file_name}>
                           {truncateFileName(upload.file_name)}
                         </div>
                         {upload.description && (

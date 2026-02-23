@@ -287,7 +287,7 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
             )}
           </div>
 
-          <div className="mt-2 text-center">
+          <div className="mt-3 -mb-2 md:-mb-4 text-center">
             <Button
               variant="ghost"
               size="sm"

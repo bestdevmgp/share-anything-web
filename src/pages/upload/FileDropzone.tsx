@@ -93,7 +93,7 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                 ))}
                 <button
                   type="button"
-                  className="w-full p-3.5 border-2 border-dashed border-input rounded-lg flex items-center justify-center text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:border-muted-foreground/30 can-hover:hover:bg-accent active:text-muted-foreground active:border-muted-foreground/30 active:bg-accent transition-colors"
+                  className="w-full p-3.5 border-2 border-dashed border-input rounded-lg flex items-center justify-center text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:border-foreground/40 active:text-muted-foreground active:border-foreground/40 transition-colors"
                 >
                   <PlusIcon className="w-6 h-6" />
                 </button>
