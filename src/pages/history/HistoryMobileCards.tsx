@@ -132,11 +132,11 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
             >
               <div className="flex items-center space-x-3 pr-20">
                 <FileThumbnail source={getThumbnailSource(upload)} fileName={upload.file_name} size="md" />
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-medium text-foreground" title={upload.file_name}>
+                <div className={cn("flex-1 min-w-0", upload.description && "h-12 flex flex-col justify-center overflow-hidden")}>
+                  <h3 className={cn("text-sm font-medium text-foreground", upload.description && "leading-4")} title={upload.file_name}>
                     {truncateFileName(upload.file_name, 35)}
                   </h3>
-                  <div className="mt-1 flex items-center space-x-2 text-xs text-muted-foreground">
+                  <div className={cn("flex items-center space-x-2 text-xs text-muted-foreground", upload.description ? "mt-px leading-4" : "mt-1")}>
                     <span>{formatFileSize(upload.file_size)}</span>
                     <span>•</span>
                     <span>{t('common.countUnit', { count: upload.download_count })}</span>
@@ -148,7 +148,7 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                     )}
                   </div>
                   {upload.description && (
-                    <p className="mt-1 text-xs text-muted-foreground line-clamp-2 overflow-hidden text-ellipsis">
+                    <p className="text-xs text-muted-foreground truncate leading-4 mt-px">
                       {upload.description}
                     </p>
                   )}

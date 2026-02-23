@@ -165,7 +165,7 @@
     "connectedReadyToDownload": "Connected to {{device}}. The receiver can start the download.",
     "transferringPleaseWait": "Transferring files. Please wait.",
     "shareCodeOrLink": "Share the code or use the link below to download.",
-    "transferCode": "Transfer Code",
+    "shareCode": "Share Code",
     "copyCode": "Copy code",
     "expires": "Expires: {{dateTime}}",
     "shareLink": "Share Link",

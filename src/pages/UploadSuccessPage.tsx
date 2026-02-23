@@ -172,7 +172,7 @@ const UploadSuccessPage: React.FC = () => {
         <Card className="rounded-3xl border-2 p-8 md:p-12">
           <div className="mb-8">
             <label className="block text-sm font-medium text-muted-foreground mb-3 text-center">
-              {t('uploadSuccess.transferCode')}
+              {t('uploadSuccess.shareCode')}
             </label>
             <div className="relative bg-muted rounded-xl px-3 md:px-8 py-3 md:py-6 mb-4 border border-foreground/[0.09]">
               <p className="text-[2.75rem] md:text-5xl font-bold text-center text-foreground break-all" style={{ letterSpacing: '0.1em' }}>

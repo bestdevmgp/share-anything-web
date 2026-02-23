@@ -120,24 +120,32 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
               </div>
             ) : singleFilePreviewUrl && isImageFile(file.file_name) ? (
               <div
-                className="max-w-full max-h-96 overflow-hidden rounded-2xl cursor-pointer"
+                className="max-w-full max-h-96 overflow-hidden rounded-2xl cursor-pointer select-none"
+                style={{ WebkitTouchCallout: 'none' }}
                 onClick={() => openPreview(file.file_name, file.file_size, file.id, singleFilePreviewUrl!)}
+                onContextMenu={e => e.preventDefault()}
+                onDragStart={e => e.preventDefault()}
               >
                 <img
                   src={singleFilePreviewUrl}
                   alt={file.file_name}
-                  className="max-w-full max-h-96 object-contain"
+                  draggable={false}
+                  className="max-w-full max-h-96 object-contain pointer-events-none"
                 />
               </div>
             ) : singleFilePreviewUrl && singleFileThumbnail.url ? (
               <div
-                className="max-w-full max-h-[28rem] overflow-hidden rounded-2xl cursor-pointer relative"
+                className="max-w-full max-h-[28rem] overflow-hidden rounded-2xl cursor-pointer relative select-none"
+                style={{ WebkitTouchCallout: 'none' }}
                 onClick={() => openPreview(file.file_name, file.file_size, file.id, singleFilePreviewUrl!)}
+                onContextMenu={e => e.preventDefault()}
+                onDragStart={e => e.preventDefault()}
               >
                 <img
                   src={singleFileThumbnail.url}
                   alt={file.file_name}
-                  className="max-w-full max-h-[28rem] object-contain rounded-2xl"
+                  draggable={false}
+                  className="max-w-full max-h-[28rem] object-contain rounded-2xl pointer-events-none"
                 />
                 {isVideoFile(file.file_name) && (
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -279,11 +287,12 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
             )}
           </div>
 
-          <div className="mt-4 text-center">
+          <div className="mt-2 text-center">
             <Button
               variant="ghost"
+              size="sm"
               onClick={() => navigate('/')}
-              className="text-sm text-muted-foreground can-hover:hover:text-foreground active:text-foreground"
+              className="text-muted-foreground can-hover:hover:text-foreground active:text-foreground"
             >
               {t('common.back')}
             </Button>

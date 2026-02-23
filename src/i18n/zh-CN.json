@@ -165,7 +165,7 @@
     "connectedReadyToDownload": "已连接到 {{device}}，接收方可以开始下载。",
     "transferringPleaseWait": "文件传输中，请稍候。",
     "shareCodeOrLink": "请分享代码或通过以下链接下载文件。",
-    "transferCode": "传输代码",
+    "shareCode": "共享代码",
     "copyCode": "复制代码",
     "expires": "过期时间：{{dateTime}}",
     "shareLink": "共享链接",

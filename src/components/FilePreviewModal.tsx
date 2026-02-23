@@ -202,11 +202,11 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
     }
 
     if (isImageFile(fileName) && mediaUrl) {
-      return <img src={mediaUrl} alt={fileName} className="max-w-full max-h-[calc(100vh-10rem)] object-contain rounded" />;
+      return <img src={mediaUrl} alt={fileName} draggable={false} className="max-w-full max-h-[calc(100vh-10rem)] object-contain rounded pointer-events-none" />;
     }
 
     if (isVideoFile(fileName) && mediaUrl) {
-      return <video src={mediaUrl} controls autoPlay playsInline className="max-w-full max-h-[calc(100vh-10rem)] rounded" />;
+      return <video src={mediaUrl} controls autoPlay playsInline controlsList="nodownload" className="max-w-full max-h-[calc(100vh-10rem)] rounded" onContextMenu={e => e.preventDefault()} />;
     }
 
     if (isAudioFile(fileName) && mediaUrl) {
@@ -272,7 +272,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
         );
       }
       if (mediaUrl) {
-        return <img src={mediaUrl} alt={fileName} className="max-w-full max-h-[calc(100vh-10rem)] object-contain rounded" />;
+        return <img src={mediaUrl} alt={fileName} draggable={false} className="max-w-full max-h-[calc(100vh-10rem)] object-contain rounded pointer-events-none" />;
       }
     }
 
@@ -319,7 +319,12 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
           <DialogDescription className="text-xs">{formatFileSize(fileSize)}</DialogDescription>
         </DialogHeader>
         <Separator className="flex-shrink-0" />
-        <div className="px-4 pt-2 pb-4 flex flex-1 min-h-0 overflow-auto">
+        <div
+          className="px-4 pt-2 pb-4 flex flex-1 min-h-0 overflow-auto select-none"
+          style={{ WebkitTouchCallout: 'none' }}
+          onContextMenu={e => e.preventDefault()}
+          onDragStart={e => e.preventDefault()}
+        >
           <div className="m-auto max-w-full">
             {renderContent()}
           </div>

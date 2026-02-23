@@ -39,65 +39,59 @@ const UploadProgressBar: React.FC<UploadProgressBarProps> = ({
   return (
     <div className="mt-7">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-[22px] md:gap-4">
-        {isUploading && transferType !== 'p2p' ? (
-          <>
-            {/* Mobile: spacer matching Turnstile height */}
-            <div className="h-[65px] md:hidden" />
-            {/* Progress bar - full width on PC, vertically centered to match button position */}
-            <div className="flex-1 md:min-h-[65px] md:flex md:items-center">
-              <div className="flex items-center gap-2 w-full pl-1.5">
-                <div className="flex-1">
-                  <div className="flex justify-between mb-2">
-                    <span className="text-sm font-medium text-foreground">
-                      {isCompleting ? t('upload.pleaseWait') : t('upload.uploading')}
-                    </span>
-                    {!isCompleting && (
-                      <div className="flex items-center gap-2">
-                        {uploadTimeRemaining && (
-                          <span className="text-xs text-muted-foreground">{uploadTimeRemaining}</span>
-                        )}
-                        <span className="text-xs font-semibold text-primary">{uploadProgress}%</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="bg-secondary rounded-full h-1.5 overflow-hidden">
-                    <div
-                      className="bg-primary h-full transition-all duration-300 ease-out rounded-full"
-                      style={{ width: `${uploadProgress}%` }}
-                    />
-                  </div>
-                </div>
-                <button
-                  onClick={onCancelUpload}
-                  className="p-1 can-hover:hover:bg-accent active:bg-accent rounded transition-colors flex-shrink-0"
-                  title={t('upload.cancelUpload')}
-                >
-                  <XMarkIcon className="w-6 h-6 text-muted-foreground" />
-                </button>
-              </div>
-            </div>
-          </>
-        ) : (
-          <>
-            <div>
-              <TurnstileWidget
-                onVerify={onTurnstileVerify}
-                onError={onTurnstileError}
-                onExpire={onTurnstileExpire}
-              />
-            </div>
+        {}
+        <div className={isUploading && transferType !== 'p2p' ? 'md:hidden' : ''}>
+          <TurnstileWidget
+            onVerify={onTurnstileVerify}
+            onError={onTurnstileError}
+            onExpire={onTurnstileExpire}
+          />
+        </div>
 
-            <div className="flex justify-center md:justify-end">
-              <Button
-                onClick={onUpload}
-                disabled={files.length === 0 || !turnstileToken || (isUploading && transferType === 'p2p')}
-                size="lg"
-                className="w-full md:w-auto min-w-[120px]"
+        {isUploading && transferType !== 'p2p' ? (
+          <div className="flex-1 md:min-h-[65px] md:flex md:items-center">
+            <div className="flex items-center gap-2 w-full pl-1.5">
+              <div className="flex-1">
+                <div className="flex justify-between mb-2">
+                  <span className="text-sm font-medium text-foreground">
+                    {isCompleting ? t('upload.pleaseWait') : t('upload.uploading')}
+                  </span>
+                  {!isCompleting && (
+                    <div className="flex items-center gap-2">
+                      {uploadTimeRemaining && (
+                        <span className="text-xs text-muted-foreground">{uploadTimeRemaining}</span>
+                      )}
+                      <span className="text-xs font-semibold text-primary">{uploadProgress}%</span>
+                    </div>
+                  )}
+                </div>
+                <div className="bg-secondary rounded-full h-1.5 overflow-hidden">
+                  <div
+                    className="bg-primary h-full transition-all duration-300 ease-out rounded-full"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+              </div>
+              <button
+                onClick={onCancelUpload}
+                className="p-1 can-hover:hover:bg-accent active:bg-accent rounded transition-colors flex-shrink-0"
+                title={t('upload.cancelUpload')}
               >
-                {isUploading && transferType === 'p2p' ? <Spinner size="sm" className="text-primary-foreground" /> : (transferType === 'p2p' ? t('upload.transfer') : t('common.upload'))}
-              </Button>
+                <XMarkIcon className="w-6 h-6 text-muted-foreground" />
+              </button>
             </div>
-          </>
+          </div>
+        ) : (
+          <div className="flex justify-center md:justify-end">
+            <Button
+              onClick={onUpload}
+              disabled={files.length === 0 || !turnstileToken || (isUploading && transferType === 'p2p')}
+              size="lg"
+              className="w-full md:w-auto min-w-[120px]"
+            >
+              {isUploading && transferType === 'p2p' ? <Spinner size="sm" className="text-primary-foreground" /> : (transferType === 'p2p' ? t('upload.transfer') : t('common.upload'))}
+            </Button>
+          </div>
         )}
       </div>
     </div>

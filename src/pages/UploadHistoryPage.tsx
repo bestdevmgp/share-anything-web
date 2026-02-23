@@ -634,7 +634,7 @@ const UploadHistoryPage: React.FC = () => {
                     variant="ghost"
                     size="icon"
                     onClick={handleCopyLink}
-                    className="absolute right-1 top-1/2 -translate-y-1/2"
+                    className="absolute right-[1.5px] top-1/2 -translate-y-1/2"
                   >
                     {copiedLink ? (
                       <CheckIcon className="w-5 h-5 text-green-600" />

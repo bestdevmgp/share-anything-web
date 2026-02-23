@@ -165,7 +165,7 @@
     "connectedReadyToDownload": "{{device}}に接続しました。受信者がダウンロードを開始できます。",
     "transferringPleaseWait": "ファイルを転送中です。しばらくお待ちください。",
     "shareCodeOrLink": "コードを共有するか、下記のリンクからファイルをダウンロードしてください。",
-    "transferCode": "転送コード",
+    "shareCode": "共有コード",
     "copyCode": "コードをコピー",
     "expires": "期限: {{dateTime}}",
     "shareLink": "共有リンク",

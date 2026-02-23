@@ -25,9 +25,9 @@ const Footer: React.FC = () => {
   const { t } = useTranslation();
 
   const themeOptions = [
+    { key: 'system' as const, label: t('footer.themeSystem') },
     { key: 'light' as const, label: t('footer.themeLight') },
     { key: 'dark' as const, label: t('footer.themeDark') },
-    { key: 'system' as const, label: t('footer.themeSystem') },
   ];
 
   const [langOpen, setLangOpen] = useState(false);

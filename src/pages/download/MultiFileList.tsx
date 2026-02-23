@@ -191,11 +191,12 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
             )}
           </div>
 
-          <div className="mt-4 text-center">
+          <div className="mt-2 text-center">
             <Button
               variant="ghost"
+              size="sm"
               onClick={() => navigate('/')}
-              className="text-sm text-muted-foreground can-hover:hover:text-foreground active:text-foreground"
+              className="text-muted-foreground can-hover:hover:text-foreground active:text-foreground"
             >
               {t('common.back')}
             </Button>
