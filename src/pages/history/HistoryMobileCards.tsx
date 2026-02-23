@@ -132,14 +132,11 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
             >
               <div className="flex items-center space-x-3 pr-20">
                 <FileThumbnail source={getThumbnailSource(upload)} fileName={upload.file_name} size="md" />
-                <div className={cn(
-                  "flex-1 min-w-0 h-12 overflow-hidden",
-                  upload.description && "flex flex-col justify-center"
-                )}>
-                  <h3 className={cn("text-sm font-medium text-foreground", upload.description && "truncate leading-4")} title={upload.file_name}>
+                <div className="flex-1 min-w-0 h-12 overflow-hidden flex flex-col justify-center">
+                  <h3 className={cn("text-sm font-medium text-foreground leading-4", upload.description && "truncate")} title={upload.file_name}>
                     {truncateFileName(upload.file_name, 35)}
                   </h3>
-                  <div className={cn("flex items-center space-x-2 text-xs text-muted-foreground", upload.description ? "mt-px leading-4" : "mt-1")}>
+                  <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-px leading-4">
                     <span>{formatFileSize(upload.file_size)}</span>
                     <span>•</span>
                     <span>{t('common.countUnit', { count: upload.download_count })}</span>

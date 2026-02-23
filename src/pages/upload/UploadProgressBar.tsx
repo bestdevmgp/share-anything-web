@@ -49,7 +49,7 @@ const UploadProgressBar: React.FC<UploadProgressBarProps> = ({
         </div>
 
         {isUploading && transferType !== 'p2p' ? (
-          <div className="flex-1 md:min-h-[65px] md:flex md:items-center">
+          <div className="flex-1 min-h-10 md:min-h-[65px] md:flex md:items-center">
             <div className="flex items-center gap-2 w-full pl-1.5">
               <div className="flex-1">
                 <div className="flex justify-between mb-2">
