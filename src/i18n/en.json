@@ -47,6 +47,7 @@
   },
   "header": {
     "uploadHistory": "Upload History",
+    "settings": "Settings",
     "logout": "Sign out",
     "login": "Sign in",
     "logoutSuccess": "You have been signed out."
@@ -335,5 +336,18 @@
     "setupFailed": "Failed to set up P2P connection.",
     "senderDisconnected": "The sender has disconnected.",
     "downloadCancelled": "Download has been cancelled."
+  },
+  "settings": {
+    "pageTitle": "Settings",
+    "notifications": "Notifications",
+    "notificationSettings": "Notification Settings",
+    "notificationDescription": "Manage email notifications for file uploads and downloads.",
+    "uploadNotification": "Upload Notification",
+    "uploadNotificationDescription": "Receive email notifications when files are uploaded.",
+    "downloadNotification": "Download Notification",
+    "downloadNotificationDescription": "Receive email notifications when files are downloaded.",
+    "updateSuccess": "Notification settings saved.",
+    "updateFailed": "Failed to save notification settings.",
+    "fetchFailed": "Failed to load notification settings."
   }
 }

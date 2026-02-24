@@ -47,6 +47,7 @@
   },
   "header": {
     "uploadHistory": "アップロード履歴",
+    "settings": "設定",
     "logout": "ログアウト",
     "login": "ログイン",
     "logoutSuccess": "ログアウトしました。"
@@ -335,5 +336,18 @@
     "setupFailed": "P2P接続の設定に失敗しました。",
     "senderDisconnected": "送信者が接続を切断しました。",
     "downloadCancelled": "ダウンロードが中止されました。"
+  },
+  "settings": {
+    "pageTitle": "設定",
+    "notifications": "通知",
+    "notificationSettings": "通知設定",
+    "notificationDescription": "ファイルのアップロードやダウンロード時のメール通知を管理します。",
+    "uploadNotification": "アップロード通知",
+    "uploadNotificationDescription": "ファイルアップロード時にメールで通知を受け取ります。",
+    "downloadNotification": "ダウンロード通知",
+    "downloadNotificationDescription": "ファイルダウンロード時にメールで通知を受け取ります。",
+    "updateSuccess": "通知設定が保存されました。",
+    "updateFailed": "通知設定の保存に失敗しました。",
+    "fetchFailed": "通知設定の読み込みに失敗しました。"
   }
 }

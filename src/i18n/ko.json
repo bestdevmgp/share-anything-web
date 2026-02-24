@@ -47,6 +47,7 @@
   },
   "header": {
     "uploadHistory": "업로드 기록",
+    "settings": "설정",
     "logout": "로그아웃",
     "login": "로그인",
     "logoutSuccess": "로그아웃되었습니다."
@@ -335,5 +336,18 @@
     "setupFailed": "P2P 연결 설정에 실패하였습니다.",
     "senderDisconnected": "발신자가 연결을 종료하였습니다.",
     "downloadCancelled": "다운로드가 중단되었습니다."
+  },
+  "settings": {
+    "pageTitle": "설정",
+    "notifications": "알림",
+    "notificationSettings": "알림 설정",
+    "notificationDescription": "파일 업로드 및 다운로드 시 이메일 알림을 관리합니다.",
+    "uploadNotification": "업로드 알림",
+    "uploadNotificationDescription": "파일 업로드 시 이메일로 알림을 받습니다.",
+    "downloadNotification": "다운로드 알림",
+    "downloadNotificationDescription": "파일 다운로드 시 이메일로 알림을 받습니다.",
+    "updateSuccess": "알림 설정이 저장되었습니다.",
+    "updateFailed": "알림 설정 저장에 실패하였습니다.",
+    "fetchFailed": "알림 설정을 불러오는데 실패하였습니다."
   }
 }

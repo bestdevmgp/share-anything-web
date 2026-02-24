@@ -47,6 +47,7 @@
   },
   "header": {
     "uploadHistory": "上传记录",
+    "settings": "设置",
     "logout": "注销",
     "login": "登录",
     "logoutSuccess": "已成功注销。"
@@ -335,5 +336,18 @@
     "setupFailed": "P2P 连接设置失败。",
     "senderDisconnected": "发送方已断开连接。",
     "downloadCancelled": "下载已中断。"
+  },
+  "settings": {
+    "pageTitle": "设置",
+    "notifications": "通知",
+    "notificationSettings": "通知设置",
+    "notificationDescription": "管理文件上传和下载时的邮件通知。",
+    "uploadNotification": "上传通知",
+    "uploadNotificationDescription": "文件上传时通过邮件接收通知。",
+    "downloadNotification": "下载通知",
+    "downloadNotificationDescription": "文件下载时通过邮件接收通知。",
+    "updateSuccess": "通知设置已保存。",
+    "updateFailed": "通知设置保存失败。",
+    "fetchFailed": "通知设置加载失败。"
   }
 }

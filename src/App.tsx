@@ -18,6 +18,7 @@ import OAuthCallbackPage from './pages/OAuthCallbackPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfUsePage from './pages/TermsOfUsePage';
 import UploadHistoryPage from './pages/UploadHistoryPage';
+import SettingsPage from './pages/SettingsPage';
 import NotFoundPage from './pages/NotFoundPage';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -36,6 +37,7 @@ const AppContent: React.FC = () => {
           <Route path="/upload" element={<UploadPage />} />
           <Route path="/upload/success" element={<UploadSuccessPage />} />
           <Route path="/history" element={<UploadHistoryPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="/download/:code" element={<DownloadFilePage />} />
           <Route path="/auth/callback/:provider" element={<OAuthCallbackPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
