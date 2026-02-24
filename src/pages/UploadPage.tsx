@@ -50,18 +50,33 @@ const UploadPage: React.FC = () => {
   filesRef.current = files;
   const transferTypeRef = useRef(transferType);
   transferTypeRef.current = transferType;
+  const descriptionRef = useRef(description);
+  descriptionRef.current = description;
+  const passwordRef = useRef(password);
+  passwordRef.current = password;
+  const expirationRef = useRef(expiration);
+  expirationRef.current = expiration;
+  const isOneTimeRef = useRef(isOneTime);
+  isOneTimeRef.current = isOneTime;
   const isRestoringRef = useRef(false);
 
   useEffect(() => {
     document.title = t('upload.pageTitle');
   }, [t]);
 
-  // Restore files and transfer type from IndexedDB/sessionStorage on refresh
   useEffect(() => {
     const wasRefresh = sessionStorage.getItem('uploadPageRefreshing');
     const savedTransferType = sessionStorage.getItem('uploadTransferType') as 'server' | 'p2p' | null;
+    const savedDescription = sessionStorage.getItem('uploadDescription');
+    const savedPassword = sessionStorage.getItem('uploadPassword');
+    const savedExpiration = sessionStorage.getItem('uploadExpiration') as ExpirationOption | null;
+    const savedIsOneTime = sessionStorage.getItem('uploadIsOneTime');
     sessionStorage.removeItem('uploadPageRefreshing');
     sessionStorage.removeItem('uploadTransferType');
+    sessionStorage.removeItem('uploadDescription');
+    sessionStorage.removeItem('uploadPassword');
+    sessionStorage.removeItem('uploadExpiration');
+    sessionStorage.removeItem('uploadIsOneTime');
 
     if (wasRefresh) {
       if (savedTransferType) {
@@ -70,6 +85,10 @@ const UploadPage: React.FC = () => {
           setIsOneTime(true);
         }
       }
+      if (savedDescription) setDescription(savedDescription);
+      if (savedPassword) setPassword(savedPassword);
+      if (savedExpiration) setExpiration(savedExpiration);
+      if (savedIsOneTime !== null) setIsOneTime(savedIsOneTime === 'true');
       isRestoringRef.current = true;
       restoreUploadFiles().then(restored => {
         if (restored.length > 0) {
@@ -98,6 +117,10 @@ const UploadPage: React.FC = () => {
       if (filesRef.current.length > 0) {
         sessionStorage.setItem('uploadPageRefreshing', 'true');
         sessionStorage.setItem('uploadTransferType', transferTypeRef.current);
+        sessionStorage.setItem('uploadDescription', descriptionRef.current);
+        sessionStorage.setItem('uploadPassword', passwordRef.current);
+        sessionStorage.setItem('uploadExpiration', expirationRef.current);
+        sessionStorage.setItem('uploadIsOneTime', isOneTimeRef.current ? 'true' : 'false');
       }
     };
     const handlePageShow = (e: PageTransitionEvent) => {
@@ -354,13 +377,13 @@ const UploadPage: React.FC = () => {
         setTurnstileToken('');
       } else {
         toast.error(err.response?.data?.message || t('upload.uploadFailed'));
+        setTurnstileToken('');
       }
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
       setIsCompleting(false);
       setUploadAbortController(null);
-      setTurnstileToken('');
     }
   };
 
