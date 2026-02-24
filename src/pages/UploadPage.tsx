@@ -64,29 +64,26 @@ const UploadPage: React.FC = () => {
     document.title = t('upload.pageTitle');
   }, [t]);
 
+  // Restore files and settings from sessionStorage on refresh
   useEffect(() => {
     const wasRefresh = sessionStorage.getItem('uploadPageRefreshing');
-    const savedTransferType = sessionStorage.getItem('uploadTransferType') as 'server' | 'p2p' | null;
-    const savedDescription = sessionStorage.getItem('uploadDescription');
-    const savedPassword = sessionStorage.getItem('uploadPassword');
-    const savedExpiration = sessionStorage.getItem('uploadExpiration') as ExpirationOption | null;
-    const savedIsOneTime = sessionStorage.getItem('uploadIsOneTime');
     sessionStorage.removeItem('uploadPageRefreshing');
-    sessionStorage.removeItem('uploadTransferType');
-    sessionStorage.removeItem('uploadDescription');
-    sessionStorage.removeItem('uploadPassword');
-    sessionStorage.removeItem('uploadExpiration');
-    sessionStorage.removeItem('uploadIsOneTime');
 
     if (wasRefresh) {
+      const savedTransferType = sessionStorage.getItem('uploadTransferType') as 'server' | 'p2p' | null;
+      const savedDescription = sessionStorage.getItem('uploadDescription');
+      const savedPassword = sessionStorage.getItem('uploadPassword');
+      const savedExpiration = sessionStorage.getItem('uploadExpiration') as ExpirationOption | null;
+      const savedIsOneTime = sessionStorage.getItem('uploadIsOneTime');
+
       if (savedTransferType) {
         setTransferType(savedTransferType);
         if (savedTransferType === 'p2p') {
           setIsOneTime(true);
         }
       }
-      if (savedDescription) setDescription(savedDescription);
-      if (savedPassword) setPassword(savedPassword);
+      if (savedDescription !== null) setDescription(savedDescription);
+      if (savedPassword !== null) setPassword(savedPassword);
       if (savedExpiration) setExpiration(savedExpiration);
       if (savedIsOneTime !== null) setIsOneTime(savedIsOneTime === 'true');
       isRestoringRef.current = true;
@@ -98,8 +95,23 @@ const UploadPage: React.FC = () => {
       });
     } else {
       clearUploadFiles();
+      sessionStorage.removeItem('uploadTransferType');
+      sessionStorage.removeItem('uploadDescription');
+      sessionStorage.removeItem('uploadPassword');
+      sessionStorage.removeItem('uploadExpiration');
+      sessionStorage.removeItem('uploadIsOneTime');
     }
   }, []);
+
+  // Save settings to sessionStorage on every change
+  useEffect(() => {
+    if (isRestoringRef.current) return;
+    sessionStorage.setItem('uploadTransferType', transferType);
+    sessionStorage.setItem('uploadDescription', description);
+    sessionStorage.setItem('uploadPassword', password);
+    sessionStorage.setItem('uploadExpiration', expiration);
+    sessionStorage.setItem('uploadIsOneTime', isOneTime ? 'true' : 'false');
+  }, [transferType, description, password, expiration, isOneTime]);
 
   // Store files in IndexedDB when they change
   useEffect(() => {
