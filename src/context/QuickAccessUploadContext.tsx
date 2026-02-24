@@ -30,7 +30,7 @@ interface QuickAccessUploadContextType {
   uploadingFiles: UploadingFile[];
   isUploading: boolean;
   handleUpload: (files: File[]) => Promise<void>;
-  handleCancelUpload: () => void;
+  handleCancelUpload: (fileId: string) => void;
   completedCounter: number;
 }
 
@@ -44,7 +44,8 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
 
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
   const [completedCounter, setCompletedCounter] = useState(0);
-  const abortControllerRef = useRef<AbortController | null>(null);
+  const fileAbortControllersRef = useRef<Map<string, AbortController>>(new Map());
+  const cancelledFileIdsRef = useRef<Set<string>>(new Set());
   const fileTrackingRef = useRef<Map<string, FileTrackingData>>(new Map());
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastTimeUpdateRef = useRef<number>(0);
@@ -120,12 +121,11 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
   }, [stopProgressUpdates]);
 
   const handleUpload = useCallback(async (droppedFiles: File[]) => {
-    const abortController = new AbortController();
-    abortControllerRef.current = abortController;
-
     const CHUNK_SIZE = 50 * 1024 * 1024;
     const MAX_CONCURRENT_UPLOADS = 10;
     const DIRECT_UPLOAD_THRESHOLD = 100 * 1024 * 1024;
+
+    cancelledFileIdsRef.current.clear();
 
     const newUploadingFiles: UploadingFile[] = droppedFiles.map((file, i) => ({
       id: `uploading-${Date.now()}-${i}`,
@@ -136,6 +136,12 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
       completed: false,
     }));
     setUploadingFiles(newUploadingFiles);
+
+    const controllersMap = fileAbortControllersRef.current;
+    controllersMap.clear();
+    newUploadingFiles.forEach(uf => {
+      controllersMap.set(uf.id, new AbortController());
+    });
 
     const trackingMap = fileTrackingRef.current;
     trackingMap.clear();
@@ -170,113 +176,140 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
       const MAX_CONCURRENT_FILES = 4;
 
       const uploadFile = async (fileIndex: number): Promise<void> => {
-        if (abortController.signal.aborted) throw new Error('Upload cancelled');
+        const uploadId = newUploadingFiles[fileIndex].id;
+        const fileAbortController = controllersMap.get(uploadId);
+
+        if (!fileAbortController || fileAbortController.signal.aborted) return;
 
         const file = droppedFiles[fileIndex];
         const fileInit = initResponse.files[fileIndex];
-        const uploadId = newUploadingFiles[fileIndex].id;
-        const tracking = trackingMap.get(uploadId)!;
-        const useDirectUpload = file.size < DIRECT_UPLOAD_THRESHOLD;
+        const tracking = trackingMap.get(uploadId);
+        if (!tracking) return;
 
-        if (useDirectUpload) {
-          const progressKey = `direct`;
-          tracking.partProgress[progressKey] = 0;
+        try {
+          const signal = fileAbortController.signal;
+          const useDirectUpload = file.size < DIRECT_UPLOAD_THRESHOLD;
 
-          const result = await workerAPI.directUpload(
-            fileInit.storage_key,
-            file,
-            (loaded) => {
-              tracking.partProgress[progressKey] = loaded;
-            },
-            abortController.signal
-          );
+          if (useDirectUpload) {
+            const progressKey = `direct`;
+            tracking.partProgress[progressKey] = 0;
 
-          delete tracking.partProgress[progressKey];
-          tracking.completedBytes = file.size;
-
-          workerUploadIds[fileInit.storage_key] = 'direct';
-          completedFileParts[fileInit.storage_key] = [{ part_number: 1, etag: result.etag }];
-        } else {
-          const totalParts = fileInit.total_parts;
-          const upId = fileInit.upload_id;
-          workerUploadIds[fileInit.storage_key] = upId;
-
-          const allPartNumbers = Array.from({ length: totalParts }, (_, i) => i + 1);
-
-          const presignedUrlsResponse = await fileAPI.getPartPresignedUrls({
-            upload_session_id: initResponse.upload_session_id,
-            storage_key: fileInit.storage_key,
-            upload_id: upId,
-            part_numbers: allPartNumbers,
-          });
-
-          const presignedUrlMap = new Map<number, string>();
-          presignedUrlsResponse.urls.forEach(u => presignedUrlMap.set(u.part_number, u.presigned_url));
-
-          const uploadPartWithProgress = async (partNumber: number): Promise<{ part_number: number; etag: string }> => {
-            if (abortController.signal.aborted) throw new Error('Upload cancelled');
-
-            const start = (partNumber - 1) * CHUNK_SIZE;
-            const end = Math.min(start + CHUNK_SIZE, file.size);
-            const chunk = file.slice(start, end);
-            const chunkSize = end - start;
-            const partKey = `part-${partNumber}`;
-            tracking.partProgress[partKey] = 0;
-
-            const presignedUrl = presignedUrlMap.get(partNumber);
-            if (!presignedUrl) throw new Error(`No presigned URL for part ${partNumber}`);
-
-            const etag = await fileAPI.uploadPart(
-              presignedUrl,
-              chunk,
+            const result = await workerAPI.directUpload(
+              fileInit.storage_key,
+              file,
               (loaded) => {
-                tracking.partProgress[partKey] = loaded;
+                tracking.partProgress[progressKey] = loaded;
               },
-              abortController.signal
+              signal
             );
 
-            delete tracking.partProgress[partKey];
-            tracking.completedBytes += chunkSize;
+            delete tracking.partProgress[progressKey];
+            tracking.completedBytes = file.size;
 
-            return { part_number: partNumber, etag };
-          };
+            workerUploadIds[fileInit.storage_key] = 'direct';
+            completedFileParts[fileInit.storage_key] = [{ part_number: 1, etag: result.etag }];
+          } else {
+            const totalParts = fileInit.total_parts;
+            const upId = fileInit.upload_id;
+            workerUploadIds[fileInit.storage_key] = upId;
 
-          const results: { part_number: number; etag: string }[] = [];
-          for (let i = 0; i < allPartNumbers.length; i += MAX_CONCURRENT_UPLOADS) {
-            const batch = allPartNumbers.slice(i, i + MAX_CONCURRENT_UPLOADS);
-            const batchResults = await Promise.all(batch.map(uploadPartWithProgress));
-            results.push(...batchResults);
+            const allPartNumbers = Array.from({ length: totalParts }, (_, i) => i + 1);
+
+            const presignedUrlsResponse = await fileAPI.getPartPresignedUrls({
+              upload_session_id: initResponse.upload_session_id,
+              storage_key: fileInit.storage_key,
+              upload_id: upId,
+              part_numbers: allPartNumbers,
+            });
+
+            const presignedUrlMap = new Map<number, string>();
+            presignedUrlsResponse.urls.forEach(u => presignedUrlMap.set(u.part_number, u.presigned_url));
+
+            const uploadPartWithProgress = async (partNumber: number): Promise<{ part_number: number; etag: string }> => {
+              if (signal.aborted) throw new Error('Upload cancelled');
+
+              const start = (partNumber - 1) * CHUNK_SIZE;
+              const end = Math.min(start + CHUNK_SIZE, file.size);
+              const chunk = file.slice(start, end);
+              const chunkSize = end - start;
+              const partKey = `part-${partNumber}`;
+              tracking.partProgress[partKey] = 0;
+
+              const presignedUrl = presignedUrlMap.get(partNumber);
+              if (!presignedUrl) throw new Error(`No presigned URL for part ${partNumber}`);
+
+              const etag = await fileAPI.uploadPart(
+                presignedUrl,
+                chunk,
+                (loaded) => {
+                  tracking.partProgress[partKey] = loaded;
+                },
+                signal
+              );
+
+              delete tracking.partProgress[partKey];
+              tracking.completedBytes += chunkSize;
+
+              return { part_number: partNumber, etag };
+            };
+
+            const results: { part_number: number; etag: string }[] = [];
+            for (let i = 0; i < allPartNumbers.length; i += MAX_CONCURRENT_UPLOADS) {
+              const batch = allPartNumbers.slice(i, i + MAX_CONCURRENT_UPLOADS);
+              const batchResults = await Promise.all(batch.map(uploadPartWithProgress));
+              results.push(...batchResults);
+            }
+
+            completedFileParts[fileInit.storage_key] = results.sort((a, b) => a.part_number - b.part_number);
           }
 
-          completedFileParts[fileInit.storage_key] = results.sort((a, b) => a.part_number - b.part_number);
+          setUploadingFiles(prev => prev.map(uf =>
+            uf.id === uploadId ? { ...uf, progress: 100, completed: true } : uf
+          ));
+        } catch (err: any) {
+          if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED' || err.message === 'Upload cancelled') {
+            // Per-file cancellation — don't propagate
+            cancelledFileIdsRef.current.add(uploadId);
+            return;
+          }
+          throw err;
         }
-
-        setUploadingFiles(prev => prev.map(uf =>
-          uf.id === uploadId ? { ...uf, progress: 100, completed: true } : uf
-        ));
       };
 
       const fileIndices = Array.from({ length: droppedFiles.length }, (_, i) => i);
       for (let i = 0; i < fileIndices.length; i += MAX_CONCURRENT_FILES) {
         const batch = fileIndices.slice(i, i + MAX_CONCURRENT_FILES);
-        await Promise.all(batch.map(uploadFile));
+        const results = await Promise.allSettled(batch.map(uploadFile));
+
+        for (const result of results) {
+          if (result.status === 'rejected') {
+            throw result.reason;
+          }
+        }
       }
 
-      await fileAPI.completeMultipartUpload({
-        upload_session_id: initResponse.upload_session_id,
-        share_code: initResponse.share_code,
-        files: initResponse.files.map((fileInit, i) => ({
-          file_name: fileInit.file_name,
-          storage_key: fileInit.storage_key,
-          upload_id: workerUploadIds[fileInit.storage_key],
-          file_size: droppedFiles[i].size,
-          content_type: droppedFiles[i].type || 'application/octet-stream',
-          parts: completedFileParts[fileInit.storage_key],
-        })),
-      });
+      const cancelledIds = cancelledFileIdsRef.current;
+      const successfulFiles = initResponse.files
+        .map((fileInit, i) => ({ fileInit, originalIndex: i, uploadId: newUploadingFiles[i].id }))
+        .filter(({ uploadId }) => !cancelledIds.has(uploadId));
 
-      toast.success(tRef.current('quickAccess.uploadComplete'));
-      setCompletedCounter(prev => prev + 1);
+      if (successfulFiles.length > 0) {
+        await fileAPI.completeMultipartUpload({
+          upload_session_id: initResponse.upload_session_id,
+          share_code: initResponse.share_code,
+          files: successfulFiles.map(({ fileInit, originalIndex }) => ({
+            file_name: fileInit.file_name,
+            storage_key: fileInit.storage_key,
+            upload_id: workerUploadIds[fileInit.storage_key],
+            file_size: droppedFiles[originalIndex].size,
+            content_type: droppedFiles[originalIndex].type || 'application/octet-stream',
+            parts: completedFileParts[fileInit.storage_key],
+          })),
+        });
+
+        toast.success(tRef.current('quickAccess.uploadComplete'));
+        setCompletedCounter(prev => prev + 1);
+      }
     } catch (err: any) {
       if (err.name !== 'CanceledError' && err.code !== 'ERR_CANCELED' && err.message !== 'Upload cancelled') {
         toast.error(tRef.current('quickAccess.uploadFailed'));
@@ -285,14 +318,20 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
       stopProgressUpdates();
       setUploadingFiles([]);
       fileTrackingRef.current.clear();
-      abortControllerRef.current = null;
+      fileAbortControllersRef.current.clear();
+      cancelledFileIdsRef.current.clear();
     }
   }, [startProgressUpdates, stopProgressUpdates]);
 
-  const handleCancelUpload = useCallback(() => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
+  const handleCancelUpload = useCallback((fileId: string) => {
+    const controller = fileAbortControllersRef.current.get(fileId);
+    if (controller) {
+      controller.abort();
     }
+    cancelledFileIdsRef.current.add(fileId);
+    setUploadingFiles(prev => prev.filter(uf => uf.id !== fileId));
+    fileTrackingRef.current.delete(fileId);
+    fileAbortControllersRef.current.delete(fileId);
   }, []);
 
   return (

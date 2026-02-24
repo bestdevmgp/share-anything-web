@@ -317,15 +317,17 @@ const QuickAccess: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex-shrink-0">
-                    <button
-                      onClick={handleCancelUpload}
-                      className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
-                      title={t('common.cancel')}
-                    >
-                      <XMarkIcon className="w-5 h-5" />
-                    </button>
-                  </div>
+                  {!uf.completed && (
+                    <div className="flex-shrink-0">
+                      <button
+                        onClick={() => handleCancelUpload(uf.id)}
+                        className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
+                        title={t('common.cancel')}
+                      >
+                        <XMarkIcon className="w-5 h-5" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
               {files.map((file) => (
