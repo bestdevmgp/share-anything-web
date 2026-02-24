@@ -13,6 +13,7 @@ export interface UploadProgressBarProps {
   uploadTimeRemaining: string;
   files: File[];
   turnstileToken: string;
+  turnstileResetKey: number;
   onTurnstileVerify: (token: string) => void;
   onTurnstileError: () => void;
   onTurnstileExpire: () => void;
@@ -28,6 +29,7 @@ const UploadProgressBar: React.FC<UploadProgressBarProps> = ({
   uploadTimeRemaining,
   files,
   turnstileToken,
+  turnstileResetKey,
   onTurnstileVerify,
   onTurnstileError,
   onTurnstileExpire,
@@ -42,6 +44,7 @@ const UploadProgressBar: React.FC<UploadProgressBarProps> = ({
         {}
         <div className={isUploading && transferType !== 'p2p' ? 'md:hidden' : ''}>
           <TurnstileWidget
+            key={turnstileResetKey}
             onVerify={onTurnstileVerify}
             onError={onTurnstileError}
             onExpire={onTurnstileExpire}

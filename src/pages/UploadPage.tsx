@@ -37,6 +37,7 @@ const UploadPage: React.FC = () => {
   const [uploadTimeRemaining, setUploadTimeRemaining] = useState<string>('');
   const [uploadAbortController, setUploadAbortController] = useState<AbortController | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string>('');
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const [transferType, setTransferType] = useState<'server' | 'p2p'>('server');
   const [previewFile, setPreviewFile] = useState<File | null>(null);
   const [p2pTooltipMounted, setP2PTooltipMounted] = useState(false);
@@ -381,15 +382,20 @@ const UploadPage: React.FC = () => {
     } catch (err: any) {
       if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED' || err.message === 'Upload cancelled') {
         toast.info(t('upload.uploadCancelled'));
+        setTurnstileToken('');
+        setTurnstileResetKey(k => k + 1);
       } else if (err.response?.status === 400) {
         toast.error(err.response?.data?.message || t('upload.securityRequired'));
         setTurnstileToken('');
+        setTurnstileResetKey(k => k + 1);
       } else if (err.response?.status === 403) {
         toast.error(err.response?.data?.message || t('upload.securityFailed'));
         setTurnstileToken('');
+        setTurnstileResetKey(k => k + 1);
       } else {
         toast.error(err.response?.data?.message || t('upload.uploadFailed'));
         setTurnstileToken('');
+        setTurnstileResetKey(k => k + 1);
       }
     } finally {
       setIsUploading(false);
@@ -539,6 +545,7 @@ const UploadPage: React.FC = () => {
           uploadTimeRemaining={uploadTimeRemaining}
           files={files}
           turnstileToken={turnstileToken}
+          turnstileResetKey={turnstileResetKey}
           onTurnstileVerify={(token) => setTurnstileToken(token)}
           onTurnstileError={() => {
             setTurnstileToken('');
