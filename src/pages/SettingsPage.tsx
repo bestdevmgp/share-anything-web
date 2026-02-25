@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from 'context/AuthContext';
 import { toast } from 'context/ToastContext';
 import { useTranslation } from 'i18n';
@@ -35,7 +35,9 @@ const SettingsPage: React.FC = () => {
   const { language: siteLanguage, setLanguage: setSiteLanguage } = useLanguage();
   const { theme, setTheme } = useTheme();
 
-  const [activeTab, setActiveTab] = useState<Tab>('notifications');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab: Tab = (searchParams.get('tab') === 'general' ? 'general' : 'notifications');
+  const setActiveTab = (tab: Tab) => setSearchParams({ tab }, { replace: true });
   const [notifyUpload, setNotifyUpload] = useState(true);
   const [notifyDownload, setNotifyDownload] = useState(true);
   const [notifyDownloadAlert, setNotifyDownloadAlert] = useState(true);
