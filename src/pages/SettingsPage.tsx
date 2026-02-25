@@ -147,12 +147,12 @@ const SettingsPage: React.FC = () => {
       <h1 className="text-2xl font-bold text-foreground mb-8">{t('settings.pageTitle')}</h1>
 
       <div className="flex flex-col md:flex-row gap-0">
-        {/* Sidebar */}
+        {/* Sidebar / Mobile Tabs */}
         <div className="md:w-52 flex-shrink-0 md:pr-8 md:border-r md:border-border pb-4 md:pb-0">
-          <nav className="space-y-1">
+          <nav className="flex gap-2 md:flex-col md:space-y-1 md:gap-0">
             <button
               onClick={() => setActiveTab('notifications')}
-              className={`w-full text-left px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+              className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors md:w-full md:text-left ${
                 activeTab === 'notifications'
                   ? 'text-foreground bg-accent'
                   : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
@@ -162,7 +162,7 @@ const SettingsPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('general')}
-              className={`w-full text-left px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+              className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors md:w-full md:text-left ${
                 activeTab === 'general'
                   ? 'text-foreground bg-accent'
                   : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
@@ -171,7 +171,6 @@ const SettingsPage: React.FC = () => {
               {t('settings.general')}
             </button>
           </nav>
-          {/* Mobile separator */}
           <Separator className="md:hidden mt-4" />
         </div>
 
