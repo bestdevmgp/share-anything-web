@@ -10,7 +10,7 @@ import { Switch } from 'components/ui/switch';
 import { Label } from 'components/ui/label';
 import { Separator } from 'components/ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from 'components/ui/popover';
-import { BellIcon, Cog6ToothIcon, GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
+import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 
 type Tab = 'notifications' | 'general';
 
@@ -149,24 +149,22 @@ const SettingsPage: React.FC = () => {
           <nav className="space-y-1">
             <button
               onClick={() => setActiveTab('notifications')}
-              className={`w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+              className={`w-full text-left px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                 activeTab === 'notifications'
                   ? 'text-foreground bg-accent'
-                  : 'text-muted-foreground can-hover:hover:bg-accent/50 active:bg-accent/50'
+                  : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
               }`}
             >
-              <BellIcon className="w-4 h-4" />
               {t('settings.notifications')}
             </button>
             <button
               onClick={() => setActiveTab('general')}
-              className={`w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+              className={`w-full text-left px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                 activeTab === 'general'
                   ? 'text-foreground bg-accent'
-                  : 'text-muted-foreground can-hover:hover:bg-accent/50 active:bg-accent/50'
+                  : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
               }`}
             >
-              <Cog6ToothIcon className="w-4 h-4" />
               {t('settings.general')}
             </button>
           </nav>
