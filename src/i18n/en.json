@@ -245,6 +245,7 @@
     "deselectAll": "Deselect All",
     "fileListSelected": "Files ({{selected}}/{{total}} selected)",
     "zipDownload": "ZIP Download",
+    "individualDownload": "Individual Download",
     "creatingZip": "Creating ZIP...",
     "selectFilePrompt": "Select files",
     "multiFileDownload": "Download {{count}} files"

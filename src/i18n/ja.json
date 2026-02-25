@@ -245,6 +245,7 @@
     "deselectAll": "選択解除",
     "fileListSelected": "ファイル一覧 ({{selected}}/{{total}} 選択中)",
     "zipDownload": "ZIPダウンロード",
+    "individualDownload": "個別ダウンロード",
     "creatingZip": "ZIP作成中...",
     "selectFilePrompt": "ファイルを選択してください",
     "multiFileDownload": "{{count}}件のファイルをダウンロード"

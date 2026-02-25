@@ -169,7 +169,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                       size="lg"
                       className="flex-1"
                     >
-                      {t('common.download')}
+                      {t('download.individualDownload')}
                     </Button>
                   </div>
                 ) : (

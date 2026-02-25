@@ -245,6 +245,7 @@
     "deselectAll": "取消全選",
     "fileListSelected": "檔案列表（已選 {{selected}}/{{total}}）",
     "zipDownload": "ZIP 下載",
+    "individualDownload": "逐個下載",
     "creatingZip": "建立 ZIP 中...",
     "selectFilePrompt": "請選擇檔案",
     "multiFileDownload": "下載 {{count}} 個檔案"

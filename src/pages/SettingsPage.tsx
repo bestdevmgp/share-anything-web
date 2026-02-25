@@ -219,49 +219,52 @@ const SettingsPage: React.FC = () => {
 
               <div className="space-y-6">
                 {/* Upload Notification */}
-                <div>
-                  <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0">
                     <Label className="text-sm font-medium">{t('settings.uploadNotification')}</Label>
-                    <Switch
-                      checked={notifyUpload}
-                      onCheckedChange={(checked) => handleToggle('upload', checked)}
-                    />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {t('settings.uploadNotificationDescription')}
+                    </p>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {t('settings.uploadNotificationDescription')}
-                  </p>
+                  <Switch
+                    className="flex-shrink-0"
+                    checked={notifyUpload}
+                    onCheckedChange={(checked) => handleToggle('upload', checked)}
+                  />
                 </div>
 
                 <Separator />
 
                 {/* Download Notification */}
-                <div>
-                  <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0">
                     <Label className="text-sm font-medium">{t('settings.downloadNotification')}</Label>
-                    <Switch
-                      checked={notifyDownload}
-                      onCheckedChange={(checked) => handleToggle('download', checked)}
-                    />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {t('settings.downloadNotificationDescription')}
+                    </p>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {t('settings.downloadNotificationDescription')}
-                  </p>
+                  <Switch
+                    className="flex-shrink-0"
+                    checked={notifyDownload}
+                    onCheckedChange={(checked) => handleToggle('download', checked)}
+                  />
                 </div>
 
                 <Separator />
 
                 {/* Download Alert Notification */}
-                <div>
-                  <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0">
                     <Label className="text-sm font-medium">{t('settings.downloadAlertNotification')}</Label>
-                    <Switch
-                      checked={notifyDownloadAlert}
-                      onCheckedChange={(checked) => handleToggle('downloadAlert', checked)}
-                    />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {t('settings.downloadAlertNotificationDescription')}
+                    </p>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {t('settings.downloadAlertNotificationDescription')}
-                  </p>
+                  <Switch
+                    className="flex-shrink-0"
+                    checked={notifyDownloadAlert}
+                    onCheckedChange={(checked) => handleToggle('downloadAlert', checked)}
+                  />
                 </div>
 
                 <Separator />

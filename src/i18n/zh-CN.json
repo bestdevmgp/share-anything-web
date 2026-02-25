@@ -245,6 +245,7 @@
     "deselectAll": "取消全选",
     "fileListSelected": "文件列表 (已选 {{selected}}/{{total}})",
     "zipDownload": "ZIP 下载",
+    "individualDownload": "逐个下载",
     "creatingZip": "正在创建 ZIP...",
     "selectFilePrompt": "请选择文件",
     "multiFileDownload": "下载 {{count}} 个文件"
