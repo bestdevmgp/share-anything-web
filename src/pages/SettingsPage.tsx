@@ -29,7 +29,7 @@ const themeIcons: Record<string, React.ReactNode> = {
 };
 
 const SettingsPage: React.FC = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { language: siteLanguage, setLanguage: setSiteLanguage } = useLanguage();
@@ -53,6 +53,8 @@ const SettingsPage: React.FC = () => {
   ];
 
   useEffect(() => {
+    if (authLoading) return;
+
     if (!isAuthenticated) {
       navigate('/signin');
       return;
@@ -73,7 +75,8 @@ const SettingsPage: React.FC = () => {
     };
 
     fetchSettings();
-  }, [isAuthenticated, navigate, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, authLoading, navigate]);
 
   const handleToggle = async (field: 'upload' | 'download' | 'downloadAlert', value: boolean) => {
     const prevUpload = notifyUpload;
@@ -183,7 +186,7 @@ const SettingsPage: React.FC = () => {
 
               <div className="space-y-6">
                 {/* Upload Notification */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="space-y-0.5">
                     <Label className="text-sm font-medium">{t('settings.uploadNotification')}</Label>
                     <p className="text-sm text-muted-foreground">
@@ -199,7 +202,7 @@ const SettingsPage: React.FC = () => {
                 <Separator />
 
                 {/* Download Notification */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="space-y-0.5">
                     <Label className="text-sm font-medium">{t('settings.downloadNotification')}</Label>
                     <p className="text-sm text-muted-foreground">
@@ -215,7 +218,7 @@ const SettingsPage: React.FC = () => {
                 <Separator />
 
                 {/* Download Alert Notification */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="space-y-0.5">
                     <Label className="text-sm font-medium">{t('settings.downloadAlertNotification')}</Label>
                     <p className="text-sm text-muted-foreground">
@@ -231,7 +234,7 @@ const SettingsPage: React.FC = () => {
                 <Separator />
 
                 {/* Notification Language */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="space-y-0.5">
                     <Label className="text-sm font-medium">{t('settings.notifyLanguage')}</Label>
                     <p className="text-sm text-muted-foreground">
@@ -241,7 +244,7 @@ const SettingsPage: React.FC = () => {
                   <Popover open={notifyLangOpen} onOpenChange={setNotifyLangOpen}>
                     <PopoverTrigger asChild>
                       <button
-                        className="group flex items-center justify-between w-40 h-10 px-2.5 border border-border bg-card text-muted-foreground can-hover:hover:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors text-sm"
+                        className="group flex items-center justify-between w-40 h-10 px-2.5 border border-border bg-card text-muted-foreground can-hover:hover:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors text-sm flex-shrink-0"
                       >
                         <div className="flex items-center gap-2">
                           <GlobeAltIcon className="w-4 h-4" />
@@ -250,7 +253,7 @@ const SettingsPage: React.FC = () => {
                         <ChevronDownIcon className="w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       </button>
                     </PopoverTrigger>
-                    <PopoverContent side="bottom" align="end" className="w-40 p-0 rounded-none border border-border bg-card">
+                    <PopoverContent side="bottom" align="start" sideOffset={4} className="w-40 p-0 rounded-none border border-border bg-card sm:align-end">
                       <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('footer.language')}</div>
                       {langOptions.map((option) => (
                         <button
@@ -282,7 +285,7 @@ const SettingsPage: React.FC = () => {
 
               <div className="space-y-6">
                 {/* Site Language */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="space-y-0.5">
                     <Label className="text-sm font-medium">{t('settings.siteLanguage')}</Label>
                     <p className="text-sm text-muted-foreground">
@@ -292,7 +295,7 @@ const SettingsPage: React.FC = () => {
                   <Popover open={siteLangOpen} onOpenChange={setSiteLangOpen}>
                     <PopoverTrigger asChild>
                       <button
-                        className="group flex items-center justify-between w-40 h-10 px-2.5 border border-border bg-card text-muted-foreground can-hover:hover:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors text-sm"
+                        className="group flex items-center justify-between w-40 h-10 px-2.5 border border-border bg-card text-muted-foreground can-hover:hover:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors text-sm flex-shrink-0"
                       >
                         <div className="flex items-center gap-2">
                           <GlobeAltIcon className="w-4 h-4" />
@@ -301,7 +304,7 @@ const SettingsPage: React.FC = () => {
                         <ChevronDownIcon className="w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       </button>
                     </PopoverTrigger>
-                    <PopoverContent side="bottom" align="end" className="w-40 p-0 rounded-none border border-border bg-card">
+                    <PopoverContent side="bottom" align="start" sideOffset={4} className="w-40 p-0 rounded-none border border-border bg-card sm:align-end">
                       <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('footer.language')}</div>
                       {langOptions.map((option) => (
                         <button
@@ -324,7 +327,7 @@ const SettingsPage: React.FC = () => {
                 <Separator />
 
                 {/* Site Theme */}
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div className="space-y-0.5">
                     <Label className="text-sm font-medium">{t('settings.siteTheme')}</Label>
                     <p className="text-sm text-muted-foreground">
@@ -334,7 +337,7 @@ const SettingsPage: React.FC = () => {
                   <Popover open={siteThemeOpen} onOpenChange={setSiteThemeOpen}>
                     <PopoverTrigger asChild>
                       <button
-                        className="group flex items-center justify-between w-40 h-10 px-2.5 border border-border bg-card text-muted-foreground can-hover:hover:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors text-sm"
+                        className="group flex items-center justify-between w-40 h-10 px-2.5 border border-border bg-card text-muted-foreground can-hover:hover:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors text-sm flex-shrink-0"
                       >
                         <div className="flex items-center gap-2">
                           {themeIcons[theme]}
@@ -343,7 +346,7 @@ const SettingsPage: React.FC = () => {
                         <ChevronDownIcon className="w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       </button>
                     </PopoverTrigger>
-                    <PopoverContent side="bottom" align="end" className="w-40 p-0 rounded-none border border-border bg-card">
+                    <PopoverContent side="bottom" align="start" sideOffset={4} className="w-40 p-0 rounded-none border border-border bg-card sm:align-end">
                       <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('footer.theme')}</div>
                       {themeOptions.map((option) => (
                         <button
