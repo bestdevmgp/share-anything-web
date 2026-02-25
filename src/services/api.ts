@@ -521,13 +521,13 @@ export const userAPI = {
     await api.delete('/user/uploads');
   },
 
-  getNotificationSettings: async (): Promise<{ notify_upload: boolean; notify_download: boolean }> => {
-    const response = await api.get<{ notify_upload: boolean; notify_download: boolean }>('/user/settings');
+  getNotificationSettings: async (): Promise<{ notify_upload: boolean; notify_download: boolean; notify_download_alert: boolean; notify_language: string }> => {
+    const response = await api.get<{ notify_upload: boolean; notify_download: boolean; notify_download_alert: boolean; notify_language: string }>('/user/settings');
     return response.data;
   },
 
-  updateNotificationSettings: async (settings: { notify_upload: boolean; notify_download: boolean }): Promise<{ notify_upload: boolean; notify_download: boolean }> => {
-    const response = await api.put<{ notify_upload: boolean; notify_download: boolean }>('/user/settings', settings);
+  updateNotificationSettings: async (settings: { notify_upload: boolean; notify_download: boolean; notify_download_alert: boolean; notify_language: string }): Promise<{ notify_upload: boolean; notify_download: boolean; notify_download_alert: boolean; notify_language: string }> => {
+    const response = await api.put<{ notify_upload: boolean; notify_download: boolean; notify_download_alert: boolean; notify_language: string }>('/user/settings', settings);
     return response.data;
   },
 };

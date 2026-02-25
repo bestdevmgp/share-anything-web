@@ -340,14 +340,25 @@
   "settings": {
     "pageTitle": "설정",
     "notifications": "알림",
+    "general": "일반",
     "notificationSettings": "알림 설정",
     "notificationDescription": "파일 업로드 및 다운로드 시 이메일 알림을 관리합니다.",
     "uploadNotification": "업로드 알림",
     "uploadNotificationDescription": "파일 업로드 시 이메일로 알림을 받습니다.",
     "downloadNotification": "다운로드 알림",
     "downloadNotificationDescription": "파일 다운로드 시 이메일로 알림을 받습니다.",
-    "updateSuccess": "알림 설정이 저장되었습니다.",
-    "updateFailed": "알림 설정 저장에 실패하였습니다.",
-    "fetchFailed": "알림 설정을 불러오는데 실패하였습니다."
+    "downloadAlertNotification": "내 파일 다운로드 알림",
+    "downloadAlertNotificationDescription": "누군가 내 파일을 다운로드하면 이메일로 알림을 받습니다.",
+    "notifyLanguage": "알림 언어",
+    "notifyLanguageDescription": "이메일 알림에 사용할 언어를 선택합니다.",
+    "generalSettings": "일반 설정",
+    "generalDescription": "사이트의 언어 및 테마를 설정합니다.",
+    "siteLanguage": "사이트 언어",
+    "siteLanguageDescription": "웹 사이트에 표시되는 언어를 변경합니다.",
+    "siteTheme": "테마",
+    "siteThemeDescription": "사이트의 테마를 변경합니다.",
+    "updateSuccess": "설정이 저장되었습니다.",
+    "updateFailed": "설정 저장에 실패하였습니다.",
+    "fetchFailed": "설정을 불러오는데 실패하였습니다."
   }
 }

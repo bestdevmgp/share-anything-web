@@ -340,14 +340,25 @@
   "settings": {
     "pageTitle": "設定",
     "notifications": "通知",
+    "general": "一般",
     "notificationSettings": "通知設定",
     "notificationDescription": "ファイルのアップロードやダウンロード時のメール通知を管理します。",
     "uploadNotification": "アップロード通知",
     "uploadNotificationDescription": "ファイルアップロード時にメールで通知を受け取ります。",
     "downloadNotification": "ダウンロード通知",
     "downloadNotificationDescription": "ファイルダウンロード時にメールで通知を受け取ります。",
-    "updateSuccess": "通知設定が保存されました。",
-    "updateFailed": "通知設定の保存に失敗しました。",
-    "fetchFailed": "通知設定の読み込みに失敗しました。"
+    "downloadAlertNotification": "マイファイルダウンロード通知",
+    "downloadAlertNotificationDescription": "誰かがあなたのファイルをダウンロードした時にメールで通知を受け取ります。",
+    "notifyLanguage": "通知言語",
+    "notifyLanguageDescription": "メール通知に使用する言語を選択します。",
+    "generalSettings": "一般設定",
+    "generalDescription": "サイトの言語やテーマを設定します。",
+    "siteLanguage": "サイト言語",
+    "siteLanguageDescription": "ウェブサイトの表示言語を変更します。",
+    "siteTheme": "テーマ",
+    "siteThemeDescription": "サイトのテーマを変更します。",
+    "updateSuccess": "設定が保存されました。",
+    "updateFailed": "設定の保存に失敗しました。",
+    "fetchFailed": "設定の読み込みに失敗しました。"
   }
 }

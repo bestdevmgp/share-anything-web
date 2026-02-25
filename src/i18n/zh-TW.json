@@ -340,14 +340,25 @@
   "settings": {
     "pageTitle": "設定",
     "notifications": "通知",
+    "general": "一般",
     "notificationSettings": "通知設定",
     "notificationDescription": "管理檔案上傳和下載時的電子郵件通知。",
     "uploadNotification": "上傳通知",
     "uploadNotificationDescription": "檔案上傳時透過電子郵件接收通知。",
     "downloadNotification": "下載通知",
     "downloadNotificationDescription": "檔案下載時透過電子郵件接收通知。",
-    "updateSuccess": "通知設定已儲存。",
-    "updateFailed": "通知設定儲存失敗。",
-    "fetchFailed": "通知設定載入失敗。"
+    "downloadAlertNotification": "我的檔案下載通知",
+    "downloadAlertNotificationDescription": "當有人下載你的檔案時透過電子郵件接收通知。",
+    "notifyLanguage": "通知語言",
+    "notifyLanguageDescription": "選擇電子郵件通知使用的語言。",
+    "generalSettings": "一般設定",
+    "generalDescription": "設定網站的語言和主題。",
+    "siteLanguage": "網站語言",
+    "siteLanguageDescription": "變更網站顯示的語言。",
+    "siteTheme": "主題",
+    "siteThemeDescription": "變更網站主題。",
+    "updateSuccess": "設定已儲存。",
+    "updateFailed": "設定儲存失敗。",
+    "fetchFailed": "設定載入失敗。"
   }
 }

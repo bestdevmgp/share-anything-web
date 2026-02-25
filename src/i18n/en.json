@@ -340,14 +340,25 @@
   "settings": {
     "pageTitle": "Settings",
     "notifications": "Notifications",
+    "general": "General",
     "notificationSettings": "Notification Settings",
     "notificationDescription": "Manage email notifications for file uploads and downloads.",
     "uploadNotification": "Upload Notification",
     "uploadNotificationDescription": "Receive email notifications when files are uploaded.",
     "downloadNotification": "Download Notification",
     "downloadNotificationDescription": "Receive email notifications when files are downloaded.",
-    "updateSuccess": "Notification settings saved.",
-    "updateFailed": "Failed to save notification settings.",
-    "fetchFailed": "Failed to load notification settings."
+    "downloadAlertNotification": "File Download Alert",
+    "downloadAlertNotificationDescription": "Get notified by email when someone downloads your files.",
+    "notifyLanguage": "Notification Language",
+    "notifyLanguageDescription": "Choose the language for email notifications.",
+    "generalSettings": "General Settings",
+    "generalDescription": "Configure site language and theme.",
+    "siteLanguage": "Site Language",
+    "siteLanguageDescription": "Change the language displayed on the website.",
+    "siteTheme": "Theme",
+    "siteThemeDescription": "Change the site theme.",
+    "updateSuccess": "Settings saved.",
+    "updateFailed": "Failed to save settings.",
+    "fetchFailed": "Failed to load settings."
   }
 }
