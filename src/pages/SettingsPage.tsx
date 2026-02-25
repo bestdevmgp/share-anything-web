@@ -130,10 +130,44 @@ const SettingsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-muted rounded w-24" />
-          <div className="h-64 bg-muted rounded-2xl" />
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
+        <div className="animate-pulse">
+          {/* Title */}
+          <div className="h-8 bg-muted rounded w-20 mb-8" />
+
+          <div className="flex flex-col md:flex-row gap-0">
+            {/* Sidebar skeleton */}
+            <div className="md:w-52 flex-shrink-0 md:pr-8 md:border-r md:border-border pb-4 md:pb-0">
+              <div className="flex gap-2 md:flex-col md:gap-2">
+                <div className="h-9 bg-muted rounded-lg w-16 md:w-full" />
+                <div className="h-9 bg-muted rounded-lg w-12 md:w-full" />
+              </div>
+              <Separator className="md:hidden mt-4" />
+            </div>
+
+            {/* Content skeleton */}
+            <div className="flex-1 md:pl-10 pt-4 md:pt-0 space-y-6">
+              {/* Section header */}
+              <div>
+                <div className="h-6 bg-muted rounded w-16 mb-2" />
+                <div className="h-4 bg-muted rounded w-56" />
+              </div>
+
+              {/* Setting rows */}
+              {[1, 2, 3].map((i) => (
+                <div key={i}>
+                  <Separator />
+                  <div className="pt-6">
+                    <div className="flex items-center justify-between">
+                      <div className="h-4 bg-muted rounded w-24" />
+                      <div className="h-5 w-9 bg-muted rounded-full" />
+                    </div>
+                    <div className="h-4 bg-muted rounded w-48 mt-2" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -143,7 +177,7 @@ const SettingsPage: React.FC = () => {
   const currentSiteLang = langOptions.find((o) => o.key === siteLanguage)!;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
       <h1 className="text-2xl font-bold text-foreground mb-8">{t('settings.pageTitle')}</h1>
 
       <div className="flex flex-col md:flex-row gap-0">
@@ -179,67 +213,67 @@ const SettingsPage: React.FC = () => {
           {activeTab === 'notifications' && (
             <div>
               <div className="mb-6">
-                <h2 className="text-lg font-semibold text-foreground">{t('settings.notificationSettings')}</h2>
+                <h2 className="text-lg font-semibold text-foreground">{t('settings.notifications')}</h2>
                 <p className="text-sm text-muted-foreground mt-1">{t('settings.notificationDescription')}</p>
               </div>
 
               <div className="space-y-6">
                 {/* Upload Notification */}
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="space-y-0.5">
+                <div>
+                  <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium">{t('settings.uploadNotification')}</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {t('settings.uploadNotificationDescription')}
-                    </p>
+                    <Switch
+                      checked={notifyUpload}
+                      onCheckedChange={(checked) => handleToggle('upload', checked)}
+                    />
                   </div>
-                  <Switch
-                    checked={notifyUpload}
-                    onCheckedChange={(checked) => handleToggle('upload', checked)}
-                  />
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {t('settings.uploadNotificationDescription')}
+                  </p>
                 </div>
 
                 <Separator />
 
                 {/* Download Notification */}
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="space-y-0.5">
+                <div>
+                  <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium">{t('settings.downloadNotification')}</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {t('settings.downloadNotificationDescription')}
-                    </p>
+                    <Switch
+                      checked={notifyDownload}
+                      onCheckedChange={(checked) => handleToggle('download', checked)}
+                    />
                   </div>
-                  <Switch
-                    checked={notifyDownload}
-                    onCheckedChange={(checked) => handleToggle('download', checked)}
-                  />
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {t('settings.downloadNotificationDescription')}
+                  </p>
                 </div>
 
                 <Separator />
 
                 {/* Download Alert Notification */}
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="space-y-0.5">
+                <div>
+                  <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium">{t('settings.downloadAlertNotification')}</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {t('settings.downloadAlertNotificationDescription')}
-                    </p>
+                    <Switch
+                      checked={notifyDownloadAlert}
+                      onCheckedChange={(checked) => handleToggle('downloadAlert', checked)}
+                    />
                   </div>
-                  <Switch
-                    checked={notifyDownloadAlert}
-                    onCheckedChange={(checked) => handleToggle('downloadAlert', checked)}
-                  />
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {t('settings.downloadAlertNotificationDescription')}
+                  </p>
                 </div>
 
                 <Separator />
 
                 {/* Notification Language */}
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="space-y-0.5">
+                <div>
+                  <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium">{t('settings.notifyLanguage')}</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {t('settings.notifyLanguageDescription')}
-                    </p>
                   </div>
+                  <p className="text-sm text-muted-foreground mt-1 mb-3">
+                    {t('settings.notifyLanguageDescription')}
+                  </p>
                   <Popover open={notifyLangOpen} onOpenChange={setNotifyLangOpen}>
                     <PopoverTrigger asChild>
                       <button
@@ -278,19 +312,17 @@ const SettingsPage: React.FC = () => {
           {activeTab === 'general' && (
             <div>
               <div className="mb-6">
-                <h2 className="text-lg font-semibold text-foreground">{t('settings.generalSettings')}</h2>
+                <h2 className="text-lg font-semibold text-foreground">{t('settings.general')}</h2>
                 <p className="text-sm text-muted-foreground mt-1">{t('settings.generalDescription')}</p>
               </div>
 
               <div className="space-y-6">
                 {/* Site Language */}
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-sm font-medium">{t('settings.siteLanguage')}</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {t('settings.siteLanguageDescription')}
-                    </p>
-                  </div>
+                <div>
+                  <Label className="text-sm font-medium">{t('settings.siteLanguage')}</Label>
+                  <p className="text-sm text-muted-foreground mt-1 mb-3">
+                    {t('settings.siteLanguageDescription')}
+                  </p>
                   <Popover open={siteLangOpen} onOpenChange={setSiteLangOpen}>
                     <PopoverTrigger asChild>
                       <button
@@ -326,13 +358,11 @@ const SettingsPage: React.FC = () => {
                 <Separator />
 
                 {/* Site Theme */}
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="space-y-0.5">
-                    <Label className="text-sm font-medium">{t('settings.siteTheme')}</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {t('settings.siteThemeDescription')}
-                    </p>
-                  </div>
+                <div>
+                  <Label className="text-sm font-medium">{t('settings.siteTheme')}</Label>
+                  <p className="text-sm text-muted-foreground mt-1 mb-3">
+                    {t('settings.siteThemeDescription')}
+                  </p>
                   <Popover open={siteThemeOpen} onOpenChange={setSiteThemeOpen}>
                     <PopoverTrigger asChild>
                       <button
