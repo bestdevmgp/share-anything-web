@@ -160,7 +160,7 @@ const SettingsPage: React.FC = () => {
                   <div className="pt-6">
                     <div className="flex items-center justify-between">
                       <div className="h-4 bg-muted rounded w-24" />
-                      <div className="h-5 w-9 bg-muted rounded-full" />
+                      <div className="h-6 w-11 bg-muted rounded-full" />
                     </div>
                     <div className="h-4 bg-muted rounded w-48 mt-2" />
                   </div>
@@ -270,13 +270,13 @@ const SettingsPage: React.FC = () => {
                 <Separator />
 
                 {/* Notification Language */}
-                <div>
-                  <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="min-w-0">
                     <Label className="text-sm font-medium">{t('settings.notifyLanguage')}</Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {t('settings.notifyLanguageDescription')}
+                    </p>
                   </div>
-                  <p className="text-sm text-muted-foreground mt-1 mb-3">
-                    {t('settings.notifyLanguageDescription')}
-                  </p>
                   <Popover open={notifyLangOpen} onOpenChange={setNotifyLangOpen}>
                     <PopoverTrigger asChild>
                       <button
@@ -321,11 +321,13 @@ const SettingsPage: React.FC = () => {
 
               <div className="space-y-6">
                 {/* Site Language */}
-                <div>
-                  <Label className="text-sm font-medium">{t('settings.siteLanguage')}</Label>
-                  <p className="text-sm text-muted-foreground mt-1 mb-3">
-                    {t('settings.siteLanguageDescription')}
-                  </p>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="min-w-0">
+                    <Label className="text-sm font-medium">{t('settings.siteLanguage')}</Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {t('settings.siteLanguageDescription')}
+                    </p>
+                  </div>
                   <Popover open={siteLangOpen} onOpenChange={setSiteLangOpen}>
                     <PopoverTrigger asChild>
                       <button
@@ -361,11 +363,13 @@ const SettingsPage: React.FC = () => {
                 <Separator />
 
                 {/* Site Theme */}
-                <div>
-                  <Label className="text-sm font-medium">{t('settings.siteTheme')}</Label>
-                  <p className="text-sm text-muted-foreground mt-1 mb-3">
-                    {t('settings.siteThemeDescription')}
-                  </p>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="min-w-0">
+                    <Label className="text-sm font-medium">{t('settings.siteTheme')}</Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {t('settings.siteThemeDescription')}
+                    </p>
+                  </div>
                   <Popover open={siteThemeOpen} onOpenChange={setSiteThemeOpen}>
                     <PopoverTrigger asChild>
                       <button
