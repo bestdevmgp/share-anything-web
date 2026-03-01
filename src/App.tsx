@@ -19,6 +19,8 @@ import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfUsePage from './pages/TermsOfUsePage';
 import UploadHistoryPage from './pages/UploadHistoryPage';
 import SettingsPage from './pages/SettingsPage';
+import EmailVerifyWaitPage from './pages/EmailVerifyWaitPage';
+import EmailMagicLinkCallbackPage from './pages/EmailMagicLinkCallbackPage';
 import NotFoundPage from './pages/NotFoundPage';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -40,6 +42,8 @@ const AppContent: React.FC = () => {
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/download/:code" element={<DownloadFilePage />} />
           <Route path="/auth/callback/:provider" element={<OAuthCallbackPage />} />
+          <Route path="/auth/email/verify-wait" element={<EmailVerifyWaitPage />} />
+          <Route path="/auth/email/callback" element={<EmailMagicLinkCallbackPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/terms-of-use" element={<TermsOfUsePage />} />
           <Route path="*" element={<NotFoundPage />} />

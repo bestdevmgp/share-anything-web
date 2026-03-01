@@ -277,3 +277,24 @@ export interface QuickAccessListResponse {
 export interface TurnCredentialsResponse {
   ice_servers: IceServer[];
 }
+
+export interface EmailAuthSendResponse {
+  session_id: string;
+}
+
+export interface EmailAuthStatusResponse {
+  status: 'pending' | 'verified' | 'completed';
+  auth?: { token: string; user: User; existing_provider?: string };
+}
+
+export interface EmailAuthVerifyResponse {
+  same_device: boolean;
+  auth?: { token: string; user: User; existing_provider?: string };
+  verification_code?: string;
+}
+
+export interface EmailAuthVerifyCodeResponse {
+  token: string;
+  user: User;
+  existing_provider?: string;
+}

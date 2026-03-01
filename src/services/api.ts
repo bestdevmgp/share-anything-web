@@ -19,6 +19,10 @@ import type {
   TurnCredentialsResponse,
   QuickAccessListResponse,
   MultipartUploadFileInfo,
+  EmailAuthSendResponse,
+  EmailAuthStatusResponse,
+  EmailAuthVerifyResponse,
+  EmailAuthVerifyCodeResponse,
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
@@ -174,6 +178,26 @@ export const authAPI = {
   getCurrentUser: () => {
     const userStr = localStorage.getItem('user');
     return userStr ? JSON.parse(userStr) : null;
+  },
+
+  sendEmailAuth: async (email: string): Promise<EmailAuthSendResponse> => {
+    const response = await api.post<EmailAuthSendResponse>('/auth/email/send', { email });
+    return response.data;
+  },
+
+  verifyEmailToken: async (token: string): Promise<EmailAuthVerifyResponse> => {
+    const response = await api.post<EmailAuthVerifyResponse>('/auth/email/verify', { token });
+    return response.data;
+  },
+
+  verifyEmailCode: async (sessionId: string, code: string): Promise<EmailAuthVerifyCodeResponse> => {
+    const response = await api.post<EmailAuthVerifyCodeResponse>('/auth/email/verify-code', { session_id: sessionId, code });
+    return response.data;
+  },
+
+  checkEmailAuthStatus: async (sessionId: string): Promise<EmailAuthStatusResponse> => {
+    const response = await api.get<EmailAuthStatusResponse>(`/auth/email/status/${sessionId}`);
+    return response.data;
   },
 
   isAuthenticated: () => {

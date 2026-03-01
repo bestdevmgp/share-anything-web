@@ -1,0 +1,299 @@
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { authAPI } from '../services/api';
+import { toast } from '../context/ToastContext';
+import { useTranslation } from '../i18n';
+import { Card, CardContent } from '../components/ui/card';
+import { Input } from '../components/ui/input';
+import { Button } from '../components/ui/button';
+import { Spinner } from '../components/ui/spinner';
+import { EnvelopeIcon, ArrowLeftIcon, LinkIcon } from '@heroicons/react/24/outline';
+import { providerLogoMap, providerDisplayNames } from '../utils/providerLogos';
+import type { User } from '../types';
+
+const SESSION_STORAGE_KEY = 'emailAuthSession';
+
+const EmailVerifyWaitPage: React.FC = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuth();
+
+  // Restore from location state or sessionStorage
+  const stateEmail = (location.state as any)?.email;
+  const stateSessionId = (location.state as any)?.sessionId;
+
+  const [email] = useState<string>(() => {
+    if (stateEmail) return stateEmail;
+    try {
+      const saved = sessionStorage.getItem(SESSION_STORAGE_KEY);
+      if (saved) return JSON.parse(saved).email || '';
+    } catch {}
+    return '';
+  });
+
+  const [sessionId, setSessionId] = useState<string>(() => {
+    if (stateSessionId) return stateSessionId;
+    try {
+      const saved = sessionStorage.getItem(SESSION_STORAGE_KEY);
+      if (saved) return JSON.parse(saved).sessionId || '';
+    } catch {}
+    return '';
+  });
+
+  const [code, setCode] = useState('');
+  const [codeError, setCodeError] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(60);
+  const [resending, setResending] = useState(false);
+
+  // Account merge state
+  const [mergeInfo, setMergeInfo] = useState<{
+    token: string;
+    user: User;
+    existingProvider: string;
+  } | null>(null);
+
+  const hasLoggedIn = useRef(false);
+
+  useEffect(() => {
+    document.title = t('emailAuth.checkEmail');
+  }, [t]);
+
+  // Persist to sessionStorage
+  useEffect(() => {
+    if (email && sessionId) {
+      sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ email, sessionId }));
+    }
+  }, [email, sessionId]);
+
+  // Redirect if no session data
+  useEffect(() => {
+    if (!email || !sessionId) {
+      navigate('/signin', { replace: true });
+    }
+  }, [email, sessionId, navigate]);
+
+  const handleLoginSuccess = useCallback((token: string, user: User, existingProvider?: string) => {
+    if (hasLoggedIn.current) return;
+    if (existingProvider) {
+      setMergeInfo({ token, user, existingProvider });
+      return;
+    }
+    hasLoggedIn.current = true;
+    localStorage.setItem('lastLoginProvider', 'email');
+    login(token, user);
+    sessionStorage.removeItem(SESSION_STORAGE_KEY);
+    toast.success(t('oauth.loginSuccess'));
+    navigate('/', { replace: true });
+  }, [login, navigate, t]);
+
+  // Polling for status
+  useEffect(() => {
+    if (!sessionId || hasLoggedIn.current || mergeInfo) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const data = await authAPI.checkEmailAuthStatus(sessionId);
+        if (data.status === 'completed' && data.auth) {
+          handleLoginSuccess(data.auth.token, data.auth.user, data.auth.existing_provider);
+        }
+      } catch {}
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [sessionId, mergeInfo, handleLoginSuccess]);
+
+  // Resend cooldown timer
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
+
+  const handleVerifyCode = async () => {
+    if (code.length !== 6) return;
+    setCodeError('');
+    setVerifying(true);
+    try {
+      const data = await authAPI.verifyEmailCode(sessionId, code);
+      handleLoginSuccess(data.token, data.user, data.existing_provider);
+    } catch {
+      setCodeError(t('emailAuth.verifyFailed'));
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const handleCodeKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleVerifyCode();
+    }
+  };
+
+  const handleResend = async () => {
+    if (resendCooldown > 0 || resending) return;
+    setResending(true);
+    try {
+      const data = await authAPI.sendEmailAuth(email);
+      setSessionId(data.session_id);
+      setResendCooldown(60);
+      setCode('');
+      setCodeError('');
+      toast.success(t('emailAuth.resendSuccess'));
+    } catch (err: any) {
+      if (err.response?.status === 429) {
+        toast.error(t('emailAuth.rateLimited'));
+      } else {
+        toast.error(t('emailAuth.sendFailed'));
+      }
+    } finally {
+      setResending(false);
+    }
+  };
+
+  const handleMergeContinue = () => {
+    if (!mergeInfo || hasLoggedIn.current) return;
+    hasLoggedIn.current = true;
+    localStorage.setItem('lastLoginProvider', 'email');
+    login(mergeInfo.token, mergeInfo.user);
+    sessionStorage.removeItem(SESSION_STORAGE_KEY);
+    toast.success(t('oauth.loginSuccess'));
+    navigate('/', { replace: true });
+  };
+
+  // Account merge view
+  if (mergeInfo) {
+    const ProviderLogo = providerLogoMap[mergeInfo.existingProvider];
+    const providerName = providerDisplayNames[mergeInfo.existingProvider] || mergeInfo.existingProvider;
+
+    return (
+      <div className="flex items-center justify-center px-4 py-20">
+        <div className="max-w-md w-full">
+          <Card className="rounded-3xl border-2 p-10">
+            <CardContent className="p-0">
+              <div className="flex items-center justify-center gap-3 mb-6">
+                {ProviderLogo && (
+                  <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center">
+                    <ProviderLogo className="w-7 h-7" />
+                  </div>
+                )}
+                <LinkIcon className="w-5 h-5 text-muted-foreground" />
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+                  <EnvelopeIcon className="w-7 h-7 text-primary" />
+                </div>
+              </div>
+
+              <h2 className="text-2xl font-bold text-foreground text-center mb-3">
+                {t('emailAuth.accountMergeTitle')}
+              </h2>
+              <p className="text-muted-foreground text-sm text-center mb-8">
+                {t('emailAuth.accountMergeMessage', { provider: providerName })}
+              </p>
+
+              <Button
+                onClick={handleMergeContinue}
+                className="w-full h-12 rounded-lg text-sm"
+              >
+                {t('emailAuth.continue')}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Main waiting view
+  return (
+    <div className="flex items-center justify-center px-4 py-20">
+      <div className="max-w-md w-full">
+        <Card className="rounded-3xl border-2 p-10">
+          <CardContent className="p-0">
+            <button
+              onClick={() => navigate('/signin')}
+              className="flex items-center gap-1.5 text-sm text-muted-foreground can-hover:hover:text-foreground active:text-foreground transition-colors mb-6"
+            >
+              <ArrowLeftIcon className="w-4 h-4" />
+              {t('emailAuth.backToLogin')}
+            </button>
+
+            <div className="flex justify-center mb-5">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                <EnvelopeIcon className="w-8 h-8 text-primary" />
+              </div>
+            </div>
+
+            <h2 className="text-2xl font-bold text-foreground text-center mb-2">
+              {t('emailAuth.checkEmail')}
+            </h2>
+            <p className="text-muted-foreground text-sm text-center mb-8">
+              {t('emailAuth.checkEmailDesc', { email })}
+            </p>
+
+            {/* Verification code input */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-foreground mb-2">
+                {t('emailAuth.verificationCode')}
+              </label>
+              <div className="flex gap-3">
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder={t('emailAuth.codePlaceholder')}
+                  value={code}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '');
+                    setCode(val);
+                    setCodeError('');
+                  }}
+                  onKeyDown={handleCodeKeyDown}
+                  className="h-12 text-center text-lg tracking-[0.3em] font-mono flex-1"
+                />
+                <Button
+                  onClick={handleVerifyCode}
+                  disabled={code.length !== 6 || verifying}
+                  className="h-12 px-6 rounded-lg"
+                >
+                  {t('emailAuth.verify')}
+                </Button>
+              </div>
+              {codeError && (
+                <p className="text-sm text-destructive mt-2">{codeError}</p>
+              )}
+            </div>
+
+            {/* Resend */}
+            <div className="text-center mb-6">
+              {resendCooldown > 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  {t('emailAuth.resendAvailableIn', { seconds: resendCooldown.toString() })}
+                </p>
+              ) : (
+                <button
+                  onClick={handleResend}
+                  disabled={resending}
+                  className="text-sm text-primary can-hover:hover:underline active:underline"
+                >
+                  {t('emailAuth.resend')}
+                </button>
+              )}
+            </div>
+
+            {/* Polling indicator */}
+            <div className="flex items-center justify-center gap-2 text-muted-foreground">
+              <Spinner size="sm" />
+              <span className="text-sm">{t('emailAuth.waitingForVerification')}</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default EmailVerifyWaitPage;
