@@ -33,7 +33,7 @@ const EmailVerifyWaitPage: React.FC = () => {
     return '';
   });
 
-  const [sessionId, setSessionId] = useState<string>(() => {
+  const [sessionId] = useState<string>(() => {
     if (stateSessionId) return stateSessionId;
     try {
       const saved = sessionStorage.getItem(SESSION_STORAGE_KEY);
