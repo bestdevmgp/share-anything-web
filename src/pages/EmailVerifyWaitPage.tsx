@@ -46,8 +46,6 @@ const EmailVerifyWaitPage: React.FC = () => {
   const [codeError, setCodeError] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [showCodeInput, setShowCodeInput] = useState(false);
-  const [resendCooldown, setResendCooldown] = useState(60);
-  const [resending, setResending] = useState(false);
 
   // Account merge state
   const [mergeInfo, setMergeInfo] = useState<{
@@ -107,15 +105,6 @@ const EmailVerifyWaitPage: React.FC = () => {
     return () => clearInterval(interval);
   }, [sessionId, mergeInfo, handleLoginSuccess]);
 
-  // Resend cooldown timer
-  useEffect(() => {
-    if (resendCooldown <= 0) return;
-    const timer = setInterval(() => {
-      setResendCooldown((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [resendCooldown]);
-
   const handleVerifyCode = async () => {
     if (code.length !== 6) return;
     setCodeError('');
@@ -136,27 +125,8 @@ const EmailVerifyWaitPage: React.FC = () => {
     }
   };
 
-  const handleResend = async () => {
-    if (resendCooldown > 0 || resending) return;
-    setResending(true);
-    try {
-      const deviceId = crypto.randomUUID();
-      localStorage.setItem('emailAuthDeviceId', deviceId);
-      const data = await authAPI.sendEmailAuth(email, deviceId);
-      setSessionId(data.session_id);
-      setResendCooldown(60);
-      setCode('');
-      setCodeError('');
-      toast.success(t('emailAuth.resendSuccess'));
-    } catch (err: any) {
-      if (err.response?.status === 429) {
-        toast.error(t('emailAuth.rateLimited'));
-      } else {
-        toast.error(t('emailAuth.sendFailed'));
-      }
-    } finally {
-      setResending(false);
-    }
+  const handleResend = () => {
+    navigate('/signin', { state: { email } });
   };
 
   const handleMergeContinue = () => {
@@ -241,32 +211,32 @@ const EmailVerifyWaitPage: React.FC = () => {
 
             {showCodeInput ? (
               <div className="mb-6">
-                <div className="flex gap-3 mb-2">
-                  <Input
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={6}
-                    placeholder={t('emailAuth.codePlaceholder')}
-                    value={code}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, '');
-                      setCode(val);
-                      setCodeError('');
-                    }}
-                    onKeyDown={handleCodeKeyDown}
-                    className="text-center text-lg tracking-[0.3em] font-mono flex-1"
-                    autoFocus
-                  />
-                  <Button
-                    onClick={handleVerifyCode}
-                    disabled={code.length !== 6 || verifying}
-                  >
-                    {verifying ? <Spinner size="sm" className="text-primary-foreground" /> : t('emailAuth.verify')}
-                  </Button>
-                </div>
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder={t('emailAuth.codePlaceholder')}
+                  value={code}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, '');
+                    setCode(val);
+                    setCodeError('');
+                  }}
+                  onKeyDown={handleCodeKeyDown}
+                  className="h-12 text-center text-lg tracking-[0.3em] font-mono mb-3"
+                  autoFocus
+                />
                 {codeError && (
-                  <p className="text-sm text-destructive">{codeError}</p>
+                  <p className="text-sm text-destructive mb-3">{codeError}</p>
                 )}
+                <Button
+                  onClick={handleVerifyCode}
+                  disabled={code.length !== 6 || verifying}
+                  size="xl"
+                  className="w-full"
+                >
+                  {verifying ? <Spinner size="sm" className="text-primary-foreground" /> : t('emailAuth.verify')}
+                </Button>
               </div>
             ) : (
               <p className="text-sm text-muted-foreground text-center mb-3">
@@ -282,19 +252,12 @@ const EmailVerifyWaitPage: React.FC = () => {
 
             <p className="text-sm text-muted-foreground text-center">
               {t('emailAuth.notSeeingEmail')}{' '}
-              {resendCooldown > 0 ? (
-                <span className="text-muted-foreground/50">
-                  {t('emailAuth.trySendingAgain')} ({resendCooldown}s)
-                </span>
-              ) : (
-                <button
-                  onClick={handleResend}
-                  disabled={resending}
-                  className="text-foreground underline can-hover:hover:text-foreground/80 active:text-foreground/80"
-                >
-                  {resending ? t('emailAuth.trySendingAgain') + '...' : t('emailAuth.trySendingAgain')}
-                </button>
-              )}
+              <button
+                onClick={handleResend}
+                className="text-foreground underline can-hover:hover:text-foreground/80 active:text-foreground/80"
+              >
+                {t('emailAuth.trySendingAgain')}
+              </button>
             </p>
           </CardContent>
         </Card>

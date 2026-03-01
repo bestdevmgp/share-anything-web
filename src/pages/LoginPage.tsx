@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {authAPI} from '../services/api';
 import { useTranslation } from '../i18n';
 import { Card, CardContent } from '../components/ui/card';
@@ -16,9 +16,11 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const LoginPage: React.FC = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const location = useLocation();
+    const prefillEmail = (location.state as any)?.email || '';
     const [lastProvider, setLastProvider] = useState<LoginProvider | null>(null);
-    const [showEmailInput, setShowEmailInput] = useState(false);
-    const [email, setEmail] = useState('');
+    const [showEmailInput, setShowEmailInput] = useState(!!prefillEmail);
+    const [email, setEmail] = useState(prefillEmail);
     const [emailError, setEmailError] = useState('');
     const [emailSending, setEmailSending] = useState(false);
 
