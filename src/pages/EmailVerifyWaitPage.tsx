@@ -223,7 +223,7 @@ const EmailVerifyWaitPage: React.FC = () => {
                     setCodeError('');
                   }}
                   onKeyDown={handleCodeKeyDown}
-                  className="h-9 text-center font-mono mb-3"
+                  className="text-center font-mono mb-3"
                   autoFocus
                 />
                 {codeError && (
@@ -232,6 +232,7 @@ const EmailVerifyWaitPage: React.FC = () => {
                 <Button
                   onClick={handleVerifyCode}
                   disabled={code.length !== 6 || verifying}
+                  size="lg"
                   className="w-full"
                 >
                   {verifying ? <Spinner size="sm" className="text-primary-foreground" /> : t('emailAuth.verify')}
