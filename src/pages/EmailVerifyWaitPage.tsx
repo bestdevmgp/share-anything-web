@@ -210,7 +210,7 @@ const EmailVerifyWaitPage: React.FC = () => {
             </p>
 
             {showCodeInput ? (
-              <div className="mb-6 max-w-xs mx-auto">
+              <div className="mb-6 max-w-sm mx-auto">
                 <Input
                   type="text"
                   inputMode="numeric"
