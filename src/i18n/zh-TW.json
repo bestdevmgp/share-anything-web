@@ -116,7 +116,7 @@
     "notSeeingEmail": "沒有收到郵件？",
     "trySendingAgain": "重新傳送",
     "verificationCode": "驗證碼",
-    "codePlaceholder": "000000",
+    "codePlaceholder": "123456",
     "verify": "驗證",
     "resend": "重新傳送",
     "resendAvailableIn": "{{seconds}}秒後可重新傳送",
@@ -128,7 +128,7 @@
     "accountMergeTitle": "發現現有帳號",
     "accountMergeMessage": "發現透過 {{provider}} 註冊的帳號。將使用同一帳號登入。",
     "continue": "繼續",
-    "backToLogin": "返回",
+    "backToLogin": "返回登入",
     "sendFailed": "郵件傳送失敗。",
     "rateLimited": "請稍後再試。",
     "waitingForVerification": "等待電子郵件驗證中..."

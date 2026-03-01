@@ -190,7 +190,7 @@ const EmailVerifyWaitPage: React.FC = () => {
           <CardContent className="p-0">
             <button
               onClick={() => navigate('/signin')}
-              className="flex items-center gap-1.5 text-sm text-muted-foreground can-hover:hover:bg-accent can-hover:hover:text-foreground active:bg-accent active:text-foreground transition-colors mb-6 -ml-2 px-2 py-1.5 rounded-lg"
+              className="flex items-center gap-1.5 text-sm text-muted-foreground can-hover:hover:bg-accent can-hover:hover:text-foreground active:bg-accent active:text-foreground transition-colors mb-6 -ml-2 px-2 py-1.5 rounded-md"
             >
               <ArrowLeftIcon className="w-4 h-4" />
               {t('emailAuth.backToLogin')}
@@ -198,7 +198,7 @@ const EmailVerifyWaitPage: React.FC = () => {
 
             <div className="flex justify-center mb-5">
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <EnvelopeIcon className="w-8 h-8 text-primary" />
+                <EnvelopeIcon className="w-10 h-10 text-primary" strokeWidth={2.5} />
               </div>
             </div>
 
@@ -210,7 +210,7 @@ const EmailVerifyWaitPage: React.FC = () => {
             </p>
 
             {showCodeInput ? (
-              <div className="mb-6">
+              <div className="mb-6 max-w-xs mx-auto">
                 <Input
                   type="text"
                   inputMode="numeric"
@@ -223,7 +223,7 @@ const EmailVerifyWaitPage: React.FC = () => {
                     setCodeError('');
                   }}
                   onKeyDown={handleCodeKeyDown}
-                  className="text-center tracking-[0.3em] font-mono mb-3"
+                  className="h-9 text-center font-mono mb-3"
                   autoFocus
                 />
                 {codeError && (
@@ -232,7 +232,6 @@ const EmailVerifyWaitPage: React.FC = () => {
                 <Button
                   onClick={handleVerifyCode}
                   disabled={code.length !== 6 || verifying}
-                  size="xl"
                   className="w-full"
                 >
                   {verifying ? <Spinner size="sm" className="text-primary-foreground" /> : t('emailAuth.verify')}

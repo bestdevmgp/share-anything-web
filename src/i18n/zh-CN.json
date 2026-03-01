@@ -116,7 +116,7 @@
     "notSeeingEmail": "没有收到邮件？",
     "trySendingAgain": "重新发送",
     "verificationCode": "验证码",
-    "codePlaceholder": "000000",
+    "codePlaceholder": "123456",
     "verify": "验证",
     "resend": "重新发送",
     "resendAvailableIn": "{{seconds}}秒后可重新发送",
@@ -128,7 +128,7 @@
     "accountMergeTitle": "发现已有账号",
     "accountMergeMessage": "发现通过 {{provider}} 注册的账号。将使用同一账号登录。",
     "continue": "继续",
-    "backToLogin": "返回",
+    "backToLogin": "返回登录",
     "sendFailed": "邮件发送失败。",
     "rateLimited": "请稍后再试。",
     "waitingForVerification": "等待邮箱验证中..."

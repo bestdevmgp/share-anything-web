@@ -165,7 +165,7 @@ const LoginPage: React.FC = () => {
                             <div className="mb-8">
                                 <button
                                     onClick={() => { setShowEmailInput(false); setEmailError(''); }}
-                                    className="flex items-center gap-1.5 text-sm text-muted-foreground can-hover:hover:bg-accent can-hover:hover:text-foreground active:bg-accent active:text-foreground transition-colors mb-3 -ml-2 px-2 py-1.5 rounded-lg"
+                                    className="flex items-center gap-1.5 text-sm text-muted-foreground can-hover:hover:bg-accent can-hover:hover:text-foreground active:bg-accent active:text-foreground transition-colors mb-3 -ml-2 px-2 py-1.5 rounded-md"
                                 >
                                     <ArrowLeftIcon className="w-4 h-4" />
                                     {t('emailAuth.backToLogin')}

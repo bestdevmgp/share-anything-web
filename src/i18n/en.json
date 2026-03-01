@@ -116,7 +116,7 @@
     "notSeeingEmail": "Not seeing the email in your inbox?",
     "trySendingAgain": "Try sending again",
     "verificationCode": "Verification code",
-    "codePlaceholder": "000000",
+    "codePlaceholder": "123456",
     "verify": "Verify",
     "resend": "Resend",
     "resendAvailableIn": "Resend available in {{seconds}}s",
@@ -128,7 +128,7 @@
     "accountMergeTitle": "Existing account found",
     "accountMergeMessage": "An account registered with {{provider}} was found. You will be signed in with the same account.",
     "continue": "Continue",
-    "backToLogin": "Back",
+    "backToLogin": "Back to sign in",
     "sendFailed": "Failed to send email.",
     "rateLimited": "Please try again shortly.",
     "waitingForVerification": "Waiting for email verification..."

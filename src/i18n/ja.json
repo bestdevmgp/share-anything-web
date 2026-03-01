@@ -116,7 +116,7 @@
     "notSeeingEmail": "メールが届きませんか？",
     "trySendingAgain": "もう一度送信",
     "verificationCode": "認証コード",
-    "codePlaceholder": "000000",
+    "codePlaceholder": "123456",
     "verify": "認証",
     "resend": "再送信",
     "resendAvailableIn": "{{seconds}}秒後に再送信可能",
@@ -128,7 +128,7 @@
     "accountMergeTitle": "既存アカウントが見つかりました",
     "accountMergeMessage": "{{provider}}で登録されたアカウントが見つかりました。同じアカウントでログインされます。",
     "continue": "続ける",
-    "backToLogin": "戻る",
+    "backToLogin": "ログインに戻る",
     "sendFailed": "メール送信に失敗しました。",
     "rateLimited": "しばらく待ってからもう一度お試しください。",
     "waitingForVerification": "メール認証待機中..."
