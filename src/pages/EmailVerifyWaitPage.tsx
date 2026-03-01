@@ -45,6 +45,7 @@ const EmailVerifyWaitPage: React.FC = () => {
   const [code, setCode] = useState('');
   const [codeError, setCodeError] = useState('');
   const [verifying, setVerifying] = useState(false);
+  const [showCodeInput, setShowCodeInput] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(60);
   const [resending, setResending] = useState(false);
 
@@ -234,61 +235,63 @@ const EmailVerifyWaitPage: React.FC = () => {
               {t('emailAuth.checkEmailDesc', { email })}
             </p>
 
-            {/* Verification code input */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-foreground mb-2">
-                {t('emailAuth.verificationCode')}
-              </label>
-              <div className="flex gap-3">
-                <Input
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={6}
-                  placeholder={t('emailAuth.codePlaceholder')}
-                  value={code}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(/\D/g, '');
-                    setCode(val);
-                    setCodeError('');
-                  }}
-                  onKeyDown={handleCodeKeyDown}
-                  className="h-12 text-center text-lg tracking-[0.3em] font-mono flex-1"
-                />
-                <Button
-                  onClick={handleVerifyCode}
-                  disabled={code.length !== 6 || verifying}
-                  className="h-12 px-6 rounded-lg"
-                >
-                  {t('emailAuth.verify')}
-                </Button>
+            {showCodeInput ? (
+              <div className="mb-6">
+                <div className="flex gap-3 mb-2">
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={6}
+                    placeholder={t('emailAuth.codePlaceholder')}
+                    value={code}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      setCode(val);
+                      setCodeError('');
+                    }}
+                    onKeyDown={handleCodeKeyDown}
+                    className="text-center text-lg tracking-[0.3em] font-mono flex-1"
+                    autoFocus
+                  />
+                  <Button
+                    onClick={handleVerifyCode}
+                    disabled={code.length !== 6 || verifying}
+                  >
+                    {verifying ? <Spinner size="sm" className="text-primary-foreground" /> : t('emailAuth.verify')}
+                  </Button>
+                </div>
+                {codeError && (
+                  <p className="text-sm text-destructive">{codeError}</p>
+                )}
               </div>
-              {codeError && (
-                <p className="text-sm text-destructive mt-2">{codeError}</p>
-              )}
-            </div>
+            ) : (
+              <p className="text-sm text-muted-foreground text-center mb-3">
+                {t('emailAuth.otherBrowser')}{' '}
+                <button
+                  onClick={() => setShowCodeInput(true)}
+                  className="text-foreground underline can-hover:hover:text-foreground/80 active:text-foreground/80"
+                >
+                  {t('emailAuth.enterCode')}
+                </button>
+              </p>
+            )}
 
-            {/* Resend */}
-            <div className="text-center mb-6">
+            <p className="text-sm text-muted-foreground text-center">
+              {t('emailAuth.notSeeingEmail')}{' '}
               {resendCooldown > 0 ? (
-                <p className="text-sm text-muted-foreground">
-                  {t('emailAuth.resendAvailableIn', { seconds: resendCooldown.toString() })}
-                </p>
+                <span className="text-muted-foreground/50">
+                  {t('emailAuth.trySendingAgain')} ({resendCooldown}s)
+                </span>
               ) : (
                 <button
                   onClick={handleResend}
                   disabled={resending}
-                  className="text-sm text-primary can-hover:hover:underline active:underline"
+                  className="text-foreground underline can-hover:hover:text-foreground/80 active:text-foreground/80"
                 >
-                  {t('emailAuth.resend')}
+                  {resending ? t('emailAuth.trySendingAgain') + '...' : t('emailAuth.trySendingAgain')}
                 </button>
               )}
-            </div>
-
-            {/* Polling indicator */}
-            <div className="flex items-center justify-center gap-2 text-muted-foreground">
-              <Spinner size="sm" />
-              <span className="text-sm">{t('emailAuth.waitingForVerification')}</span>
-            </div>
+            </p>
           </CardContent>
         </Card>
       </div>

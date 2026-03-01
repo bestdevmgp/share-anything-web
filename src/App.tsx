@@ -43,7 +43,7 @@ const AppContent: React.FC = () => {
           <Route path="/download/:code" element={<DownloadFilePage />} />
           <Route path="/auth/callback/:provider" element={<OAuthCallbackPage />} />
           <Route path="/auth/email/verify-wait" element={<EmailVerifyWaitPage />} />
-          <Route path="/auth/email/callback" element={<EmailMagicLinkCallbackPage />} />
+          <Route path="/auth/email/magic-link" element={<EmailMagicLinkCallbackPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/terms-of-use" element={<TermsOfUsePage />} />
           <Route path="*" element={<NotFoundPage />} />

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../services/api';
 import { toast } from '../context/ToastContext';
@@ -12,7 +12,6 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { login } = useAuth();
-  const [searchParams] = useSearchParams();
   const [verificationCode, setVerificationCode] = useState<string | null>(null);
   const [error, setError] = useState('');
   const hasProcessed = useRef(false);
@@ -23,7 +22,8 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
 
   useEffect(() => {
     const verifyToken = async () => {
-      const token = searchParams.get('token');
+      const hash = window.location.hash;
+      const token = hash.startsWith('#') ? hash.slice(1) : '';
       if (!token) {
         setError(t('oauth.invalidRequest'));
         setTimeout(() => navigate('/signin', { replace: true }), 2000);
@@ -101,15 +101,11 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
                 {t('emailAuth.crossDeviceDesc')}
               </p>
 
-              <div className="bg-muted rounded-2xl py-6 px-4 mb-6">
+              <div className="bg-muted rounded-2xl py-6 px-4">
                 <span className="text-4xl font-mono tracking-[0.5em] text-foreground font-bold">
                   {verificationCode}
                 </span>
               </div>
-
-              <p className="text-sm text-muted-foreground/70">
-                {t('emailAuth.waitingForVerification')}
-              </p>
             </CardContent>
           </Card>
         </div>
