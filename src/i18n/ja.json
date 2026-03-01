@@ -128,7 +128,7 @@
     "accountMergeTitle": "既存アカウントが見つかりました",
     "accountMergeMessage": "{{provider}}で登録されたアカウントが見つかりました。同じアカウントでログインされます。",
     "continue": "続ける",
-    "backToLogin": "ログインに戻る",
+    "backToLogin": "戻る",
     "sendFailed": "メール送信に失敗しました。",
     "rateLimited": "しばらく待ってからもう一度お試しください。",
     "waitingForVerification": "メール認証待機中..."

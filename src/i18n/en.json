@@ -128,7 +128,7 @@
     "accountMergeTitle": "Existing account found",
     "accountMergeMessage": "An account registered with {{provider}} was found. You will be signed in with the same account.",
     "continue": "Continue",
-    "backToLogin": "Back to sign in",
+    "backToLogin": "Back",
     "sendFailed": "Failed to send email.",
     "rateLimited": "Please try again shortly.",
     "waitingForVerification": "Waiting for email verification..."
