@@ -5,8 +5,10 @@ import { authAPI } from '../services/api';
 import { toast } from '../context/ToastContext';
 import { useTranslation } from '../i18n';
 import { Card, CardContent } from '../components/ui/card';
+import { Button } from '../components/ui/button';
 import { Spinner } from '../components/ui/spinner';
-import { DevicePhoneMobileIcon } from '@heroicons/react/24/outline';
+import { Tooltip, TooltipTrigger, TooltipContent } from '../components/ui/tooltip';
+import { DevicePhoneMobileIcon, ClipboardDocumentIcon, CheckIcon } from '@heroicons/react/24/outline';
 
 const EmailMagicLinkCallbackPage: React.FC = () => {
   const { t } = useTranslation();
@@ -14,6 +16,7 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
   const { login } = useAuth();
   const [verificationCode, setVerificationCode] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const [copied, setCopied] = useState(false);
   const hasProcessed = useRef(false);
 
   useEffect(() => {
@@ -122,10 +125,33 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
                 {t('emailAuth.crossDeviceDesc')}
               </p>
 
-              <div className="bg-muted rounded-2xl py-6 px-4">
-                <span className="text-4xl font-mono tracking-[0.5em] text-foreground font-bold">
-                  {verificationCode}
-                </span>
+              <div className="relative bg-muted rounded-xl px-6 py-4 border border-foreground/[0.09]">
+                <p className="text-3xl font-bold text-center text-foreground" style={{ letterSpacing: '0.1em' }}>
+                  {verificationCode && verificationCode.length === 6
+                    ? `${verificationCode.slice(0, 3)} ${verificationCode.slice(3)}`
+                    : verificationCode}
+                </p>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => {
+                        navigator.clipboard.writeText(verificationCode || '');
+                        setCopied(true);
+                        setTimeout(() => setCopied(false), 2000);
+                      }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2"
+                    >
+                      {copied ? (
+                        <CheckIcon className="w-5 h-5 text-green-600" />
+                      ) : (
+                        <ClipboardDocumentIcon className="w-5 h-5 text-muted-foreground" />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{t('uploadSuccess.copyCode')}</TooltipContent>
+                </Tooltip>
               </div>
             </CardContent>
           </Card>

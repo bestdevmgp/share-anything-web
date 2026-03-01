@@ -152,13 +152,20 @@ const EmailVerifyWaitPage: React.FC = () => {
             <CardContent className="p-0">
               <div className="flex items-center justify-center gap-3 mb-6">
                 {ProviderLogo && (
-                  <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center">
-                    <ProviderLogo className="w-7 h-7" />
+                  <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
+                    ({
+                      google: 'bg-[#F2F2F2] dark:bg-[#131314]',
+                      naver: 'bg-[#03C75A]',
+                      kakao: 'bg-[#FEE500]',
+                      apple: 'bg-black dark:bg-white',
+                    } as Record<string, string>)[mergeInfo.existingProvider] || 'bg-muted'
+                  }`}>
+                    <ProviderLogo className="w-6 h-6" />
                   </div>
                 )}
                 <LinkIcon className="w-5 h-5 text-muted-foreground" />
                 <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-                  <EnvelopeIcon className="w-7 h-7 text-primary" />
+                  <EnvelopeIcon className="w-8 h-8 text-primary" strokeWidth={2} />
                 </div>
               </div>
 
@@ -171,7 +178,8 @@ const EmailVerifyWaitPage: React.FC = () => {
 
               <Button
                 onClick={handleMergeContinue}
-                className="w-full h-12 rounded-lg text-sm"
+                size="xl"
+                className="w-full"
               >
                 {t('emailAuth.continue')}
               </Button>
@@ -198,7 +206,7 @@ const EmailVerifyWaitPage: React.FC = () => {
 
             <div className="flex justify-center mb-5">
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <EnvelopeIcon className="w-10 h-10 text-primary" strokeWidth={2} />
+                <EnvelopeIcon className="w-9 h-9 text-primary" strokeWidth={2} />
               </div>
             </div>
 
