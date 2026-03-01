@@ -180,13 +180,13 @@ export const authAPI = {
     return userStr ? JSON.parse(userStr) : null;
   },
 
-  sendEmailAuth: async (email: string): Promise<EmailAuthSendResponse> => {
-    const response = await api.post<EmailAuthSendResponse>('/auth/email/send', { email });
+  sendEmailAuth: async (email: string, deviceId: string): Promise<EmailAuthSendResponse> => {
+    const response = await api.post<EmailAuthSendResponse>('/auth/email/send', { email, device_id: deviceId });
     return response.data;
   },
 
-  verifyEmailToken: async (token: string): Promise<EmailAuthVerifyResponse> => {
-    const response = await api.post<EmailAuthVerifyResponse>('/auth/email/verify', { token });
+  verifyEmailToken: async (token: string, deviceId?: string): Promise<EmailAuthVerifyResponse> => {
+    const response = await api.post<EmailAuthVerifyResponse>('/auth/email/verify', { token, device_id: deviceId });
     return response.data;
   },
 

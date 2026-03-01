@@ -57,7 +57,9 @@ const LoginPage: React.FC = () => {
         }
         setEmailSending(true);
         try {
-            const data = await authAPI.sendEmailAuth(email);
+            const deviceId = crypto.randomUUID();
+            localStorage.setItem('emailAuthDeviceId', deviceId);
+            const data = await authAPI.sendEmailAuth(email, deviceId);
             navigate('/auth/email/verify-wait', { state: { email, sessionId: data.session_id } });
         } catch (err: any) {
             if (err.response?.status === 429) {

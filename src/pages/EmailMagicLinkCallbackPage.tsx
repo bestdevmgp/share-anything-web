@@ -34,10 +34,12 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
       hasProcessed.current = true;
 
       try {
-        const data = await authAPI.verifyEmailToken(token);
+        const deviceId = localStorage.getItem('emailAuthDeviceId') || undefined;
+        const data = await authAPI.verifyEmailToken(token, deviceId);
 
         if (data.same_device && data.auth) {
           // Same device — auto login
+          localStorage.removeItem('emailAuthDeviceId');
           localStorage.setItem('lastLoginProvider', 'email');
           login(data.auth.token, data.auth.user);
           toast.success(t('oauth.loginSuccess'));

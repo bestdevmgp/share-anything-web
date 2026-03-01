@@ -83,6 +83,7 @@ const EmailVerifyWaitPage: React.FC = () => {
       return;
     }
     hasLoggedIn.current = true;
+    localStorage.removeItem('emailAuthDeviceId');
     localStorage.setItem('lastLoginProvider', 'email');
     login(token, user);
     sessionStorage.removeItem(SESSION_STORAGE_KEY);
@@ -139,7 +140,9 @@ const EmailVerifyWaitPage: React.FC = () => {
     if (resendCooldown > 0 || resending) return;
     setResending(true);
     try {
-      const data = await authAPI.sendEmailAuth(email);
+      const deviceId = crypto.randomUUID();
+      localStorage.setItem('emailAuthDeviceId', deviceId);
+      const data = await authAPI.sendEmailAuth(email, deviceId);
       setSessionId(data.session_id);
       setResendCooldown(60);
       setCode('');
@@ -159,6 +162,7 @@ const EmailVerifyWaitPage: React.FC = () => {
   const handleMergeContinue = () => {
     if (!mergeInfo || hasLoggedIn.current) return;
     hasLoggedIn.current = true;
+    localStorage.removeItem('emailAuthDeviceId');
     localStorage.setItem('lastLoginProvider', 'email');
     login(mergeInfo.token, mergeInfo.user);
     sessionStorage.removeItem(SESSION_STORAGE_KEY);
