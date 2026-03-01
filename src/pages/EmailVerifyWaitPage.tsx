@@ -190,7 +190,7 @@ const EmailVerifyWaitPage: React.FC = () => {
           <CardContent className="p-0">
             <button
               onClick={() => navigate('/signin')}
-              className="flex items-center gap-1.5 text-sm text-muted-foreground can-hover:hover:text-foreground active:text-foreground transition-colors mb-6"
+              className="flex items-center gap-1.5 text-sm text-muted-foreground can-hover:hover:bg-accent can-hover:hover:text-foreground active:bg-accent active:text-foreground transition-colors mb-6 -ml-2 px-2 py-1.5 rounded-lg"
             >
               <ArrowLeftIcon className="w-4 h-4" />
               {t('emailAuth.backToLogin')}
