@@ -68,9 +68,10 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
         <div className="max-w-md w-full text-center">
           <Card className="rounded-3xl border-2 p-8">
             <CardContent className="p-0">
-              <div className="w-16 h-16 bg-red-100 dark:bg-red-500/15 rounded-full border border-border flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <div className="w-16 h-16 bg-red-100 dark:bg-red-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 18L18 6" className="error-x-path-1" />
+                  <path d="M6 6l12 12" className="error-x-path-2" />
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-foreground mb-2">{t('oauth.loginFailedTitle')}</h2>
@@ -78,6 +79,24 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
               <p className="text-sm text-muted-foreground/70">{t('oauth.redirectingToLogin')}</p>
             </CardContent>
           </Card>
+          <style>{`
+            .error-x-path-1,
+            .error-x-path-2 {
+              stroke-dasharray: 17;
+              stroke-dashoffset: 17;
+            }
+            .error-x-path-1 {
+              animation: drawX 0.4s ease-out forwards;
+            }
+            .error-x-path-2 {
+              animation: drawX 0.4s ease-out 0.2s forwards;
+            }
+            @keyframes drawX {
+              to {
+                stroke-dashoffset: 0;
+              }
+            }
+          `}</style>
         </div>
       </div>
     );

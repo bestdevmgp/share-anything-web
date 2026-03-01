@@ -171,12 +171,9 @@ const LoginPage: React.FC = () => {
                                     {t('emailAuth.backToLogin')}
                                 </button>
 
-                                <label className="block text-sm font-medium text-foreground mb-2">
-                                    {t('emailAuth.enterEmail')}
-                                </label>
                                 <Input
                                     type="email"
-                                    placeholder={t('emailAuth.emailPlaceholder')}
+                                    placeholder={t('emailAuth.enterEmail')}
                                     value={email}
                                     onChange={(e) => { setEmail(e.target.value); setEmailError(''); }}
                                     onKeyDown={handleEmailKeyDown}

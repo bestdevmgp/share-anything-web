@@ -223,7 +223,7 @@ const EmailVerifyWaitPage: React.FC = () => {
                     setCodeError('');
                   }}
                   onKeyDown={handleCodeKeyDown}
-                  className="h-12 text-center text-lg tracking-[0.3em] font-mono mb-3"
+                  className="text-center tracking-[0.3em] font-mono mb-3"
                   autoFocus
                 />
                 {codeError && (
