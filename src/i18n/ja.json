@@ -131,7 +131,11 @@
     "backToLogin": "ログインに戻る",
     "sendFailed": "メール送信に失敗しました。",
     "rateLimited": "しばらく待ってからもう一度お試しください。",
-    "waitingForVerification": "メール認証待機中..."
+    "waitingForVerification": "メール認証待機中...",
+    "providerName.google": "Google",
+    "providerName.naver": "Naver",
+    "providerName.kakao": "Kakao",
+    "providerName.apple": "Apple"
   },
   "oauth": {
     "loggingIn": "ログイン中...",

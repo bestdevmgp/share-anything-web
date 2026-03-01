@@ -131,7 +131,11 @@
     "backToLogin": "로그인으로 돌아가기",
     "sendFailed": "이메일 전송에 실패했습니다.",
     "rateLimited": "잠시 후 다시 시도해주세요.",
-    "waitingForVerification": "이메일 인증 대기 중..."
+    "waitingForVerification": "이메일 인증 대기 중...",
+    "providerName.google": "Google",
+    "providerName.naver": "네이버",
+    "providerName.kakao": "카카오",
+    "providerName.apple": "Apple"
   },
   "oauth": {
     "loggingIn": "로그인 중...",

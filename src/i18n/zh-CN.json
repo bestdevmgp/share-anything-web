@@ -131,7 +131,11 @@
     "backToLogin": "返回登录",
     "sendFailed": "邮件发送失败。",
     "rateLimited": "请稍后再试。",
-    "waitingForVerification": "等待邮箱验证中..."
+    "waitingForVerification": "等待邮箱验证中...",
+    "providerName.google": "Google",
+    "providerName.naver": "Naver",
+    "providerName.kakao": "Kakao",
+    "providerName.apple": "Apple"
   },
   "oauth": {
     "loggingIn": "登录中...",

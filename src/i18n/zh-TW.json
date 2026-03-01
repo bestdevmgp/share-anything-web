@@ -131,7 +131,11 @@
     "backToLogin": "返回登入",
     "sendFailed": "郵件傳送失敗。",
     "rateLimited": "請稍後再試。",
-    "waitingForVerification": "等待電子郵件驗證中..."
+    "waitingForVerification": "等待電子郵件驗證中...",
+    "providerName.google": "Google",
+    "providerName.naver": "Naver",
+    "providerName.kakao": "Kakao",
+    "providerName.apple": "Apple"
   },
   "oauth": {
     "loggingIn": "登入中...",

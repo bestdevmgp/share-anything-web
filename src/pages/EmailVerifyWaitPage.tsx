@@ -9,7 +9,7 @@ import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Spinner } from '../components/ui/spinner';
 import { EnvelopeIcon, ArrowLeftIcon, LinkIcon } from '@heroicons/react/24/outline';
-import { providerLogoMap, providerDisplayNames } from '../utils/providerLogos';
+import { providerLogoMap } from '../utils/providerLogos';
 import type { User } from '../types';
 
 const SESSION_STORAGE_KEY = 'emailAuthSession';
@@ -143,7 +143,7 @@ const EmailVerifyWaitPage: React.FC = () => {
   // Account merge view
   if (mergeInfo) {
     const ProviderLogo = providerLogoMap[mergeInfo.existingProvider];
-    const providerName = providerDisplayNames[mergeInfo.existingProvider] || mergeInfo.existingProvider;
+    const providerName = t(`emailAuth.providerName.${mergeInfo.existingProvider}`);
 
     return (
       <div className="flex items-center justify-center px-4 py-20">

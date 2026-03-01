@@ -131,7 +131,11 @@
     "backToLogin": "Back to sign in",
     "sendFailed": "Failed to send email.",
     "rateLimited": "Please try again shortly.",
-    "waitingForVerification": "Waiting for email verification..."
+    "waitingForVerification": "Waiting for email verification...",
+    "providerName.google": "Google",
+    "providerName.naver": "Naver",
+    "providerName.kakao": "Kakao",
+    "providerName.apple": "Apple"
   },
   "oauth": {
     "loggingIn": "Signing in...",
