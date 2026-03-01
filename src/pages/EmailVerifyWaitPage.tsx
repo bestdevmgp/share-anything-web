@@ -218,7 +218,7 @@ const EmailVerifyWaitPage: React.FC = () => {
             </p>
 
             {showCodeInput ? (
-              <div className="mb-6 max-w-sm mx-auto">
+              <div className="mb-6">
                 <Input
                   type="text"
                   inputMode="numeric"
@@ -231,7 +231,7 @@ const EmailVerifyWaitPage: React.FC = () => {
                     setCodeError('');
                   }}
                   onKeyDown={handleCodeKeyDown}
-                  className="text-center font-mono mb-3"
+                  className="h-12 text-center font-mono mb-3"
                   autoFocus
                 />
                 {codeError && (
@@ -240,7 +240,7 @@ const EmailVerifyWaitPage: React.FC = () => {
                 <Button
                   onClick={handleVerifyCode}
                   disabled={code.length !== 6 || verifying}
-                  size="lg"
+                  size="xl"
                   className="w-full"
                 >
                   {verifying ? <Spinner size="sm" className="text-primary-foreground" /> : t('emailAuth.verify')}
