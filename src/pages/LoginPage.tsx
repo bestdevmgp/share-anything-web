@@ -7,6 +7,7 @@ import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { EnvelopeIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { GoogleLogo, NaverLogo, KakaoLogo, AppleLogo } from '../utils/providerLogos';
+import { Spinner } from '../components/ui/spinner';
 
 type LoginProvider = 'google' | 'naver' | 'kakao' | 'apple' | 'email';
 
@@ -184,9 +185,10 @@ const LoginPage: React.FC = () => {
                                 <Button
                                     onClick={handleEmailSubmit}
                                     disabled={emailSending}
-                                    className="w-full h-12 rounded-lg text-sm"
+                                    size="xl"
+                                    className="w-full"
                                 >
-                                    {emailSending ? t('emailAuth.next') + '...' : t('emailAuth.next')}
+                                    {emailSending ? <Spinner size="sm" className="text-primary-foreground" /> : t('emailAuth.next')}
                                 </Button>
                             </div>
                         )}
