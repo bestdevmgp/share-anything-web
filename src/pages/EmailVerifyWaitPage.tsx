@@ -152,15 +152,15 @@ const EmailVerifyWaitPage: React.FC = () => {
             <CardContent className="p-0">
               <div className="flex items-center justify-center gap-3 mb-6">
                 {ProviderLogo && (
-                  <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
+                  <div className={`rounded-full flex items-center justify-center ${
                     ({
-                      google: 'bg-[#F2F2F2] dark:bg-[#131314]',
-                      naver: 'bg-[#03C75A]',
-                      kakao: 'bg-[#FEE500]',
-                      apple: 'bg-black dark:bg-white',
-                    } as Record<string, string>)[mergeInfo.existingProvider] || 'bg-muted'
+                      google: 'w-14 h-14 bg-[#F2F2F2] dark:bg-[#131314]',
+                      naver: 'w-12 h-12 bg-[#03C75A]',
+                      kakao: 'w-12 h-12 bg-[#FEE500]',
+                      apple: 'w-12 h-12 bg-black dark:bg-white',
+                    } as Record<string, string>)[mergeInfo.existingProvider] || 'w-14 h-14 bg-muted'
                   }`}>
-                    <ProviderLogo className="w-6 h-6" />
+                    <ProviderLogo className={mergeInfo.existingProvider === 'google' ? 'w-7 h-7' : 'w-5 h-5'} />
                   </div>
                 )}
                 <LinkIcon className="w-5 h-5 text-muted-foreground" />
