@@ -198,7 +198,7 @@ const EmailVerifyWaitPage: React.FC = () => {
   return (
     <div className="flex items-center justify-center px-4 py-20">
       <div className="max-w-md w-full">
-        <Card className="rounded-3xl border-2 p-10">
+        <Card className="rounded-3xl border-2 pt-10 px-10 pb-8">
           <CardContent className="p-0">
             <button
               onClick={() => navigate('/signin')}
@@ -217,7 +217,7 @@ const EmailVerifyWaitPage: React.FC = () => {
             <h2 className="text-2xl font-bold text-foreground text-center mb-2">
               {t('emailAuth.checkEmail')}
             </h2>
-            <p className="text-muted-foreground text-sm text-center mb-2">
+            <p className="text-muted-foreground text-sm text-center mb-1">
               {t('emailAuth.checkEmailDesc', { email })}
             </p>
             <p className="text-xs text-muted-foreground/70 text-center mb-8">
