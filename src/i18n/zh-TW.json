@@ -115,6 +115,7 @@
     "enterCode": "輸入驗證碼",
     "notSeeingEmail": "沒有收到郵件？",
     "trySendingAgain": "重新傳送",
+    "linkExpiresNotice": "發送的郵件有效期為10分鐘。",
     "verificationCode": "驗證碼",
     "codePlaceholder": "123456",
     "verify": "驗證",

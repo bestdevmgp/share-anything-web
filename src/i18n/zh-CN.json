@@ -115,6 +115,7 @@
     "enterCode": "输入验证码",
     "notSeeingEmail": "没有收到邮件？",
     "trySendingAgain": "重新发送",
+    "linkExpiresNotice": "发送的邮件有效期为10分钟。",
     "verificationCode": "验证码",
     "codePlaceholder": "123456",
     "verify": "验证",

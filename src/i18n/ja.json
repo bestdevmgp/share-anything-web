@@ -115,6 +115,7 @@
     "enterCode": "認証コードを入力",
     "notSeeingEmail": "メールが届きませんか？",
     "trySendingAgain": "もう一度送信",
+    "linkExpiresNotice": "送信されたメールは10分間有効です。",
     "verificationCode": "認証コード",
     "codePlaceholder": "123456",
     "verify": "認証",

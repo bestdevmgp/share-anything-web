@@ -115,6 +115,7 @@
     "enterCode": "Enter verification code",
     "notSeeingEmail": "Not seeing the email in your inbox?",
     "trySendingAgain": "Try sending again",
+    "linkExpiresNotice": "The email sent is valid for 10 minutes.",
     "verificationCode": "Verification code",
     "codePlaceholder": "123456",
     "verify": "Verify",
