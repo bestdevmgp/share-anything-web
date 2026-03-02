@@ -272,7 +272,7 @@ const EmailVerifyWaitPage: React.FC = () => {
               </button>
             </p>
 
-            <p className="text-xs text-muted-foreground/70 text-center mt-6">
+            <p className="text-xs text-muted-foreground/70 text-center mt-6 -mb-4">
               {t('emailAuth.linkExpiresNotice')}
             </p>
           </CardContent>
