@@ -198,7 +198,7 @@ const EmailVerifyWaitPage: React.FC = () => {
   return (
     <div className="flex items-center justify-center px-4 py-20">
       <div className="max-w-md w-full">
-        <Card className="rounded-3xl border-2 pt-10 px-10 pb-8">
+        <Card className="rounded-3xl border-2 pt-10 px-10 pb-9">
           <CardContent className="p-0">
             <button
               onClick={() => navigate('/signin')}
