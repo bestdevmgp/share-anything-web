@@ -217,8 +217,11 @@ const EmailVerifyWaitPage: React.FC = () => {
             <h2 className="text-2xl font-bold text-foreground text-center mb-2">
               {t('emailAuth.checkEmail')}
             </h2>
-            <p className="text-muted-foreground text-sm text-center mb-8">
+            <p className="text-muted-foreground text-sm text-center mb-2">
               {t('emailAuth.checkEmailDesc', { email })}
+            </p>
+            <p className="text-xs text-muted-foreground/70 text-center mb-8">
+              {t('emailAuth.linkExpiresNotice')}
             </p>
 
             {showCodeInput ? (
@@ -272,9 +275,6 @@ const EmailVerifyWaitPage: React.FC = () => {
               </button>
             </p>
 
-            <p className="text-xs text-muted-foreground/70 text-center mt-6 -mb-4">
-              {t('emailAuth.linkExpiresNotice')}
-            </p>
           </CardContent>
         </Card>
       </div>
