@@ -163,7 +163,7 @@ const EmailVerifyWaitPage: React.FC = () => {
                     <ProviderLogo className={
                       mergeInfo.existingProvider === 'google' ? 'w-7 h-7' :
                       mergeInfo.existingProvider === 'kakao' ? 'w-7 h-7' :
-                      mergeInfo.existingProvider === 'apple' ? 'w-[22px] h-[22px]' : 'w-5 h-5'
+                      mergeInfo.existingProvider === 'apple' ? 'w-7 h-7' : 'w-5 h-5'
                     } />
                   </div>
                 )}
