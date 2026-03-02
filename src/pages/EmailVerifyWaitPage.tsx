@@ -157,10 +157,13 @@ const EmailVerifyWaitPage: React.FC = () => {
                       google: 'w-14 h-14 bg-[#F2F2F2] dark:bg-[#131314]',
                       naver: 'w-12 h-12 bg-[#03C75A]',
                       kakao: 'w-12 h-12 bg-[#FEE500]',
-                      apple: 'w-12 h-12 bg-black dark:bg-white',
+                      apple: 'w-12 h-12 bg-black dark:bg-white text-white dark:text-black',
                     } as Record<string, string>)[mergeInfo.existingProvider] || 'w-14 h-14 bg-muted'
                   }`}>
-                    <ProviderLogo className={mergeInfo.existingProvider === 'google' ? 'w-7 h-7' : 'w-5 h-5'} />
+                    <ProviderLogo className={
+                      mergeInfo.existingProvider === 'google' ? 'w-7 h-7' :
+                      mergeInfo.existingProvider === 'apple' ? 'w-[22px] h-[22px]' : 'w-5 h-5'
+                    } />
                   </div>
                 )}
                 <LinkIcon className="w-5 h-5 text-muted-foreground" />
