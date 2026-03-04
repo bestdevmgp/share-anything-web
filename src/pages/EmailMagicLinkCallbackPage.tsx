@@ -165,7 +165,9 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
     <div className="flex items-center justify-center pt-32 pb-20">
       <div className="flex flex-col items-center">
         <Spinner size="xl" />
-        <p className="mt-4 text-muted-foreground">{t('oauth.loggingIn')}</p>
+        <p className="mt-4 text-muted-foreground">
+          {localStorage.getItem('emailAuthDeviceId') ? t('oauth.loggingIn') : t('common.loading')}
+        </p>
       </div>
     </div>
   );
