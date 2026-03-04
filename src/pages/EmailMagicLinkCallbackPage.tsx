@@ -17,6 +17,7 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
   const [verificationCode, setVerificationCode] = useState<string | null>(null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const hasProcessed = useRef(false);
 
   useEffect(() => {
@@ -42,6 +43,7 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
 
         if (data.same_device && data.auth) {
           // Same device — auto login
+          setIsLoggingIn(true);
           localStorage.removeItem('emailAuthDeviceId');
           localStorage.setItem('lastLoginProvider', 'email');
           login(data.auth.token, data.auth.user);
@@ -166,7 +168,7 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
       <div className="flex flex-col items-center">
         <Spinner size="xl" />
         <p className="mt-4 text-muted-foreground">
-          {localStorage.getItem('emailAuthDeviceId') ? t('oauth.loggingIn') : t('common.loading')}
+          {isLoggingIn ? t('oauth.loggingIn') : t('common.loading')}
         </p>
       </div>
     </div>
