@@ -44,8 +44,6 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   const [csvData, setCsvData] = useState<string[][] | null>(null);
   const [excelData, setExcelData] = useState<string[][] | null>(null);
   const [docxReady, setDocxReady] = useState(false);
-  const [docxScale, setDocxScale] = useState(1);
-  const [docxSize, setDocxSize] = useState<{ width: number; height: number } | null>(null);
   const docxContainerRef = useRef<HTMLDivElement>(null);
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -124,9 +122,9 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
           const data = await getArrayBuffer(source);
           if (!cancelled && docxContainerRef.current) {
             await renderAsync(data, docxContainerRef.current, undefined, {
-              inWrapper: true,
-              ignoreWidth: false,
-              ignoreHeight: false,
+              inWrapper: false,
+              ignoreWidth: true,
+              ignoreHeight: true,
               ignoreFonts: false,
               breakPages: false,
               ignoreLastRenderedPageBreak: true,
@@ -134,20 +132,6 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
               trimXmlDeclaration: true,
               useBase64URL: true,
             });
-            // Scale to fit modal height
-            const section = docxContainerRef.current.querySelector('section.docx') as HTMLElement | null;
-            if (section) {
-              // modal header(~74px) + separator(1) + content padding(24) + modal vertical margin(96)
-              const availableHeight = window.innerHeight - 195;
-              const availableWidth = window.innerWidth - 128;
-              const docWidth = section.scrollWidth;
-              const docHeight = section.scrollHeight;
-              const scaleH = availableHeight / docHeight;
-              const scaleW = availableWidth / docWidth;
-              const scale = Math.min(scaleH, scaleW, 1);
-              setDocxScale(scale);
-              setDocxSize({ width: docWidth, height: docHeight });
-            }
             setDocxReady(true);
           }
         } else if (isHwpFile(fileName)) {
@@ -351,25 +335,14 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
         >
           {isDocxFile(fileName) && (
             <div
-              className="docx-scale-wrapper"
+              ref={docxContainerRef}
+              className="docx-container w-full"
               style={{
                 visibility: docxReady ? 'visible' : 'hidden',
                 position: docxReady ? undefined : 'absolute',
-                maxHeight: 'calc(100vh - 10rem)',
-                overflow: 'auto',
-                width: docxSize ? docxSize.width * docxScale : undefined,
-                height: docxSize ? docxSize.height * docxScale : undefined,
+                width: Math.min(600, window.innerWidth - 96),
               }}
-            >
-              <div
-                ref={docxContainerRef}
-                className="docx-container"
-                style={{
-                  transformOrigin: 'top left',
-                  transform: `scale(${docxScale})`,
-                }}
-              />
-            </div>
+            />
           )}
           {!(isDocxFile(fileName) && docxReady) && (
             <div className="m-auto max-w-full">
