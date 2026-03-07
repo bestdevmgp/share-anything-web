@@ -351,10 +351,12 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
         >
           {isDocxFile(fileName) && (
             <div
-              className="docx-scale-wrapper overflow-auto"
+              className="docx-scale-wrapper"
               style={{
-                display: docxReady ? undefined : 'none',
+                visibility: docxReady ? 'visible' : 'hidden',
+                position: docxReady ? undefined : 'absolute',
                 maxHeight: 'calc(100vh - 10rem)',
+                overflow: 'auto',
                 width: docxSize ? docxSize.width * docxScale : undefined,
                 height: docxSize ? docxSize.height * docxScale : undefined,
               }}
