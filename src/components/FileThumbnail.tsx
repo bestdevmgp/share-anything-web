@@ -38,7 +38,7 @@ const FileThumbnail: React.FC<FileThumbnailProps> = ({ source, fileName, size = 
     );
   }
 
-  if ((isImageFile(fileName) || isPdfFile(fileName) || isPptxFile(fileName)) && url) {
+  if ((isImageFile(fileName) || isPdfFile(fileName) || isPptxFile(fileName) || isDocxFile(fileName)) && url) {
     return (
       <img
         src={url}
@@ -94,8 +94,8 @@ const FileThumbnail: React.FC<FileThumbnailProps> = ({ source, fileName, size = 
 
   if (isDocxFile(fileName)) {
     return (
-      <div className={cn(boxClass, 'flex-shrink-0 bg-muted rounded flex items-center justify-center')}>
-        <DocumentTextIcon className={cn(iconClass, 'text-muted-foreground')} />
+      <div className={cn(boxClass, 'flex-shrink-0 bg-blue-50 dark:bg-blue-500/10 rounded flex items-center justify-center')}>
+        <DocumentTextIcon className={cn(iconClass, 'text-blue-600 dark:text-blue-400')} />
       </div>
     );
   }
