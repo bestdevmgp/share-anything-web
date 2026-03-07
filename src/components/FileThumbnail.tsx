@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useThumbnail } from '../hooks/useThumbnail';
 import {
   isImageFile, isPdfFile, isVideoFile, isAudioFile, isTextFile,
   isCsvFile, isExcelFile, isDocxFile, isPptxFile, isHwpFile
 } from '../utils/format';
+import { getArrayBuffer } from '../utils/filePreview';
 import { DocumentIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon, TableCellsIcon, PresentationChartBarIcon } from '@heroicons/react/24/outline';
 import { Spinner } from './ui/spinner';
 import { cn } from 'lib/utils';
@@ -20,14 +21,112 @@ const sizeMap = {
   md: 'w-12 h-12',
 };
 
+const sizePx = {
+  sm: 44,
+  md: 48,
+};
+
 const iconSizeMap = {
   sm: 'w-7 h-7',
   md: 'w-7 h-7',
 };
 
+// Cache rendered DOCX HTML to avoid re-rendering on every mount
+const docxHtmlCache = new Map<string, string>();
+
+function getDocxCacheKey(source: File | string): string {
+  if (source instanceof File) {
+    return `docx:${source.name}:${source.size}:${source.lastModified}`;
+  }
+  return `docx:${source}`;
+}
+
+const DocxMiniPreview: React.FC<{ source: File | string; boxClass: string; boxPx: number }> = ({ source, boxPx, boxClass }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [ready, setReady] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const render = async () => {
+      const el = containerRef.current;
+      if (!el) return;
+
+      const cacheKey = getDocxCacheKey(source);
+      const cached = docxHtmlCache.get(cacheKey);
+
+      if (cached) {
+        el.innerHTML = cached;
+        if (!cancelled) setReady(true);
+        return;
+      }
+
+      try {
+        const { renderAsync } = await import('docx-preview');
+        const data = await getArrayBuffer(source);
+        if (cancelled) return;
+
+        await renderAsync(data, el, undefined, {
+          inWrapper: false,
+          ignoreFonts: true,
+          breakPages: false,
+          useBase64URL: true,
+          ignoreWidth: true,
+          ignoreHeight: true,
+        });
+
+        docxHtmlCache.set(cacheKey, el.innerHTML);
+        if (!cancelled) setReady(true);
+      } catch {
+        if (!cancelled) setFailed(true);
+      }
+    };
+    render();
+    return () => { cancelled = true; };
+  }, [source]);
+
+  if (failed) {
+    return (
+      <div className={cn(boxClass, 'flex-shrink-0 bg-blue-50 dark:bg-blue-500/10 rounded flex items-center justify-center')}>
+        <DocumentTextIcon className="w-7 h-7 text-blue-600 dark:text-blue-400" />
+      </div>
+    );
+  }
+
+  // Render area: 440px wide → scale down to boxPx (e.g. 44px = 0.1 scale)
+  const renderWidth = 440;
+  const scale = boxPx / renderWidth;
+  const renderHeight = boxPx / scale;
+
+  return (
+    <div className={cn(boxClass, 'flex-shrink-0 rounded overflow-hidden relative bg-white')} >
+      {!ready && (
+        <div className="absolute inset-0 flex items-center justify-center bg-muted rounded">
+          <Spinner size="default" />
+        </div>
+      )}
+      <div
+        ref={containerRef}
+        className="docx-thumb-container"
+        style={{
+          width: renderWidth,
+          height: renderHeight,
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+          overflow: 'hidden',
+          pointerEvents: 'none',
+          paddingTop: 0,
+          visibility: ready ? 'visible' : 'hidden',
+        }}
+      />
+    </div>
+  );
+};
+
 const FileThumbnail: React.FC<FileThumbnailProps> = ({ source, fileName, size = 'sm', thumbnailWidth }) => {
   const { url, loading } = useThumbnail(source, fileName, thumbnailWidth);
   const boxClass = sizeMap[size];
+  const boxPx = sizePx[size];
   const iconClass = iconSizeMap[size];
 
   if (loading) {
@@ -38,7 +137,7 @@ const FileThumbnail: React.FC<FileThumbnailProps> = ({ source, fileName, size = 
     );
   }
 
-  if ((isImageFile(fileName) || isPdfFile(fileName) || isPptxFile(fileName) || isDocxFile(fileName)) && url) {
+  if ((isImageFile(fileName) || isPdfFile(fileName) || isPptxFile(fileName)) && url) {
     return (
       <img
         src={url}
@@ -90,6 +189,10 @@ const FileThumbnail: React.FC<FileThumbnailProps> = ({ source, fileName, size = 
         <PresentationChartBarIcon className={cn(iconClass, 'text-orange-600 dark:text-orange-400')} />
       </div>
     );
+  }
+
+  if (isDocxFile(fileName) && source) {
+    return <DocxMiniPreview source={source} boxClass={boxClass} boxPx={boxPx} />;
   }
 
   if (isDocxFile(fileName)) {
