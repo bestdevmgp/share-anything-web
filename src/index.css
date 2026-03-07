@@ -104,3 +104,13 @@ code {
 ::view-transition-new(root) {
   animation-duration: 0.3s;
 }
+
+/* docx-preview library styles */
+.docx-container .docx-wrapper {
+  background: transparent !important;
+  padding: 0 !important;
+}
+.docx-container .docx-wrapper > section.docx {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+  margin-bottom: 16px !important;
+}

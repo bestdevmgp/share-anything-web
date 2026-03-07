@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Document, Page } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -43,7 +43,8 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   const [textContent, setTextContent] = useState<string | null>(null);
   const [csvData, setCsvData] = useState<string[][] | null>(null);
   const [excelData, setExcelData] = useState<string[][] | null>(null);
-  const [docxHtml, setDocxHtml] = useState<string | null>(null);
+  const [docxReady, setDocxReady] = useState(false);
+  const docxContainerRef = useRef<HTMLDivElement>(null);
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [numPages, setNumPages] = useState<number | null>(null);
@@ -117,10 +118,22 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
             }
           }
         } else if (isDocxFile(fileName)) {
-          const mammoth = await import('mammoth');
+          const { renderAsync } = await import('docx-preview');
           const data = await getArrayBuffer(source);
-          const result = await mammoth.convertToHtml({ arrayBuffer: data });
-          if (!cancelled) setDocxHtml(result.value);
+          if (!cancelled && docxContainerRef.current) {
+            await renderAsync(data, docxContainerRef.current, undefined, {
+              inWrapper: true,
+              ignoreWidth: false,
+              ignoreHeight: false,
+              ignoreFonts: false,
+              breakPages: true,
+              ignoreLastRenderedPageBreak: false,
+              experimental: false,
+              trimXmlDeclaration: true,
+              useBase64URL: true,
+            });
+            setDocxReady(true);
+          }
         } else if (isHwpFile(fileName)) {
         } else if (isTextFile(fileName)) {
           const text = await readTextContent(source, 50000);
@@ -284,13 +297,8 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
       return renderTable(excelData);
     }
 
-    if (isDocxFile(fileName) && docxHtml) {
-      return (
-        <div
-          className="w-full max-h-[calc(100vh-10rem)] overflow-auto prose prose-sm max-w-none px-4"
-          dangerouslySetInnerHTML={{ __html: docxHtml }}
-        />
-      );
+    if (isDocxFile(fileName) && docxReady) {
+      return null; // rendered via ref below
     }
 
     if (isTextFile(fileName) && textContent !== null) {
@@ -325,9 +333,18 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
           onContextMenu={e => e.preventDefault()}
           onDragStart={e => e.preventDefault()}
         >
-          <div className="m-auto max-w-full">
-            {renderContent()}
-          </div>
+          {isDocxFile(fileName) && (
+            <div
+              ref={docxContainerRef}
+              className="docx-container w-full"
+              style={{ display: docxReady ? undefined : 'none' }}
+            />
+          )}
+          {!(isDocxFile(fileName) && docxReady) && (
+            <div className="m-auto max-w-full">
+              {renderContent()}
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>
