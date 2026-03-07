@@ -44,6 +44,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   const [csvData, setCsvData] = useState<string[][] | null>(null);
   const [excelData, setExcelData] = useState<string[][] | null>(null);
   const [docxReady, setDocxReady] = useState(false);
+  const [docxPageHeight, setDocxPageHeight] = useState<number | null>(null);
   const docxContainerRef = useRef<HTMLDivElement>(null);
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -126,12 +127,17 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
               ignoreWidth: true,
               ignoreHeight: true,
               ignoreFonts: false,
-              breakPages: false,
-              ignoreLastRenderedPageBreak: true,
+              breakPages: true,
+              ignoreLastRenderedPageBreak: false,
               experimental: false,
               trimXmlDeclaration: true,
               useBase64URL: true,
             });
+            // Measure first page height for modal sizing
+            const firstPage = docxContainerRef.current.querySelector('section.docx') as HTMLElement | null;
+            if (firstPage) {
+              setDocxPageHeight(firstPage.offsetHeight);
+            }
             setDocxReady(true);
           }
         } else if (isHwpFile(fileName)) {
@@ -329,14 +335,19 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
         <Separator className="flex-shrink-0" />
         <div
           className="px-4 pt-2 pb-4 flex flex-1 min-h-0 overflow-auto select-none"
-          style={{ WebkitTouchCallout: 'none' }}
+          style={{
+            WebkitTouchCallout: 'none',
+            ...(isDocxFile(fileName) && docxReady && docxPageHeight
+              ? { maxHeight: Math.min(docxPageHeight + 48, window.innerHeight - 160) }
+              : {}),
+          }}
           onContextMenu={e => e.preventDefault()}
           onDragStart={e => e.preventDefault()}
         >
           {isDocxFile(fileName) && (
             <div
               ref={docxContainerRef}
-              className="docx-container w-full"
+              className="docx-container rounded-md"
               style={{
                 visibility: docxReady ? 'visible' : 'hidden',
                 position: docxReady ? undefined : 'absolute',
