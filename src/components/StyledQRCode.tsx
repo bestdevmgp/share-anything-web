@@ -2,15 +2,8 @@ import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import QRCodeStyling from 'qr-code-styling';
 import { useTheme } from '../context/ThemeContext';
 
-// Preload QR logo so it's cached when QRCodeStyling requests it
-const qrLogoUrl = `${process.env.PUBLIC_URL}/logo-qr.svg`;
-if (typeof window !== 'undefined') {
-  const link = document.createElement('link');
-  link.rel = 'preload';
-  link.as = 'image';
-  link.href = qrLogoUrl;
-  document.head.appendChild(link);
-}
+// Inline logo as data URL to eliminate network request and async image loading delay
+const qrLogoDataUrl = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iOTYwIiB2aWV3Qm94PSIwIC05NjAgOTYwIDk2MCIgd2lkdGg9Ijk2MCIgZmlsbD0iIzAwNjVmNCI+CiAgPHBhdGggZD0iTTEyMC0xNjB2LTY0MGw3NjAgMzIwLTc2MCAzMjBabTgwLTEyMCA0NzQtMjAwLTQ3NC0yMDB2MTQwbDI0MCA2MC0yNDAgNjB2MTQwWm0wIDB2LTQwMCA0MDBaIiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxMiwwKSIvPgo8L3N2Zz4K';
 
 interface StyledQRCodeProps {
   value: string;
@@ -35,7 +28,7 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({ value, size = 200, classNam
         type: 'svg',
         data: value,
         margin: 0,
-        image: qrLogoUrl,
+        image: qrLogoDataUrl,
         dotsOptions: {
           type: 'dots',
           roundSize: false,
