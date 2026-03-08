@@ -1,6 +1,16 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import QRCodeStyling from 'qr-code-styling';
 import { useTheme } from '../context/ThemeContext';
+
+// Preload QR logo so it's cached when QRCodeStyling requests it
+const qrLogoUrl = `${process.env.PUBLIC_URL}/logo-qr.svg`;
+if (typeof window !== 'undefined') {
+  const link = document.createElement('link');
+  link.rel = 'preload';
+  link.as = 'image';
+  link.href = qrLogoUrl;
+  document.head.appendChild(link);
+}
 
 interface StyledQRCodeProps {
   value: string;
@@ -17,7 +27,7 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({ value, size = 200, classNam
   const fgColor = isDark ? '#ffffff' : '#000000';
   const bgColor = isDark ? '#0a0a0a' : '#ffffff';
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!qrCodeRef.current) {
       qrCodeRef.current = new QRCodeStyling({
         width: size,
@@ -25,7 +35,7 @@ const StyledQRCode: React.FC<StyledQRCodeProps> = ({ value, size = 200, classNam
         type: 'svg',
         data: value,
         margin: 0,
-        image: `${process.env.PUBLIC_URL}/logo-qr.svg`,
+        image: qrLogoUrl,
         dotsOptions: {
           type: 'dots',
           roundSize: false,
