@@ -214,7 +214,7 @@ const DownloadFilePage: React.FC = () => {
     let blobUrl: string | null = null;
 
     const loadFilePreview = async () => {
-      if (!fileList || !code || fileList.files.length !== 1) return;
+      if (!fileList || !code || fileList.files.length !== 1 || isP2PDownload) return;
 
       const file = fileList.files[0];
 
@@ -236,7 +236,7 @@ const DownloadFilePage: React.FC = () => {
     return () => {
       if (blobUrl) URL.revokeObjectURL(blobUrl);
     };
-  }, [fileList, code, password]);
+  }, [fileList, code, password, isP2PDownload]);
 
   const openPreview = async (fileName: string, fileSize: number, fileId: string, blobSource: string) => {
     const presignedUrl = isPptxFile(fileName) && code
