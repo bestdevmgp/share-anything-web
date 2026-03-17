@@ -67,7 +67,7 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
           <div className="flex justify-center mb-5">
             <div className={cn(
               'w-16 h-16 rounded-full flex items-center justify-center',
-              isP2PDownload && (p2pStatus === 'downloading' || p2pStatus === 'processing') ? 'bg-muted border border-foreground/[0.09]' : 'bg-green-100 dark:bg-green-500/15'
+              isP2PDownload && (p2pStatus === 'downloading' || p2pStatus === 'processing') ? 'bg-card border border-foreground/[0.09]' : 'bg-green-100 dark:bg-green-500/15'
             )}>
               {isP2PDownload && (p2pStatus === 'downloading' || p2pStatus === 'processing') ? (
                 <Spinner size="xl" />
@@ -209,14 +209,20 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
                     <div className="flex-1">
                       <div className="flex justify-between mb-2">
                         <span className="text-sm font-medium text-foreground">
-                          {p2pStatus === 'connecting' ? t('download.connectingP2P') : p2pStatus === 'processing' ? t('download.pleaseWait') : t('download.downloadingP2P')}
+                          {p2pStatus === 'connecting' ? t('download.connectingP2P') : t('download.downloadingP2P')}
                         </span>
-                        {p2pStatus === 'downloading' && (
+                        {(p2pStatus === 'downloading' || p2pStatus === 'processing') && (
                           <div className="flex items-center gap-2">
-                            {p2pTimeRemaining && (
-                              <span className="text-xs text-muted-foreground">{p2pTimeRemaining}</span>
+                            {p2pStatus === 'processing' ? (
+                              <span className="text-xs text-muted-foreground">{t('download.pleaseWait')}</span>
+                            ) : (
+                              <>
+                                {p2pTimeRemaining && (
+                                  <span className="text-xs text-muted-foreground">{p2pTimeRemaining}</span>
+                                )}
+                                <span className="text-xs font-semibold text-primary">{p2pProgress}%</span>
+                              </>
                             )}
-                            <span className="text-xs font-semibold text-primary">{p2pProgress}%</span>
                           </div>
                         )}
                       </div>
@@ -253,16 +259,20 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
                   <div className="flex-1">
                     <div className="flex justify-between mb-2">
                       <span className="text-sm font-medium text-foreground">
-                        {downloadProgress === 100 ? t('download.pleaseWait') : t('download.downloadingP2P')}
+                        {t('download.downloadingP2P')}
                       </span>
-                      {downloadProgress < 100 && (
-                        <div className="flex items-center gap-2">
-                          {downloadTimeRemaining && (
-                            <span className="text-xs text-muted-foreground">{downloadTimeRemaining}</span>
-                          )}
-                          <span className="text-xs font-semibold text-primary">{downloadProgress}%</span>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {downloadProgress === 100 ? (
+                          <span className="text-xs text-muted-foreground">{t('download.pleaseWait')}</span>
+                        ) : (
+                          <>
+                            {downloadTimeRemaining && (
+                              <span className="text-xs text-muted-foreground">{downloadTimeRemaining}</span>
+                            )}
+                            <span className="text-xs font-semibold text-primary">{downloadProgress}%</span>
+                          </>
+                        )}
+                      </div>
                     </div>
                     <Progress value={downloadProgress} className="h-1.5 bg-secondary" />
                   </div>

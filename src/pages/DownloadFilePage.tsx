@@ -519,7 +519,7 @@ const DownloadFilePage: React.FC = () => {
             <div className="flex justify-center mb-5">
               <div className={cn(
                 'w-16 h-16 rounded-full flex items-center justify-center',
-                anyP2PDownloading ? 'bg-muted border border-foreground/[0.09]' : 'bg-green-100 dark:bg-green-500/15'
+                anyP2PDownloading ? 'bg-card border border-foreground/[0.09]' : 'bg-green-100 dark:bg-green-500/15'
               )}>
                 {anyP2PDownloading ? (
                   <Spinner size="xl" />

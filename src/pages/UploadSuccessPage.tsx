@@ -120,7 +120,7 @@ const UploadSuccessPage: React.FC = () => {
               'w-16 h-16 rounded-full flex items-center justify-center',
               !isP2PTransfer || allFilesCompleted || overallStatus === 'connected'
                 ? 'bg-green-100 dark:bg-green-500/15'
-                : 'bg-muted border border-foreground/[0.09]'
+                : 'bg-card border border-foreground/[0.09]'
             )}>
               {isP2PTransfer && !allFilesCompleted ? (
                 overallStatus === 'connected' ? (

@@ -57,16 +57,20 @@ const UploadProgressBar: React.FC<UploadProgressBarProps> = ({
               <div className="flex-1">
                 <div className="flex justify-between mb-2">
                   <span className="text-sm font-medium text-foreground">
-                    {isCompleting ? t('upload.pleaseWait') : t('upload.uploading')}
+                    {t('upload.uploading')}
                   </span>
-                  {!isCompleting && (
-                    <div className="flex items-center gap-2">
-                      {uploadTimeRemaining && (
-                        <span className="text-xs text-muted-foreground">{uploadTimeRemaining}</span>
-                      )}
-                      <span className="text-xs font-semibold text-primary">{uploadProgress}%</span>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {isCompleting ? (
+                      <span className="text-xs text-muted-foreground">{t('upload.pleaseWait')}</span>
+                    ) : (
+                      <>
+                        {uploadTimeRemaining && (
+                          <span className="text-xs text-muted-foreground">{uploadTimeRemaining}</span>
+                        )}
+                        <span className="text-xs font-semibold text-primary">{uploadProgress}%</span>
+                      </>
+                    )}
+                  </div>
                 </div>
                 <div className="bg-secondary rounded-full h-1.5 overflow-hidden">
                   <div

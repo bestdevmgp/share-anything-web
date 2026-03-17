@@ -122,16 +122,20 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                   <div className="flex-1">
                     <div className="flex justify-between mb-2">
                       <span className="text-sm font-medium text-foreground">
-                        {downloadProgress === 100 ? t('download.pleaseWait') : (downloadAsZip ? t('download.creatingZip') : t('download.downloadingP2P'))}
+                        {downloadAsZip ? t('download.creatingZip') : t('download.downloadingP2P')}
                       </span>
-                      {downloadProgress < 100 && (
-                        <div className="flex items-center gap-2">
-                          {downloadTimeRemaining && (
-                            <span className="text-xs text-muted-foreground">{downloadTimeRemaining}</span>
-                          )}
-                          <span className="text-xs font-semibold text-primary">{downloadProgress}%</span>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {downloadProgress === 100 ? (
+                          <span className="text-xs text-muted-foreground">{t('download.pleaseWait')}</span>
+                        ) : (
+                          <>
+                            {downloadTimeRemaining && (
+                              <span className="text-xs text-muted-foreground">{downloadTimeRemaining}</span>
+                            )}
+                            <span className="text-xs font-semibold text-primary">{downloadProgress}%</span>
+                          </>
+                        )}
+                      </div>
                     </div>
                     <Progress value={downloadProgress} className="h-1.5 bg-secondary" />
                   </div>
