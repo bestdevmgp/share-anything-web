@@ -73,7 +73,7 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
         const rawTotal = data.completedBytes + inProgressBytes;
         const totalUploaded = Math.max(rawTotal, data.peakUploaded);
         data.peakUploaded = totalUploaded;
-        const progress = Math.min(Math.round((totalUploaded / uf.fileSize) * 100), 99);
+        const progress = Math.min(Math.round((totalUploaded / uf.fileSize) * 100), 100);
 
         let timeRemaining = uf.timeRemaining;
         if (shouldUpdateTime) {
