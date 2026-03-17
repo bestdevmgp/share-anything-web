@@ -510,7 +510,7 @@ const DownloadFilePage: React.FC = () => {
 
   if (isP2PDownload && fileList.files.length > 1) {
     const allP2PCompleted = fileList.files.every(f => p2pCompletedFileIds.has(f.id));
-    const anyP2PDownloading = p2pActiveFileId && (p2pStatus === 'downloading' || p2pStatus === 'connecting');
+    const anyP2PDownloading = p2pActiveFileId && (p2pStatus === 'downloading' || p2pStatus === 'connecting' || p2pStatus === 'processing');
 
     return (
       <div className="pt-12 pb-20 px-4">
@@ -519,7 +519,7 @@ const DownloadFilePage: React.FC = () => {
             <div className="flex justify-center mb-5">
               <div className={cn(
                 'w-16 h-16 rounded-full flex items-center justify-center',
-                anyP2PDownloading ? 'bg-muted border border-border' : 'bg-green-100 dark:bg-green-500/15'
+                anyP2PDownloading ? 'bg-muted border border-foreground/[0.09]' : 'bg-green-100 dark:bg-green-500/15'
               )}>
                 {anyP2PDownloading ? (
                   <Spinner size="xl" />

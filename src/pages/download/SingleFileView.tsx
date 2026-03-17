@@ -67,9 +67,9 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
           <div className="flex justify-center mb-5">
             <div className={cn(
               'w-16 h-16 rounded-full flex items-center justify-center',
-              isP2PDownload && p2pStatus === 'downloading' ? 'bg-muted border border-border' : 'bg-green-100 dark:bg-green-500/15'
+              isP2PDownload && (p2pStatus === 'downloading' || p2pStatus === 'processing') ? 'bg-muted border border-foreground/[0.09]' : 'bg-green-100 dark:bg-green-500/15'
             )}>
-              {isP2PDownload && p2pStatus === 'downloading' ? (
+              {isP2PDownload && (p2pStatus === 'downloading' || p2pStatus === 'processing') ? (
                 <Spinner size="xl" />
               ) : isP2PDownload && p2pStatus !== 'completed' ? (
                 <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -86,14 +86,14 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
           <h1 className="text-4xl font-bold text-foreground mb-3">
             {isP2PDownload ? (
               p2pStatus === 'waiting' || p2pStatus === 'connecting' ? t('download.readyToReceive') :
-              p2pStatus === 'downloading' ? t('download.downloading') :
+              p2pStatus === 'downloading' || p2pStatus === 'processing' ? t('download.downloading') :
               p2pStatus === 'completed' ? t('download.receiveCompleteTitle') :
               t('download.readyToDownload')
             ) : t('download.readyToDownload')}
           </h1>
           <p className="text-muted-foreground">
             {isP2PDownload ? (
-              p2pStatus === 'downloading' ? (p2pPeerDeviceInfo ? t('download.receivingFrom', { device: p2pPeerDeviceInfo }) : t('download.receivingPleaseWait')) :
+              p2pStatus === 'downloading' || p2pStatus === 'processing' ? (p2pPeerDeviceInfo ? t('download.receivingFrom', { device: p2pPeerDeviceInfo }) : t('download.receivingPleaseWait')) :
               p2pStatus === 'completed' ? t('download.receivedSuccessfully') :
               p2pPeerDeviceInfo ? t('download.connectedToDevice', { device: p2pPeerDeviceInfo }) : t('download.connectionSuccess')
             ) : t('download.checkFileBeforeDownload')}
@@ -203,13 +203,13 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
 
           <div className="">
             {isP2PDownload ? (
-              p2pStatus === 'downloading' || p2pStatus === 'connecting' ? (
+              p2pStatus === 'downloading' || p2pStatus === 'connecting' || p2pStatus === 'processing' ? (
                 <div>
                   <div className="flex items-center gap-2">
                     <div className="flex-1">
                       <div className="flex justify-between mb-2">
                         <span className="text-sm font-medium text-foreground">
-                          {p2pStatus === 'connecting' ? t('download.connectingP2P') : t('download.downloadingP2P')}
+                          {p2pStatus === 'connecting' ? t('download.connectingP2P') : p2pStatus === 'processing' ? t('download.pleaseWait') : t('download.downloadingP2P')}
                         </span>
                         {p2pStatus === 'downloading' && (
                           <div className="flex items-center gap-2">
@@ -220,7 +220,7 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
                           </div>
                         )}
                       </div>
-                      {p2pStatus === 'downloading' && (
+                      {(p2pStatus === 'downloading' || p2pStatus === 'processing') && (
                         <Progress value={p2pProgress} className="h-1.5 bg-secondary" />
                       )}
                     </div>

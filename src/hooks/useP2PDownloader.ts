@@ -14,7 +14,7 @@ interface UseP2PDownloaderProps {
 
 export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: UseP2PDownloaderProps) => {
   const { t } = useTranslation();
-  const [status, setStatus] = useState<'waiting' | 'connecting' | 'downloading' | 'completed' | 'error' | 'cancelled'>('waiting');
+  const [status, setStatus] = useState<'waiting' | 'connecting' | 'downloading' | 'processing' | 'completed' | 'error' | 'cancelled'>('waiting');
   const [progress, setProgress] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState<string>('');
   const [peerDeviceInfo, setPeerDeviceInfo] = useState<string | null>(null);
@@ -134,21 +134,28 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
               if (event.data === '__EOF__') {
                 if (completedRef.current) return;
                 completedRef.current = true;
-                const blob = new Blob(receivedChunksRef.current, { type: actualFileType });
-                setStatus('completed');
                 setProgress(100);
                 setTimeRemaining('');
-                onComplete(blob);
 
-                if (wsRef.current) {
-                  sendSignalingMessage(wsRef.current, {
-                    type: 'transfer_complete',
-                    share_code: shareCode
-                  });
-                }
+                // 100% 표시 후 processing 상태로 전환하여 Blob 생성
+                setTimeout(() => {
+                  setStatus('processing');
 
-                // 처리 완료 대기 후 정리
-                setTimeout(() => cleanup(), 1000);
+                  setTimeout(() => {
+                    const blob = new Blob(receivedChunksRef.current, { type: actualFileType });
+                    setStatus('completed');
+                    onComplete(blob);
+
+                    if (wsRef.current) {
+                      sendSignalingMessage(wsRef.current, {
+                        type: 'transfer_complete',
+                        share_code: shareCode
+                      });
+                    }
+
+                    setTimeout(() => cleanup(), 1000);
+                  }, 0);
+                }, 0);
                 return;
               }
 
@@ -174,7 +181,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
 
             const now = Date.now();
             if (now - lastTimeUpdateRef.current >= 1000) {
-              const progressPercent = Math.min((receivedSizeRef.current / actualFileSize) * 100, 99);
+              const progressPercent = Math.min((receivedSizeRef.current / actualFileSize) * 100, 100);
               setProgress(Math.round(progressPercent));
 
               const elapsedMs = now - downloadStartTimeRef.current;
