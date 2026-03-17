@@ -53,12 +53,12 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
   }, [files]);
 
   const formatTime = useCallback((seconds: number): string => {
-    if (seconds < 60) return t('format.secondsShort', { seconds: Math.ceil(seconds) });
-    if (seconds < 3600) return t('format.minutesSecondsShort', { minutes: Math.floor(seconds / 60), seconds: Math.ceil(seconds % 60) });
+    if (seconds < 60) return t('format.secondsRemaining', { seconds: Math.max(1, Math.ceil(seconds)) });
+    if (seconds < 3600) return t('format.minutesSecondsRemaining', { minutes: Math.floor(seconds / 60), seconds: Math.ceil(seconds % 60) });
     const hours = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = Math.ceil(seconds % 60);
-    return t('format.hoursMinutesSecondsShort', { hours, minutes: mins, seconds: secs });
+    return t('format.hoursMinutesSecondsRemaining', { hours, minutes: mins, seconds: secs });
   }, [t]);
 
   const sendFile = useCallback((file: File, dataChannel: RTCDataChannel) => {
