@@ -115,6 +115,8 @@ const CliPage: React.FC = () => {
         </div>
       </section>
 
+      <hr className="border-foreground/30 mb-12" />
+
       {/* CLI Tool (share) */}
       <section className="mb-12">
         <h2 className="text-xl font-semibold text-foreground mb-4">{t('cli.binaryTitle')}</h2>
@@ -166,6 +168,8 @@ const CliPage: React.FC = () => {
         </div>
       </section>
 
+      <hr className="border-foreground/30 mb-12" />
+
       {/* Option Reference */}
       <section className="mb-12">
         <h2 className="text-xl font-semibold text-foreground mb-4">{t('cli.optionsTitle')}</h2>
@@ -205,6 +209,8 @@ const CliPage: React.FC = () => {
         <p className="text-xs text-muted-foreground mt-3">{t('cli.optionsNote')}</p>
       </section>
 
+      <hr className="border-foreground/30 mb-12" />
+
       {/* Comparison Table */}
       <section className="mb-12">
         <h2 className="text-xl font-semibold text-foreground mb-4">{t('cli.comparisonTitle')}</h2>
@@ -229,6 +235,8 @@ const CliPage: React.FC = () => {
         </div>
       </section>
 
+      <hr className="border-foreground/30 mb-12" />
+
       {/* Guest vs API Key */}
       <section className="mb-12">
         <h2 className="text-xl font-semibold text-foreground mb-4">{t('cli.limitsTitle')}</h2>
@@ -251,6 +259,8 @@ const CliPage: React.FC = () => {
           </table>
         </div>
       </section>
+
+      <hr className="border-foreground/30 mb-12" />
 
       {/* API Key */}
       <section className="mb-12">

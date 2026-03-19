@@ -394,7 +394,7 @@
     "updateSuccess": "Settings saved.",
     "updateFailed": "Failed to save settings.",
     "fetchFailed": "Failed to load settings.",
-    "developerSection": "Developer Settings",
+    "developerSection": "Advanced",
     "apiKeys": "API Key",
     "apiKeysDescription": "Manage API keys for CLI and API access.",
     "createApiKey": "Create Key",
