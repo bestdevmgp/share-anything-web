@@ -76,8 +76,12 @@ const CliPage: React.FC = () => {
 
         <div className="space-y-4">
           <div>
-            <p className="text-sm font-medium text-foreground mb-2">{t('cli.installTitle')}</p>
-            <CodeBlock code="curl -fsSL https://raw.githubusercontent.com/bestdevmgp/share-anything-cli/main/install.sh | sh" index={4} />
+            <p className="text-sm font-medium text-foreground mb-2">{t('cli.installCurl')}</p>
+            <CodeBlock code="curl -fsSL share-api.mingyu.dev/install | sh" index={4} />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground mb-2">{t('cli.installBrew')}</p>
+            <CodeBlock code="brew install bestdevmgp/share-anything/share-anything" index={9} />
           </div>
 
           <div>
@@ -86,7 +90,7 @@ const CliPage: React.FC = () => {
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryDownload')}</p>
-            <CodeBlock code="sany download ABC123" index={6} />
+            <CodeBlock code="sany download 123456" index={6} />
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryPipe')}</p>
