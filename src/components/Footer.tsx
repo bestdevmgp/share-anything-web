@@ -50,6 +50,12 @@ const Footer: React.FC = () => {
           >
             {t('footer.termsOfUse')}
           </a>
+          <a
+            href="/cli"
+            className="text-muted-foreground can-hover:hover:text-foreground active:text-foreground text-sm transition-colors"
+          >
+            CLI
+          </a>
         </div>
 
         <div className="flex justify-center items-center gap-4 mb-6">
