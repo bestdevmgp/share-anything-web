@@ -81,7 +81,7 @@ const CliPage: React.FC = () => {
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.installBrew')}</p>
-            <CodeBlock code="brew install bestdevmgp/share-anything/share-anything" index={9} />
+            <CodeBlock code={"brew tap bestdevmgp/share-anything\nbrew install share-anything"} index={9} />
           </div>
 
           <div>
