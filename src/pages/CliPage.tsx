@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'i18n';
 import { useAuth } from 'context/AuthContext';
@@ -8,6 +8,11 @@ const CliPage: React.FC = () => {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+
+  useEffect(() => {
+    document.title = 'ShareAnything CLI';
+    return () => { document.title = 'ShareAnything'; };
+  }, []);
 
   const copyToClipboard = (text: string, index: number) => {
     navigator.clipboard.writeText(text);
@@ -67,6 +72,12 @@ const CliPage: React.FC = () => {
     </div>
   );
 
+  const InlineCode = ({ code }: { code: string }) => (
+    <code className="text-xs bg-zinc-900 text-zinc-100 px-1.5 py-0.5 rounded font-mono">
+      {highlightCode(code)}
+    </code>
+  );
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
       <div className="flex items-center gap-3 mb-8">
@@ -104,7 +115,7 @@ const CliPage: React.FC = () => {
         </div>
       </section>
 
-      {/* SA Binary */}
+      {/* CLI Tool (share) */}
       <section className="mb-12">
         <h2 className="text-xl font-semibold text-foreground mb-4">{t('cli.binaryTitle')}</h2>
         <p className="text-muted-foreground mb-4">{t('cli.binaryDescription')}</p>
@@ -119,23 +130,79 @@ const CliPage: React.FC = () => {
             <CodeBlock code={"brew tap bestdevmgp/share-anything\nbrew install share-anything"} index={9} />
           </div>
 
+          <hr className="border-border" />
+
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryUpload')}</p>
             <CodeBlock code="share upload myfile.txt" index={5} />
+            <p className="text-xs text-muted-foreground mt-1.5">{t('cli.binaryUploadHint')}</p>
           </div>
+
+          <hr className="border-border" />
+
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryDownload')}</p>
             <CodeBlock code="share download 123456" index={6} />
           </div>
           <div>
-            <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryPipe')}</p>
-            <CodeBlock code="echo 'hello world' | share upload --name hello.txt" index={7} />
+            <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryInfo')}</p>
+            <CodeBlock code="share info 123456" index={12} />
           </div>
+
+          <hr className="border-border" />
+
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryAuth')}</p>
-            <CodeBlock code={`share login sa_your_key_here\nshare upload myfile.txt --expires 1h --password secret`} index={8} />
+            <CodeBlock code="share login sa_your_key_here" index={8} />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryList')}</p>
+            <CodeBlock code="share list" index={13} />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryLogout')}</p>
+            <CodeBlock code="share logout" index={14} />
           </div>
         </div>
+      </section>
+
+      {/* Option Reference */}
+      <section className="mb-12">
+        <h2 className="text-xl font-semibold text-foreground mb-4">{t('cli.optionsTitle')}</h2>
+        <p className="text-muted-foreground mb-4">{t('cli.optionsDescription')}</p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm border border-border rounded-lg overflow-hidden">
+            <thead>
+              <tr className="bg-muted/50">
+                <th className="text-left px-4 py-3 font-medium text-foreground">{t('cli.optionName')}</th>
+                <th className="text-left px-4 py-3 font-medium text-foreground">curl</th>
+                <th className="text-left px-4 py-3 font-medium text-foreground">share</th>
+                <th className="text-left px-4 py-3 font-medium text-foreground">{t('cli.optionValues')}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              <tr>
+                <td className="px-4 py-3 text-muted-foreground">{t('cli.limitExpiration')}</td>
+                <td className="px-4 py-3"><InlineCode code="-F 'expiration=1h'" /></td>
+                <td className="px-4 py-3"><InlineCode code="--expires 1h" /></td>
+                <td className="px-4 py-3 text-muted-foreground">5m, 30m, 1h, 3h, 6h, 12h, 24h</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3 text-muted-foreground">{t('cli.limitPassword')}</td>
+                <td className="px-4 py-3"><InlineCode code="-F 'password=secret'" /></td>
+                <td className="px-4 py-3"><InlineCode code="--password secret" /></td>
+                <td className="px-4 py-3 text-muted-foreground">{t('cli.optionAnyString')}</td>
+              </tr>
+              <tr>
+                <td className="px-4 py-3 text-muted-foreground">{t('cli.limitOneTime')}</td>
+                <td className="px-4 py-3"><InlineCode code="-F 'is_one_time=true'" /></td>
+                <td className="px-4 py-3"><InlineCode code="--one-time" /></td>
+                <td className="px-4 py-3 text-muted-foreground">-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="text-xs text-muted-foreground mt-3">{t('cli.optionsNote')}</p>
       </section>
 
       {/* Comparison Table */}
@@ -176,7 +243,7 @@ const CliPage: React.FC = () => {
             </thead>
             <tbody className="divide-y divide-border">
               <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.limitMaxSize')}</td><td className="text-center px-4 py-3">100MB</td><td className="text-center px-4 py-3">3GB</td></tr>
-              <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.limitExpiration')}</td><td className="text-center px-4 py-3">30m</td><td className="text-center px-4 py-3">30m ~ 24h</td></tr>
+              <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.limitExpiration')}</td><td className="text-center px-4 py-3">30m</td><td className="text-center px-4 py-3">5m ~ 24h</td></tr>
               <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.limitPassword')}</td><td className="text-center px-4 py-3">-</td><td className="text-center px-4 py-3">✓</td></tr>
               <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.limitOneTime')}</td><td className="text-center px-4 py-3">-</td><td className="text-center px-4 py-3">✓</td></tr>
               <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.limitHistory')}</td><td className="text-center px-4 py-3">-</td><td className="text-center px-4 py-3">✓</td></tr>
