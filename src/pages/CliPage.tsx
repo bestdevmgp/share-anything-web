@@ -52,19 +52,19 @@ const CliPage: React.FC = () => {
         <div className="space-y-4">
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.curlUpload')}</p>
-            <CodeBlock code="curl -F 'file=@myfile.txt' https://api.shareanything.kr/cli/upload" index={0} />
+            <CodeBlock code="curl -F 'file=@myfile.txt' https://share-api.mingyu.dev/cli/upload" index={0} />
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.curlDownload')}</p>
-            <CodeBlock code="curl -OJ https://api.shareanything.kr/cli/download/ABC123" index={1} />
+            <CodeBlock code="curl -OJ https://share-api.mingyu.dev/cli/download/ABC123" index={1} />
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.curlMultipleFiles')}</p>
-            <CodeBlock code="curl -F 'file=@file1.txt' -F 'file=@file2.png' https://api.shareanything.kr/cli/upload" index={2} />
+            <CodeBlock code="curl -F 'file=@file1.txt' -F 'file=@file2.png' https://share-api.mingyu.dev/cli/upload" index={2} />
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.curlWithApiKey')}</p>
-            <CodeBlock code="curl -H 'X-API-Key: sa_your_key_here' -F 'file=@myfile.txt' -F 'expiration=1h' https://api.shareanything.kr/cli/upload" index={3} />
+            <CodeBlock code="curl -H 'X-API-Key: sa_your_key_here' -F 'file=@myfile.txt' -F 'expiration=1h' https://share-api.mingyu.dev/cli/upload" index={3} />
           </div>
         </div>
       </section>
@@ -77,7 +77,7 @@ const CliPage: React.FC = () => {
         <div className="space-y-4">
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.installTitle')}</p>
-            <CodeBlock code="curl -fsSL https://raw.githubusercontent.com/share-anything/share-anything-cli/main/install.sh | sh" index={4} />
+            <CodeBlock code="curl -fsSL https://raw.githubusercontent.com/bestdevmgp/share-anything-cli/main/install.sh | sh" index={4} />
           </div>
 
           <div>

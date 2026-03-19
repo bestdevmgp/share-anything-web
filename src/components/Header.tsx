@@ -38,9 +38,12 @@ const Header: React.FC = () => {
           <div className="flex items-center space-x-2">
             <Link
               to="/cli"
-              className="px-3 py-1.5 text-xs font-medium text-muted-foreground can-hover:hover:text-foreground border border-border can-hover:hover:border-foreground/20 rounded-md transition-colors"
+              className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-muted-foreground can-hover:hover:text-foreground border border-border can-hover:hover:border-foreground/20 rounded-md transition-colors"
             >
-              CLI
+              Try CLI
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
+                <path fillRule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clipRule="evenodd" />
+              </svg>
             </Link>
             {isAuthenticated && user ? (
               <DropdownMenu>
