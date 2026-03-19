@@ -414,6 +414,7 @@
     "curlTitle": "使用 curl 快速开始",
     "curlDescription": "无需安装。仅使用 curl 命令即可上传和下载文件。",
     "curlUpload": "上传文件",
+    "curlPathHint": "@myfile.txt 可以使用相对路径或绝对路径，例如 @./photo.png 或 @/home/user/file.txt",
     "curlDownload": "下载文件",
     "curlMultipleFiles": "上传多个文件",
     "curlWithApiKey": "使用 API 密钥上传（设置过期时间）",

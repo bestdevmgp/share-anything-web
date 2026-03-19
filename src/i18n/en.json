@@ -414,6 +414,7 @@
     "curlTitle": "Quick Start with curl",
     "curlDescription": "No installation needed. Use curl to upload and download files.",
     "curlUpload": "Upload a file",
+    "curlPathHint": "@myfile.txt can be a relative or absolute path, e.g. @./photo.png or @/home/user/file.txt",
     "curlDownload": "Download a file",
     "curlMultipleFiles": "Upload multiple files",
     "curlWithApiKey": "Upload with API key (set expiration)",

@@ -414,6 +414,7 @@
     "curlTitle": "使用 curl 快速開始",
     "curlDescription": "無需安裝。僅使用 curl 指令即可上傳和下載檔案。",
     "curlUpload": "上傳檔案",
+    "curlPathHint": "@myfile.txt 可以使用相對路徑或絕對路徑，例如 @./photo.png 或 @/home/user/file.txt",
     "curlDownload": "下載檔案",
     "curlMultipleFiles": "上傳多個檔案",
     "curlWithApiKey": "使用 API 金鑰上傳（設定到期時間）",

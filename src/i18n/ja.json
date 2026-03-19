@@ -414,6 +414,7 @@
     "curlTitle": "curlですぐに使う",
     "curlDescription": "インストール不要。curlコマンドだけでファイルの送受信ができます。",
     "curlUpload": "ファイルアップロード",
+    "curlPathHint": "@myfile.txt には相対パスまたは絶対パスを指定できます。例: @./photo.png, @/home/user/file.txt",
     "curlDownload": "ファイルダウンロード",
     "curlMultipleFiles": "複数ファイルアップロード",
     "curlWithApiKey": "APIキーでアップロード（有効期限設定）",

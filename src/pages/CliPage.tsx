@@ -52,7 +52,8 @@ const CliPage: React.FC = () => {
         <div className="space-y-4">
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.curlUpload')}</p>
-            <CodeBlock code="curl -F 'file=@myfile.txt' https://share-api.mingyu.dev/cli/upload" index={0} />
+            <CodeBlock code="curl -F 'file=@./myfile.txt' https://share-api.mingyu.dev/cli/upload" index={0} />
+            <p className="text-xs text-muted-foreground mt-1.5">{t('cli.curlPathHint')}</p>
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.curlDownload')}</p>
@@ -60,11 +61,11 @@ const CliPage: React.FC = () => {
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.curlMultipleFiles')}</p>
-            <CodeBlock code="curl -F 'file=@file1.txt' -F 'file=@file2.png' https://share-api.mingyu.dev/cli/upload" index={2} />
+            <CodeBlock code="curl -F 'file=@./file1.txt' -F 'file=@./file2.png' https://share-api.mingyu.dev/cli/upload" index={2} />
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.curlWithApiKey')}</p>
-            <CodeBlock code="curl -H 'X-API-Key: sa_your_key_here' -F 'file=@myfile.txt' -F 'expiration=1h' https://share-api.mingyu.dev/cli/upload" index={3} />
+            <CodeBlock code="curl -H 'X-API-Key: sa_your_key_here' -F 'file=@./myfile.txt' -F 'expiration=1h' https://share-api.mingyu.dev/cli/upload" index={3} />
           </div>
         </div>
       </section>
