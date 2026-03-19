@@ -82,19 +82,19 @@ const CliPage: React.FC = () => {
 
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryUpload')}</p>
-            <CodeBlock code="sa upload myfile.txt" index={5} />
+            <CodeBlock code="sany upload myfile.txt" index={5} />
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryDownload')}</p>
-            <CodeBlock code="sa download ABC123" index={6} />
+            <CodeBlock code="sany download ABC123" index={6} />
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryPipe')}</p>
-            <CodeBlock code="echo 'hello world' | sa upload --name hello.txt" index={7} />
+            <CodeBlock code="echo 'hello world' | sany upload --name hello.txt" index={7} />
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryAuth')}</p>
-            <CodeBlock code={`sa login sa_your_key_here\nsa upload myfile.txt --expires 1h --password secret`} index={8} />
+            <CodeBlock code={`sany login sa_your_key_here\nsany upload myfile.txt --expires 1h --password secret`} index={8} />
           </div>
         </div>
       </section>
@@ -108,7 +108,7 @@ const CliPage: React.FC = () => {
               <tr className="bg-muted/50">
                 <th className="text-left px-4 py-3 font-medium text-foreground">{t('cli.feature')}</th>
                 <th className="text-center px-4 py-3 font-medium text-foreground">curl</th>
-                <th className="text-center px-4 py-3 font-medium text-foreground">sa</th>
+                <th className="text-center px-4 py-3 font-medium text-foreground">sany</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
