@@ -56,7 +56,7 @@ const CliPage: React.FC = () => {
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.curlDownload')}</p>
-            <CodeBlock code="curl -OJ https://share-api.mingyu.dev/cli/download/ABC123" index={1} />
+            <CodeBlock code="curl -OJ https://share-api.mingyu.dev/cli/download/123456" index={1} />
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.curlMultipleFiles')}</p>
