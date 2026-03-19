@@ -36,6 +36,12 @@ const Header: React.FC = () => {
           </Link>
 
           <div className="flex items-center space-x-2">
+            <Link
+              to="/cli"
+              className="px-3 py-1.5 text-xs font-medium text-muted-foreground can-hover:hover:text-foreground border border-border can-hover:hover:border-foreground/20 rounded-md transition-colors"
+            >
+              CLI
+            </Link>
             {isAuthenticated && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger className="group flex items-center space-x-2 active:bg-accent can-hover:hover:bg-accent rounded-lg px-3 py-2 transition-colors focus:outline-none data-[state=open]:bg-accent">

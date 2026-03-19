@@ -21,6 +21,7 @@ import UploadHistoryPage from './pages/UploadHistoryPage';
 import SettingsPage from './pages/SettingsPage';
 import EmailVerifyWaitPage from './pages/EmailVerifyWaitPage';
 import EmailMagicLinkCallbackPage from './pages/EmailMagicLinkCallbackPage';
+import CliPage from './pages/CliPage';
 import NotFoundPage from './pages/NotFoundPage';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -40,6 +41,7 @@ const AppContent: React.FC = () => {
           <Route path="/upload/success" element={<UploadSuccessPage />} />
           <Route path="/history" element={<UploadHistoryPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/cli" element={<CliPage />} />
           <Route path="/download/:code" element={<DownloadFilePage />} />
           <Route path="/auth/callback/:provider" element={<OAuthCallbackPage />} />
           <Route path="/auth/email/verify-wait" element={<EmailVerifyWaitPage />} />
