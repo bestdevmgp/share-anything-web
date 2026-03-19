@@ -15,10 +15,44 @@ const CliPage: React.FC = () => {
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
+  const highlightCode = (code: string) => {
+    return code.split('\n').map((line, lineIdx) => {
+      const tokens: React.ReactNode[] = [];
+      const regex = /('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|https?:\/\/\S+|\S+)/g;
+      let match;
+      let lastIndex = 0;
+
+      while ((match = regex.exec(line)) !== null) {
+        if (match.index > lastIndex) {
+          tokens.push(line.slice(lastIndex, match.index));
+        }
+        const token = match[0];
+        let className = 'text-zinc-100';
+
+        if (/^(curl|echo|brew|share|sh|sudo)$/.test(token)) {
+          className = 'text-emerald-400';
+        } else if (/^-/.test(token)) {
+          className = 'text-sky-300';
+        } else if (/^https?:\/\//.test(token)) {
+          className = 'text-zinc-500';
+        }
+
+        tokens.push(<span key={`${lineIdx}-${match.index}`} className={className}>{token}</span>);
+        lastIndex = regex.lastIndex;
+      }
+
+      if (lastIndex < line.length) {
+        tokens.push(line.slice(lastIndex));
+      }
+
+      return lineIdx > 0 ? [<br key={`br-${lineIdx}`} />, ...tokens] : tokens;
+    });
+  };
+
   const CodeBlock = ({ code, index }: { code: string; index: number }) => (
     <div className="relative group">
       <pre className="bg-zinc-900 text-zinc-100 rounded-lg px-4 py-3 text-sm overflow-x-auto font-mono">
-        <code>{code}</code>
+        <code>{highlightCode(code)}</code>
       </pre>
       <button
         onClick={() => copyToClipboard(code, index)}
