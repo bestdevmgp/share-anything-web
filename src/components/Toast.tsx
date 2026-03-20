@@ -47,7 +47,9 @@ const ToastIcon: React.FC<{ type: ToastType['type'] }> = ({ type }) => {
   );
 };
 
-const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> = ({ toast, onRemove }) => {
+const MIN_TOP_DISPLAY = 1200;
+
+const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; isFirst: boolean }> = ({ toast, onRemove, isFirst }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
@@ -56,6 +58,8 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
   const swipeStartOffset = useRef(0);
   const touchStartY = useRef<number | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const exitTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const mountTimeRef = useRef(Date.now());
 
   const dismiss = () => {
     if (!isLeaving && !isSwipeDismissing) {
@@ -85,7 +89,7 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
   useEffect(() => {
     const enterTimer = setTimeout(() => setIsVisible(true), 10);
 
-    const exitTimer = setTimeout(() => {
+    exitTimerRef.current = setTimeout(() => {
       if (!isSwipeDismissing) {
         setIsLeaving(true);
       }
@@ -93,9 +97,24 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
 
     return () => {
       clearTimeout(enterTimer);
-      clearTimeout(exitTimer);
+      if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
     };
   }, [isSwipeDismissing]);
+
+  // When this toast reaches the top, ensure it stays visible for a minimum duration
+  useEffect(() => {
+    if (isFirst && !isLeaving && !isSwipeDismissing) {
+      const elapsed = Date.now() - mountTimeRef.current;
+      const remaining = 2700 - elapsed;
+
+      if (remaining < MIN_TOP_DISPLAY) {
+        if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
+        exitTimerRef.current = setTimeout(() => {
+          setIsLeaving(true);
+        }, MIN_TOP_DISPLAY);
+      }
+    }
+  }, [isFirst, isLeaving, isSwipeDismissing]);
 
   useEffect(() => {
     if (isLeaving) {
@@ -216,8 +235,8 @@ export const ToastContainer: React.FC = () => {
 
   return (
     <div className="fixed top-5 left-4 right-4 z-50 flex flex-col items-center pointer-events-none">
-      {toasts.map((toast) => (
-        <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
+      {toasts.map((toast, index) => (
+        <ToastItem key={toast.id} toast={toast} onRemove={removeToast} isFirst={index === 0} />
       ))}
     </div>
   );
