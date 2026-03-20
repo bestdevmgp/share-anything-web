@@ -586,7 +586,7 @@ const SettingsPage: React.FC = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleRevokePersonalToken(key.id)}
-                        className="text-red-500 dark:text-red-400 can-hover:hover:text-red-500 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-50 dark:can-hover:hover:bg-red-500/10 flex-shrink-0"
+                        className="text-red-600 dark:text-red-500 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-500 can-hover:hover:bg-red-100 dark:can-hover:hover:bg-red-500/20 flex-shrink-0"
                       >
                         {t('settings.revokePersonalToken')}
                       </Button>
