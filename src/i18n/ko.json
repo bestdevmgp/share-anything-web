@@ -420,7 +420,7 @@
     "curlDownload": "파일 다운로드",
     "curlMultipleFiles": "여러 파일 업로드",
     "curlWithPersonalToken": "Personal Token으로 업로드 (만료 시간 설정)",
-    "binaryTitle": "share-cli 설치",
+    "binaryTitle": "CLI 도구로 사용하기 (추천)",
     "binaryDescription": "프로그레스 바, 파이프 지원, 대용량 멀티파트 업로드 등 다양한 기능을 제공합니다.",
     "installCurl": "스크립트로 설치",
     "installBrew": "Homebrew로 설치",
@@ -457,7 +457,7 @@
     "optionAnyString": "임의의 문자열",
     "optionsNote": "위 옵션들은 모두 Personal Token이 필요합니다. Personal Token 없이 업로드하면 30분 후 만료되며 추가 옵션을 사용할 수 없습니다.",
     "personalTokenTitle": "Personal Token",
-    "personalTokenDescription": "Personal Token을 발급받으면 더 큰 파일 업로드, 만료 시간 설정, 비밀번호 보호 등의 기능을 사용할 수 있습니다.",
+    "personalTokenDescription": "Personal Token을 발급하여 계정을 연동할 수 있습니다. 데이터 동기화, 더 큰 파일 업로드, 만료 시간 설정, 비밀번호 보호 등의 추가 기능을 사용할 수 있습니다.",
     "managePersonalTokens": "Token 관리",
     "loginToGetPersonalToken": "로그인하여 Token 발급"
   }

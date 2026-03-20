@@ -420,7 +420,7 @@
     "curlDownload": "下载文件",
     "curlMultipleFiles": "上传多个文件",
     "curlWithPersonalToken": "使用 Personal Token 上传（设置过期时间）",
-    "binaryTitle": "安装 share-cli",
+    "binaryTitle": "使用 CLI 工具（推荐）",
     "binaryDescription": "提供进度条、管道支持、大文件自动分片上传等丰富功能。",
     "installCurl": "通过脚本安装",
     "installBrew": "通过 Homebrew 安装",
@@ -457,7 +457,7 @@
     "optionAnyString": "任意字符串",
     "optionsNote": "以上选项均需要 Personal Token。未使用 Personal Token 上传的文件将在 30 分钟后过期，且无法使用其他选项。",
     "personalTokenTitle": "Personal Token",
-    "personalTokenDescription": "获取 Personal Token 后可使用更大文件上传、自定义过期时间、密码保护等功能。",
+    "personalTokenDescription": "发放 Personal Token 即可关联账户。可使用数据同步、更大文件上传、自定义过期时间、密码保护等附加功能。",
     "managePersonalTokens": "管理 Token",
     "loginToGetPersonalToken": "登录以获取 Token"
   }

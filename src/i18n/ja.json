@@ -420,7 +420,7 @@
     "curlDownload": "ファイルダウンロード",
     "curlMultipleFiles": "複数ファイルアップロード",
     "curlWithPersonalToken": "Personal Tokenでアップロード（有効期限設定）",
-    "binaryTitle": "share-cliのインストール",
+    "binaryTitle": "CLIツールで使う（推奨）",
     "binaryDescription": "プログレスバー、パイプ対応、大容量マルチパートアップロードなど豊富な機能を提供します。",
     "installCurl": "スクリプトでインストール",
     "installBrew": "Homebrewでインストール",
@@ -457,7 +457,7 @@
     "optionAnyString": "任意の文字列",
     "optionsNote": "上記のオプションはすべてPersonal Tokenが必要です。Personal Tokenなしでアップロードすると30分後に期限切れとなり、追加オプションは使用できません。",
     "personalTokenTitle": "Personal Token",
-    "personalTokenDescription": "Personal Tokenを発行すると、大容量アップロード、有効期限の設定、パスワード保護などの機能が利用できます。",
+    "personalTokenDescription": "Personal Tokenを発行してアカウントを連携できます。データ同期、大容量アップロード、有効期限の設定、パスワード保護などの追加機能を利用できます。",
     "managePersonalTokens": "Token管理",
     "loginToGetPersonalToken": "ログインしてTokenを発行"
   }

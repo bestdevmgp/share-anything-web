@@ -420,7 +420,7 @@
     "curlDownload": "Download a file",
     "curlMultipleFiles": "Upload multiple files",
     "curlWithPersonalToken": "Upload with Personal Token (set expiration)",
-    "binaryTitle": "Install share-cli",
+    "binaryTitle": "Use with CLI Tool (Recommended)",
     "binaryDescription": "Progress bars, pipe support, automatic multipart uploads for large files, and more.",
     "installCurl": "Install via script",
     "installBrew": "Install via Homebrew",
@@ -457,7 +457,7 @@
     "optionAnyString": "Any string",
     "optionsNote": "All options above require a Personal Token. Without a Personal Token, files expire in 30 minutes with no additional options.",
     "personalTokenTitle": "Personal Token",
-    "personalTokenDescription": "Get a Personal Token to unlock larger uploads, custom expiration, password protection, and more.",
+    "personalTokenDescription": "Issue a Personal Token to link your account. Unlock data sync, larger uploads, custom expiration, password protection, and more.",
     "managePersonalTokens": "Manage Tokens",
     "loginToGetPersonalToken": "Sign in to get a Token"
   }

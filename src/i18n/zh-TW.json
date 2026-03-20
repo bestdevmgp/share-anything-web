@@ -420,7 +420,7 @@
     "curlDownload": "下載檔案",
     "curlMultipleFiles": "上傳多個檔案",
     "curlWithPersonalToken": "使用 Personal Token上傳（設定到期時間）",
-    "binaryTitle": "安裝 share-cli",
+    "binaryTitle": "使用 CLI 工具（推薦）",
     "binaryDescription": "提供進度條、管道支援、大檔案自動分片上傳等豐富功能。",
     "installCurl": "透過腳本安裝",
     "installBrew": "透過 Homebrew 安裝",
@@ -457,7 +457,7 @@
     "optionAnyString": "任意字串",
     "optionsNote": "以上選項均需要 Personal Token。未使用 Personal Token上傳的檔案將在 30 分鐘後到期，且無法使用其他選項。",
     "personalTokenTitle": "Personal Token",
-    "personalTokenDescription": "取得 Personal Token後可使用更大檔案上傳、自訂到期時間、密碼保護等功能。",
+    "personalTokenDescription": "發放 Personal Token 即可關聯帳戶。可使用資料同步、更大檔案上傳、自訂到期時間、密碼保護等附加功能。",
     "managePersonalTokens": "管理 Token",
     "loginToGetPersonalToken": "登入以取得 Token"
   }
