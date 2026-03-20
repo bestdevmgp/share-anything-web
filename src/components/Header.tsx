@@ -73,7 +73,7 @@ const Header: React.FC = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={handleLogout}
-                    className="cursor-pointer px-4 py-2 text-sm text-red-600 dark:text-[#f25f5f] font-medium can-hover:hover:bg-red-50 dark:can-hover:hover:bg-red-500/10 focus:bg-red-50 dark:focus:bg-red-500/10 focus:text-red-600 dark:focus:text-[#f25f5f] active:bg-red-50 dark:active:bg-red-500/10 active:text-red-600 dark:active:text-[#f25f5f]"
+                    className="cursor-pointer px-4 py-2 text-sm text-red-600 dark:text-red-400 font-medium can-hover:hover:bg-red-50 dark:can-hover:hover:bg-red-500/15 focus:bg-red-50 dark:focus:bg-red-500/15 focus:text-red-600 dark:focus:text-red-400 active:bg-red-50 dark:active:bg-red-500/15 active:text-red-600 dark:active:text-red-400"
                   >
                     {t('header.logout')}
                   </DropdownMenuItem>
