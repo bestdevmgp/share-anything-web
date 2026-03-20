@@ -477,7 +477,7 @@ const UploadHistoryPage: React.FC = () => {
             <Button
               variant="ghost"
               onClick={handleDeleteAll}
-              className="text-red-600 dark:text-red-400 can-hover:hover:bg-red-100 can-hover:hover:text-red-600 dark:can-hover:hover:bg-red-1000/15 dark:can-hover:hover:text-red-400 active:bg-red-100 active:text-red-600 dark:active:bg-red-1000/15 dark:active:text-red-400 -mr-3"
+              className="text-red-600 dark:text-red-400 can-hover:hover:bg-red-100/50 can-hover:hover:text-red-600 dark:can-hover:hover:bg-red-100/500/15 dark:can-hover:hover:text-red-400 active:bg-red-100/50 active:text-red-600 dark:active:bg-red-100/500/15 dark:active:text-red-400 -mr-3"
             >
               {t('history.deleteAll')}
             </Button>
