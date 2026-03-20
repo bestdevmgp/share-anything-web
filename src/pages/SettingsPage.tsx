@@ -13,6 +13,7 @@ import { Switch } from 'components/ui/switch';
 import { Label } from 'components/ui/label';
 import { Separator } from 'components/ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from 'components/ui/popover';
+import { Spinner } from 'components/ui/spinner';
 import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, KeyIcon } from '@heroicons/react/24/outline';
 
 type Tab = 'notifications' | 'general' | 'personal-tokens';
@@ -213,8 +214,15 @@ const SettingsPage: React.FC = () => {
             {/* Sidebar skeleton */}
             <div className="md:w-56 flex-shrink-0 md:pr-8 md:border-r md:border-border pb-4 md:pb-0">
               <div className="flex gap-2 md:flex-col md:gap-2">
-                <div className="h-9 bg-muted rounded-lg w-16 md:w-full" />
-                <div className="h-9 bg-muted rounded-lg w-12 md:w-full" />
+                <div className="h-9 bg-muted rounded-lg w-14 md:w-full" />
+                <div className="h-9 bg-muted rounded-lg w-14 md:w-full" />
+                <div className="h-9 bg-muted rounded-lg w-24 md:hidden" />
+              </div>
+              <div className="hidden md:block pt-3 mt-3 border-t border-border">
+                <div className="h-3 bg-muted rounded w-10 mx-3 mb-2" />
+              </div>
+              <div className="hidden md:block">
+                <div className="h-9 bg-muted rounded-lg w-full" />
               </div>
               <Separator className="md:hidden mt-4" />
             </div>
@@ -513,7 +521,7 @@ const SettingsPage: React.FC = () => {
                     disabled={creatingKey}
                     className="flex-shrink-0"
                   >
-                    {creatingKey ? t('common.loading') : t('settings.createPersonalToken')}
+                    {creatingKey ? <Spinner size="sm" className="text-primary-foreground" /> : t('settings.createPersonalToken')}
                   </Button>
                 </div>
 

@@ -50,11 +50,13 @@ const ToastIcon: React.FC<{ type: ToastType['type'] }> = ({ type }) => {
 const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> = ({ toast, onRemove }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
+  const [isCollapsing, setIsCollapsing] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isSwipeDismissing, setIsSwipeDismissing] = useState(false);
   const swipeStartOffset = useRef(0);
   const touchStartY = useRef<number | null>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   const dismiss = () => {
     if (!isLeaving && !isSwipeDismissing) {
@@ -79,21 +81,30 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
 
   useEffect(() => {
     if (isLeaving) {
-      const removeTimer = setTimeout(() => {
-        onRemove(toast.id);
+      const collapseTimer = setTimeout(() => {
+        setIsCollapsing(true);
       }, 400);
-      return () => clearTimeout(removeTimer);
+      return () => clearTimeout(collapseTimer);
     }
-  }, [isLeaving, onRemove, toast.id]);
+  }, [isLeaving]);
 
   useEffect(() => {
     if (isSwipeDismissing) {
+      const collapseTimer = setTimeout(() => {
+        setIsCollapsing(true);
+      }, 250);
+      return () => clearTimeout(collapseTimer);
+    }
+  }, [isSwipeDismissing]);
+
+  useEffect(() => {
+    if (isCollapsing) {
       const removeTimer = setTimeout(() => {
         onRemove(toast.id);
-      }, 250);
+      }, 300);
       return () => clearTimeout(removeTimer);
     }
-  }, [isSwipeDismissing, onRemove, toast.id]);
+  }, [isCollapsing, onRemove, toast.id]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
@@ -162,28 +173,38 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
 
   return (
     <div
-      className="pointer-events-auto cursor-pointer select-none max-w-full"
+      ref={wrapperRef}
       style={{
-        transform: getTransform(),
-        opacity: getOpacity(),
-        transition: getTransition(),
-        touchAction: 'none',
+        maxHeight: isCollapsing ? 0 : wrapperRef.current?.scrollHeight ?? 100,
+        marginBottom: isCollapsing ? -10 : 0,
+        overflow: 'hidden',
+        transition: isCollapsing ? 'max-height 300ms cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 300ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
       }}
-      onClick={dismiss}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
     >
       <div
-        className="bg-card dark:border dark:border-border rounded-3xl pl-2.5 pr-4 py-2 flex items-center gap-2.5 max-w-full sm:max-w-[520px]"
+        className="pointer-events-auto cursor-pointer select-none max-w-full"
         style={{
-          boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.12), 0 2px 8px -2px rgba(0, 0, 0, 0.08)',
+          transform: getTransform(),
+          opacity: getOpacity(),
+          transition: getTransition(),
+          touchAction: 'none',
         }}
+        onClick={dismiss}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
-        <ToastIcon type={toast.type} />
-        <span className="text-foreground text-sm font-medium">
-          {toast.message}
-        </span>
+        <div
+          className="bg-card dark:border dark:border-border rounded-3xl pl-2.5 pr-4 py-2 flex items-center gap-2.5 max-w-full sm:max-w-[520px]"
+          style={{
+            boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.12), 0 2px 8px -2px rgba(0, 0, 0, 0.08)',
+          }}
+        >
+          <ToastIcon type={toast.type} />
+          <span className="text-foreground text-sm font-medium">
+            {toast.message}
+          </span>
+        </div>
       </div>
     </div>
   );
