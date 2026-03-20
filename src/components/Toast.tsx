@@ -52,6 +52,7 @@ const MIN_TOP_DISPLAY = 1200;
 const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; isFirst: boolean }> = ({ toast, onRemove, isFirst }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
+  const [wantsToLeave, setWantsToLeave] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isSwipeDismissing, setIsSwipeDismissing] = useState(false);
@@ -59,7 +60,7 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; is
   const touchStartY = useRef<number | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const exitTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const mountTimeRef = useRef(Date.now());
+  const becameFirstAtRef = useRef<number | null>(null);
 
   const dismiss = () => {
     if (!isLeaving && !isSwipeDismissing) {
@@ -91,7 +92,7 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; is
 
     exitTimerRef.current = setTimeout(() => {
       if (!isSwipeDismissing) {
-        setIsLeaving(true);
+        setWantsToLeave(true);
       }
     }, 2700);
 
@@ -101,20 +102,26 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; is
     };
   }, [isSwipeDismissing]);
 
-  // When this toast reaches the top, ensure it stays visible for a minimum duration
+  // Track when this toast becomes the top
   useEffect(() => {
-    if (isFirst && !isLeaving && !isSwipeDismissing) {
-      const elapsed = Date.now() - mountTimeRef.current;
-      const remaining = 2700 - elapsed;
-
-      if (remaining < MIN_TOP_DISPLAY) {
-        if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
-        exitTimerRef.current = setTimeout(() => {
-          setIsLeaving(true);
-        }, MIN_TOP_DISPLAY);
-      }
+    if (isFirst && becameFirstAtRef.current === null) {
+      becameFirstAtRef.current = Date.now();
     }
-  }, [isFirst, isLeaving, isSwipeDismissing]);
+  }, [isFirst]);
+
+  // When toast wants to leave: if it's first, ensure minimum top display time; if not, wait
+  useEffect(() => {
+    if (!wantsToLeave || isLeaving || isSwipeDismissing) return;
+
+    if (isFirst) {
+      const atTop = Date.now() - (becameFirstAtRef.current ?? Date.now());
+      const delay = Math.max(0, MIN_TOP_DISPLAY - atTop);
+
+      const timer = setTimeout(() => setIsLeaving(true), delay);
+      return () => clearTimeout(timer);
+    }
+    // Not first yet — wait until isFirst changes
+  }, [wantsToLeave, isFirst, isLeaving, isSwipeDismissing]);
 
   useEffect(() => {
     if (isLeaving) {
