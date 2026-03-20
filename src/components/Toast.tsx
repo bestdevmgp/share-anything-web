@@ -58,7 +58,7 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; is
   const swipeStartOffset = useRef(0);
   const touchStartY = useRef<number | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const exitTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const exitTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const mountTimeRef = useRef(Date.now());
 
   const dismiss = () => {
