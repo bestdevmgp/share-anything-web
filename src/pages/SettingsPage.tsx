@@ -211,7 +211,7 @@ const SettingsPage: React.FC = () => {
 
           <div className="flex flex-col md:flex-row gap-0">
             {/* Sidebar skeleton */}
-            <div className="md:w-60 flex-shrink-0 md:pr-8 md:border-r md:border-border pb-4 md:pb-0">
+            <div className="md:w-56 flex-shrink-0 md:pr-8 md:border-r md:border-border pb-4 md:pb-0">
               <div className="flex gap-2 md:flex-col md:gap-2">
                 <div className="h-9 bg-muted rounded-lg w-16 md:w-full" />
                 <div className="h-9 bg-muted rounded-lg w-12 md:w-full" />
@@ -256,7 +256,7 @@ const SettingsPage: React.FC = () => {
 
       <div className="flex flex-col md:flex-row gap-0">
         {/* Sidebar / Mobile Tabs */}
-        <div className="md:w-60 flex-shrink-0 md:pr-8 md:border-r md:border-border pb-4 md:pb-0">
+        <div className="md:w-56 flex-shrink-0 md:pr-8 md:border-r md:border-border pb-4 md:pb-0">
           <nav className="flex gap-2 md:flex-col md:space-y-1 md:gap-0">
             <button
               onClick={() => setActiveTab('notifications')}
@@ -511,7 +511,6 @@ const SettingsPage: React.FC = () => {
                   <Button
                     onClick={handleCreatePersonalToken}
                     disabled={creatingKey}
-                    size="lg"
                     className="flex-shrink-0"
                   >
                     {creatingKey ? t('common.loading') : t('settings.createPersonalToken')}
