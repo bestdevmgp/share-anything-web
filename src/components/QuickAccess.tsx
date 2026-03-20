@@ -365,7 +365,7 @@ const QuickAccess: React.FC = () => {
                     </button>
                     <button
                       onClick={(e) => { e.stopPropagation(); handleDelete(file.id); }}
-                      className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-red-500 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100 dark:can-hover:hover:bg-red-500/20 active:text-red-500 dark:active:text-red-400 active:bg-red-100 dark:active:bg-red-500/20"
+                      className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-red-500 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-50 dark:can-hover:hover:bg-red-500/10 active:text-red-500 dark:active:text-red-400 active:bg-red-50 dark:active:bg-red-500/10"
                       title={t('common.delete')}
                     >
                       <TrashIcon className="w-5 h-5" />
