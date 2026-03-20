@@ -398,7 +398,7 @@
     "developerSection": "고급",
     "personalTokens": "Personal Token",
     "personalTokensDescription": "CLI 및 API 접근을 위한 Personal Token을 관리합니다.",
-    "createPersonalToken": "Token 생성",
+    "createPersonalToken": "생성",
     "personalTokenNamePlaceholder": "Token 이름 (예: My Server)",
     "personalTokenCreated": "Personal Token이 생성되었습니다. 이 Token을 안전한 곳에 복사해주세요.",
     "personalTokenOnceWarning": "이 Token은 다시 확인할 수 없습니다. 지금 복사해주세요.",

@@ -398,7 +398,7 @@
     "developerSection": "Advanced",
     "personalTokens": "Personal Token",
     "personalTokensDescription": "Manage Personal Tokens for CLI and API access.",
-    "createPersonalToken": "Create Token",
+    "createPersonalToken": "Create",
     "personalTokenNamePlaceholder": "Token name (e.g. My Server)",
     "personalTokenCreated": "Personal Token created. Copy this token to a safe place.",
     "personalTokenOnceWarning": "This token will not be shown again. Copy it now.",

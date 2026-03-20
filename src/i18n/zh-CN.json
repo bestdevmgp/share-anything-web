@@ -398,7 +398,7 @@
     "developerSection": "高级",
     "personalTokens": "Personal Token",
     "personalTokensDescription": "管理用于 CLI 和 API 访问的 Personal Token。",
-    "createPersonalToken": "创建 Token",
+    "createPersonalToken": "创建",
     "personalTokenNamePlaceholder": "Token 名称（例如：My Server）",
     "personalTokenCreated": "Personal Token 已创建。请将此 Token 复制到安全的地方。",
     "personalTokenOnceWarning": "此 Token 将不会再次显示，请立即复制。",

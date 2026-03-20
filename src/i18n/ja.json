@@ -398,7 +398,7 @@
     "developerSection": "高度",
     "personalTokens": "Personal Token",
     "personalTokensDescription": "CLIおよびAPIアクセス用のPersonal Tokenを管理します。",
-    "createPersonalToken": "Tokenを作成",
+    "createPersonalToken": "作成",
     "personalTokenNamePlaceholder": "Token名（例：My Server）",
     "personalTokenCreated": "Personal Tokenが作成されました。安全な場所にコピーしてください。",
     "personalTokenOnceWarning": "このTokenは再表示されません。今すぐコピーしてください。",
