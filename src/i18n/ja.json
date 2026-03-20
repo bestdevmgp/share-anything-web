@@ -397,13 +397,13 @@
     "fetchFailed": "設定の読み込みに失敗しました。",
     "developerSection": "高度",
     "personalTokens": "Personal Token",
-    "personalTokensDescription": "CLIおよびAPIアクセス用のPersonal Tokenを管理します。",
+    "personalTokensDescription": "CLIおよびAPIアクセス用のトークンを管理します。",
     "createPersonalToken": "作成",
-    "personalTokenNamePlaceholder": "Token名（例：My Server）",
-    "personalTokenCreated": "Personal Tokenが作成されました。安全な場所にコピーしてください。",
-    "personalTokenOnceWarning": "このTokenは再表示されません。今すぐコピーしてください。",
+    "personalTokenNamePlaceholder": "トークン名（例：My Server）",
+    "personalTokenCreated": "Personal Tokenが作成されました。",
+    "personalTokenOnceWarning": "このトークンは再表示されません。今すぐコピーしてください。",
     "personalTokenCreateFailed": "Personal Tokenの作成に失敗しました。",
-    "personalTokenRevoked": "Personal Tokenが無効化されました。",
+    "personalTokenRevoked": "無効化されました。",
     "personalTokenRevokeFailed": "Personal Tokenの無効化に失敗しました。",
     "revokePersonalToken": "無効化",
     "noPersonalTokens": "Personal Tokenがありません。",
@@ -457,8 +457,8 @@
     "optionAnyString": "任意の文字列",
     "optionsNote": "上記のオプションはすべてPersonal Tokenが必要です。Personal Tokenなしでアップロードすると30分後に期限切れとなり、追加オプションは使用できません。",
     "personalTokenTitle": "Personal Token",
-    "personalTokenDescription": "Personal Tokenを発行してアカウントを連携できます。データ同期、大容量アップロード、有効期限の設定、パスワード保護などの追加機能を利用できます。",
-    "managePersonalTokens": "Token管理",
-    "loginToGetPersonalToken": "ログインしてTokenを発行"
+    "personalTokenDescription": "トークンを発行してアカウントを連携できます。データ同期、大容量アップロード、有効期限の設定、パスワード保護などの追加機能を利用できます。",
+    "managePersonalTokens": "トークン管理",
+    "loginToGetPersonalToken": "ログインしてトークンを発行"
   }
 }

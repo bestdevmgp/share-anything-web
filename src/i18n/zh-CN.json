@@ -397,13 +397,13 @@
     "fetchFailed": "设置加载失败。",
     "developerSection": "高级",
     "personalTokens": "Personal Token",
-    "personalTokensDescription": "管理用于 CLI 和 API 访问的 Personal Token。",
+    "personalTokensDescription": "管理用于 CLI 和 API 访问的令牌。",
     "createPersonalToken": "创建",
-    "personalTokenNamePlaceholder": "Token 名称（例如：My Server）",
-    "personalTokenCreated": "Personal Token 已创建。请将此 Token 复制到安全的地方。",
-    "personalTokenOnceWarning": "此 Token 将不会再次显示，请立即复制。",
+    "personalTokenNamePlaceholder": "令牌名称（例如：My Server）",
+    "personalTokenCreated": "Personal Token 已创建。",
+    "personalTokenOnceWarning": "此令牌将不会再次显示，请立即复制。",
     "personalTokenCreateFailed": "Personal Token 创建失败。",
-    "personalTokenRevoked": "Personal Token 已吊销。",
+    "personalTokenRevoked": "已吊销。",
     "personalTokenRevokeFailed": "Personal Token 吊销失败。",
     "revokePersonalToken": "吊销",
     "noPersonalTokens": "暂无 Personal Token。",
@@ -457,8 +457,8 @@
     "optionAnyString": "任意字符串",
     "optionsNote": "以上选项均需要 Personal Token。未使用 Personal Token 上传的文件将在 30 分钟后过期，且无法使用其他选项。",
     "personalTokenTitle": "Personal Token",
-    "personalTokenDescription": "发放 Personal Token 即可关联账户。可使用数据同步、更大文件上传、自定义过期时间、密码保护等附加功能。",
-    "managePersonalTokens": "管理 Token",
-    "loginToGetPersonalToken": "登录以获取 Token"
+    "personalTokenDescription": "发放令牌即可关联账户。可使用数据同步、更大文件上传、自定义过期时间、密码保护等附加功能。",
+    "managePersonalTokens": "管理令牌",
+    "loginToGetPersonalToken": "登录以获取令牌"
   }
 }

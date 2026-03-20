@@ -397,13 +397,13 @@
     "fetchFailed": "설정을 불러오는데 실패하였습니다.",
     "developerSection": "고급",
     "personalTokens": "Personal Token",
-    "personalTokensDescription": "CLI 및 API 접근을 위한 Personal Token을 관리합니다.",
+    "personalTokensDescription": "CLI 및 API 접근을 위한 토큰을 관리합니다.",
     "createPersonalToken": "생성",
-    "personalTokenNamePlaceholder": "Token 이름 (예: My Server)",
-    "personalTokenCreated": "Personal Token이 생성되었습니다. 이 Token을 안전한 곳에 복사해주세요.",
-    "personalTokenOnceWarning": "이 Token은 다시 확인할 수 없습니다. 지금 복사해주세요.",
+    "personalTokenNamePlaceholder": "토큰 이름 (예: My Server)",
+    "personalTokenCreated": "Personal Token이 생성되었습니다.",
+    "personalTokenOnceWarning": "이 토큰은 다시 확인할 수 없습니다. 지금 복사해주세요.",
     "personalTokenCreateFailed": "Personal Token 생성에 실패하였습니다.",
-    "personalTokenRevoked": "Personal Token이 폐기되었습니다.",
+    "personalTokenRevoked": "폐기되었습니다.",
     "personalTokenRevokeFailed": "Personal Token 폐기에 실패하였습니다.",
     "revokePersonalToken": "폐기",
     "noPersonalTokens": "생성된 Personal Token이 없습니다.",
@@ -457,8 +457,8 @@
     "optionAnyString": "임의의 문자열",
     "optionsNote": "위 옵션들은 모두 Personal Token이 필요합니다. Personal Token 없이 업로드하면 30분 후 만료되며 추가 옵션을 사용할 수 없습니다.",
     "personalTokenTitle": "Personal Token",
-    "personalTokenDescription": "Personal Token을 발급하여 계정을 연동할 수 있습니다. 데이터 동기화, 더 큰 파일 업로드, 만료 시간 설정, 비밀번호 보호 등의 추가 기능을 사용할 수 있습니다.",
-    "managePersonalTokens": "Token 관리",
-    "loginToGetPersonalToken": "로그인하여 Token 발급"
+    "personalTokenDescription": "토큰을 발급하여 계정을 연동할 수 있습니다. 데이터 동기화, 더 큰 파일 업로드, 만료 시간 설정, 비밀번호 보호 등의 추가 기능을 사용할 수 있습니다.",
+    "managePersonalTokens": "토큰 관리",
+    "loginToGetPersonalToken": "로그인하여 토큰 발급"
   }
 }

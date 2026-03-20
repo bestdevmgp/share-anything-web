@@ -397,13 +397,13 @@
     "fetchFailed": "Failed to load settings.",
     "developerSection": "Advanced",
     "personalTokens": "Personal Token",
-    "personalTokensDescription": "Manage Personal Tokens for CLI and API access.",
+    "personalTokensDescription": "Manage tokens for CLI and API access.",
     "createPersonalToken": "Create",
     "personalTokenNamePlaceholder": "Token name (e.g. My Server)",
-    "personalTokenCreated": "Personal Token created. Copy this token to a safe place.",
+    "personalTokenCreated": "Personal Token created.",
     "personalTokenOnceWarning": "This token will not be shown again. Copy it now.",
     "personalTokenCreateFailed": "Failed to create Personal Token.",
-    "personalTokenRevoked": "Personal Token revoked.",
+    "personalTokenRevoked": "Revoked.",
     "personalTokenRevokeFailed": "Failed to revoke Personal Token.",
     "revokePersonalToken": "Revoke",
     "noPersonalTokens": "No Personal Tokens yet.",
@@ -457,8 +457,8 @@
     "optionAnyString": "Any string",
     "optionsNote": "All options above require a Personal Token. Without a Personal Token, files expire in 30 minutes with no additional options.",
     "personalTokenTitle": "Personal Token",
-    "personalTokenDescription": "Issue a Personal Token to link your account. Unlock data sync, larger uploads, custom expiration, password protection, and more.",
-    "managePersonalTokens": "Manage Tokens",
-    "loginToGetPersonalToken": "Sign in to get a Token"
+    "personalTokenDescription": "Issue a token to link your account. Unlock data sync, larger uploads, custom expiration, password protection, and more.",
+    "managePersonalTokens": "Manage tokens",
+    "loginToGetPersonalToken": "Sign in to get a token"
   }
 }

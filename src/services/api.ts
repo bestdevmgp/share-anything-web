@@ -595,18 +595,18 @@ export const quickAccessAPI = {
 };
 
 export const personalTokenAPI = {
-  generate: async (name?: string, expiresInDays?: number): Promise<{ id: string; personal_token: string; key_prefix: string; name: string; expires_at: string | null; created_at: string }> => {
+  generate: async (name?: string, expiresInDays?: number): Promise<{ id: string; personal_token: string; token_prefix: string; name: string; expires_at: string | null; created_at: string }> => {
     const response = await api.post('/user/personal-tokens', { name, expires_in_days: expiresInDays });
     return response.data;
   },
 
-  list: async (): Promise<{ id: string; key_prefix: string; name: string; last_used_at: string | null; expires_at: string | null; created_at: string }[]> => {
+  list: async (): Promise<{ id: string; token_prefix: string; name: string; last_used_at: string | null; expires_at: string | null; created_at: string }[]> => {
     const response = await api.get('/user/personal-tokens');
     return response.data;
   },
 
-  revoke: async (keyId: string): Promise<void> => {
-    await api.delete(`/user/personal-tokens/${keyId}`);
+  revoke: async (tokenId: string): Promise<void> => {
+    await api.delete(`/user/personal-tokens/${tokenId}`);
   },
 };
 

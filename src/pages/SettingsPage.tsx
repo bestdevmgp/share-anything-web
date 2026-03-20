@@ -20,7 +20,7 @@ type Tab = 'notifications' | 'general' | 'personal-tokens';
 
 interface PersonalTokenItem {
   id: string;
-  key_prefix: string;
+  token_prefix: string;
   name: string;
   last_used_at: string | null;
   expires_at: string | null;
@@ -70,10 +70,10 @@ const SettingsPage: React.FC = () => {
   // Personal Tokens state
   const [personalTokens, setPersonalTokens] = useState<PersonalTokenItem[]>([]);
   const [personalTokensLoading, setPersonalTokensLoading] = useState(false);
-  const [newKeyName, setNewKeyName] = useState('');
-  const [createdKey, setCreatedKey] = useState<string | null>(null);
-  const [creatingKey, setCreatingKey] = useState(false);
-  const [copiedKey, setCopiedKey] = useState(false);
+  const [newTokenName, setNewTokenName] = useState('');
+  const [createdToken, setCreatedToken] = useState<string | null>(null);
+  const [creatingToken, setCreatingToken] = useState(false);
+  const [copiedToken, setCopiedToken] = useState(false);
 
   const themeOptions = [
     { key: 'system' as const, label: t('footer.themeSystem') },
@@ -108,8 +108,8 @@ const SettingsPage: React.FC = () => {
     const fetchPersonalTokens = async () => {
       setPersonalTokensLoading(true);
       try {
-        const keys = await personalTokenAPI.list();
-        setPersonalTokens(keys);
+        const tokens = await personalTokenAPI.list();
+        setPersonalTokens(tokens);
       } catch {
         // Silently fail - user can retry
       } finally {
@@ -171,35 +171,35 @@ const SettingsPage: React.FC = () => {
   };
 
   const handleCreatePersonalToken = async () => {
-    setCreatingKey(true);
+    setCreatingToken(true);
     try {
-      const result = await personalTokenAPI.generate(newKeyName || undefined);
-      setCreatedKey(result.personal_token);
-      setNewKeyName('');
-      const keys = await personalTokenAPI.list();
-      setPersonalTokens(keys);
+      const result = await personalTokenAPI.generate(newTokenName || undefined);
+      setCreatedToken(result.personal_token);
+      setNewTokenName('');
+      const tokens = await personalTokenAPI.list();
+      setPersonalTokens(tokens);
     } catch {
       toast.error(t('settings.personalTokenCreateFailed'));
     } finally {
-      setCreatingKey(false);
+      setCreatingToken(false);
     }
   };
 
-  const handleRevokePersonalToken = async (keyId: string) => {
+  const handleRevokePersonalToken = async (tokenId: string) => {
     try {
-      await personalTokenAPI.revoke(keyId);
-      setPersonalTokens(personalTokens.filter(k => k.id !== keyId));
+      await personalTokenAPI.revoke(tokenId);
+      setPersonalTokens(personalTokens.filter(t => t.id !== tokenId));
       toast.success(t('settings.personalTokenRevoked'));
     } catch {
       toast.error(t('settings.personalTokenRevokeFailed'));
     }
   };
 
-  const handleCopyKey = () => {
-    if (createdKey) {
-      navigator.clipboard.writeText(createdKey);
-      setCopiedKey(true);
-      setTimeout(() => setCopiedKey(false), 2000);
+  const handleCopyToken = () => {
+    if (createdToken) {
+      navigator.clipboard.writeText(createdToken);
+      setCopiedToken(true);
+      setTimeout(() => setCopiedToken(false), 2000);
     }
   };
 
@@ -506,41 +506,41 @@ const SettingsPage: React.FC = () => {
                 <p className="text-sm text-muted-foreground mt-1">{t('settings.personalTokensDescription')}</p>
               </div>
 
-              {/* Create new key */}
+              {/* Create new token */}
               <div className="mb-6 p-4 border border-border rounded-lg">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                   <Input
                     type="text"
-                    value={newKeyName}
-                    onChange={(e) => setNewKeyName(e.target.value)}
+                    value={newTokenName}
+                    onChange={(e) => setNewTokenName(e.target.value)}
                     placeholder={t('settings.personalTokenNamePlaceholder')}
                     className="flex-1"
                   />
                   <Button
                     onClick={handleCreatePersonalToken}
-                    disabled={creatingKey}
+                    disabled={creatingToken}
                     className="flex-shrink-0 relative"
                   >
-                    <span className={creatingKey ? 'invisible' : ''}>{t('settings.createPersonalToken')}</span>
-                    {creatingKey && <Spinner size="sm" className="text-primary-foreground absolute" />}
+                    <span className={creatingToken ? 'invisible' : ''}>{t('settings.createPersonalToken')}</span>
+                    {creatingToken && <Spinner size="sm" className="text-primary-foreground absolute" />}
                   </Button>
                 </div>
 
-                {/* Show newly created key */}
-                {createdKey && (
+                {/* Show newly created token */}
+                {createdToken && (
                   <div className="mt-4 p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg">
                     <p className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">
                       {t('settings.personalTokenCreated')}
                     </p>
                     <div className="flex items-center gap-2">
                       <code className="flex-1 text-sm bg-green-100 dark:bg-green-900/50 px-3 py-2 rounded font-mono break-all text-green-900 dark:text-green-100">
-                        {createdKey}
+                        {createdToken}
                       </code>
                       <button
-                        onClick={handleCopyKey}
+                        onClick={handleCopyToken}
                         className="p-2 rounded-lg can-hover:hover:bg-green-200 dark:can-hover:hover:bg-green-800 transition-colors flex-shrink-0"
                       >
-                        {copiedKey ? (
+                        {copiedToken ? (
                           <CheckIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
                         ) : (
                           <ClipboardDocumentIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
@@ -554,7 +554,7 @@ const SettingsPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Key list */}
+              {/* Token list */}
               <div className="space-y-3">
                 {personalTokensLoading ? (
                   <div className="animate-pulse space-y-3">
@@ -568,25 +568,25 @@ const SettingsPage: React.FC = () => {
                     <p className="text-sm">{t('settings.noPersonalTokens')}</p>
                   </div>
                 ) : (
-                  personalTokens.map((key) => (
+                  personalTokens.map((token) => (
                     <div
-                      key={key.id}
+                      key={token.id}
                       className="flex items-center justify-between p-4 border border-border rounded-lg"
                     >
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-foreground">{key.name}</span>
+                          <span className="text-sm font-medium text-foreground">{token.name}</span>
                           <code className="text-xs bg-muted px-2 py-0.5 rounded font-mono text-muted-foreground">
-                            {key.key_prefix}...
+                            {token.token_prefix}...
                           </code>
                         </div>
                         <div className="flex gap-3 mt-1 text-xs text-muted-foreground">
                           <span>
-                            {t('settings.personalTokenCreatedAt')}: {formatDateOnly(key.created_at, siteLanguage)}
+                            {t('settings.personalTokenCreatedAt')}: {formatDateOnly(token.created_at, siteLanguage)}
                           </span>
-                          {key.last_used_at && (
+                          {token.last_used_at && (
                             <span>
-                              {t('settings.personalTokenLastUsed')}: {formatDateOnly(key.last_used_at, siteLanguage)}
+                              {t('settings.personalTokenLastUsed')}: {formatDateOnly(token.last_used_at, siteLanguage)}
                             </span>
                           )}
                         </div>
@@ -594,7 +594,7 @@ const SettingsPage: React.FC = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleRevokePersonalToken(key.id)}
+                        onClick={() => handleRevokePersonalToken(token.id)}
                         className="text-red-600 dark:text-red-400 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 flex-shrink-0"
                       >
                         {t('settings.revokePersonalToken')}
