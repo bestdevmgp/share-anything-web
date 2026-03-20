@@ -426,6 +426,7 @@
     "installBrew": "透過 Homebrew 安裝",
     "binaryUpload": "上傳檔案",
     "binaryUploadHint": "上傳多個檔案時，用空格分隔檔案名稱。例: share upload a.txt b.png",
+    "binaryUploadPathHint": "可以使用檔案路徑代替檔案名稱。例: share upload ./docs/a.txt",
     "binaryDownload": "下載檔案",
     "binaryDownloadHint": "在代碼後加上路徑可指定儲存位置。例: share download 123456 ./downloads/",
     "binaryAuth": "Personal Token認證",

@@ -110,6 +110,7 @@ const CliPage: React.FC = () => {
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryUpload')}</p>
             <CodeBlock code="share upload myfile.txt" index={5} />
             <p className="text-xs text-muted-foreground mt-1.5">{t('cli.binaryUploadHint')}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('cli.binaryUploadPathHint')}</p>
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryList')}</p>

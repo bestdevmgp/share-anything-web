@@ -426,6 +426,7 @@
     "installBrew": "Install via Homebrew",
     "binaryUpload": "Upload a file",
     "binaryUploadHint": "To upload multiple files, separate them with spaces. e.g. share upload a.txt b.png",
+    "binaryUploadPathHint": "You can use file paths instead of just names. e.g. share upload ./docs/a.txt",
     "binaryDownload": "Download a file",
     "binaryDownloadHint": "Add a path after the code to specify where to save. e.g. share download 123456 ./downloads/",
     "binaryAuth": "Personal Token authentication",

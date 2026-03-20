@@ -426,6 +426,7 @@
     "installBrew": "Homebrew로 설치",
     "binaryUpload": "파일 업로드",
     "binaryUploadHint": "여러 파일을 업로드하려면 파일명을 띄어쓰기로 구분하세요. 예: share upload a.txt b.png",
+    "binaryUploadPathHint": "파일명 대신 경로를 사용할 수도 있습니다. 예: share upload ./docs/a.txt",
     "binaryDownload": "파일 다운로드",
     "binaryDownloadHint": "코드 뒤에 경로를 추가하면 저장 위치를 지정할 수 있습니다. 예: share download 123456 ./downloads/",
     "binaryAuth": "Personal Token 인증",
