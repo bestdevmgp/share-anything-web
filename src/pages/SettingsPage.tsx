@@ -500,7 +500,7 @@ const SettingsPage: React.FC = () => {
 
               {/* Create new key */}
               <div className="mb-6 p-4 border border-border rounded-lg">
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                   <Input
                     type="text"
                     value={newKeyName}
