@@ -10,9 +10,9 @@ const CliPage: React.FC = () => {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    document.title = 'ShareAnything CLI';
+    document.title = `${t('cli.pageTitle')} - ShareAnything`;
     return () => { document.title = 'ShareAnything'; };
-  }, []);
+  }, [t]);
 
   const copyToClipboard = (text: string, index: number) => {
     navigator.clipboard.writeText(text);
@@ -81,13 +81,67 @@ const CliPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
       <div className="flex items-center gap-3 mb-8">
-        <CommandLineIcon className="w-8 h-8 text-primary" />
+        <CommandLineIcon className="w-8 h-8 text-primary" style={{ strokeWidth: 2 }} />
         <h1 className="text-3xl font-bold text-foreground">{t('cli.pageTitle')}</h1>
       </div>
 
       <p className="text-lg text-muted-foreground mb-10">
         {t('cli.pageDescription')}
       </p>
+
+      {/* CLI Tool (share-cli) */}
+      <section className="mb-12">
+        <h2 className="text-xl font-semibold text-foreground mb-4">{t('cli.binaryTitle')}</h2>
+        <p className="text-muted-foreground mb-4">{t('cli.binaryDescription')}</p>
+
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm font-medium text-foreground mb-2">{t('cli.installCurl')}</p>
+            <CodeBlock code="curl -fsSL share-api.mingyu.dev/install | sh" index={4} />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground mb-2">{t('cli.installBrew')}</p>
+            <CodeBlock code={"brew tap bestdevmgp/share-anything\nbrew install share-anything"} index={9} />
+          </div>
+
+          <hr className="border-border" />
+
+          <div>
+            <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryUpload')}</p>
+            <CodeBlock code="share upload myfile.txt" index={5} />
+            <p className="text-xs text-muted-foreground mt-1.5">{t('cli.binaryUploadHint')}</p>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryList')}</p>
+            <CodeBlock code="share list" index={13} />
+          </div>
+
+          <hr className="border-border" />
+
+          <div>
+            <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryDownload')}</p>
+            <CodeBlock code="share download 123456" index={6} />
+            <p className="text-xs text-muted-foreground mt-1.5">{t('cli.binaryDownloadHint')}</p>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryInfo')}</p>
+            <CodeBlock code="share info 123456" index={12} />
+          </div>
+
+          <hr className="border-border" />
+
+          <div>
+            <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryAuth')}</p>
+            <CodeBlock code="share login sa_your_key_here" index={8} />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryLogout')}</p>
+            <CodeBlock code="share logout" index={14} />
+          </div>
+        </div>
+      </section>
+
+      <hr className="border-foreground/30 mb-12" />
 
       {/* Quick Start with curl */}
       <section className="mb-12">
@@ -117,59 +171,6 @@ const CliPage: React.FC = () => {
 
       <hr className="border-foreground/30 mb-12" />
 
-      {/* CLI Tool (share) */}
-      <section className="mb-12">
-        <h2 className="text-xl font-semibold text-foreground mb-4">{t('cli.binaryTitle')}</h2>
-        <p className="text-muted-foreground mb-4">{t('cli.binaryDescription')}</p>
-
-        <div className="space-y-4">
-          <div>
-            <p className="text-sm font-medium text-foreground mb-2">{t('cli.installCurl')}</p>
-            <CodeBlock code="curl -fsSL share-api.mingyu.dev/install | sh" index={4} />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-foreground mb-2">{t('cli.installBrew')}</p>
-            <CodeBlock code={"brew tap bestdevmgp/share-anything\nbrew install share-anything"} index={9} />
-          </div>
-
-          <hr className="border-border" />
-
-          <div>
-            <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryUpload')}</p>
-            <CodeBlock code="share upload myfile.txt" index={5} />
-            <p className="text-xs text-muted-foreground mt-1.5">{t('cli.binaryUploadHint')}</p>
-          </div>
-
-          <hr className="border-border" />
-
-          <div>
-            <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryDownload')}</p>
-            <CodeBlock code="share download 123456" index={6} />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryInfo')}</p>
-            <CodeBlock code="share info 123456" index={12} />
-          </div>
-
-          <hr className="border-border" />
-
-          <div>
-            <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryAuth')}</p>
-            <CodeBlock code="share login sa_your_key_here" index={8} />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryList')}</p>
-            <CodeBlock code="share list" index={13} />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryLogout')}</p>
-            <CodeBlock code="share logout" index={14} />
-          </div>
-        </div>
-      </section>
-
-      <hr className="border-foreground/30 mb-12" />
-
       {/* Option Reference */}
       <section className="mb-12">
         <h2 className="text-xl font-semibold text-foreground mb-4">{t('cli.optionsTitle')}</h2>
@@ -180,7 +181,7 @@ const CliPage: React.FC = () => {
               <tr className="bg-muted/50">
                 <th className="text-left px-4 py-3 font-medium text-foreground">{t('cli.optionName')}</th>
                 <th className="text-left px-4 py-3 font-medium text-foreground">curl</th>
-                <th className="text-left px-4 py-3 font-medium text-foreground">share</th>
+                <th className="text-left px-4 py-3 font-medium text-foreground">share-cli</th>
                 <th className="text-left px-4 py-3 font-medium text-foreground">{t('cli.optionValues')}</th>
               </tr>
             </thead>
@@ -220,7 +221,7 @@ const CliPage: React.FC = () => {
               <tr className="bg-muted/50">
                 <th className="text-left px-4 py-3 font-medium text-foreground">{t('cli.feature')}</th>
                 <th className="text-center px-4 py-3 font-medium text-foreground">curl</th>
-                <th className="text-center px-4 py-3 font-medium text-foreground">share</th>
+                <th className="text-center px-4 py-3 font-medium text-foreground">share-cli</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">

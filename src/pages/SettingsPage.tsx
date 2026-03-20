@@ -6,6 +6,8 @@ import { useTranslation } from 'i18n';
 import { useLanguage } from 'context/LanguageContext';
 import { useTheme } from 'context/ThemeContext';
 import { userAPI, apiKeyAPI } from 'services/api';
+import { Button } from 'components/ui/button';
+import { Input } from 'components/ui/input';
 import { Switch } from 'components/ui/switch';
 import { Label } from 'components/ui/label';
 import { Separator } from 'components/ui/separator';
@@ -493,20 +495,21 @@ const SettingsPage: React.FC = () => {
               {/* Create new key */}
               <div className="mb-6 p-4 border border-border rounded-lg">
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <input
+                  <Input
                     type="text"
                     value={newKeyName}
                     onChange={(e) => setNewKeyName(e.target.value)}
                     placeholder={t('settings.apiKeyNamePlaceholder')}
-                    className="flex-1 h-10 px-3 border border-border rounded-lg bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    className="flex-1"
                   />
-                  <button
+                  <Button
                     onClick={handleCreateApiKey}
                     disabled={creatingKey}
-                    className="h-10 px-4 bg-primary text-primary-foreground rounded-lg text-sm font-medium can-hover:hover:bg-primary/90 transition-colors disabled:opacity-50 flex-shrink-0"
+                    size="lg"
+                    className="flex-shrink-0"
                   >
                     {creatingKey ? t('common.loading') : t('settings.createApiKey')}
-                  </button>
+                  </Button>
                 </div>
 
                 {/* Show newly created key */}
@@ -574,12 +577,14 @@ const SettingsPage: React.FC = () => {
                           )}
                         </div>
                       </div>
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => handleRevokeApiKey(key.id)}
-                        className="text-xs text-red-600 dark:text-red-400 font-medium can-hover:hover:bg-red-50 dark:can-hover:hover:bg-red-500/10 px-3 py-1.5 rounded-lg transition-colors flex-shrink-0"
+                        className="text-red-600 dark:text-red-400 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-50 dark:can-hover:hover:bg-red-500/10 flex-shrink-0"
                       >
                         {t('settings.revokeApiKey')}
-                      </button>
+                      </Button>
                     </div>
                   ))
                 )}
