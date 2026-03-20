@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { useToast, setToastFunctions, Toast as ToastType } from '../context/ToastContext';
 import { cn } from 'lib/utils';
 
@@ -50,7 +50,6 @@ const ToastIcon: React.FC<{ type: ToastType['type'] }> = ({ type }) => {
 const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> = ({ toast, onRemove }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
-  const [isCollapsing, setIsCollapsing] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isSwipeDismissing, setIsSwipeDismissing] = useState(false);
@@ -63,6 +62,25 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
       setIsLeaving(true);
     }
   };
+
+  const collapseAndRemove = useCallback(() => {
+    const el = wrapperRef.current;
+    if (!el) { onRemove(toast.id); return; }
+
+    // Set explicit height so transition has a start value
+    el.style.height = el.offsetHeight + 'px';
+    el.style.overflow = 'hidden';
+
+    // Force reflow to register the explicit height
+    void el.offsetHeight;
+
+    // Animate to 0
+    el.style.transition = 'height 300ms cubic-bezier(0.4, 0, 0.2, 1), padding-bottom 300ms cubic-bezier(0.4, 0, 0.2, 1)';
+    el.style.height = '0';
+    el.style.paddingBottom = '0';
+
+    setTimeout(() => onRemove(toast.id), 300);
+  }, [onRemove, toast.id]);
 
   useEffect(() => {
     const enterTimer = setTimeout(() => setIsVisible(true), 10);
@@ -81,30 +99,17 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
 
   useEffect(() => {
     if (isLeaving) {
-      const collapseTimer = setTimeout(() => {
-        setIsCollapsing(true);
-      }, 400);
-      return () => clearTimeout(collapseTimer);
+      const timer = setTimeout(collapseAndRemove, 400);
+      return () => clearTimeout(timer);
     }
-  }, [isLeaving]);
+  }, [isLeaving, collapseAndRemove]);
 
   useEffect(() => {
     if (isSwipeDismissing) {
-      const collapseTimer = setTimeout(() => {
-        setIsCollapsing(true);
-      }, 250);
-      return () => clearTimeout(collapseTimer);
+      const timer = setTimeout(collapseAndRemove, 250);
+      return () => clearTimeout(timer);
     }
-  }, [isSwipeDismissing]);
-
-  useEffect(() => {
-    if (isCollapsing) {
-      const removeTimer = setTimeout(() => {
-        onRemove(toast.id);
-      }, 300);
-      return () => clearTimeout(removeTimer);
-    }
-  }, [isCollapsing, onRemove, toast.id]);
+  }, [isSwipeDismissing, collapseAndRemove]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
@@ -172,15 +177,7 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void }> 
   };
 
   return (
-    <div
-      ref={wrapperRef}
-      style={{
-        maxHeight: isCollapsing ? 0 : wrapperRef.current?.scrollHeight ?? 100,
-        marginBottom: isCollapsing ? -10 : 0,
-        overflow: 'hidden',
-        transition: isCollapsing ? 'max-height 300ms cubic-bezier(0.4, 0, 0.2, 1), margin-bottom 300ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
-      }}
-    >
+    <div ref={wrapperRef} style={{ paddingBottom: 10 }}>
       <div
         className="pointer-events-auto cursor-pointer select-none max-w-full"
         style={{
@@ -218,7 +215,7 @@ export const ToastContainer: React.FC = () => {
   }, [addToast]);
 
   return (
-    <div className="fixed top-5 left-4 right-4 z-50 flex flex-col items-center gap-2.5 pointer-events-none">
+    <div className="fixed top-5 left-4 right-4 z-50 flex flex-col items-center pointer-events-none">
       {toasts.map((toast) => (
         <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
       ))}

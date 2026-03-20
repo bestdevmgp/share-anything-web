@@ -29,11 +29,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const newToast: Toast = { id, type, message };
 
     setToasts((prev) => [...prev, newToast]);
-
-    setTimeout(() => {
-      removeToast(id);
-    }, 3000);
-  }, [removeToast]);
+  }, []);
 
   return (
     <ToastContext.Provider value={{ toasts, addToast, removeToast }}>

@@ -519,9 +519,10 @@ const SettingsPage: React.FC = () => {
                   <Button
                     onClick={handleCreatePersonalToken}
                     disabled={creatingKey}
-                    className="flex-shrink-0"
+                    className="flex-shrink-0 relative"
                   >
-                    {creatingKey ? <Spinner size="sm" className="text-primary-foreground" /> : t('settings.createPersonalToken')}
+                    <span className={creatingKey ? 'invisible' : ''}>{t('settings.createPersonalToken')}</span>
+                    {creatingKey && <Spinner size="sm" className="text-primary-foreground absolute" />}
                   </Button>
                 </div>
 
