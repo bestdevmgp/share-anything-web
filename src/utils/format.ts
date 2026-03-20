@@ -53,6 +53,24 @@ export const formatDateTime = (dateString: string, language: Language = 'ko'): s
   return translate(language, 'format.dateTime', { year, month, day, hours, minutes, seconds });
 };
 
+export const formatDateOnly = (dateString: string, language: Language = 'ko'): string => {
+  const date = new Date(dateString);
+
+  if (language === 'en') {
+    const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const year = date.getFullYear();
+    const month = MONTH_NAMES[date.getMonth()];
+    const day = date.getDate();
+    return translate(language, 'format.dateOnly', { year, month, day });
+  }
+
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  return translate(language, 'format.dateOnly', { year, month, day });
+};
+
 export const getExpirationLabel = (expiration: string, language: Language = 'ko'): string => {
   const labels: Record<string, string> = {
     'five_minutes': translate(language, 'format.5min'),

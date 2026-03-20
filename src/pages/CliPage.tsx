@@ -10,7 +10,7 @@ const CliPage: React.FC = () => {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    document.title = `${t('cli.pageTitle')} - ShareAnything`;
+    document.title = t('cli.pageTitle');
     return () => { document.title = 'ShareAnything'; };
   }, [t]);
 
@@ -132,7 +132,7 @@ const CliPage: React.FC = () => {
 
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryAuth')}</p>
-            <CodeBlock code="share login sa_your_key_here" index={8} />
+            <CodeBlock code="share login sa_your_token_here" index={8} />
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryLogout')}</p>
@@ -163,8 +163,8 @@ const CliPage: React.FC = () => {
             <CodeBlock code="curl -F 'file=@./file1.txt' -F 'file=@./file2.png' https://share-api.mingyu.dev/cli/upload" index={2} />
           </div>
           <div>
-            <p className="text-sm font-medium text-foreground mb-2">{t('cli.curlWithApiKey')}</p>
-            <CodeBlock code="curl -H 'X-API-Key: sa_your_key_here' -F 'file=@./myfile.txt' -F 'expiration=1h' https://share-api.mingyu.dev/cli/upload" index={3} />
+            <p className="text-sm font-medium text-foreground mb-2">{t('cli.curlWithPersonalToken')}</p>
+            <CodeBlock code="curl -H 'X-Personal-Token: sa_your_token_here' -F 'file=@./myfile.txt' -F 'expiration=1h' https://share-api.mingyu.dev/cli/upload" index={3} />
           </div>
         </div>
       </section>
@@ -230,7 +230,7 @@ const CliPage: React.FC = () => {
               <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.featurePipe')}</td><td className="text-center px-4 py-3">-</td><td className="text-center px-4 py-3">✓</td></tr>
               <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.featureLargeFile')}</td><td className="text-center px-4 py-3">100MB</td><td className="text-center px-4 py-3">3GB</td></tr>
               <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.featureMultipart')}</td><td className="text-center px-4 py-3">-</td><td className="text-center px-4 py-3">✓</td></tr>
-              <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.featureApiKey')}</td><td className="text-center px-4 py-3">✓</td><td className="text-center px-4 py-3">✓</td></tr>
+              <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.featurePersonalToken')}</td><td className="text-center px-4 py-3">✓</td><td className="text-center px-4 py-3">✓</td></tr>
             </tbody>
           </table>
         </div>
@@ -238,7 +238,7 @@ const CliPage: React.FC = () => {
 
       <hr className="border-foreground/30 mb-12" />
 
-      {/* Guest vs API Key */}
+      {/* Guest vs Personal Token */}
       <section className="mb-12">
         <h2 className="text-xl font-semibold text-foreground mb-4">{t('cli.limitsTitle')}</h2>
         <div className="overflow-x-auto">
@@ -247,7 +247,7 @@ const CliPage: React.FC = () => {
               <tr className="bg-muted/50">
                 <th className="text-left px-4 py-3 font-medium text-foreground">{t('cli.feature')}</th>
                 <th className="text-center px-4 py-3 font-medium text-foreground">{t('cli.guest')}</th>
-                <th className="text-center px-4 py-3 font-medium text-foreground">{t('cli.apiKeyUser')}</th>
+                <th className="text-center px-4 py-3 font-medium text-foreground">{t('cli.personalTokenUser')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -263,23 +263,23 @@ const CliPage: React.FC = () => {
 
       <hr className="border-foreground/30 mb-12" />
 
-      {/* API Key */}
+      {/* Personal Token */}
       <section className="mb-12">
-        <h2 className="text-xl font-semibold text-foreground mb-4">{t('cli.apiKeyTitle')}</h2>
-        <p className="text-muted-foreground mb-4">{t('cli.apiKeyDescription')}</p>
+        <h2 className="text-xl font-semibold text-foreground mb-4">{t('cli.personalTokenTitle')}</h2>
+        <p className="text-muted-foreground mb-4">{t('cli.personalTokenDescription')}</p>
         {isAuthenticated ? (
           <Link
-            to="/settings?tab=api-keys"
+            to="/settings?tab=personal-tokens"
             className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium can-hover:hover:bg-primary/90 transition-colors"
           >
-            {t('cli.manageApiKeys')}
+            {t('cli.managePersonalTokens')}
           </Link>
         ) : (
           <Link
             to="/signin"
             className="inline-flex items-center px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium can-hover:hover:bg-primary/90 transition-colors"
           >
-            {t('cli.loginToGetApiKey')}
+            {t('cli.loginToGetPersonalToken')}
           </Link>
         )}
       </section>
