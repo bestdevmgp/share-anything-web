@@ -213,16 +213,16 @@ const SettingsPage: React.FC = () => {
           <div className="flex flex-col md:flex-row gap-0">
             {/* Sidebar skeleton */}
             <div className="md:w-56 flex-shrink-0 md:pr-8 md:border-r md:border-border pb-4 md:pb-0">
-              <div className="flex gap-2 md:flex-col md:gap-2">
-                <div className="h-8 bg-muted rounded-lg w-14 md:w-full" />
-                <div className="h-8 bg-muted rounded-lg w-14 md:w-full" />
-                <div className="h-8 bg-muted rounded-lg w-24 md:hidden" />
+              <div className="flex gap-2 md:flex-col md:gap-1.5">
+                <div className="h-[34px] bg-muted rounded-lg w-14 md:w-full" />
+                <div className="h-[34px] bg-muted rounded-lg w-14 md:w-full" />
+                <div className="h-[34px] bg-muted rounded-lg w-24 md:hidden" />
               </div>
               <div className="hidden md:block pt-3 mt-3 border-t border-border">
                 <div className="h-3 bg-muted rounded w-10 mx-3 mb-2" />
               </div>
               <div className="hidden md:block">
-                <div className="h-8 bg-muted rounded-lg w-full" />
+                <div className="h-[34px] bg-muted rounded-lg w-full" />
               </div>
               <Separator className="md:hidden mt-4" />
             </div>
