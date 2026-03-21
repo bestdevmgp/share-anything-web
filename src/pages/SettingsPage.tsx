@@ -289,7 +289,7 @@ const SettingsPage: React.FC = () => {
             <div className="hidden md:block pt-3 mt-3 border-t border-border">
               <p className="px-3 pb-1 text-xs text-muted-foreground/60">{t('settings.developerSection')}</p>
             </div>
-            <Separator orientation="vertical" className="md:hidden h-5 self-center" />
+            <Separator orientation="vertical" className="md:hidden h-6 self-center" />
             <button
               onClick={() => setActiveTab('personal-tokens')}
               className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors md:w-full md:text-left ${
