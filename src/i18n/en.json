@@ -134,7 +134,9 @@
     "providerName.google": "Google",
     "providerName.naver": "Naver",
     "providerName.kakao": "Kakao",
-    "providerName.apple": "Apple"
+    "providerName.apple": "Apple",
+    "loginCompleteTitle": "Login Complete",
+    "canCloseTab": "You can close this tab."
   },
   "oauth": {
     "loggingIn": "Signing in...",

@@ -134,7 +134,9 @@
     "providerName.google": "Google",
     "providerName.naver": "Naver",
     "providerName.kakao": "Kakao",
-    "providerName.apple": "Apple"
+    "providerName.apple": "Apple",
+    "loginCompleteTitle": "ログイン完了",
+    "canCloseTab": "このタブを閉じても構いません。"
   },
   "oauth": {
     "loggingIn": "ログイン中...",

@@ -10,6 +10,8 @@ import { Spinner } from '../components/ui/spinner';
 import { Tooltip, TooltipTrigger, TooltipContent } from '../components/ui/tooltip';
 import { DevicePhoneMobileIcon, ClipboardDocumentIcon, CheckIcon } from '@heroicons/react/24/outline';
 
+const EMAIL_AUTH_CHANNEL = 'email-auth-channel';
+
 const EmailMagicLinkCallbackPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -18,6 +20,7 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [canClose, setCanClose] = useState(false);
   const hasProcessed = useRef(false);
 
   useEffect(() => {
@@ -42,15 +45,44 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
         const data = await authAPI.verifyEmailToken(token, deviceId);
 
         if (data.same_device && data.auth) {
-          // Same device — auto login
-          setIsLoggingIn(true);
-          localStorage.removeItem('emailAuthDeviceId');
-          localStorage.setItem('lastLoginProvider', 'email');
-          login(data.auth.token, data.auth.user);
-          toast.success(t('oauth.loginSuccess'));
-          navigate('/', { replace: true });
+          try {
+            const channel = new BroadcastChannel(EMAIL_AUTH_CHANNEL);
+            let received = false;
+
+            channel.onmessage = (e) => {
+              if (e.data?.type === 'auth-received') {
+                received = true;
+                channel.close();
+                window.close();
+                setCanClose(true);
+              }
+            };
+
+            channel.postMessage({
+              type: 'email-auth-complete',
+              auth: data.auth,
+            });
+
+            setTimeout(() => {
+              if (!received) {
+                channel.close();
+                setIsLoggingIn(true);
+                localStorage.removeItem('emailAuthDeviceId');
+                localStorage.setItem('lastLoginProvider', 'email');
+                login(data.auth!.token, data.auth!.user);
+                toast.success(t('oauth.loginSuccess'));
+                navigate('/', { replace: true });
+              }
+            }, 500);
+          } catch {
+            setIsLoggingIn(true);
+            localStorage.removeItem('emailAuthDeviceId');
+            localStorage.setItem('lastLoginProvider', 'email');
+            login(data.auth.token, data.auth.user);
+            toast.success(t('oauth.loginSuccess'));
+            navigate('/', { replace: true });
+          }
         } else if (!data.same_device && data.verification_code) {
-          // Different device — show code
           setVerificationCode(data.verification_code);
         } else {
           setError(t('emailAuth.expired'));
@@ -66,7 +98,38 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Error view
+  if (canClose) {
+    return (
+      <div className="flex items-center justify-center px-4 py-20">
+        <div className="max-w-md w-full text-center">
+          <Card className="rounded-3xl border-2 p-8">
+            <CardContent className="p-0">
+              <div className="w-16 h-16 bg-green-100 dark:bg-green-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 13l4 4L19 7" className="check-path" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-foreground mb-2">{t('emailAuth.loginCompleteTitle')}</h2>
+              <p className="text-muted-foreground">{t('emailAuth.canCloseTab')}</p>
+            </CardContent>
+          </Card>
+          <style>{`
+            .check-path {
+              stroke-dasharray: 24;
+              stroke-dashoffset: 24;
+              animation: drawCheck 0.4s ease-out forwards;
+            }
+            @keyframes drawCheck {
+              to {
+                stroke-dashoffset: 0;
+              }
+            }
+          `}</style>
+        </div>
+      </div>
+    );
+  }
+
   if (error) {
     return (
       <div className="flex items-center justify-center px-4 py-20">
@@ -107,7 +170,6 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
     );
   }
 
-  // Cross-device view — show verification code
   if (verificationCode) {
     return (
       <div className="flex items-center justify-center px-4 py-20">
@@ -162,7 +224,6 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
     );
   }
 
-  // Loading view
   return (
     <div className="flex items-center justify-center pt-32 pb-20">
       <div className="flex flex-col items-center">

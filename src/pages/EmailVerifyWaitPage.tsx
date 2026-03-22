@@ -13,6 +13,7 @@ import { providerLogoMap } from '../utils/providerLogos';
 import type { User } from '../types';
 
 const SESSION_STORAGE_KEY = 'emailAuthSession';
+const EMAIL_AUTH_CHANNEL = 'email-auth-channel';
 
 const EmailVerifyWaitPage: React.FC = () => {
   const { t } = useTranslation();
@@ -104,6 +105,25 @@ const EmailVerifyWaitPage: React.FC = () => {
 
     return () => clearInterval(interval);
   }, [sessionId, mergeInfo, handleLoginSuccess]);
+
+  useEffect(() => {
+    if (hasLoggedIn.current || mergeInfo) return;
+
+    let channel: BroadcastChannel;
+    try {
+      channel = new BroadcastChannel(EMAIL_AUTH_CHANNEL);
+      channel.onmessage = (e) => {
+        if (e.data?.type === 'email-auth-complete' && e.data.auth) {
+          channel.postMessage({ type: 'auth-received' });
+          handleLoginSuccess(e.data.auth.token, e.data.auth.user, e.data.auth.existing_provider);
+        }
+      };
+    } catch {
+      return;
+    }
+
+    return () => channel.close();
+  }, [mergeInfo, handleLoginSuccess]);
 
   const handleVerifyCode = async () => {
     if (code.length !== 6) return;

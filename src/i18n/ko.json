@@ -134,7 +134,9 @@
     "providerName.google": "Google",
     "providerName.naver": "네이버",
     "providerName.kakao": "카카오",
-    "providerName.apple": "Apple"
+    "providerName.apple": "Apple",
+    "loginCompleteTitle": "로그인 완료",
+    "canCloseTab": "이 탭을 닫아도 됩니다."
   },
   "oauth": {
     "loggingIn": "로그인 중...",
