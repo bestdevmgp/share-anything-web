@@ -51,7 +51,8 @@ const CliSigninPage: React.FC = () => {
     };
 
     checkStatus();
-  }, [sessionId, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId]);
 
   useEffect(() => {
     if (authLoading || sessionStatus !== 'pending') return;
@@ -87,6 +88,38 @@ const CliSigninPage: React.FC = () => {
         <div className="flex flex-col items-center">
           <Spinner size="xl" />
           <p className="mt-4 text-muted-foreground">{t('cliSignin.checking')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (approved) {
+    return (
+      <div className="flex items-center justify-center px-4 py-20">
+        <div className="max-w-md w-full text-center">
+          <Card className="rounded-3xl border-2 p-8">
+            <CardContent className="p-0">
+              <div className="w-16 h-16 bg-green-100 dark:bg-green-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 13l4 4L19 7" className="cli-signin-checkmark-path" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-foreground mb-2">{t('cliSignin.successTitle')}</h2>
+              <p className="text-muted-foreground">{t('cliSignin.successDescription')}</p>
+            </CardContent>
+          </Card>
+          <style>{`
+            .cli-signin-checkmark-path {
+              stroke-dasharray: 20;
+              stroke-dashoffset: 20;
+              animation: drawCliSigninCheck 0.6s ease-out forwards;
+            }
+            @keyframes drawCliSigninCheck {
+              to {
+                stroke-dashoffset: 0;
+              }
+            }
+          `}</style>
         </div>
       </div>
     );
@@ -150,38 +183,6 @@ const CliSigninPage: React.FC = () => {
               <p className="text-muted-foreground">{error || t('cliSignin.errorDefault')}</p>
             </CardContent>
           </Card>
-        </div>
-      </div>
-    );
-  }
-
-  if (approved) {
-    return (
-      <div className="flex items-center justify-center px-4 py-20">
-        <div className="max-w-md w-full text-center">
-          <Card className="rounded-3xl border-2 p-8">
-            <CardContent className="p-0">
-              <div className="w-16 h-16 bg-green-100 dark:bg-green-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 13l4 4L19 7" className="cli-signin-checkmark-path" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-foreground mb-2">{t('cliSignin.successTitle')}</h2>
-              <p className="text-muted-foreground">{t('cliSignin.successDescription')}</p>
-            </CardContent>
-          </Card>
-          <style>{`
-            .cli-signin-checkmark-path {
-              stroke-dasharray: 20;
-              stroke-dashoffset: 20;
-              animation: drawCliSigninCheck 0.6s ease-out forwards;
-            }
-            @keyframes drawCliSigninCheck {
-              to {
-                stroke-dashoffset: 0;
-              }
-            }
-          `}</style>
         </div>
       </div>
     );
