@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'i18n';
 import { useAuth } from '../context/AuthContext';
 import { cliAuthAPI } from '../services/api';
 import { Card, CardContent } from '../components/ui/card';
@@ -9,6 +10,7 @@ import { Spinner } from '../components/ui/spinner';
 type SessionStatus = 'loading' | 'pending' | 'completed' | 'expired' | 'error';
 
 const CliSigninPage: React.FC = () => {
+  const { t } = useTranslation();
   const { sessionId } = useParams<{ sessionId: string }>();
   const navigate = useNavigate();
   const { user, isAuthenticated, loading: authLoading } = useAuth();
@@ -18,14 +20,13 @@ const CliSigninPage: React.FC = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    document.title = 'CLI 로그인';
-  }, []);
+    document.title = t('cliSignin.pageTitle');
+  }, [t]);
 
-  // Check session status
   useEffect(() => {
     if (!sessionId) {
       setSessionStatus('error');
-      setError('잘못된 세션입니다.');
+      setError(t('cliSignin.invalidSession'));
       return;
     }
 
@@ -44,15 +45,14 @@ const CliSigninPage: React.FC = () => {
           setSessionStatus('expired');
         } else {
           setSessionStatus('error');
-          setError('세션 상태를 확인할 수 없습니다.');
+          setError(t('cliSignin.checkStatusFailed'));
         }
       }
     };
 
     checkStatus();
-  }, [sessionId]);
+  }, [sessionId, t]);
 
-  // Redirect to login if session is pending but user is not logged in
   useEffect(() => {
     if (authLoading || sessionStatus !== 'pending') return;
 
@@ -74,26 +74,24 @@ const CliSigninPage: React.FC = () => {
       } else if (err.response?.status === 409) {
         setSessionStatus('completed');
       } else {
-        setError('승인 중 오류가 발생했습니다. 다시 시도해주세요.');
+        setError(t('cliSignin.approveFailed'));
       }
     } finally {
       setApproving(false);
     }
   };
 
-  // Loading state
   if (sessionStatus === 'loading' || authLoading) {
     return (
       <div className="flex items-center justify-center pt-32 pb-20">
         <div className="flex flex-col items-center">
           <Spinner size="xl" />
-          <p className="mt-4 text-muted-foreground">확인 중...</p>
+          <p className="mt-4 text-muted-foreground">{t('cliSignin.checking')}</p>
         </div>
       </div>
     );
   }
 
-  // Expired session
   if (sessionStatus === 'expired') {
     return (
       <div className="flex items-center justify-center px-4 py-20">
@@ -106,8 +104,8 @@ const CliSigninPage: React.FC = () => {
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-foreground mb-2">세션이 만료되었습니다</h2>
-              <p className="text-muted-foreground">CLI에서 다시 시도해주세요.</p>
+              <h2 className="text-2xl font-bold text-foreground mb-2">{t('cliSignin.expiredTitle')}</h2>
+              <p className="text-muted-foreground">{t('cliSignin.expiredDescription')}</p>
             </CardContent>
           </Card>
         </div>
@@ -115,7 +113,6 @@ const CliSigninPage: React.FC = () => {
     );
   }
 
-  // Already completed
   if (sessionStatus === 'completed') {
     return (
       <div className="flex items-center justify-center px-4 py-20">
@@ -128,8 +125,8 @@ const CliSigninPage: React.FC = () => {
                   <circle cx="12" cy="12" r="10" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-foreground mb-2">이미 완료된 세션입니다</h2>
-              <p className="text-muted-foreground">이 세션은 이미 승인되었습니다.</p>
+              <h2 className="text-2xl font-bold text-foreground mb-2">{t('cliSignin.alreadyCompletedTitle')}</h2>
+              <p className="text-muted-foreground">{t('cliSignin.alreadyCompletedDescription')}</p>
             </CardContent>
           </Card>
         </div>
@@ -137,7 +134,6 @@ const CliSigninPage: React.FC = () => {
     );
   }
 
-  // Error state
   if (sessionStatus === 'error' || error) {
     return (
       <div className="flex items-center justify-center px-4 py-20">
@@ -150,8 +146,8 @@ const CliSigninPage: React.FC = () => {
                   <path d="M6 6l12 12" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-foreground mb-2">오류가 발생했습니다</h2>
-              <p className="text-muted-foreground">{error || '잘못된 요청입니다.'}</p>
+              <h2 className="text-2xl font-bold text-foreground mb-2">{t('cliSignin.errorTitle')}</h2>
+              <p className="text-muted-foreground">{error || t('cliSignin.errorDefault')}</p>
             </CardContent>
           </Card>
         </div>
@@ -159,7 +155,6 @@ const CliSigninPage: React.FC = () => {
     );
   }
 
-  // Success screen after approval
   if (approved) {
     return (
       <div className="flex items-center justify-center px-4 py-20">
@@ -167,21 +162,21 @@ const CliSigninPage: React.FC = () => {
           <Card className="rounded-3xl border-2 p-8">
             <CardContent className="p-0">
               <div className="w-16 h-16 bg-green-100 dark:bg-green-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 13l4 4L19 7" className="check-path" />
+                <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 13l4 4L19 7" className="cli-signin-checkmark-path" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-bold text-foreground mb-2">CLI 로그인이 완료되었습니다</h2>
-              <p className="text-muted-foreground">터미널로 돌아가세요.</p>
+              <h2 className="text-2xl font-bold text-foreground mb-2">{t('cliSignin.successTitle')}</h2>
+              <p className="text-muted-foreground">{t('cliSignin.successDescription')}</p>
             </CardContent>
           </Card>
           <style>{`
-            .check-path {
-              stroke-dasharray: 24;
-              stroke-dashoffset: 24;
-              animation: drawCheck 0.4s ease-out forwards;
+            .cli-signin-checkmark-path {
+              stroke-dasharray: 20;
+              stroke-dashoffset: 20;
+              animation: drawCliSigninCheck 0.6s ease-out forwards;
             }
-            @keyframes drawCheck {
+            @keyframes drawCliSigninCheck {
               to {
                 stroke-dashoffset: 0;
               }
@@ -192,7 +187,6 @@ const CliSigninPage: React.FC = () => {
     );
   }
 
-  // Pending session, user is logged in - show approval UI
   return (
     <div className="flex items-center justify-center px-4 py-20">
       <div className="max-w-md w-full">
@@ -200,7 +194,7 @@ const CliSigninPage: React.FC = () => {
           <CardContent className="p-0 text-center">
             <div className="flex justify-center mb-5">
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                <svg className="w-9 h-9 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg className="w-9 h-9 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="4 17 10 11 4 5" />
                   <line x1="12" y1="19" x2="20" y2="19" />
                 </svg>
@@ -208,10 +202,10 @@ const CliSigninPage: React.FC = () => {
             </div>
 
             <h2 className="text-2xl font-bold text-foreground mb-2">
-              CLI에 로그인하시겠습니까?
+              {t('cliSignin.approveTitle')}
             </h2>
             <p className="text-muted-foreground text-sm mb-8">
-              터미널에서 요청한 CLI 로그인을 승인합니다.
+              {t('cliSignin.approveDescription')}
             </p>
 
             {user && (
@@ -239,8 +233,7 @@ const CliSigninPage: React.FC = () => {
             )}
 
             <p className="text-xs text-muted-foreground/70 mb-6">
-              승인하면 CLI에서 파일을 업로드하고 관리할 수 있는 Personal Token이 발급됩니다.
-              본인이 요청하지 않은 경우 승인하지 마세요.
+              {t('cliSignin.approveWarning')}
             </p>
 
             <Button
@@ -249,7 +242,7 @@ const CliSigninPage: React.FC = () => {
               size="xl"
               className="w-full"
             >
-              {approving ? <Spinner size="sm" className="text-primary-foreground" /> : '승인'}
+              {approving ? <Spinner size="sm" className="text-primary-foreground" /> : t('cliSignin.approveButton')}
             </Button>
           </CardContent>
         </Card>

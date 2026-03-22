@@ -135,7 +135,7 @@
     "providerName.naver": "Naver",
     "providerName.kakao": "Kakao",
     "providerName.apple": "Apple",
-    "loginCompleteTitle": "Login Complete",
+    "loginCompleteTitle": "Sign-in Complete",
     "canCloseTab": "You can close this tab."
   },
   "oauth": {
@@ -412,6 +412,25 @@
     "personalTokenCreatedAt": "Created",
     "personalTokenLastUsed": "Last used"
   },
+  "cliSignin": {
+    "pageTitle": "CLI Sign In",
+    "checking": "Checking...",
+    "invalidSession": "Invalid session.",
+    "checkStatusFailed": "Unable to check session status.",
+    "expiredTitle": "Session expired",
+    "expiredDescription": "Please try again from the CLI.",
+    "alreadyCompletedTitle": "Session already completed",
+    "alreadyCompletedDescription": "This session has already been approved.",
+    "errorTitle": "An error occurred",
+    "errorDefault": "Invalid request.",
+    "approveFailed": "Failed to approve. Please try again.",
+    "successTitle": "CLI sign-in complete",
+    "successDescription": "You can return to your terminal.",
+    "approveTitle": "Sign in to CLI?",
+    "approveDescription": "Approve the CLI sign-in request from your terminal.",
+    "approveWarning": "Approving will issue a Personal Token that allows the CLI to upload and manage files. Do not approve if you did not initiate this request.",
+    "approveButton": "Approve"
+  },
   "cli": {
     "pageTitle": "Get Started with CLI",
     "pageDescription": "Share files from your terminal, too. Use curl instantly or install the dedicated CLI tool via Homebrew for a richer experience.",
@@ -431,7 +450,9 @@
     "binaryUploadPathHint": "You can use file paths instead of just names. e.g. share upload ./docs/a.txt",
     "binaryDownload": "Download a file",
     "binaryDownloadHint": "Add a path after the code to specify where to save. e.g. share download 123456 ./downloads/",
-    "binaryAuth": "Personal Token authentication",
+    "binaryBrowserAuth": "Sign in via browser",
+    "binaryBrowserAuthHint": "Sign in directly from your browser without a token",
+    "binaryAuth": "Sign in with Personal Token",
     "binaryInfo": "Check file info before downloading",
     "binaryList": "View upload history (requires Personal Token)",
     "binaryLogout": "Remove saved Personal Token",

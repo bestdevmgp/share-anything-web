@@ -132,6 +132,11 @@ const CliPage: React.FC = () => {
           <hr className="border-border" />
 
           <div>
+            <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryBrowserAuth')}</p>
+            <CodeBlock code="share login" index={15} />
+            <p className="text-xs text-muted-foreground mt-1.5">{t('cli.binaryBrowserAuthHint')}</p>
+          </div>
+          <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryAuth')}</p>
             <CodeBlock code="share login sa_your_token_here" index={8} />
           </div>
