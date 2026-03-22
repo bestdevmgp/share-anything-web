@@ -515,14 +515,12 @@ const SettingsPage: React.FC = () => {
                     value={newTokenName}
                     onChange={(e) => setNewTokenName(e.target.value)}
                     placeholder={t('settings.personalTokenNamePlaceholder')}
-                    className="flex-1 sm:h-10"
-                    style={{ height: 50 }}
+                    className="flex-1 h-[50px] rounded-lg px-4 text-sm"
                   />
                   <Button
                     onClick={handleCreatePersonalToken}
                     disabled={creatingToken}
-                    className="flex-shrink-0 relative sm:h-9"
-                    style={{ height: 48 }}
+                    className="flex-shrink-0 relative h-[48px]"
                   >
                     <span className={creatingToken ? 'invisible' : ''}>{t('settings.createPersonalToken')}</span>
                     {creatingToken && <Spinner size="sm" className="text-primary-foreground absolute" />}
