@@ -515,7 +515,7 @@ const SettingsPage: React.FC = () => {
                     value={newTokenName}
                     onChange={(e) => setNewTokenName(e.target.value)}
                     placeholder={t('settings.personalTokenNamePlaceholder')}
-                    className="flex-1 h-[48px] sm:h-10"
+                    className="flex-1 h-[62px] sm:h-10"
                   />
                   <Button
                     onClick={handleCreatePersonalToken}
