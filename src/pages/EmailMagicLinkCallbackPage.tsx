@@ -60,7 +60,13 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
             localStorage.setItem('lastLoginProvider', 'email');
             login(data.auth!.token, data.auth!.user);
             toast.success(t('oauth.loginSuccess'));
-            navigate('/', { replace: true });
+            const cliRedirect = localStorage.getItem('cli_signin_redirect');
+            if (cliRedirect) {
+              localStorage.removeItem('cli_signin_redirect');
+              navigate(cliRedirect, { replace: true });
+            } else {
+              navigate('/', { replace: true });
+            }
           };
 
           try {

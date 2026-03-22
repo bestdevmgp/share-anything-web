@@ -52,7 +52,13 @@ const OAuthCallbackPage: React.FC = () => {
           const user = JSON.parse(decodeURIComponent(userParam));
           if (provider) localStorage.setItem('lastLoginProvider', provider);
           login(token, user);
-          navigate('/', { replace: true });
+          const cliRedirect = localStorage.getItem('cli_signin_redirect');
+          if (cliRedirect) {
+            localStorage.removeItem('cli_signin_redirect');
+            navigate(cliRedirect, { replace: true });
+          } else {
+            navigate('/', { replace: true });
+          }
           return;
         } catch (err) {
           setError(t('oauth.userParseError'));
@@ -89,7 +95,13 @@ const OAuthCallbackPage: React.FC = () => {
           login(data.token, data.user);
           localStorage.removeItem(processedKey);
           toast.success(t('oauth.loginSuccess'));
-          navigate('/', { replace: true });
+          const cliRedirect = localStorage.getItem('cli_signin_redirect');
+          if (cliRedirect) {
+            localStorage.removeItem('cli_signin_redirect');
+            navigate(cliRedirect, { replace: true });
+          } else {
+            navigate('/', { replace: true });
+          }
         } else {
           toast.error(t('oauth.noLoginInfo'));
           setTimeout(() => navigate('/signin', { replace: true }), 3000);

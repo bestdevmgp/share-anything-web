@@ -1,0 +1,261 @@
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { cliAuthAPI } from '../services/api';
+import { Card, CardContent } from '../components/ui/card';
+import { Button } from '../components/ui/button';
+import { Spinner } from '../components/ui/spinner';
+
+type SessionStatus = 'loading' | 'pending' | 'completed' | 'expired' | 'error';
+
+const CliSigninPage: React.FC = () => {
+  const { sessionId } = useParams<{ sessionId: string }>();
+  const navigate = useNavigate();
+  const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const [sessionStatus, setSessionStatus] = useState<SessionStatus>('loading');
+  const [approving, setApproving] = useState(false);
+  const [approved, setApproved] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    document.title = 'CLI 로그인';
+  }, []);
+
+  // Check session status
+  useEffect(() => {
+    if (!sessionId) {
+      setSessionStatus('error');
+      setError('잘못된 세션입니다.');
+      return;
+    }
+
+    const checkStatus = async () => {
+      try {
+        const data = await cliAuthAPI.getStatus(sessionId);
+        if (data.status === 'expired') {
+          setSessionStatus('expired');
+        } else if (data.status === 'completed') {
+          setSessionStatus('completed');
+        } else {
+          setSessionStatus('pending');
+        }
+      } catch (err: any) {
+        if (err.response?.status === 404) {
+          setSessionStatus('expired');
+        } else {
+          setSessionStatus('error');
+          setError('세션 상태를 확인할 수 없습니다.');
+        }
+      }
+    };
+
+    checkStatus();
+  }, [sessionId]);
+
+  // Redirect to login if session is pending but user is not logged in
+  useEffect(() => {
+    if (authLoading || sessionStatus !== 'pending') return;
+
+    if (!isAuthenticated) {
+      localStorage.setItem('cli_signin_redirect', `/cli-signin/${sessionId}`);
+      navigate('/signin', { replace: true });
+    }
+  }, [authLoading, isAuthenticated, sessionStatus, sessionId, navigate]);
+
+  const handleApprove = async () => {
+    if (!sessionId) return;
+    setApproving(true);
+    try {
+      await cliAuthAPI.completeSession(sessionId);
+      setApproved(true);
+    } catch (err: any) {
+      if (err.response?.status === 410 || err.response?.status === 404) {
+        setSessionStatus('expired');
+      } else if (err.response?.status === 409) {
+        setSessionStatus('completed');
+      } else {
+        setError('승인 중 오류가 발생했습니다. 다시 시도해주세요.');
+      }
+    } finally {
+      setApproving(false);
+    }
+  };
+
+  // Loading state
+  if (sessionStatus === 'loading' || authLoading) {
+    return (
+      <div className="flex items-center justify-center pt-32 pb-20">
+        <div className="flex flex-col items-center">
+          <Spinner size="xl" />
+          <p className="mt-4 text-muted-foreground">확인 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Expired session
+  if (sessionStatus === 'expired') {
+    return (
+      <div className="flex items-center justify-center px-4 py-20">
+        <div className="max-w-md w-full text-center">
+          <Card className="rounded-3xl border-2 p-8">
+            <CardContent className="p-0">
+              <div className="w-16 h-16 bg-yellow-100 dark:bg-yellow-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-foreground mb-2">세션이 만료되었습니다</h2>
+              <p className="text-muted-foreground">CLI에서 다시 시도해주세요.</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Already completed
+  if (sessionStatus === 'completed') {
+    return (
+      <div className="flex items-center justify-center px-4 py-20">
+        <div className="max-w-md w-full text-center">
+          <Card className="rounded-3xl border-2 p-8">
+            <CardContent className="p-0">
+              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 12l2 2 4-4" />
+                  <circle cx="12" cy="12" r="10" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-foreground mb-2">이미 완료된 세션입니다</h2>
+              <p className="text-muted-foreground">이 세션은 이미 승인되었습니다.</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (sessionStatus === 'error' || error) {
+    return (
+      <div className="flex items-center justify-center px-4 py-20">
+        <div className="max-w-md w-full text-center">
+          <Card className="rounded-3xl border-2 p-8">
+            <CardContent className="p-0">
+              <div className="w-16 h-16 bg-red-100 dark:bg-red-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M6 18L18 6" />
+                  <path d="M6 6l12 12" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-foreground mb-2">오류가 발생했습니다</h2>
+              <p className="text-muted-foreground">{error || '잘못된 요청입니다.'}</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Success screen after approval
+  if (approved) {
+    return (
+      <div className="flex items-center justify-center px-4 py-20">
+        <div className="max-w-md w-full text-center">
+          <Card className="rounded-3xl border-2 p-8">
+            <CardContent className="p-0">
+              <div className="w-16 h-16 bg-green-100 dark:bg-green-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 13l4 4L19 7" className="check-path" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-foreground mb-2">CLI 로그인이 완료되었습니다</h2>
+              <p className="text-muted-foreground">터미널로 돌아가세요.</p>
+            </CardContent>
+          </Card>
+          <style>{`
+            .check-path {
+              stroke-dasharray: 24;
+              stroke-dashoffset: 24;
+              animation: drawCheck 0.4s ease-out forwards;
+            }
+            @keyframes drawCheck {
+              to {
+                stroke-dashoffset: 0;
+              }
+            }
+          `}</style>
+        </div>
+      </div>
+    );
+  }
+
+  // Pending session, user is logged in - show approval UI
+  return (
+    <div className="flex items-center justify-center px-4 py-20">
+      <div className="max-w-md w-full">
+        <Card className="rounded-3xl border-2 p-10">
+          <CardContent className="p-0 text-center">
+            <div className="flex justify-center mb-5">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                <svg className="w-9 h-9 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="4 17 10 11 4 5" />
+                  <line x1="12" y1="19" x2="20" y2="19" />
+                </svg>
+              </div>
+            </div>
+
+            <h2 className="text-2xl font-bold text-foreground mb-2">
+              CLI에 로그인하시겠습니까?
+            </h2>
+            <p className="text-muted-foreground text-sm mb-8">
+              터미널에서 요청한 CLI 로그인을 승인합니다.
+            </p>
+
+            {user && (
+              <div className="bg-muted rounded-xl px-5 py-4 mb-6 border border-foreground/[0.09]">
+                <div className="flex items-center gap-3">
+                  {user.profile_image ? (
+                    <img
+                      src={user.profile_image}
+                      alt=""
+                      className="w-10 h-10 rounded-full"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                      <span className="text-sm font-medium text-primary">
+                        {user.name?.charAt(0) || user.email?.charAt(0) || '?'}
+                      </span>
+                    </div>
+                  )}
+                  <div className="text-left min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{user.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <p className="text-xs text-muted-foreground/70 mb-6">
+              승인하면 CLI에서 파일을 업로드하고 관리할 수 있는 Personal Token이 발급됩니다.
+              본인이 요청하지 않은 경우 승인하지 마세요.
+            </p>
+
+            <Button
+              onClick={handleApprove}
+              disabled={approving}
+              size="xl"
+              className="w-full"
+            >
+              {approving ? <Spinner size="sm" className="text-primary-foreground" /> : '승인'}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default CliSigninPage;

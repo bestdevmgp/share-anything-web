@@ -594,6 +594,13 @@ export const quickAccessAPI = {
   },
 };
 
+export const cliAuthAPI = {
+  completeSession: (sessionId: string) =>
+    api.post(`/cli/auth/session/${sessionId}/complete`).then(res => res.data),
+  getStatus: (sessionId: string) =>
+    api.get<{ status: string }>(`/cli/auth/session/${sessionId}/status`).then(res => res.data),
+};
+
 export const personalTokenAPI = {
   generate: async (name?: string, expiresInDays?: number): Promise<{ id: string; personal_token: string; token_prefix: string; name: string; expires_at: string | null; created_at: string }> => {
     const response = await api.post('/user/personal-tokens', { name, expires_in_days: expiresInDays });
