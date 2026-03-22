@@ -8,7 +8,9 @@ import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Spinner } from '../components/ui/spinner';
 import { Tooltip, TooltipTrigger, TooltipContent } from '../components/ui/tooltip';
-import { DevicePhoneMobileIcon, ClipboardDocumentIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { DevicePhoneMobileIcon, ClipboardDocumentIcon, CheckIcon, EnvelopeIcon, LinkIcon } from '@heroicons/react/24/outline';
+import { providerLogoMap } from '../utils/providerLogos';
+import type { User } from '../types';
 
 const EMAIL_AUTH_CHANNEL = 'email-auth-channel';
 
@@ -21,6 +23,11 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [canClose, setCanClose] = useState(false);
+  const [mergeInfo, setMergeInfo] = useState<{
+    token: string;
+    user: User;
+    existingProvider: string;
+  } | null>(null);
   const hasProcessed = useRef(false);
 
   useEffect(() => {
@@ -45,6 +52,17 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
         const data = await authAPI.verifyEmailToken(token, deviceId);
 
         if (data.same_device && data.auth) {
+          const hasExistingProvider = !!data.auth.existing_provider;
+
+          const doDirectLogin = () => {
+            setIsLoggingIn(true);
+            localStorage.removeItem('emailAuthDeviceId');
+            localStorage.setItem('lastLoginProvider', 'email');
+            login(data.auth!.token, data.auth!.user);
+            toast.success(t('oauth.loginSuccess'));
+            navigate('/', { replace: true });
+          };
+
           try {
             const channel = new BroadcastChannel(EMAIL_AUTH_CHANNEL);
             let received = false;
@@ -53,34 +71,35 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
               if (e.data?.type === 'auth-received') {
                 received = true;
                 channel.close();
-                window.close();
-                setCanClose(true);
+                if (hasExistingProvider) {
+                  localStorage.removeItem('emailAuthDeviceId');
+                  localStorage.setItem('lastLoginProvider', 'email');
+                  login(data.auth!.token, data.auth!.user);
+                  setMergeInfo({
+                    token: data.auth!.token,
+                    user: data.auth!.user,
+                    existingProvider: data.auth!.existing_provider!,
+                  });
+                } else {
+                  window.close();
+                  setCanClose(true);
+                }
               }
             };
 
             channel.postMessage({
               type: 'email-auth-complete',
-              auth: data.auth,
+              auth: { ...data.auth, existing_provider: undefined },
             });
 
             setTimeout(() => {
               if (!received) {
                 channel.close();
-                setIsLoggingIn(true);
-                localStorage.removeItem('emailAuthDeviceId');
-                localStorage.setItem('lastLoginProvider', 'email');
-                login(data.auth!.token, data.auth!.user);
-                toast.success(t('oauth.loginSuccess'));
-                navigate('/', { replace: true });
+                doDirectLogin();
               }
             }, 500);
           } catch {
-            setIsLoggingIn(true);
-            localStorage.removeItem('emailAuthDeviceId');
-            localStorage.setItem('lastLoginProvider', 'email');
-            login(data.auth.token, data.auth.user);
-            toast.success(t('oauth.loginSuccess'));
-            navigate('/', { replace: true });
+            doDirectLogin();
           }
         } else if (!data.same_device && data.verification_code) {
           setVerificationCode(data.verification_code);
@@ -125,6 +144,64 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
               }
             }
           `}</style>
+        </div>
+      </div>
+    );
+  }
+
+  if (mergeInfo) {
+    const ProviderLogo = providerLogoMap[mergeInfo.existingProvider];
+    const providerName = t(`emailAuth.providerName.${mergeInfo.existingProvider}`);
+
+    const handleMergeContinue = () => {
+      toast.success(t('oauth.loginSuccess'));
+      navigate('/', { replace: true });
+    };
+
+    return (
+      <div className="flex items-center justify-center px-4 py-20">
+        <div className="max-w-md w-full">
+          <Card className="rounded-3xl border-2 p-10">
+            <CardContent className="p-0">
+              <div className="flex items-center justify-center gap-3 mb-6">
+                {ProviderLogo && (
+                  <div className={`rounded-full flex items-center justify-center ${
+                    ({
+                      google: 'w-14 h-14 bg-[#F2F2F2] dark:bg-[#131314]',
+                      naver: 'w-14 h-14 bg-[#03C75A]',
+                      kakao: 'w-14 h-14 bg-[#FEE500]',
+                      apple: 'w-14 h-14 bg-black dark:bg-white text-white dark:text-black',
+                    } as Record<string, string>)[mergeInfo.existingProvider] || 'w-14 h-14 bg-muted'
+                  }`}>
+                    <ProviderLogo className={
+                      mergeInfo.existingProvider === 'google' ? 'w-7 h-7' :
+                      mergeInfo.existingProvider === 'kakao' ? 'w-7 h-7' :
+                      mergeInfo.existingProvider === 'apple' ? 'w-7 h-7' : 'w-5 h-5'
+                    } />
+                  </div>
+                )}
+                <LinkIcon className="w-5 h-5 text-muted-foreground" />
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+                  <EnvelopeIcon className="w-8 h-8 text-primary" strokeWidth={2} />
+                </div>
+              </div>
+
+              <h2 className="text-2xl font-bold text-foreground text-center mb-3">
+                {t('emailAuth.accountMergeTitle')}
+              </h2>
+              <p className="text-muted-foreground text-sm text-center mb-8">
+                {t('emailAuth.accountMergeMessage', { provider: providerName })}
+              </p>
+
+              <Button
+                onClick={handleMergeContinue}
+                size="xl"
+                className="w-full"
+              >
+                {t('emailAuth.continue')}
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
