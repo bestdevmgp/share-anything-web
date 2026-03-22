@@ -63,7 +63,7 @@ const CliSigninPage: React.FC = () => {
       toast.info(t('cliSignin.signInFirst'));
       navigate('/signin', { replace: true });
     }
-  }, [authLoading, isAuthenticated, sessionStatus, sessionId, navigate]);
+  }, [authLoading, isAuthenticated, sessionStatus, sessionId, navigate, t]);
 
   const handleApprove = async () => {
     if (!sessionId) return;
