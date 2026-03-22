@@ -90,7 +90,7 @@
   "login": {
     "title": "Sign in",
     "welcome": "Welcome!",
-    "subtitle": "Choose an account to sign in. Your information is securely stored.",
+    "subtitle": "Choose an account to sign in.",
     "continueWithGoogle": "Continue with Google",
     "continueWithNaver": "Continue with Naver",
     "continueWithApple": "Continue with Apple",

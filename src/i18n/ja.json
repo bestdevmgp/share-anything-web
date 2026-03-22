@@ -90,7 +90,7 @@
   "login": {
     "title": "ログイン",
     "welcome": "ようこそ！",
-    "subtitle": "アカウントを選択してください。すべての情報は安全に保管されます。",
+    "subtitle": "アカウントを選択してください。",
     "continueWithGoogle": "Googleで続ける",
     "continueWithNaver": "NAVERで続ける",
     "continueWithApple": "Appleで続ける",

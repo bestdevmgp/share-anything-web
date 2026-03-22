@@ -2,10 +2,7 @@ import React, {useEffect, useState} from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {authAPI} from '../services/api';
 import { useTranslation } from '../i18n';
-import { Card, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
-import { Button } from '../components/ui/button';
-import { EnvelopeIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { GoogleLogo, NaverLogo, KakaoLogo, AppleLogo } from '../utils/providerLogos';
 import { Spinner } from '../components/ui/spinner';
 
@@ -19,7 +16,6 @@ const LoginPage: React.FC = () => {
     const location = useLocation();
     const prefillEmail = (location.state as any)?.email || '';
     const [lastProvider, setLastProvider] = useState<LoginProvider | null>(null);
-    const [showEmailInput, setShowEmailInput] = useState(!!prefillEmail);
     const [email, setEmail] = useState(prefillEmail);
     const [emailError, setEmailError] = useState('');
     const [emailSending, setEmailSending] = useState(false);
@@ -82,22 +78,19 @@ const LoginPage: React.FC = () => {
 
     return (
         <div className="flex items-center justify-center px-4 py-20">
-            <div className="max-w-md w-full">
-                <Card className="rounded-3xl border-2 p-10">
-                    <CardContent className="p-0">
+            <div className="w-[420px] max-w-full">
+                <div>
                         <div className="text-center mb-10">
-                            <h1 className="text-4xl font-bold text-foreground mb-3">{t('login.welcome')}</h1>
-                            <p className="text-muted-foreground">
+                            <h1 className="text-2xl font-bold text-foreground">{t('login.welcome')}</h1>
+                            <p className="text-2xl font-bold text-foreground">
                                 {t('login.subtitle')}
                             </p>
                         </div>
 
-                        {!showEmailInput ? (
-                            <>
-                                <div className="space-y-4 mb-6">
+                        <div className="space-y-4 mb-6">
                                     <button
                                         onClick={handleGoogleLogin}
-                                        className="w-full relative flex items-center justify-center px-6 py-3 bg-[#F2F2F2] dark:bg-[#131314] border border-border rounded-lg can-hover:hover:bg-[#E8E8E8] dark:can-hover:hover:bg-[#1f1f1f] active:bg-[#E8E8E8] dark:active:bg-[#1f1f1f] transition-colors"
+                                        className="w-full relative flex items-center justify-center px-6 h-[50px] bg-[#F2F2F2] dark:bg-[#131314] border border-border rounded-lg can-hover:hover:bg-[#E8E8E8] dark:can-hover:hover:bg-[#1f1f1f] active:bg-[#E8E8E8] dark:active:bg-[#1f1f1f] transition-colors"
                                     >
                                         <GoogleLogo className="absolute left-4 w-5 h-5" />
                                         <span className="relative">
@@ -108,7 +101,7 @@ const LoginPage: React.FC = () => {
 
                                     <button
                                         onClick={handleNaverLogin}
-                                        className="w-full relative flex items-center justify-center px-6 py-3 bg-[#03C75A] can-hover:hover:bg-[#02b350] active:bg-[#02b350] rounded-lg transition-colors"
+                                        className="w-full relative flex items-center justify-center px-6 h-[50px] bg-[#03C75A] can-hover:hover:bg-[#02b350] active:bg-[#02b350] rounded-lg transition-colors"
                                     >
                                         <NaverLogo className="absolute left-[19px] w-4 h-4" />
                                         <span className="relative">
@@ -119,7 +112,7 @@ const LoginPage: React.FC = () => {
 
                                     <button
                                         onClick={handleKakaoLogin}
-                                        className="w-full relative flex items-center justify-center px-6 py-3 bg-[#FEE500] can-hover:hover:bg-[#f0d900] active:bg-[#f0d900] rounded-lg transition-colors"
+                                        className="w-full relative flex items-center justify-center px-6 h-[50px] bg-[#FEE500] can-hover:hover:bg-[#f0d900] active:bg-[#f0d900] rounded-lg transition-colors"
                                     >
                                         <KakaoLogo className="absolute left-[17px] w-[21px] h-[21px]" />
                                         <span className="relative">
@@ -130,7 +123,7 @@ const LoginPage: React.FC = () => {
 
                                     <button
                                         onClick={handleAppleLogin}
-                                        className="w-full relative flex items-center justify-center px-6 py-3 bg-black dark:bg-white rounded-lg can-hover:hover:bg-[#333333] dark:can-hover:hover:bg-[#e8e8e8] active:bg-[#333333] dark:active:bg-[#e8e8e8] text-white dark:text-black transition-colors"
+                                        className="w-full relative flex items-center justify-center px-6 h-[50px] bg-black dark:bg-white rounded-lg can-hover:hover:bg-[#333333] dark:can-hover:hover:bg-[#e8e8e8] active:bg-[#333333] dark:active:bg-[#e8e8e8] text-white dark:text-black transition-colors"
                                     >
                                         <AppleLogo className="absolute left-[17px] w-[21px] h-[21px]" />
                                         <span className="relative">
@@ -147,52 +140,30 @@ const LoginPage: React.FC = () => {
                                     <div className="flex-1 h-px bg-border" />
                                 </div>
 
-                                {/* Email button */}
+                                {/* Email input */}
                                 <div className="mb-8">
+                                    <div className="relative">
+                                        <Input
+                                            type="email"
+                                            placeholder={t('login.continueWithEmail')}
+                                            value={email}
+                                            onChange={(e) => { setEmail(e.target.value); setEmailError(''); }}
+                                            onKeyDown={handleEmailKeyDown}
+                                            className="w-full h-[50px] rounded-lg px-4 text-sm"
+                                        />
+                                        {lastProvider === 'email' && <RecentLoginBubble label={t('login.recentLogin')} />}
+                                    </div>
+                                    {emailError && (
+                                        <p className="text-sm text-destructive mt-1.5">{emailError}</p>
+                                    )}
                                     <button
-                                        onClick={() => setShowEmailInput(true)}
-                                        className="w-full relative flex items-center justify-center px-6 py-3 bg-card border border-border rounded-lg can-hover:hover:bg-accent active:bg-accent transition-colors"
+                                        onClick={handleEmailSubmit}
+                                        disabled={emailSending || !email.trim()}
+                                        className="w-full flex items-center justify-center h-[48px] bg-primary text-primary-foreground font-medium text-sm rounded-lg can-hover:hover:bg-primary/90 active:bg-primary/90 transition-colors disabled:opacity-50 mt-2.5"
                                     >
-                                        <EnvelopeIcon className="absolute left-4 w-5 h-5 text-foreground" />
-                                        <span className="relative">
-                                            <span className="font-medium text-sm text-foreground">{t('login.continueWithEmail')}</span>
-                                            {lastProvider === 'email' && <RecentLoginBubble label={t('login.recentLogin')} />}
-                                        </span>
+                                        {emailSending ? <Spinner size="sm" className="text-primary-foreground" /> : t('emailAuth.next')}
                                     </button>
                                 </div>
-                            </>
-                        ) : (
-                            <div className="mb-8">
-                                <button
-                                    onClick={() => { setShowEmailInput(false); setEmailError(''); }}
-                                    className="flex items-center gap-1.5 text-sm text-muted-foreground can-hover:hover:bg-accent can-hover:hover:text-foreground active:bg-accent active:text-foreground transition-colors mb-3 -ml-2 px-2 py-1.5 rounded-md"
-                                >
-                                    <ArrowLeftIcon className="w-4 h-4" />
-                                    {t('emailAuth.backToLogin')}
-                                </button>
-
-                                <Input
-                                    type="email"
-                                    placeholder={t('emailAuth.enterEmail')}
-                                    value={email}
-                                    onChange={(e) => { setEmail(e.target.value); setEmailError(''); }}
-                                    onKeyDown={handleEmailKeyDown}
-                                    className="h-12 mb-3"
-                                    autoFocus
-                                />
-                                {emailError && (
-                                    <p className="text-sm text-destructive mb-3">{emailError}</p>
-                                )}
-                                <Button
-                                    onClick={handleEmailSubmit}
-                                    disabled={emailSending}
-                                    size="xl"
-                                    className="w-full"
-                                >
-                                    {emailSending ? <Spinner size="sm" className="text-primary-foreground" /> : t('emailAuth.next')}
-                                </Button>
-                            </div>
-                        )}
 
                         <div className="text-center text-xs text-muted-foreground/70 leading-relaxed">
                             {t('login.termsNotice')}
@@ -205,8 +176,7 @@ const LoginPage: React.FC = () => {
                             </a>
                             {t('login.termsAgree')}
                         </div>
-                    </CardContent>
-                </Card>
+                </div>
             </div>
         </div>
     );

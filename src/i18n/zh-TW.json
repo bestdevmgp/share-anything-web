@@ -90,7 +90,7 @@
   "login": {
     "title": "登入",
     "welcome": "歡迎！",
-    "subtitle": "請選擇帳號。所有資料皆會安全保管。",
+    "subtitle": "請選擇帳號。",
     "continueWithGoogle": "使用 Google 繼續",
     "continueWithNaver": "使用 Naver 繼續",
     "continueWithApple": "使用 Apple 繼續",
