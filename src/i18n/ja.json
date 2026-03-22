@@ -429,7 +429,8 @@
     "approveTitle": "CLIにサインインしますか？",
     "approveDescription": "ターミナルからのCLIサインインリクエストを承認します",
     "approveWarning": "承認すると、CLIでファイルのアップロードや管理ができるPersonal Tokenが発行されます。心当たりがない場合は承認しないでください",
-    "approveButton": "承認"
+    "approveButton": "承認",
+    "signInFirst": "先にサインインしてください"
   },
   "cli": {
     "pageTitle": "CLIをはじめる",

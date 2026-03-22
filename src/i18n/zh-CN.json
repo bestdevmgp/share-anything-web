@@ -429,7 +429,8 @@
     "approveTitle": "要登录 CLI 吗？",
     "approveDescription": "批准来自终端的 CLI 登录请求",
     "approveWarning": "批准后将发放 Personal Token，允许 CLI 上传和管理文件。如果不是本人发起的请求，请勿批准",
-    "approveButton": "批准"
+    "approveButton": "批准",
+    "signInFirst": "请先登录"
   },
   "cli": {
     "pageTitle": "开始使用 CLI",

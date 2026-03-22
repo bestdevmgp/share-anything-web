@@ -77,7 +77,7 @@ const LoginPage: React.FC = () => {
     };
 
     return (
-        <div className="flex items-center justify-center px-4 py-20">
+        <div className="flex items-center justify-center px-5 sm:px-4 py-20">
             <div className="w-[420px] max-w-full">
                 <div>
                         <div className="text-center mb-10">

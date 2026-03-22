@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'i18n';
 import { useAuth } from '../context/AuthContext';
 import { cliAuthAPI } from '../services/api';
+import { toast } from '../context/ToastContext';
 import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Spinner } from '../components/ui/spinner';
@@ -59,6 +60,7 @@ const CliSigninPage: React.FC = () => {
 
     if (!isAuthenticated) {
       localStorage.setItem('cli_signin_redirect', `/cli-signin/${sessionId}`);
+      toast.info(t('cliSignin.signInFirst'));
       navigate('/signin', { replace: true });
     }
   }, [authLoading, isAuthenticated, sessionStatus, sessionId, navigate]);

@@ -429,7 +429,8 @@
     "approveTitle": "Sign in to CLI?",
     "approveDescription": "Approve the CLI sign-in request from your terminal.",
     "approveWarning": "Approving will issue a Personal Token that allows the CLI to upload and manage files. Do not approve if you did not initiate this request.",
-    "approveButton": "Approve"
+    "approveButton": "Approve",
+    "signInFirst": "Please sign in first"
   },
   "cli": {
     "pageTitle": "Get Started with CLI",

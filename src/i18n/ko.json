@@ -429,7 +429,8 @@
     "approveTitle": "CLI에 로그인하시겠습니까?",
     "approveDescription": "터미널에서 요청한 CLI 로그인을 승인합니다.",
     "approveWarning": "승인하면 CLI에서 파일을 업로드하고 관리할 수 있는 Personal Token이 발급됩니다. 본인이 요청하지 않은 경우 승인하지 마세요.",
-    "approveButton": "승인"
+    "approveButton": "승인",
+    "signInFirst": "먼저 로그인을 진행해주세요"
   },
   "cli": {
     "pageTitle": "CLI 시작하기",
