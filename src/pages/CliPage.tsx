@@ -61,7 +61,7 @@ const CliPage: React.FC = () => {
       </pre>
       <button
         onClick={() => copyToClipboard(code, index)}
-        className="absolute top-2 right-2 p-1.5 rounded-md can-hover:hover:bg-zinc-700/50 transition-colors"
+        className="absolute top-2 right-2 p-1.5 rounded-md can-hover:hover:bg-zinc-700/50"
       >
         {copiedIndex === index ? (
           <CheckIcon className="w-4 h-4 text-green-400" />
