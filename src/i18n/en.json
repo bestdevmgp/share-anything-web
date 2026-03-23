@@ -456,7 +456,7 @@
     "binaryBrowserAuthHint": "Sign in directly from your browser without a token",
     "binaryAuth": "Sign in with Personal Token",
     "binaryInfo": "Check file info before downloading",
-    "binaryList": "View upload history (requires Personal Token)",
+    "binaryList": "View upload history (authentication required)",
     "binaryLogout": "Remove saved Personal Token",
     "comparisonTitle": "curl vs share-cli",
     "feature": "Feature",

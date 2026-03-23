@@ -456,7 +456,7 @@
     "binaryBrowserAuthHint": "無需令牌，直接從瀏覽器登入",
     "binaryAuth": "使用 Personal Token 登入",
     "binaryInfo": "下載前查看檔案資訊",
-    "binaryList": "查看上傳紀錄（需要 Personal Token）",
+    "binaryList": "查看上傳紀錄（需要認證）",
     "binaryLogout": "移除已儲存的 Personal Token",
     "comparisonTitle": "curl vs share-cli",
     "feature": "功能",

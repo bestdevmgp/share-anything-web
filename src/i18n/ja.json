@@ -456,7 +456,7 @@
     "binaryBrowserAuthHint": "トークンなしでブラウザから直接サインインできます",
     "binaryAuth": "Personal Tokenでサインイン",
     "binaryInfo": "ダウンロード前にファイル情報を確認",
-    "binaryList": "アップロード履歴を表示（Personal Token必要）",
+    "binaryList": "アップロード履歴を表示（認証必要）",
     "binaryLogout": "保存されたPersonal Tokenを削除",
     "comparisonTitle": "curl vs share-cli",
     "feature": "機能",
