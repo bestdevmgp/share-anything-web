@@ -446,6 +446,7 @@
     "binaryDescription": "프로그레스 바, 파이프 지원, 대용량 멀티파트 업로드 등 다양한 기능을 제공합니다.",
     "installCurl": "스크립트로 설치",
     "installBrew": "Homebrew로 설치",
+    "installNpm": "npm으로 설치",
     "binaryUpload": "파일 업로드",
     "binaryUploadHint": "여러 파일을 업로드하려면 파일명을 띄어쓰기로 구분하세요. 예: share upload a.txt b.png",
     "binaryUploadPathHint": "파일명 대신 경로를 사용할 수도 있습니다. 예: share upload ./docs/a.txt",

@@ -446,6 +446,7 @@
     "binaryDescription": "Progress bars, pipe support, automatic multipart uploads for large files, and more.",
     "installCurl": "Install via script",
     "installBrew": "Install via Homebrew",
+    "installNpm": "Install via npm",
     "binaryUpload": "Upload a file",
     "binaryUploadHint": "To upload multiple files, separate them with spaces. e.g. share upload a.txt b.png",
     "binaryUploadPathHint": "You can use file paths instead of just names. e.g. share upload ./docs/a.txt",

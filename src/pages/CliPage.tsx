@@ -34,7 +34,7 @@ const CliPage: React.FC = () => {
         const token = match[0];
         let className = 'text-zinc-100';
 
-        if (/^(curl|echo|brew|share|sh|sudo)$/.test(token)) {
+        if (/^(curl|echo|brew|share|sh|sudo|npm)$/.test(token)) {
           className = 'text-emerald-400';
         } else if (/^-/.test(token)) {
           className = 'text-sky-300';
@@ -55,13 +55,13 @@ const CliPage: React.FC = () => {
   };
 
   const CodeBlock = ({ code, index }: { code: string; index: number }) => (
-    <div className="relative group">
-      <pre className="bg-zinc-900 text-zinc-100 rounded-lg px-4 py-3 text-sm overflow-x-auto font-mono">
+    <div className="relative">
+      <pre className="bg-zinc-900 text-zinc-100 rounded-lg px-4 py-3 pr-12 text-sm overflow-x-auto font-mono">
         <code>{highlightCode(code)}</code>
       </pre>
       <button
         onClick={() => copyToClipboard(code, index)}
-        className="absolute top-2 right-2 p-1.5 rounded-md bg-zinc-700/50 can-hover:hover:bg-zinc-600 transition-colors opacity-0 group-hover:opacity-100"
+        className="absolute top-2 right-2 p-1.5 rounded-md can-hover:hover:bg-zinc-700/50 transition-colors"
       >
         {copiedIndex === index ? (
           <CheckIcon className="w-4 h-4 text-green-400" />
@@ -96,12 +96,16 @@ const CliPage: React.FC = () => {
 
         <div className="space-y-4">
           <div>
-            <p className="text-sm font-medium text-foreground mb-2">{t('cli.installCurl')}</p>
-            <CodeBlock code="curl -fsSL share-api.mingyu.dev/install | sh" index={4} />
+            <p className="text-sm font-medium text-foreground mb-2">{t('cli.installNpm')}</p>
+            <CodeBlock code="npm i -g share-anything-cli" index={16} />
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.installBrew')}</p>
             <CodeBlock code={"brew tap bestdevmgp/share-anything\nbrew install share-anything"} index={9} />
+          </div>
+          <div>
+            <p className="text-sm font-medium text-foreground mb-2">{t('cli.installCurl')}</p>
+            <CodeBlock code="curl -fsSL share-api.mingyu.dev/install | sh" index={4} />
           </div>
 
           <hr className="border-border" />

@@ -446,6 +446,7 @@
     "binaryDescription": "提供進度條、管道支援、大檔案自動分片上傳等豐富功能。",
     "installCurl": "透過腳本安裝",
     "installBrew": "透過 Homebrew 安裝",
+    "installNpm": "透過 npm 安裝",
     "binaryUpload": "上傳檔案",
     "binaryUploadHint": "上傳多個檔案時，用空格分隔檔案名稱。例: share upload a.txt b.png",
     "binaryUploadPathHint": "可以使用檔案路徑代替檔案名稱。例: share upload ./docs/a.txt",
