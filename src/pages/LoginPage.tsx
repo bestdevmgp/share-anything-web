@@ -149,6 +149,7 @@ const LoginPage: React.FC = () => {
                                             value={email}
                                             onChange={(e) => { setEmail(e.target.value); setEmailError(''); }}
                                             onKeyDown={handleEmailKeyDown}
+                                            autoFocus={!!prefillEmail}
                                             className="w-full h-[50px] rounded-lg px-4 text-sm"
                                         />
                                         {lastProvider === 'email' && <RecentLoginBubble label={t('login.recentLogin')} />}
