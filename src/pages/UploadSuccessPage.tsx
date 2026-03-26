@@ -175,7 +175,7 @@ const UploadSuccessPage: React.FC = () => {
               {t('uploadSuccess.shareCode')}
             </label>
             <div className="relative bg-muted rounded-xl px-3 md:px-8 py-3 md:py-6 mb-4 border border-foreground/[0.09]">
-              <p className="text-[2.75rem] md:text-5xl font-bold text-center text-foreground break-all" style={{ letterSpacing: '0.1em' }}>
+              <p className="text-[2.25rem] md:text-5xl font-bold text-center text-foreground break-all" style={{ letterSpacing: '0.1em' }}>
                 {displayCode}
               </p>
               <Tooltip>
