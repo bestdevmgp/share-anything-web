@@ -273,7 +273,7 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
               </p>
 
               <div className="relative bg-muted rounded-xl px-6 py-4 border border-foreground/[0.09]">
-                <p className="text-[2.75rem] sm:text-4xl font-bold text-center text-foreground" style={{ letterSpacing: '0.1em' }}>
+                <p className="text-[2.5rem] sm:text-4xl font-bold text-center text-foreground" style={{ letterSpacing: '0.1em' }}>
                   {verificationCode && verificationCode.length === 6
                     ? `${verificationCode.slice(0, 3)} ${verificationCode.slice(3)}`
                     : verificationCode}
