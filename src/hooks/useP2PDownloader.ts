@@ -32,6 +32,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
   const completedRef = useRef<boolean>(false);
   const isCleaningUpRef = useRef<boolean>(false);
   const pendingErrorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const keepaliveIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const formatTime = useCallback((seconds: number): string => {
     if (seconds < 60) return t('format.secondsRemaining', { seconds: Math.max(1, Math.ceil(seconds)) });
@@ -96,6 +97,12 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
         ws.onclose = () => {
         };
 
+        keepaliveIntervalRef.current = setInterval(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            sendSignalingMessage(ws, { type: 'ping' });
+          }
+        }, 30000);
+
         const pc = await createPeerConnection();
         pcRef.current = pc;
 
@@ -122,7 +129,8 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           };
 
           dataChannel.onclose = () => {
-            if (!completedRef.current && receivedSizeRef.current > 0 && receivedSizeRef.current >= actualFileSize * 0.95) {
+            if (completedRef.current || isCleaningUpRef.current) return;
+            if (receivedSizeRef.current > 0 && receivedSizeRef.current >= actualFileSize * 0.95) {
               completedRef.current = true;
               if (pendingChunksRef.current.length > 0) {
                 receivedBlobsRef.current.push(new Blob(pendingChunksRef.current));
@@ -135,6 +143,9 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
               setTimeRemaining('');
               onComplete(blob);
               cleanup();
+            } else {
+              setStatus('error');
+              toast.error(t('p2p.receiveError'));
             }
           };
 
@@ -372,6 +383,10 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
 
     const cleanup = () => {
       isCleaningUpRef.current = true;
+      if (keepaliveIntervalRef.current) {
+        clearInterval(keepaliveIntervalRef.current);
+        keepaliveIntervalRef.current = null;
+      }
       if (pcRef.current) {
         pcRef.current.close();
         pcRef.current = null;

@@ -128,7 +128,9 @@ export type SignalingMessageType =
   | 'error'
   | 'uploader_offline'
   | 'downloader_offline'
-  | 'uploader_cancelled';
+  | 'uploader_cancelled'
+  | 'ping'
+  | 'pong';
 
 export interface SignalingMessage {
   type: SignalingMessageType;

@@ -334,6 +334,12 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     ws.onclose = () => {
     };
 
+    const keepaliveInterval = setInterval(() => {
+      if (ws.readyState === WebSocket.OPEN) {
+        sendSignalingMessage(ws, { type: 'ping' });
+      }
+    }, 30000);
+
     const handleSignalingMessage = async (message: SignalingMessage) => {
       const ws = wsRef.current;
       if (!ws) return;
@@ -436,6 +442,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     };
 
     return () => {
+      clearInterval(keepaliveInterval);
       isCleaningUpRef.current = true;
       if (dataChannelRef.current) {
         dataChannelRef.current.close();
