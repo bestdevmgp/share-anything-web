@@ -22,7 +22,9 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
   const wsRef = useRef<WebSocket | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const peerIdRef = useRef<string>(generatePeerId());
-  const receivedChunksRef = useRef<ArrayBuffer[]>([]);
+  const receivedBlobsRef = useRef<Blob[]>([]);
+  const pendingChunksRef = useRef<ArrayBuffer[]>([]);
+  const pendingSizeRef = useRef<number>(0);
   const receivedSizeRef = useRef<number>(0);
   const downloadStartTimeRef = useRef<number>(0);
   const lastTimeUpdateRef = useRef<number>(0);
@@ -54,7 +56,9 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
     setStatus('connecting');
     setProgress(0);
     setTimeRemaining('');
-    receivedChunksRef.current = [];
+    receivedBlobsRef.current = [];
+    pendingChunksRef.current = [];
+    pendingSizeRef.current = 0;
     receivedSizeRef.current = 0;
     downloadStartTimeRef.current = 0;
     lastTimeUpdateRef.current = 0;
@@ -120,7 +124,12 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           dataChannel.onclose = () => {
             if (!completedRef.current && receivedSizeRef.current > 0 && receivedSizeRef.current >= actualFileSize * 0.95) {
               completedRef.current = true;
-              const blob = new Blob(receivedChunksRef.current, { type: actualFileType });
+              if (pendingChunksRef.current.length > 0) {
+                receivedBlobsRef.current.push(new Blob(pendingChunksRef.current));
+                pendingChunksRef.current = [];
+                pendingSizeRef.current = 0;
+              }
+              const blob = new Blob(receivedBlobsRef.current, { type: actualFileType });
               setStatus('completed');
               setProgress(100);
               setTimeRemaining('');
@@ -142,7 +151,12 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
                   setStatus('processing');
 
                   setTimeout(() => {
-                    const blob = new Blob(receivedChunksRef.current, { type: actualFileType });
+                    if (pendingChunksRef.current.length > 0) {
+                      receivedBlobsRef.current.push(new Blob(pendingChunksRef.current));
+                      pendingChunksRef.current = [];
+                      pendingSizeRef.current = 0;
+                    }
+                    const blob = new Blob(receivedBlobsRef.current, { type: actualFileType });
                     setStatus('completed');
                     onComplete(blob);
 
@@ -176,8 +190,15 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
             }
 
             const chunk = event.data as ArrayBuffer;
-            receivedChunksRef.current.push(chunk);
+            pendingChunksRef.current.push(chunk);
+            pendingSizeRef.current += chunk.byteLength;
             receivedSizeRef.current += chunk.byteLength;
+
+            if (pendingSizeRef.current >= 10 * 1024 * 1024) {
+              receivedBlobsRef.current.push(new Blob(pendingChunksRef.current));
+              pendingChunksRef.current = [];
+              pendingSizeRef.current = 0;
+            }
 
             const now = Date.now();
             if (now - lastTimeUpdateRef.current >= 1000) {
@@ -239,10 +260,14 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
             }
           } else if (pc.iceConnectionState === 'failed') {
             clearTimeout(connectionTimeout);
-            // 연결 실패 시 수신 데이터가 충분하면 완료 처리
             if (!completedRef.current && receivedSizeRef.current > 0 && receivedSizeRef.current >= actualFileSize * 0.95) {
               completedRef.current = true;
-              const blob = new Blob(receivedChunksRef.current, { type: actualFileType });
+              if (pendingChunksRef.current.length > 0) {
+                receivedBlobsRef.current.push(new Blob(pendingChunksRef.current));
+                pendingChunksRef.current = [];
+                pendingSizeRef.current = 0;
+              }
+              const blob = new Blob(receivedBlobsRef.current, { type: actualFileType });
               setStatus('completed');
               setProgress(100);
               onComplete(blob);
@@ -384,7 +409,9 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
       wsRef.current.close();
       wsRef.current = null;
     }
-    receivedChunksRef.current = [];
+    receivedBlobsRef.current = [];
+    pendingChunksRef.current = [];
+    pendingSizeRef.current = 0;
     receivedSizeRef.current = 0;
     setStatus('cancelled');
     setProgress(0);

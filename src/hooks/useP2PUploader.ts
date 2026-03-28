@@ -62,8 +62,8 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
   }, [t]);
 
   const sendFile = useCallback((file: File, dataChannel: RTCDataChannel) => {
-    const reader = new FileReader();
     const chunkSize = 16384;
+    const sliceSize = chunkSize * 16; // 256KB per disk read
     let offset = 0;
     transferStartTimeRef.current = Date.now();
     lastTimeUpdateRef.current = 0;
@@ -120,67 +120,78 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       }
     };
 
-    reader.onload = (e) => {
-      if (!e.target?.result) return;
+    const readNextSlice = () => {
+      if (cancelledRef.current) return;
+      if (offset >= file.size) {
+        waitForBufferDrain();
+        return;
+      }
 
-      const buffer = e.target.result as ArrayBuffer;
+      const slice = file.slice(offset, Math.min(offset + sliceSize, file.size));
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (!e.target?.result) return;
+        const buffer = e.target.result as ArrayBuffer;
+        let bufferOffset = 0;
 
-      const sendChunk = () => {
-        if (cancelledRef.current) {
-          return;
-        }
+        const updateProgress = () => {
+          const now = Date.now();
+          if (now - lastTimeUpdateRef.current >= 1000) {
+            const progressPercent = Math.min((offset / file.size) * 100, 100);
+            const elapsedMs = now - transferStartTimeRef.current;
+            let timeRemainingStr = '';
 
-        if (offset >= buffer.byteLength) {
-          waitForBufferDrain();
-          return;
-        }
+            if (elapsedMs > 500 && offset > 0) {
+              const bytesPerMs = offset / elapsedMs;
+              const remainingBytes = file.size - offset;
+              const remainingSeconds = remainingBytes / bytesPerMs / 1000;
+              timeRemainingStr = formatTime(remainingSeconds);
+            }
 
-        const chunk = buffer.slice(offset, offset + chunkSize);
+            setFileProgresses(prev => {
+              const newMap = new Map(prev);
+              const fileProgress = newMap.get(file.name);
+              if (fileProgress) {
+                newMap.set(file.name, {
+                  ...fileProgress,
+                  progress: Math.round(progressPercent),
+                  status: 'transferring',
+                  timeRemaining: timeRemainingStr || fileProgress.timeRemaining
+                });
+              }
+              return newMap;
+            });
+            lastTimeUpdateRef.current = now;
+          }
+        };
 
-        if (dataChannel.bufferedAmount > chunkSize * 10) {
-          setTimeout(sendChunk, 10);
-          return;
-        }
+        const sendChunks = () => {
+          while (bufferOffset < buffer.byteLength) {
+            if (cancelledRef.current) return;
 
-        dataChannel.send(chunk);
-        offset += chunkSize;
+            if (dataChannel.bufferedAmount > chunkSize * 10) {
+              updateProgress();
+              setTimeout(sendChunks, 10);
+              return;
+            }
 
-        const now = Date.now();
-        if (now - lastTimeUpdateRef.current >= 1000) {
-          const progressPercent = Math.min((offset / buffer.byteLength) * 100, 100);
-          const elapsedMs = now - transferStartTimeRef.current;
-          let timeRemainingStr = '';
-
-          if (elapsedMs > 500 && offset > 0) {
-            const bytesPerMs = offset / elapsedMs;
-            const remainingBytes = buffer.byteLength - offset;
-            const remainingSeconds = remainingBytes / bytesPerMs / 1000;
-            timeRemainingStr = formatTime(remainingSeconds);
+            const end = Math.min(bufferOffset + chunkSize, buffer.byteLength);
+            const chunk = buffer.slice(bufferOffset, end);
+            dataChannel.send(chunk);
+            offset += chunk.byteLength;
+            bufferOffset += chunk.byteLength;
           }
 
-          setFileProgresses(prev => {
-            const newMap = new Map(prev);
-            const fileProgress = newMap.get(file.name);
-            if (fileProgress) {
-              newMap.set(file.name, {
-                ...fileProgress,
-                progress: Math.round(progressPercent),
-                status: 'transferring',
-                timeRemaining: timeRemainingStr || fileProgress.timeRemaining
-              });
-            }
-            return newMap;
-          });
-          lastTimeUpdateRef.current = now;
-        }
+          updateProgress();
+          readNextSlice();
+        };
 
-        setTimeout(sendChunk, 0);
+        sendChunks();
       };
-
-      sendChunk();
+      reader.readAsArrayBuffer(slice);
     };
 
-    reader.readAsArrayBuffer(file);
+    readNextSlice();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shareCode, formatTime]);
 
