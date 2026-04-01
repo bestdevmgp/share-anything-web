@@ -434,7 +434,7 @@
   },
   "cli": {
     "pageTitle": "開始使用 CLI",
-    "pageDescription": "也可以從終端輕鬆分享檔案。使用 curl 即時使用，或透過 Homebrew 安裝專用 CLI 工具以獲得更好的體驗。",
+    "pageDescription": "也可以從終端輕鬆分享檔案。透過 npm 或 Homebrew 安裝專用 CLI 工具，或使用 curl 立即開始。",
     "curlTitle": "使用 curl 快速開始",
     "curlDescription": "無需安裝。僅使用 curl 指令即可上傳和下載檔案。",
     "curlUpload": "上傳檔案",

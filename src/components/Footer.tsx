@@ -94,12 +94,6 @@ const Footer: React.FC = () => {
           </a>
         </div>
 
-        <div className="text-center mb-5">
-          <p className="text-sm text-muted-foreground/70">
-            © 2026 ShareAnything. All rights reserved.
-          </p>
-        </div>
-
         <div className="flex justify-center items-end gap-[12px]">
           {/* Language Dropdown */}
           <Popover open={langOpen} onOpenChange={setLangOpen}>

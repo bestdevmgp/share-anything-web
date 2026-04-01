@@ -434,7 +434,7 @@
   },
   "cli": {
     "pageTitle": "Get Started with CLI",
-    "pageDescription": "Share files from your terminal, too. Use curl instantly or install the dedicated CLI tool via Homebrew for a richer experience.",
+    "pageDescription": "Share files from your terminal, too. Install the CLI tool via npm or Homebrew, or use curl to get started instantly.",
     "curlTitle": "Quick Start with curl",
     "curlDescription": "No installation needed. Use curl to upload and download files.",
     "curlUpload": "Upload a file",

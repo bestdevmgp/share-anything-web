@@ -59,9 +59,10 @@ const CliPage: React.FC = () => {
       <pre className="bg-zinc-900 text-zinc-100 rounded-lg px-4 py-3 pr-12 text-sm overflow-x-auto font-mono">
         <code>{highlightCode(code)}</code>
       </pre>
+      <div className="absolute top-0 right-0 bottom-0 w-16 pointer-events-none rounded-r-lg bg-gradient-to-r from-transparent to-zinc-900 to-40%" />
       <button
         onClick={() => copyToClipboard(code, index)}
-        className="absolute top-2 right-2 p-1.5 rounded-md can-hover:hover:bg-zinc-700/50"
+        className="absolute top-2 right-2 p-1.5 rounded-md bg-zinc-900 can-hover:hover:bg-zinc-700 transition-colors"
       >
         {copiedIndex === index ? (
           <CheckIcon className="w-4 h-4 text-green-400" />
