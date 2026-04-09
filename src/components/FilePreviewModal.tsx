@@ -46,6 +46,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   const [docxReady, setDocxReady] = useState(false);
   const docxContainerRef = useRef<HTMLDivElement>(null);
   const [hwpPdfSource, setHwpPdfSource] = useState<{ data: ArrayBuffer } | null>(null);
+  const [hwpSrcdoc, setHwpSrcdoc] = useState<string | null>(null);
   const [hwpFallbackImg, setHwpFallbackImg] = useState<string | null>(null);
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -137,32 +138,46 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
             setDocxReady(true);
           }
         } else if (isHwpFile(fileName)) {
-          const formData = new FormData();
-          if (source instanceof File) {
-            formData.append('file', source);
-          } else {
-            const res = await fetch(source);
-            const blob = await res.blob();
-            formData.append('file', blob, fileName);
-          }
-          if (cancelled) return;
-          const apiUrl = process.env.REACT_APP_API_URL || '';
-          try {
-            const pdfRes = await fetch(`${apiUrl}/convert/hwp-to-pdf`, {
-              method: 'POST',
-              body: formData,
-            });
-            if (!cancelled && pdfRes.ok) {
-              const pdfData = await pdfRes.arrayBuffer();
-              setHwpPdfSource({ data: pdfData });
+          if (fileName.toLowerCase().endsWith('.hwpx')) {
+            const data = await getArrayBuffer(source);
+            if (cancelled) return;
+            const { renderHwpxToHtml } = await import('../utils/hwpxRenderer');
+            const html = await renderHwpxToHtml(data);
+            if (!cancelled && html) {
+              const fullDoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;padding:24px;font-family:'Pretendard',-apple-system,sans-serif;font-size:10pt;line-height:1.7;color:#111;background:#fff;word-break:break-word}img{max-width:100%}table{border-collapse:collapse;width:100%;margin:8px 0}</style></head><body>${html}</body></html>`;
+              setHwpSrcdoc(fullDoc);
             } else if (!cancelled) {
               const fallback = await generateHwpThumbnail(source);
               if (fallback) setHwpFallbackImg(fallback);
             }
-          } catch {
-            if (!cancelled) {
-              const fallback = await generateHwpThumbnail(source);
-              if (fallback) setHwpFallbackImg(fallback);
+          } else {
+            const formData = new FormData();
+            if (source instanceof File) {
+              formData.append('file', source);
+            } else {
+              const res = await fetch(source);
+              const blob = await res.blob();
+              formData.append('file', blob, fileName);
+            }
+            if (cancelled) return;
+            const apiUrl = process.env.REACT_APP_API_URL || '';
+            try {
+              const pdfRes = await fetch(`${apiUrl}/convert/hwp-to-pdf`, {
+                method: 'POST',
+                body: formData,
+              });
+              if (!cancelled && pdfRes.ok) {
+                const pdfData = await pdfRes.arrayBuffer();
+                setHwpPdfSource({ data: pdfData });
+              } else if (!cancelled) {
+                const fallback = await generateHwpThumbnail(source);
+                if (fallback) setHwpFallbackImg(fallback);
+              }
+            } catch {
+              if (!cancelled) {
+                const fallback = await generateHwpThumbnail(source);
+                if (fallback) setHwpFallbackImg(fallback);
+              }
             }
           }
         } else if (isTextFile(fileName)) {
@@ -331,6 +346,21 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
 
     if (isDocxFile(fileName) && docxReady) {
       return null;
+    }
+
+    if (isHwpFile(fileName) && hwpSrcdoc) {
+      return (
+        <iframe
+          srcDoc={hwpSrcdoc}
+          title={fileName}
+          sandbox="allow-same-origin"
+          className="rounded border-0 bg-white"
+          style={{
+            width: Math.min(600, window.innerWidth - 80),
+            height: 'calc(100vh - 12rem)',
+          }}
+        />
+      );
     }
 
     if (isHwpFile(fileName) && hwpFallbackImg) {
