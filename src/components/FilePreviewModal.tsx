@@ -4,7 +4,7 @@ import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import { DocumentIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { formatFileSize, isImageFile, isVideoFile, isAudioFile, isTextFile, isPdfFile, isCsvFile, isExcelFile, isDocxFile, isPptxFile, isHwpFile } from '../utils/format';
-import { readTextContent, getMediaUrl, getArrayBuffer, generatePptxThumbnail } from '../utils/filePreview';
+import { readTextContent, getMediaUrl, getArrayBuffer, generatePptxThumbnail, generateHwpThumbnail } from '../utils/filePreview';
 import { useTranslation } from '../i18n';
 import { GlobalWorkerOptions } from 'pdfjs-dist';
 import { PDF_WORKER_SRC } from '../utils/pdfWorkerSetup';
@@ -46,6 +46,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   const [docxReady, setDocxReady] = useState(false);
   const docxContainerRef = useRef<HTMLDivElement>(null);
   const [hwpPdfSource, setHwpPdfSource] = useState<{ data: ArrayBuffer } | null>(null);
+  const [hwpFallbackImg, setHwpFallbackImg] = useState<string | null>(null);
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [numPages, setNumPages] = useState<number | null>(null);
@@ -146,13 +147,23 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
           }
           if (cancelled) return;
           const apiUrl = process.env.REACT_APP_API_URL || '';
-          const pdfRes = await fetch(`${apiUrl}/convert/hwp-to-pdf`, {
-            method: 'POST',
-            body: formData,
-          });
-          if (!cancelled && pdfRes.ok) {
-            const pdfData = await pdfRes.arrayBuffer();
-            setHwpPdfSource({ data: pdfData });
+          try {
+            const pdfRes = await fetch(`${apiUrl}/convert/hwp-to-pdf`, {
+              method: 'POST',
+              body: formData,
+            });
+            if (!cancelled && pdfRes.ok) {
+              const pdfData = await pdfRes.arrayBuffer();
+              setHwpPdfSource({ data: pdfData });
+            } else if (!cancelled) {
+              const fallback = await generateHwpThumbnail(source);
+              if (fallback) setHwpFallbackImg(fallback);
+            }
+          } catch {
+            if (!cancelled) {
+              const fallback = await generateHwpThumbnail(source);
+              if (fallback) setHwpFallbackImg(fallback);
+            }
           }
         } else if (isTextFile(fileName)) {
           const text = await readTextContent(source, 50000);
@@ -320,6 +331,10 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
 
     if (isDocxFile(fileName) && docxReady) {
       return null;
+    }
+
+    if (isHwpFile(fileName) && hwpFallbackImg) {
+      return <img src={hwpFallbackImg} alt={fileName} draggable={false} className="max-w-full max-h-[calc(100vh-10rem)] object-contain rounded pointer-events-none" />;
     }
 
     if (isTextFile(fileName) && textContent !== null) {
