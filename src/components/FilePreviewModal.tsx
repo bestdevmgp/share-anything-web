@@ -45,6 +45,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   const [excelData, setExcelData] = useState<string[][] | null>(null);
   const [docxReady, setDocxReady] = useState(false);
   const docxContainerRef = useRef<HTMLDivElement>(null);
+  const [hwpPdfSource, setHwpPdfSource] = useState<{ data: ArrayBuffer } | null>(null);
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [numPages, setNumPages] = useState<number | null>(null);
@@ -135,10 +136,27 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
             setDocxReady(true);
           }
         } else if (isHwpFile(fileName)) {
+          const formData = new FormData();
+          if (source instanceof File) {
+            formData.append('file', source);
+          } else {
+            const res = await fetch(source);
+            const blob = await res.blob();
+            formData.append('file', blob, fileName);
+          }
+          if (cancelled) return;
+          const apiUrl = process.env.REACT_APP_API_URL || '';
+          const pdfRes = await fetch(`${apiUrl}/convert/hwp-to-pdf`, {
+            method: 'POST',
+            body: formData,
+          });
+          if (!cancelled && pdfRes.ok) {
+            const pdfData = await pdfRes.arrayBuffer();
+            setHwpPdfSource({ data: pdfData });
+          }
         } else if (isTextFile(fileName)) {
           const text = await readTextContent(source, 50000);
           if (!cancelled) setTextContent(text);
-        } else {
         }
       } catch (err) {
         console.error('Preview load error:', err);
@@ -170,7 +188,6 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   const getPdfPageWidth = () => {
     const maxWidth = Math.min(600, window.innerWidth - 64);
     if (!pdfPageSize) return maxWidth;
-    // modal margin(64) + header(74) + separator(1) + content padding(32) + pagination(56) + safety(33)
     const availableHeight = window.innerHeight - 260;
     const aspectRatio = pdfPageSize.width / pdfPageSize.height;
     const widthFromHeight = availableHeight * aspectRatio;
@@ -226,12 +243,16 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
       return <audio src={mediaUrl} controls className="w-full" />;
     }
 
-    if (isPdfFile(fileName) && pdfSource) {
+    const activePdfSource = (isPdfFile(fileName) && pdfSource) ? pdfSource
+      : (isHwpFile(fileName) && hwpPdfSource) ? hwpPdfSource
+      : null;
+
+    if (activePdfSource) {
       GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
       return (
         <div className="flex flex-col items-center w-full">
           <Document
-            file={pdfSource}
+            file={activePdfSource}
             onLoadSuccess={onDocumentLoadSuccess}
             loading={
               <div className="py-16 text-muted-foreground text-sm">{t('preview.pdfLoading')}</div>
@@ -298,7 +319,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
     }
 
     if (isDocxFile(fileName) && docxReady) {
-      return null; // rendered via ref below
+      return null;
     }
 
     if (isTextFile(fileName) && textContent !== null) {

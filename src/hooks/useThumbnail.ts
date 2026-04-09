@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { isImageFile, isPdfFile, isVideoFile, isPptxFile } from '../utils/format';
-import { generatePdfThumbnail, generateVideoThumbnail, generatePptxThumbnail } from '../utils/filePreview';
+import { isImageFile, isPdfFile, isVideoFile, isPptxFile, isHwpFile } from '../utils/format';
+import { generatePdfThumbnail, generateVideoThumbnail, generatePptxThumbnail, generateHwpThumbnail } from '../utils/filePreview';
 
 type ThumbnailResult = {
   url: string | null;
@@ -17,7 +17,7 @@ function getCacheKey(source: File | string, fileName: string, width: number): st
 }
 
 function needsThumbnail(fileName: string): boolean {
-  return isImageFile(fileName) || isPdfFile(fileName) || isVideoFile(fileName) || isPptxFile(fileName);
+  return isImageFile(fileName) || isPdfFile(fileName) || isVideoFile(fileName) || isPptxFile(fileName) || isHwpFile(fileName);
 }
 
 export function useThumbnail(source: File | string | null, fileName: string, thumbnailWidth = 200): ThumbnailResult {
@@ -65,6 +65,8 @@ export function useThumbnail(source: File | string | null, fileName: string, thu
           objectUrl = await generateVideoThumbnail(source);
         } else if (isPptxFile(fileName)) {
           objectUrl = await generatePptxThumbnail(source);
+        } else if (isHwpFile(fileName)) {
+          objectUrl = await generateHwpThumbnail(source);
         }
 
         if (!cancelled && objectUrl) {

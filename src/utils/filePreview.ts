@@ -151,6 +151,45 @@ export async function generatePptxThumbnail(source: File | string): Promise<stri
   return null;
 }
 
+export async function generateHwpThumbnail(source: File | string): Promise<string | null> {
+  const data = await getArrayBuffer(source);
+  const fileName = source instanceof File ? source.name : source;
+  const isHwpx = fileName.toLowerCase().endsWith('.hwpx');
+
+  let buf: Uint8Array | null = null;
+
+  if (isHwpx) {
+    const JSZip = (await import('jszip')).default;
+    const zip = await JSZip.loadAsync(data);
+    for (const path of ['Preview/PrvImage.png', 'preview/PrvImage.png', 'Preview/prvimage.png']) {
+      const entry = zip.file(path);
+      if (entry) {
+        buf = await entry.async('uint8array');
+        break;
+      }
+    }
+  } else {
+    const CFB = await import('cfb');
+    const container = CFB.read(new Uint8Array(data), { type: 'array' });
+    const prvImage = CFB.find(container, '/PrvImage');
+    if (prvImage) {
+      buf = prvImage.content instanceof Uint8Array
+        ? prvImage.content
+        : new Uint8Array(prvImage.content);
+    }
+  }
+
+  if (!buf || buf.length === 0) return null;
+
+  let mime = 'image/png';
+  if (buf[0] === 0x47 && buf[1] === 0x49 && buf[2] === 0x46) mime = 'image/gif';
+  else if (buf[0] === 0xFF && buf[1] === 0xD8) mime = 'image/jpeg';
+  else if (buf[0] === 0x42 && buf[1] === 0x4D) mime = 'image/bmp';
+
+  const blob = new Blob([buf], { type: mime });
+  return URL.createObjectURL(blob);
+}
+
 export async function readTextContent(source: File | string, maxLength = 5000): Promise<string> {
   if (source instanceof File) {
     const text = await source.text();

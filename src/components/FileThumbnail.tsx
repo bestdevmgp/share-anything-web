@@ -137,7 +137,7 @@ const FileThumbnail: React.FC<FileThumbnailProps> = ({ source, fileName, size = 
     );
   }
 
-  if ((isImageFile(fileName) || isPdfFile(fileName) || isPptxFile(fileName)) && url) {
+  if ((isImageFile(fileName) || isPdfFile(fileName) || isPptxFile(fileName) || isHwpFile(fileName)) && url) {
     return (
       <img
         src={url}
@@ -203,7 +203,7 @@ const FileThumbnail: React.FC<FileThumbnailProps> = ({ source, fileName, size = 
     );
   }
 
-  if (isHwpFile(fileName)) {
+  if (isHwpFile(fileName) && !url) {
     return (
       <div className={cn(boxClass, 'flex-shrink-0 bg-sky-50 dark:bg-sky-500/10 rounded flex items-center justify-center')}>
         <DocumentTextIcon className={cn(iconClass, 'text-sky-600 dark:text-sky-400')} />
