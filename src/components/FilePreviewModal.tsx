@@ -4,7 +4,7 @@ import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import { DocumentIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { formatFileSize, isImageFile, isVideoFile, isAudioFile, isTextFile, isPdfFile, isCsvFile, isExcelFile, isDocxFile, isPptxFile, isHwpFile } from '../utils/format';
-import { readTextContent, getMediaUrl, getArrayBuffer, generatePptxThumbnail, generateHwpThumbnail } from '../utils/filePreview';
+import { readTextContent, getMediaUrl, getArrayBuffer, generatePptxThumbnail } from '../utils/filePreview';
 import { useTranslation } from '../i18n';
 import { GlobalWorkerOptions } from 'pdfjs-dist';
 import { PDF_WORKER_SRC } from '../utils/pdfWorkerSetup';
@@ -45,9 +45,8 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   const [excelData, setExcelData] = useState<string[][] | null>(null);
   const [docxReady, setDocxReady] = useState(false);
   const docxContainerRef = useRef<HTMLDivElement>(null);
+  const [hwpText, setHwpText] = useState<string | null>(null);
   const [hwpPdfSource, setHwpPdfSource] = useState<{ data: ArrayBuffer } | null>(null);
-  const [hwpSrcdoc, setHwpSrcdoc] = useState<string | null>(null);
-  const [hwpFallbackImg, setHwpFallbackImg] = useState<string | null>(null);
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [numPages, setNumPages] = useState<number | null>(null);
@@ -138,47 +137,66 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
             setDocxReady(true);
           }
         } else if (isHwpFile(fileName)) {
+          const data = await getArrayBuffer(source);
+          if (cancelled) return;
+
+          let text = '';
           if (fileName.toLowerCase().endsWith('.hwpx')) {
-            const data = await getArrayBuffer(source);
-            if (cancelled) return;
-            const { renderHwpxToHtml } = await import('../utils/hwpxRenderer');
-            const html = await renderHwpxToHtml(data);
-            if (!cancelled && html) {
-              const fullDoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;padding:24px;font-family:'Pretendard',-apple-system,sans-serif;font-size:10pt;line-height:1.7;color:#111;background:#fff;word-break:break-word}img{max-width:100%}table{border-collapse:collapse;width:100%;margin:8px 0}</style></head><body>${html}</body></html>`;
-              setHwpSrcdoc(fullDoc);
-            } else if (!cancelled) {
-              const fallback = await generateHwpThumbnail(source);
-              if (fallback) setHwpFallbackImg(fallback);
+            const JSZip = (await import('jszip')).default;
+            const zip = await JSZip.loadAsync(data);
+            const paths: string[] = [];
+            zip.forEach((p) => { if (/^Contents\/section\d+\.xml$/i.test(p)) paths.push(p); });
+            paths.sort();
+            const domParser = new DOMParser();
+            for (const p of paths) {
+              const f = zip.file(p);
+              if (!f) continue;
+              const xml = await f.async('text');
+              const doc = domParser.parseFromString(xml, 'text/xml');
+              Array.from(doc.querySelectorAll('t')).forEach(t => {
+                if (t.textContent) text += t.textContent;
+              });
+              text += '\n';
             }
           } else {
+            const { parseHwpToText } = await import('../utils/hwpParser');
+            text = parseHwpToText(new Uint8Array(data));
+          }
+          if (!cancelled && text.trim()) setHwpText(text.trim());
+
+          const apiUrl = process.env.REACT_APP_API_URL || '';
+          try {
+            const jobRes = await fetch(`${apiUrl}/convert/create-job`, { method: 'POST' });
+            if (!jobRes.ok || cancelled) return;
+            const { jobId, uploadUrl, uploadParams } = await jobRes.json();
+
             const formData = new FormData();
+            Object.entries(uploadParams).forEach(([k, v]) => formData.append(k, v as string));
             if (source instanceof File) {
               formData.append('file', source);
             } else {
-              const res = await fetch(source);
-              const blob = await res.blob();
-              formData.append('file', blob, fileName);
+              formData.append('file', new Blob([data]), fileName);
             }
+            await fetch(uploadUrl, { method: 'POST', body: formData });
             if (cancelled) return;
-            const apiUrl = process.env.REACT_APP_API_URL || '';
-            try {
-              const pdfRes = await fetch(`${apiUrl}/convert/hwp-to-pdf`, {
-                method: 'POST',
-                body: formData,
-              });
-              if (!cancelled && pdfRes.ok) {
-                const pdfData = await pdfRes.arrayBuffer();
-                setHwpPdfSource({ data: pdfData });
-              } else if (!cancelled) {
-                const fallback = await generateHwpThumbnail(source);
-                if (fallback) setHwpFallbackImg(fallback);
-              }
-            } catch {
-              if (!cancelled) {
-                const fallback = await generateHwpThumbnail(source);
-                if (fallback) setHwpFallbackImg(fallback);
+
+            for (let i = 0; i < 60; i++) {
+              await new Promise(r => setTimeout(r, i < 5 ? 500 : i < 15 ? 1000 : 2000));
+              if (cancelled) return;
+              const statusRes = await fetch(`${apiUrl}/convert/status/${jobId}`);
+              if (!statusRes.ok) continue;
+              const statusData = await statusRes.json();
+              if (statusData.status === 'finished' && statusData.pdfUrl) {
+                const pdfRes = await fetch(statusData.pdfUrl);
+                if (pdfRes.ok && !cancelled) {
+                  setHwpPdfSource({ data: await pdfRes.arrayBuffer() });
+                }
+                break;
+              } else if (statusData.status === 'error') {
+                break;
               }
             }
+          } catch {
           }
         } else if (isTextFile(fileName)) {
           const text = await readTextContent(source, 50000);
@@ -269,16 +287,12 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
       return <audio src={mediaUrl} controls className="w-full" />;
     }
 
-    const activePdfSource = (isPdfFile(fileName) && pdfSource) ? pdfSource
-      : (isHwpFile(fileName) && hwpPdfSource) ? hwpPdfSource
-      : null;
-
-    if (activePdfSource) {
+    if (isPdfFile(fileName) && pdfSource) {
       GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
       return (
         <div className="flex flex-col items-center w-full">
           <Document
-            file={activePdfSource}
+            file={pdfSource}
             onLoadSuccess={onDocumentLoadSuccess}
             loading={
               <div className="py-16 text-muted-foreground text-sm">{t('preview.pdfLoading')}</div>
@@ -348,23 +362,48 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
       return null;
     }
 
-    if (isHwpFile(fileName) && hwpSrcdoc) {
+    if (isHwpFile(fileName) && hwpPdfSource) {
+      GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
       return (
-        <iframe
-          srcDoc={hwpSrcdoc}
-          title={fileName}
-          sandbox="allow-same-origin"
-          className="rounded border-0 bg-white"
-          style={{
-            width: Math.min(600, window.innerWidth - 80),
-            height: 'calc(100vh - 12rem)',
-          }}
-        />
+        <div className="flex flex-col items-center w-full">
+          <Document
+            file={hwpPdfSource}
+            onLoadSuccess={onDocumentLoadSuccess}
+            loading={
+              <div className="py-16 text-muted-foreground text-sm">{t('preview.pdfLoading')}</div>
+            }
+          >
+            <Page
+              pageNumber={currentPage}
+              width={getPdfPageWidth()}
+              renderAnnotationLayer={false}
+              renderTextLayer={false}
+              onLoadSuccess={onPageLoadSuccess}
+            />
+          </Document>
+          {numPages && numPages > 1 && (
+            <div className="flex items-center gap-4 mt-4">
+              <Button variant="ghost" size="icon" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage <= 1}>
+                <ChevronLeftIcon className="w-5 h-5" />
+              </Button>
+              <span className="text-sm text-muted-foreground">{currentPage} / {numPages}</span>
+              <Button variant="ghost" size="icon" onClick={() => setCurrentPage(p => Math.min(numPages, p + 1))} disabled={currentPage >= numPages}>
+                <ChevronRightIcon className="w-5 h-5" />
+              </Button>
+            </div>
+          )}
+        </div>
       );
     }
 
-    if (isHwpFile(fileName) && hwpFallbackImg) {
-      return <img src={hwpFallbackImg} alt={fileName} draggable={false} className="max-w-full max-h-[calc(100vh-10rem)] object-contain rounded pointer-events-none" />;
+    if (isHwpFile(fileName) && hwpText) {
+      return (
+        <div className="w-full max-h-[calc(100vh-10rem)] overflow-auto bg-muted rounded-xl p-6">
+          <pre className="text-sm text-foreground whitespace-pre-wrap break-words font-mono">
+            {hwpText}
+          </pre>
+        </div>
+      );
     }
 
     if (isTextFile(fileName) && textContent !== null) {
