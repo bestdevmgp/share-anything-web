@@ -148,16 +148,16 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
             zip.forEach((p) => { if (/^Contents\/section\d+\.xml$/i.test(p)) paths.push(p); });
             paths.sort();
             const domParser = new DOMParser();
+            const parts: string[] = [];
             for (const p of paths) {
               const f = zip.file(p);
               if (!f) continue;
               const xml = await f.async('text');
               const doc = domParser.parseFromString(xml, 'text/xml');
-              Array.from(doc.querySelectorAll('t')).forEach(t => {
-                if (t.textContent) text += t.textContent;
-              });
-              text += '\n';
+              const tNodes = Array.from(doc.querySelectorAll('t'));
+              parts.push(tNodes.map(t => t.textContent || '').join(''));
             }
+            text = parts.join('\n');
           } else {
             const { parseHwpToText } = await import('../utils/hwpParser');
             text = parseHwpToText(new Uint8Array(data));
