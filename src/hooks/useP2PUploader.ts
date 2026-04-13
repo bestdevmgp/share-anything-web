@@ -62,8 +62,11 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
   }, [t]);
 
   const sendFile = useCallback((file: File, dataChannel: RTCDataChannel) => {
-    const chunkSize = 16384;
-    const sliceSize = chunkSize * 16; // 256KB per disk read
+    const chunkSize = 65536; // 64KB per WebRTC message
+    const sliceSize = chunkSize * 32; // 2MB per disk read
+    const BUFFER_HIGH = 1 * 1024 * 1024;
+    const BUFFER_LOW = 256 * 1024;
+    dataChannel.bufferedAmountLowThreshold = BUFFER_LOW;
     let offset = 0;
     transferStartTimeRef.current = Date.now();
     lastTimeUpdateRef.current = 0;
@@ -169,9 +172,12 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
           while (bufferOffset < buffer.byteLength) {
             if (cancelledRef.current) return;
 
-            if (dataChannel.bufferedAmount > chunkSize * 10) {
+            if (dataChannel.bufferedAmount > BUFFER_HIGH) {
               updateProgress();
-              setTimeout(sendChunks, 10);
+              dataChannel.onbufferedamountlow = () => {
+                dataChannel.onbufferedamountlow = null;
+                sendChunks();
+              };
               return;
             }
 

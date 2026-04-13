@@ -123,6 +123,8 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
           clearTimeout(connectionTimeout);
           const dataChannel = event.channel;
 
+          dataChannel.binaryType = 'arraybuffer';
+
           dataChannel.onopen = () => {
             setStatus('downloading');
             downloadStartTimeRef.current = Date.now();
@@ -205,7 +207,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
             pendingSizeRef.current += chunk.byteLength;
             receivedSizeRef.current += chunk.byteLength;
 
-            if (pendingSizeRef.current >= 10 * 1024 * 1024) {
+            if (pendingSizeRef.current >= 16 * 1024 * 1024) {
               receivedBlobsRef.current.push(new Blob(pendingChunksRef.current));
               pendingChunksRef.current = [];
               pendingSizeRef.current = 0;

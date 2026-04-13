@@ -39,6 +39,26 @@ const QuickAccessUploadContext = createContext<QuickAccessUploadContextType | nu
 const SPEED_WINDOW_MS = 5000;
 const MIN_SAMPLES_FOR_ESTIMATE = 2;
 
+const runConcurrent = async <T,>(
+  tasks: (() => Promise<T>)[],
+  maxConcurrency: number
+): Promise<T[]> => {
+  const results: T[] = new Array(tasks.length);
+  let nextIndex = 0;
+
+  const worker = async (): Promise<void> => {
+    while (nextIndex < tasks.length) {
+      const index = nextIndex++;
+      results[index] = await tasks[index]();
+    }
+  };
+
+  await Promise.all(
+    Array.from({ length: Math.min(maxConcurrency, tasks.length) }, () => worker())
+  );
+  return results;
+};
+
 export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { t, language } = useTranslation();
 
@@ -253,12 +273,10 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
               return { part_number: partNumber, etag };
             };
 
-            const results: { part_number: number; etag: string }[] = [];
-            for (let i = 0; i < allPartNumbers.length; i += MAX_CONCURRENT_UPLOADS) {
-              const batch = allPartNumbers.slice(i, i + MAX_CONCURRENT_UPLOADS);
-              const batchResults = await Promise.all(batch.map(uploadPartWithProgress));
-              results.push(...batchResults);
-            }
+            const results = await runConcurrent(
+              allPartNumbers.map(pn => () => uploadPartWithProgress(pn)),
+              MAX_CONCURRENT_UPLOADS
+            );
 
             completedFileParts[fileInit.storage_key] = results.sort((a, b) => a.part_number - b.part_number);
           }
@@ -277,16 +295,10 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
       };
 
       const fileIndices = Array.from({ length: droppedFiles.length }, (_, i) => i);
-      for (let i = 0; i < fileIndices.length; i += MAX_CONCURRENT_FILES) {
-        const batch = fileIndices.slice(i, i + MAX_CONCURRENT_FILES);
-        const results = await Promise.allSettled(batch.map(uploadFile));
-
-        for (const result of results) {
-          if (result.status === 'rejected') {
-            throw result.reason;
-          }
-        }
-      }
+      await runConcurrent(
+        fileIndices.map(i => () => uploadFile(i)),
+        MAX_CONCURRENT_FILES
+      );
 
       const cancelledIds = cancelledFileIdsRef.current;
       const successfulFiles = initResponse.files

@@ -14,6 +14,26 @@ import TransferSettings from './upload/TransferSettings';
 import UploadProgressBar from './upload/UploadProgressBar';
 import { storeUploadFiles, restoreUploadFiles, clearUploadFiles } from '../utils/uploadFileStorage';
 
+const runConcurrent = async <T,>(
+  tasks: (() => Promise<T>)[],
+  maxConcurrency: number
+): Promise<T[]> => {
+  const results: T[] = new Array(tasks.length);
+  let nextIndex = 0;
+
+  const worker = async (): Promise<void> => {
+    while (nextIndex < tasks.length) {
+      const index = nextIndex++;
+      results[index] = await tasks[index]();
+    }
+  };
+
+  await Promise.all(
+    Array.from({ length: Math.min(maxConcurrency, tasks.length) }, () => worker())
+  );
+  return results;
+};
+
 const UploadPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -340,22 +360,20 @@ const UploadPage: React.FC = () => {
             return { part_number: partNumber, etag };
           };
 
-          const results: { part_number: number; etag: string }[] = [];
-          for (let i = 0; i < allPartNumbers.length; i += MAX_CONCURRENT_UPLOADS) {
-            const batch = allPartNumbers.slice(i, i + MAX_CONCURRENT_UPLOADS);
-            const batchResults = await Promise.all(batch.map(uploadPartWithProgress));
-            results.push(...batchResults);
-          }
+          const results = await runConcurrent(
+            allPartNumbers.map(pn => () => uploadPartWithProgress(pn)),
+            MAX_CONCURRENT_UPLOADS
+          );
 
           completedFileParts[fileInit.storage_key] = results.sort((a, b) => a.part_number - b.part_number);
         }
       };
 
       const fileIndices = Array.from({ length: files.length }, (_, i) => i);
-      for (let i = 0; i < fileIndices.length; i += MAX_CONCURRENT_FILES) {
-        const batch = fileIndices.slice(i, i + MAX_CONCURRENT_FILES);
-        await Promise.all(batch.map(uploadFile));
-      }
+      await runConcurrent(
+        fileIndices.map(i => () => uploadFile(i)),
+        MAX_CONCURRENT_FILES
+      );
 
       setUploadProgress(100);
       setIsCompleting(true);
