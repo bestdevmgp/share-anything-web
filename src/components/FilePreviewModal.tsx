@@ -4,7 +4,7 @@ import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 import { DocumentIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { formatFileSize, isImageFile, isVideoFile, isAudioFile, isTextFile, isPdfFile, isCsvFile, isExcelFile, isDocxFile, isPptxFile, isHwpFile } from '../utils/format';
-import { readTextContent, getMediaUrl, getArrayBuffer, generatePptxThumbnail } from '../utils/filePreview';
+import { readTextContent, getMediaUrl, getArrayBuffer, generatePptxThumbnail, generateHwpThumbnail } from '../utils/filePreview';
 import { useTranslation } from '../i18n';
 import { GlobalWorkerOptions } from 'pdfjs-dist';
 import { PDF_WORKER_SRC } from '../utils/pdfWorkerSetup';
@@ -46,7 +46,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   const [docxReady, setDocxReady] = useState(false);
   const docxContainerRef = useRef<HTMLDivElement>(null);
   const [hwpText, setHwpText] = useState<string | null>(null);
-  const [hwpPdfSource, setHwpPdfSource] = useState<{ data: ArrayBuffer } | null>(null);
+  const [hwpPreviewImg, setHwpPreviewImg] = useState<string | null>(null);
   const [mediaUrl, setMediaUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [numPages, setNumPages] = useState<number | null>(null);
@@ -139,7 +139,8 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
         } else if (isHwpFile(fileName)) {
           const data = await getArrayBuffer(source);
           if (cancelled) return;
-
+          const previewUrl = await generateHwpThumbnail(source);
+          if (!cancelled && previewUrl) setHwpPreviewImg(previewUrl);
           let text = '';
           if (fileName.toLowerCase().endsWith('.hwpx')) {
             const JSZip = (await import('jszip')).default;
@@ -163,41 +164,6 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
             text = parseHwpToText(new Uint8Array(data));
           }
           if (!cancelled && text.trim()) setHwpText(text.trim());
-
-          const apiUrl = process.env.REACT_APP_API_URL || '';
-          try {
-            const jobRes = await fetch(`${apiUrl}/convert/create-job`, { method: 'POST' });
-            if (!jobRes.ok || cancelled) return;
-            const { jobId, uploadUrl, uploadParams } = await jobRes.json();
-
-            const formData = new FormData();
-            Object.entries(uploadParams).forEach(([k, v]) => formData.append(k, v as string));
-            if (source instanceof File) {
-              formData.append('file', source);
-            } else {
-              formData.append('file', new Blob([data]), fileName);
-            }
-            await fetch(uploadUrl, { method: 'POST', body: formData });
-            if (cancelled) return;
-
-            for (let i = 0; i < 60; i++) {
-              await new Promise(r => setTimeout(r, i < 5 ? 500 : i < 15 ? 1000 : 2000));
-              if (cancelled) return;
-              const statusRes = await fetch(`${apiUrl}/convert/status/${jobId}`);
-              if (!statusRes.ok) continue;
-              const statusData = await statusRes.json();
-              if (statusData.status === 'finished' && statusData.pdfUrl) {
-                const pdfRes = await fetch(statusData.pdfUrl);
-                if (pdfRes.ok && !cancelled) {
-                  setHwpPdfSource({ data: await pdfRes.arrayBuffer() });
-                }
-                break;
-              } else if (statusData.status === 'error') {
-                break;
-              }
-            }
-          } catch {
-          }
         } else if (isTextFile(fileName)) {
           const text = await readTextContent(source, 50000);
           if (!cancelled) setTextContent(text);
@@ -362,46 +328,19 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
       return null;
     }
 
-    if (isHwpFile(fileName) && hwpPdfSource) {
-      GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
+    if (isHwpFile(fileName) && (hwpPreviewImg || hwpText)) {
       return (
-        <div className="flex flex-col items-center w-full">
-          <Document
-            file={hwpPdfSource}
-            onLoadSuccess={onDocumentLoadSuccess}
-            loading={
-              <div className="py-16 text-muted-foreground text-sm">{t('preview.pdfLoading')}</div>
-            }
-          >
-            <Page
-              pageNumber={currentPage}
-              width={getPdfPageWidth()}
-              renderAnnotationLayer={false}
-              renderTextLayer={false}
-              onLoadSuccess={onPageLoadSuccess}
-            />
-          </Document>
-          {numPages && numPages > 1 && (
-            <div className="flex items-center gap-4 mt-4">
-              <Button variant="ghost" size="icon" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage <= 1}>
-                <ChevronLeftIcon className="w-5 h-5" />
-              </Button>
-              <span className="text-sm text-muted-foreground">{currentPage} / {numPages}</span>
-              <Button variant="ghost" size="icon" onClick={() => setCurrentPage(p => Math.min(numPages, p + 1))} disabled={currentPage >= numPages}>
-                <ChevronRightIcon className="w-5 h-5" />
-              </Button>
+        <div className="w-full max-h-[calc(100vh-10rem)] overflow-auto">
+          {hwpPreviewImg && (
+            <div className="mb-4 rounded-lg overflow-hidden border border-border bg-white">
+              <img src={hwpPreviewImg} alt={fileName} draggable={false} className="w-full h-auto object-contain pointer-events-none" />
             </div>
           )}
-        </div>
-      );
-    }
-
-    if (isHwpFile(fileName) && hwpText) {
-      return (
-        <div className="w-full max-h-[calc(100vh-10rem)] overflow-auto bg-muted rounded-xl p-6">
-          <pre className="text-sm text-foreground whitespace-pre-wrap break-words font-mono">
-            {hwpText}
-          </pre>
+          {hwpText && (
+            <div className="bg-muted rounded-xl p-6">
+              <pre className="text-sm text-foreground whitespace-pre-wrap break-words font-mono">{hwpText}</pre>
+            </div>
+          )}
         </div>
       );
     }
