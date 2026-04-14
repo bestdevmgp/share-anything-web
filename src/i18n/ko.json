@@ -410,7 +410,19 @@
     "revokePersonalToken": "폐기",
     "noPersonalTokens": "생성된 Personal Token이 없습니다.",
     "personalTokenCreatedAt": "생성일",
-    "personalTokenLastUsed": "마지막 사용"
+    "personalTokenLastUsed": "마지막 사용",
+    "account": "계정",
+    "accountDescription": "계정 정보를 관리합니다.",
+    "accountName": "사용자명",
+    "accountNameDescription": "다른 사용자에게 표시되는 이름입니다.",
+    "accountNameSave": "저장",
+    "accountDelete": "회원 탈퇴",
+    "accountDeleteDescription": "계정을 삭제하면 더 이상 로그인할 수 없습니다. 업로드한 파일은 유지됩니다.",
+    "accountDeleteConfirmTitle": "정말 탈퇴하시겠습니까?",
+    "accountDeleteConfirmDescription": "이 작업은 되돌릴 수 없습니다. 계정이 영구적으로 비활성화됩니다.",
+    "accountDeleteCancel": "취소",
+    "accountDeleteConfirm": "탈퇴",
+    "accountDeleteFailed": "회원 탈퇴에 실패하였습니다"
   },
   "cliSignin": {
     "pageTitle": "CLI 로그인",

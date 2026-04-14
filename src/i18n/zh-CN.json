@@ -410,7 +410,19 @@
     "revokePersonalToken": "吊销",
     "noPersonalTokens": "暂无 Personal Token。",
     "personalTokenCreatedAt": "创建时间",
-    "personalTokenLastUsed": "最后使用"
+    "personalTokenLastUsed": "最后使用",
+    "account": "账户",
+    "accountDescription": "管理您的账户信息。",
+    "accountName": "显示名称",
+    "accountNameDescription": "向其他用户显示的名称。",
+    "accountNameSave": "保存",
+    "accountDelete": "注销账户",
+    "accountDeleteDescription": "注销后将无法登录。已上传的文件将保留。",
+    "accountDeleteConfirmTitle": "确定要注销账户吗？",
+    "accountDeleteConfirmDescription": "此操作无法撤销。您的账户将被永久停用。",
+    "accountDeleteCancel": "取消",
+    "accountDeleteConfirm": "注销",
+    "accountDeleteFailed": "账户注销失败"
   },
   "cliSignin": {
     "pageTitle": "CLI 登录",

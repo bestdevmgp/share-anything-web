@@ -410,7 +410,19 @@
     "revokePersonalToken": "Revoke",
     "noPersonalTokens": "No Personal Tokens yet.",
     "personalTokenCreatedAt": "Created",
-    "personalTokenLastUsed": "Last used"
+    "personalTokenLastUsed": "Last used",
+    "account": "Account",
+    "accountDescription": "Manage your account information.",
+    "accountName": "Display name",
+    "accountNameDescription": "The name displayed to other users.",
+    "accountNameSave": "Save",
+    "accountDelete": "Delete account",
+    "accountDeleteDescription": "Once deleted, you will no longer be able to sign in. Your uploaded files will remain.",
+    "accountDeleteConfirmTitle": "Are you sure you want to delete your account?",
+    "accountDeleteConfirmDescription": "This action cannot be undone. Your account will be permanently deactivated.",
+    "accountDeleteCancel": "Cancel",
+    "accountDeleteConfirm": "Delete",
+    "accountDeleteFailed": "Failed to delete account"
   },
   "cliSignin": {
     "pageTitle": "CLI Sign In",

@@ -14,9 +14,9 @@ import { Label } from 'components/ui/label';
 import { Separator } from 'components/ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from 'components/ui/popover';
 import { Spinner } from 'components/ui/spinner';
-import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, KeyIcon } from '@heroicons/react/24/outline';
+import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, KeyIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
-type Tab = 'notifications' | 'general' | 'personal-tokens';
+type Tab = 'notifications' | 'general' | 'account' | 'personal-tokens';
 
 interface PersonalTokenItem {
   id: string;
@@ -42,7 +42,7 @@ const themeIcons: Record<string, React.ReactNode> = {
 };
 
 const SettingsPage: React.FC = () => {
-  const { isAuthenticated, loading: authLoading } = useAuth();
+  const { user, isAuthenticated, loading: authLoading, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { language: siteLanguage, setLanguage: setSiteLanguage } = useLanguage();
@@ -50,7 +50,7 @@ const SettingsPage: React.FC = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get('tab');
-  const activeTab: Tab = (tabParam === 'general' ? 'general' : tabParam === 'personal-tokens' ? 'personal-tokens' : 'notifications');
+  const activeTab: Tab = (tabParam === 'general' ? 'general' : tabParam === 'account' ? 'account' : tabParam === 'personal-tokens' ? 'personal-tokens' : 'notifications');
   const setActiveTab = (tab: Tab) => setSearchParams({ tab }, { replace: true });
   const [notifyUpload, setNotifyUpload] = useState(true);
   const [notifyDownload, setNotifyDownload] = useState(true);
@@ -74,6 +74,12 @@ const SettingsPage: React.FC = () => {
   const [createdToken, setCreatedToken] = useState<string | null>(null);
   const [creatingToken, setCreatingToken] = useState(false);
   const [copiedToken, setCopiedToken] = useState(false);
+
+  // Account state
+  const [editName, setEditName] = useState('');
+  const [savingName, setSavingName] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   const themeOptions = [
     { key: 'system' as const, label: t('footer.themeSystem') },
@@ -104,6 +110,10 @@ const SettingsPage: React.FC = () => {
     };
 
     fetchSettings();
+
+    if (user?.name) {
+      setEditName(user.name);
+    }
 
     const fetchPersonalTokens = async () => {
       setPersonalTokensLoading(true);
@@ -192,6 +202,34 @@ const SettingsPage: React.FC = () => {
       toast.success(t('settings.personalTokenRevoked'));
     } catch {
       toast.error(t('settings.personalTokenRevokeFailed'));
+    }
+  };
+
+  const handleUpdateName = async () => {
+    const trimmed = editName.trim();
+    if (!trimmed || trimmed === user?.name) return;
+
+    setSavingName(true);
+    try {
+      const result = await userAPI.updateName(trimmed);
+      updateUser({ name: result.name });
+      toast.success(t('settings.updateSuccess'));
+    } catch {
+      toast.error(t('settings.updateFailed'));
+    } finally {
+      setSavingName(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true);
+    try {
+      await userAPI.deleteAccount();
+      logout();
+      navigate('/');
+    } catch {
+      toast.error(t('settings.accountDeleteFailed'));
+      setDeletingAccount(false);
     }
   };
 
@@ -285,6 +323,16 @@ const SettingsPage: React.FC = () => {
               }`}
             >
               {t('settings.general')}
+            </button>
+            <button
+              onClick={() => setActiveTab('account')}
+              className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors md:w-full md:text-left ${
+                activeTab === 'account'
+                  ? 'text-foreground bg-accent'
+                  : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
+              }`}
+            >
+              {t('settings.account')}
             </button>
             <div className="hidden md:block pt-3 mt-3 border-t border-border">
               <p className="px-3 pb-1 text-xs text-muted-foreground/60">{t('settings.developerSection')}</p>
@@ -496,6 +544,94 @@ const SettingsPage: React.FC = () => {
                       ))}
                     </PopoverContent>
                   </Popover>
+                </div>
+              </div>
+            </div>
+          )}
+          {activeTab === 'account' && (
+            <div>
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold text-foreground">{t('settings.account')}</h2>
+                <p className="text-sm text-muted-foreground mt-1">{t('settings.accountDescription')}</p>
+              </div>
+
+              <div className="space-y-6">
+                {/* Username change */}
+                <div>
+                  <Label className="text-sm font-medium">{t('settings.accountName')}</Label>
+                  <p className="text-sm text-muted-foreground mt-1 mb-3">
+                    {t('settings.accountNameDescription')}
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Input
+                      type="text"
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      maxLength={50}
+                      className="flex-1 h-[50px] rounded-lg px-4 text-sm"
+                    />
+                    <Button
+                      onClick={handleUpdateName}
+                      disabled={savingName || !editName.trim() || editName.trim() === user?.name}
+                      className="flex-shrink-0 relative h-[48px]"
+                    >
+                      <span className={savingName ? 'invisible' : ''}>{t('settings.accountNameSave')}</span>
+                      {savingName && <Spinner size="sm" className="text-primary-foreground absolute" />}
+                    </Button>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Account deletion */}
+                <div>
+                  <Label className="text-sm font-medium">{t('settings.accountDelete')}</Label>
+                  <p className="text-sm text-muted-foreground mt-1 mb-3">
+                    {t('settings.accountDeleteDescription')}
+                  </p>
+                  {!showDeleteConfirm ? (
+                    <Button
+                      variant="ghost"
+                      onClick={() => setShowDeleteConfirm(true)}
+                      className="text-red-600 dark:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15"
+                    >
+                      {t('settings.accountDelete')}
+                    </Button>
+                  ) : (
+                    <div className="p-4 border border-border rounded-lg bg-muted/50">
+                      <div className="flex items-start gap-3">
+                        <ExclamationTriangleIcon className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="text-sm font-medium text-foreground">
+                            {t('settings.accountDeleteConfirmTitle')}
+                          </p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {t('settings.accountDeleteConfirmDescription')}
+                          </p>
+                          <div className="flex gap-3 mt-4">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setShowDeleteConfirm(false)}
+                              disabled={deletingAccount}
+                            >
+                              {t('settings.accountDeleteCancel')}
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={handleDeleteAccount}
+                              disabled={deletingAccount}
+                              className="relative"
+                            >
+                              <span className={deletingAccount ? 'invisible' : ''}>{t('settings.accountDeleteConfirm')}</span>
+                              {deletingAccount && <Spinner size="sm" className="text-destructive-foreground absolute" />}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

@@ -554,6 +554,15 @@ export const userAPI = {
     const response = await api.put<{ notify_upload: boolean; notify_download: boolean; notify_download_alert: boolean; notify_language: string }>('/user/settings', settings);
     return response.data;
   },
+
+  updateName: async (name: string): Promise<{ name: string }> => {
+    const response = await api.put<{ name: string }>('/user/name', { name });
+    return response.data;
+  },
+
+  deleteAccount: async (): Promise<void> => {
+    await api.delete('/user/account');
+  },
 };
 
 export const quickAccessAPI = {

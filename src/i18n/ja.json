@@ -410,7 +410,19 @@
     "revokePersonalToken": "無効化",
     "noPersonalTokens": "Personal Tokenがありません。",
     "personalTokenCreatedAt": "作成日",
-    "personalTokenLastUsed": "最終使用日"
+    "personalTokenLastUsed": "最終使用日",
+    "account": "アカウント",
+    "accountDescription": "アカウント情報を管理します。",
+    "accountName": "表示名",
+    "accountNameDescription": "他のユーザーに表示される名前です。",
+    "accountNameSave": "保存",
+    "accountDelete": "アカウント削除",
+    "accountDeleteDescription": "削除するとログインできなくなります。アップロードしたファイルは保持されます。",
+    "accountDeleteConfirmTitle": "本当にアカウントを削除しますか？",
+    "accountDeleteConfirmDescription": "この操作は取り消せません。アカウントは永久に無効化されます。",
+    "accountDeleteCancel": "キャンセル",
+    "accountDeleteConfirm": "削除",
+    "accountDeleteFailed": "アカウントの削除に失敗しました"
   },
   "cliSignin": {
     "pageTitle": "CLIサインイン",
