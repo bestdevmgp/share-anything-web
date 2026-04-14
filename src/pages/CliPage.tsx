@@ -32,14 +32,14 @@ const CliPage: React.FC = () => {
           tokens.push(line.slice(lastIndex, match.index));
         }
         const token = match[0];
-        let className = 'text-zinc-100';
+        let className = 'text-zinc-800 dark:text-zinc-100';
 
-        if (/^(curl|echo|brew|share|sh|sudo|npm)$/.test(token)) {
-          className = 'text-emerald-400';
+        if (/^(curl|echo|share|sh|sudo|npm)$/.test(token)) {
+          className = 'text-emerald-600 dark:text-emerald-400';
         } else if (/^-/.test(token)) {
-          className = 'text-sky-300';
+          className = 'text-sky-600 dark:text-sky-300';
         } else if (/^https?:\/\//.test(token)) {
-          className = 'text-zinc-500';
+          className = 'text-zinc-400 dark:text-zinc-500';
         }
 
         tokens.push(<span key={`${lineIdx}-${match.index}`} className={className}>{token}</span>);
@@ -56,16 +56,16 @@ const CliPage: React.FC = () => {
 
   const CodeBlock = ({ code, index }: { code: string; index: number }) => (
     <div className="relative">
-      <pre className="bg-zinc-900 text-zinc-100 rounded-lg px-4 py-3 pr-12 text-sm overflow-x-auto font-mono">
+      <pre className="bg-[#ebebeb] text-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 rounded-lg px-4 py-3 pr-12 text-sm overflow-x-auto font-mono">
         <code>{highlightCode(code)}</code>
       </pre>
-      <div className="absolute top-0 right-0 bottom-0 w-16 pointer-events-none rounded-r-lg bg-gradient-to-r from-transparent to-zinc-900 to-40%" />
+      <div className="absolute top-0 right-0 bottom-0 w-16 pointer-events-none rounded-r-lg bg-gradient-to-r from-transparent to-[#ebebeb] dark:to-zinc-900 to-40%" />
       <button
         onClick={() => copyToClipboard(code, index)}
-        className="absolute top-2 right-2 p-1.5 rounded-md bg-zinc-900 can-hover:hover:bg-zinc-700 transition-colors"
+        className="absolute top-2 right-2 p-1.5 rounded-md bg-[#ebebeb] dark:bg-zinc-900 can-hover:hover:bg-zinc-300 dark:can-hover:hover:bg-zinc-700 transition-colors"
       >
         {copiedIndex === index ? (
-          <CheckIcon className="w-4 h-4 text-green-400" />
+          <CheckIcon className="w-4 h-4 text-green-500 dark:text-green-400" />
         ) : (
           <ClipboardDocumentIcon className="w-4 h-4 text-zinc-400" />
         )}
@@ -74,7 +74,7 @@ const CliPage: React.FC = () => {
   );
 
   const InlineCode = ({ code }: { code: string }) => (
-    <code className="text-xs bg-zinc-900 text-zinc-100 px-1.5 py-0.5 rounded font-mono">
+    <code className="text-xs bg-[#ebebeb] text-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 px-1.5 py-0.5 rounded font-mono">
       {highlightCode(code)}
     </code>
   );
@@ -93,7 +93,6 @@ const CliPage: React.FC = () => {
       {/* CLI Tool (share-cli) */}
       <section className="mb-12">
         <h2 className="text-xl font-semibold text-foreground mb-4">{t('cli.binaryTitle')}</h2>
-        <p className="text-muted-foreground mb-4">{t('cli.binaryDescription')}</p>
 
         <div className="space-y-4">
           <div>
@@ -101,15 +100,11 @@ const CliPage: React.FC = () => {
             <CodeBlock code="npm i -g share-anything-cli" index={16} />
           </div>
           <div>
-            <p className="text-sm font-medium text-foreground mb-2">{t('cli.installBrew')}</p>
-            <CodeBlock code={"brew tap bestdevmgp/share-anything\nbrew install share-anything"} index={9} />
-          </div>
-          <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.installCurl')}</p>
             <CodeBlock code="curl -fsSL share-api.mingyu.dev/install | sh" index={4} />
           </div>
 
-          <hr className="border-border" />
+          <hr className="border-zinc-200 dark:border-zinc-700" />
 
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryUpload')}</p>
@@ -118,11 +113,16 @@ const CliPage: React.FC = () => {
             <p className="text-xs text-muted-foreground mt-1">{t('cli.binaryUploadPathHint')}</p>
           </div>
           <div>
+            <p className="text-sm font-medium text-foreground mb-2">{t('cli.binarySecureUpload')}</p>
+            <CodeBlock code="share upload --secure myfile.txt" index={17} />
+            <p className="text-xs text-muted-foreground mt-1.5">{t('cli.binarySecureUploadHint')}</p>
+          </div>
+          <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryList')}</p>
             <CodeBlock code="share list" index={13} />
           </div>
 
-          <hr className="border-border" />
+          <hr className="border-zinc-200 dark:border-zinc-700" />
 
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryDownload')}</p>
@@ -134,7 +134,7 @@ const CliPage: React.FC = () => {
             <CodeBlock code="share info 123456" index={12} />
           </div>
 
-          <hr className="border-border" />
+          <hr className="border-zinc-200 dark:border-zinc-700" />
 
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryBrowserAuth')}</p>
@@ -152,7 +152,7 @@ const CliPage: React.FC = () => {
         </div>
       </section>
 
-      <hr className="border-foreground/30 mb-12" />
+      <hr className="border-zinc-300 dark:border-zinc-500 mb-12" />
 
       {/* Quick Start with curl */}
       <section className="mb-12">
@@ -180,7 +180,7 @@ const CliPage: React.FC = () => {
         </div>
       </section>
 
-      <hr className="border-foreground/30 mb-12" />
+      <hr className="border-zinc-300 dark:border-zinc-500 mb-12" />
 
       {/* Option Reference */}
       <section className="mb-12">
@@ -215,13 +215,19 @@ const CliPage: React.FC = () => {
                 <td className="px-4 py-3"><InlineCode code="--one-time" /></td>
                 <td className="px-4 py-3 text-muted-foreground">-</td>
               </tr>
+              <tr>
+                <td className="px-4 py-3 text-muted-foreground">{t('cli.limitSecure')}</td>
+                <td className="px-4 py-3 text-muted-foreground">-</td>
+                <td className="px-4 py-3"><InlineCode code="--secure" /></td>
+                <td className="px-4 py-3 text-muted-foreground">-</td>
+              </tr>
             </tbody>
           </table>
         </div>
         <p className="text-xs text-muted-foreground mt-3">{t('cli.optionsNote')}</p>
       </section>
 
-      <hr className="border-foreground/30 mb-12" />
+      <hr className="border-zinc-300 dark:border-zinc-500 mb-12" />
 
       {/* Comparison Table */}
       <section className="mb-12">
@@ -242,12 +248,13 @@ const CliPage: React.FC = () => {
               <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.featureLargeFile')}</td><td className="text-center px-4 py-3">100MB</td><td className="text-center px-4 py-3">3GB</td></tr>
               <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.featureMultipart')}</td><td className="text-center px-4 py-3">-</td><td className="text-center px-4 py-3">✓</td></tr>
               <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.featurePersonalToken')}</td><td className="text-center px-4 py-3">✓</td><td className="text-center px-4 py-3">✓</td></tr>
+              <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.featureSecure')}</td><td className="text-center px-4 py-3">-</td><td className="text-center px-4 py-3">✓</td></tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      <hr className="border-foreground/30 mb-12" />
+      <hr className="border-zinc-300 dark:border-zinc-500 mb-12" />
 
       {/* Guest vs Personal Token */}
       <section className="mb-12">
@@ -272,7 +279,7 @@ const CliPage: React.FC = () => {
         </div>
       </section>
 
-      <hr className="border-foreground/30 mb-12" />
+      <hr className="border-zinc-300 dark:border-zinc-500 mb-12" />
 
       {/* Personal Token */}
       <section className="mb-12">
