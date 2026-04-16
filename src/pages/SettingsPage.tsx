@@ -336,7 +336,7 @@ const SettingsPage: React.FC = () => {
               {t('settings.account')}
             </button>
             <div className="hidden md:block pt-3 mt-3 border-t border-black/15 dark:border-border">
-              <p className="px-3 pb-1 text-xs text-muted-foreground/60">{t('settings.developerSection')}</p>
+              <p className="px-3 pb-1 text-xs text-black/25 dark:text-muted-foreground/60">{t('settings.developerSection')}</p>
             </div>
             <Separator orientation="vertical" className="md:hidden h-6 self-center" />
             <button

@@ -104,7 +104,7 @@ const CliPage: React.FC = () => {
             <CodeBlock code="curl -fsSL share-api.mingyu.dev/install | sh" index={4} />
           </div>
 
-          <hr className="border-zinc-200 dark:border-zinc-700" />
+          <hr className="border-black/15 dark:border-border" />
 
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryUpload')}</p>
@@ -122,7 +122,7 @@ const CliPage: React.FC = () => {
             <CodeBlock code="share list" index={13} />
           </div>
 
-          <hr className="border-zinc-200 dark:border-zinc-700" />
+          <hr className="border-black/15 dark:border-border" />
 
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryDownload')}</p>
@@ -134,7 +134,7 @@ const CliPage: React.FC = () => {
             <CodeBlock code="share info 123456" index={12} />
           </div>
 
-          <hr className="border-zinc-200 dark:border-zinc-700" />
+          <hr className="border-black/15 dark:border-border" />
 
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryBrowserAuth')}</p>
@@ -152,7 +152,7 @@ const CliPage: React.FC = () => {
         </div>
       </section>
 
-      <hr className="border-zinc-300 dark:border-zinc-500 mb-12" />
+      <hr className="border-black/25 dark:border-zinc-500 mb-12" />
 
       {/* Quick Start with curl */}
       <section className="mb-12">
@@ -180,7 +180,7 @@ const CliPage: React.FC = () => {
         </div>
       </section>
 
-      <hr className="border-zinc-300 dark:border-zinc-500 mb-12" />
+      <hr className="border-black/25 dark:border-zinc-500 mb-12" />
 
       {/* Option Reference */}
       <section className="mb-12">
@@ -227,7 +227,7 @@ const CliPage: React.FC = () => {
         <p className="text-xs text-muted-foreground mt-3">{t('cli.optionsNote')}</p>
       </section>
 
-      <hr className="border-zinc-300 dark:border-zinc-500 mb-12" />
+      <hr className="border-black/25 dark:border-zinc-500 mb-12" />
 
       {/* Comparison Table */}
       <section className="mb-12">
@@ -254,7 +254,7 @@ const CliPage: React.FC = () => {
         </div>
       </section>
 
-      <hr className="border-zinc-300 dark:border-zinc-500 mb-12" />
+      <hr className="border-black/25 dark:border-zinc-500 mb-12" />
 
       {/* Guest vs Personal Token */}
       <section className="mb-12">
@@ -279,7 +279,7 @@ const CliPage: React.FC = () => {
         </div>
       </section>
 
-      <hr className="border-zinc-300 dark:border-zinc-500 mb-12" />
+      <hr className="border-black/25 dark:border-zinc-500 mb-12" />
 
       {/* Personal Token */}
       <section className="mb-12">
