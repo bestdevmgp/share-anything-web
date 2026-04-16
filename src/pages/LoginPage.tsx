@@ -184,8 +184,24 @@ const LoginPage: React.FC = () => {
 };
 
 const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
-    <span className="absolute left-full top-1/2 -translate-y-1/2 ml-[10px] opacity-0 [animation-delay:500ms] animate-bubble-pop pointer-events-none inline-flex items-center bg-popover border border-border rounded shadow-md px-[6px] py-[6.5px]">
-        <span className="absolute top-1/2 -left-[4px] -translate-y-1/2 w-[7px] h-[7px] bg-popover border-l border-b border-border rotate-45" />
+    <span
+        className="absolute left-full top-1/2 -translate-y-1/2 ml-[10px] opacity-0 [animation-delay:500ms] animate-bubble-pop pointer-events-none inline-flex items-center rounded-md px-[7px] py-[6.5px]"
+        style={{
+            background: 'var(--share-bubble-bg)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+            boxShadow: 'var(--share-bubble-shadow)',
+            border: '1px solid var(--share-bubble-border)',
+        }}
+    >
+        <span
+            className="absolute top-1/2 -left-[4px] -translate-y-1/2 w-[7px] h-[7px] rotate-45"
+            style={{
+                background: 'var(--share-bubble-bg)',
+                borderLeft: '1px solid var(--share-bubble-border)',
+                borderBottom: '1px solid var(--share-bubble-border)',
+            }}
+        />
         <span className="relative text-xs leading-none font-medium text-popover-foreground whitespace-nowrap">
             {label}
         </span>
