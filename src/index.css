@@ -59,7 +59,7 @@
     --radius: 0.625rem;
 
     /* Share bubble glassmorphism */
-    --share-bubble-bg: rgba(255, 255, 255, 0.58);
+    --share-bubble-bg: rgba(255, 255, 255, 0.42);
     --share-bubble-border: rgba(0, 0, 0, 0.06);
     --share-bubble-shadow:
       0 0 0 0.5px rgba(0, 0, 0, 0.03),
@@ -89,7 +89,7 @@
     --ring: 0 0% 98%;
 
     /* Share bubble glassmorphism */
-    --share-bubble-bg: rgba(30, 30, 30, 0.68);
+    --share-bubble-bg: rgba(30, 30, 30, 0.5);
     --share-bubble-border: rgba(255, 255, 255, 0.1);
     --share-bubble-shadow:
       0 0 0 0.5px rgba(255, 255, 255, 0.04),
