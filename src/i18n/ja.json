@@ -145,6 +145,8 @@
     "loginCancelledOrError": "ログインがキャンセルされたか、エラーが発生しました: {{error}}",
     "noAuthCode": "認証コードを取得できませんでした。",
     "loginSuccess": "ログインしました",
+    "signupSuccess": "会員登録が完了しました",
+    "welcomeBack": "アカウントが復元されました",
     "noLoginInfo": "ログイン情報を取得できませんでした",
     "loginFailed": "ログインに失敗しました",
     "loginFailedTitle": "ログイン失敗",

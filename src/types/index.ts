@@ -8,6 +8,8 @@ export interface User {
 export interface AuthResponse {
   token: string;
   user: User;
+  reactivated?: boolean;
+  is_new_user?: boolean;
 }
 
 export interface FileShare {

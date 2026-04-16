@@ -145,6 +145,8 @@
     "loginCancelledOrError": "登录已取消或发生错误：{{error}}",
     "noAuthCode": "未收到授权码。",
     "loginSuccess": "登录成功",
+    "signupSuccess": "注册成功",
+    "welcomeBack": "账户已恢复",
     "noLoginInfo": "未收到登录信息",
     "loginFailed": "登录失败",
     "loginFailedTitle": "登录失败",

@@ -145,6 +145,8 @@
     "loginCancelledOrError": "Sign-in was cancelled or an error occurred: {{error}}",
     "noAuthCode": "No authorization code received.",
     "loginSuccess": "You have been signed in",
+    "signupSuccess": "Your account has been created",
+    "welcomeBack": "Your account has been restored",
     "noLoginInfo": "No sign-in information received",
     "loginFailed": "Sign-in failed",
     "loginFailedTitle": "Sign-in Failed",

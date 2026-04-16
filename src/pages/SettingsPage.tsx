@@ -50,7 +50,7 @@ const SettingsPage: React.FC = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get('tab');
-  const activeTab: Tab = (tabParam === 'general' ? 'general' : tabParam === 'account' ? 'account' : tabParam === 'personal-tokens' ? 'personal-tokens' : 'notifications');
+  const activeTab: Tab = (tabParam === 'notifications' ? 'notifications' : tabParam === 'account' ? 'account' : tabParam === 'personal-tokens' ? 'personal-tokens' : 'general');
   const setActiveTab = (tab: Tab) => setSearchParams({ tab }, { replace: true });
   const [notifyUpload, setNotifyUpload] = useState(true);
   const [notifyDownload, setNotifyDownload] = useState(true);
@@ -254,6 +254,7 @@ const SettingsPage: React.FC = () => {
               <div className="flex gap-2 md:flex-col md:gap-1.5">
                 <div className="h-[34px] bg-muted rounded-lg w-14 md:w-full" />
                 <div className="h-[34px] bg-muted rounded-lg w-14 md:w-full" />
+                <div className="h-[34px] bg-muted rounded-lg w-14 md:w-full" />
                 <div className="h-[34px] bg-muted rounded-lg w-24 md:hidden" />
               </div>
               <div className="hidden md:block pt-3 mt-3 border-t border-border">
@@ -305,16 +306,6 @@ const SettingsPage: React.FC = () => {
         <div className="md:w-56 flex-shrink-0 md:pr-8 md:border-r md:border-border pb-4 md:pb-0">
           <nav className="flex gap-2 md:flex-col md:space-y-1 md:gap-0">
             <button
-              onClick={() => setActiveTab('notifications')}
-              className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors md:w-full md:text-left ${
-                activeTab === 'notifications'
-                  ? 'text-foreground bg-accent'
-                  : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
-              }`}
-            >
-              {t('settings.notifications')}
-            </button>
-            <button
               onClick={() => setActiveTab('general')}
               className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors md:w-full md:text-left ${
                 activeTab === 'general'
@@ -323,6 +314,16 @@ const SettingsPage: React.FC = () => {
               }`}
             >
               {t('settings.general')}
+            </button>
+            <button
+              onClick={() => setActiveTab('notifications')}
+              className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors md:w-full md:text-left ${
+                activeTab === 'notifications'
+                  ? 'text-foreground bg-accent'
+                  : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
+              }`}
+            >
+              {t('settings.notifications')}
             </button>
             <button
               onClick={() => setActiveTab('account')}
@@ -562,7 +563,7 @@ const SettingsPage: React.FC = () => {
                   <p className="text-sm text-muted-foreground mt-1 mb-3">
                     {t('settings.accountNameDescription')}
                   </p>
-                  <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3 max-w-sm">
                     <Input
                       type="text"
                       value={editName}
@@ -593,7 +594,7 @@ const SettingsPage: React.FC = () => {
                     <Button
                       variant="ghost"
                       onClick={() => setShowDeleteConfirm(true)}
-                      className="text-red-600 dark:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15"
+                      className="bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400 can-hover:hover:bg-red-200 dark:can-hover:hover:bg-red-500/25 active:bg-red-200 dark:active:bg-red-500/25"
                     >
                       {t('settings.accountDelete')}
                     </Button>
