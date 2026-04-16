@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { quickAccessAPI } from '../services/api';
 import { QuickAccessFile } from '../types';
 import { formatFileSize } from '../utils/format';
-import { PlusIcon, TrashIcon, ArrowDownTrayIcon, ArrowUpTrayIcon, XMarkIcon, ClipboardDocumentIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, TrashIcon, ArrowDownTrayIcon, ArrowUpTrayIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { toast } from '../context/ToastContext';
 import { useTranslation } from '../i18n';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +12,7 @@ import FileThumbnail from './FileThumbnail';
 import FilePreviewModal from './FilePreviewModal';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { cn } from 'lib/utils';
 import { useQuickAccessUpload } from '../context/QuickAccessUploadContext';
 
@@ -162,8 +163,7 @@ const QuickAccess: React.FC = () => {
   };
 
   const [sharingFileId, setSharingFileId] = useState<string | null>(null);
-  const [sharedInfo, setSharedInfo] = useState<{ fileId: string; code: string; url: string } | null>(null);
-  const [copiedSharedLink, setCopiedSharedLink] = useState(false);
+  const [sharedCode, setSharedCode] = useState<{ fileId: string; code: string } | null>(null);
 
   const handleShare = async (file: QuickAccessFile) => {
     try {
@@ -171,22 +171,13 @@ const QuickAccess: React.FC = () => {
       const response = await quickAccessAPI.shareFile(file.id);
       const shareUrl = `${window.location.origin}/download/${response.share_code}`;
       await navigator.clipboard.writeText(shareUrl);
-      setSharedInfo({ fileId: file.id, code: response.share_code, url: shareUrl });
-      setCopiedSharedLink(true);
-      setTimeout(() => setCopiedSharedLink(false), 2000);
+      setSharedCode({ fileId: file.id, code: response.share_code });
       toast.success(t('quickAccess.shareSuccess'));
     } catch {
       toast.error(t('quickAccess.shareFailed'));
     } finally {
       setSharingFileId(null);
     }
-  };
-
-  const handleCopySharedLink = async () => {
-    if (!sharedInfo) return;
-    await navigator.clipboard.writeText(sharedInfo.url);
-    setCopiedSharedLink(true);
-    setTimeout(() => setCopiedSharedLink(false), 2000);
   };
 
   const handlePreviewClick = async (file: QuickAccessFile) => {
@@ -359,92 +350,75 @@ const QuickAccess: React.FC = () => {
                   )}
                 </div>
               ))}
-              {files.map((file) => {
-                const isShared = sharedInfo?.fileId === file.id;
-                return (
-                  <div
-                    key={file.id}
-                    className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/[0.09] can-hover:hover:bg-accent active:bg-accent transition-colors cursor-pointer relative overflow-hidden"
-                    onClick={(e) => { e.stopPropagation(); if (!isShared) handlePreviewClick(file); }}
-                  >
-                    <div className="flex-shrink-0 mr-3">
-                      <FileThumbnail
-                        source={previewUrls.get(file.id) || null}
-                        fileName={file.file_name}
-                        size="sm"
-                      />
-                    </div>
-                    <div className={cn(
-                      "flex-1 min-w-0 mr-3 transition-all duration-300",
-                      isShared ? "opacity-0 blur-sm" : "opacity-100 blur-0"
-                    )}>
-                      <p className="text-sm font-medium text-foreground truncate">
-                        {file.file_name}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatFileSize(file.file_size)} · {getRemainingTime(file.expires_at)}
-                      </p>
-                      <p className="text-xs text-muted-foreground/50 truncate mt-0.5">
-                        {formatCompactDate(file.created_at)}
-                        {file.uploaded_from && <> · {t('quickAccess.uploadedFrom', { device: file.uploaded_from })}</>}
-                      </p>
-                    </div>
-                    <div className={cn(
-                      "flex items-center gap-1 flex-shrink-0 transition-all duration-300",
-                      isShared ? "opacity-0 blur-sm" : "opacity-100 blur-0"
-                    )}>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleShare(file); }}
-                        disabled={sharingFileId === file.id}
-                        className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-primary can-hover:hover:bg-primary/10 active:text-primary active:bg-primary/10 disabled:opacity-50"
-                        title={t('quickAccess.share')}
-                      >
-                        <ArrowUpTrayIcon className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleDownload(file); }}
-                        className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
-                        title={t('common.download')}
-                      >
-                        <ArrowDownTrayIcon className="w-5 h-5" />
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleDelete(file.id); }}
-                        className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 active:text-red-600 dark:active:text-red-400 active:bg-red-100/50 dark:active:bg-red-500/15"
-                        title={t('common.delete')}
-                      >
-                        <TrashIcon className="w-5 h-5" />
-                      </button>
-                    </div>
-                    {isShared && (
-                      <div
-                        className="absolute inset-0 flex items-center pl-[52px] pr-3 animate-in fade-in duration-300"
+              {files.map((file) => (
+                <div
+                  key={file.id}
+                  className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/[0.09] can-hover:hover:bg-accent active:bg-accent transition-colors cursor-pointer"
+                  onClick={(e) => { e.stopPropagation(); handlePreviewClick(file); }}
+                >
+                  <div className="flex-shrink-0 mr-3">
+                    <FileThumbnail
+                      source={previewUrls.get(file.id) || null}
+                      fileName={file.file_name}
+                      size="sm"
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0 mr-3">
+                    <p className="text-sm font-medium text-foreground truncate">
+                      {file.file_name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatFileSize(file.file_size)} · {getRemainingTime(file.expires_at)}
+                    </p>
+                    <p className="text-xs text-muted-foreground/50 truncate mt-0.5">
+                      {formatCompactDate(file.created_at)}
+                      {file.uploaded_from && <> · {t('quickAccess.uploadedFrom', { device: file.uploaded_from })}</>}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <Popover
+                      open={sharedCode?.fileId === file.id}
+                      onOpenChange={(open) => { if (!open) setSharedCode(null); }}
+                    >
+                      <PopoverTrigger asChild>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleShare(file); }}
+                          disabled={sharingFileId === file.id}
+                          className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-primary can-hover:hover:bg-primary/10 active:text-primary active:bg-primary/10 disabled:opacity-50"
+                          title={t('quickAccess.share')}
+                        >
+                          <ArrowUpTrayIcon className="w-5 h-5" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        side="top"
+                        align="center"
+                        sideOffset={8}
+                        className="w-auto px-4 py-2.5"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <p className="font-mono text-2xl font-bold text-foreground tracking-[0.1em] flex-1">
-                          {sharedInfo.code.slice(0, 3)} {sharedInfo.code.slice(3)}
+                        <p className="font-mono text-xl font-bold text-foreground tracking-[0.1em] text-center">
+                          {sharedCode?.code.slice(0, 3)} {sharedCode?.code.slice(3)}
                         </p>
-                        <button
-                          onClick={handleCopySharedLink}
-                          className="p-1.5 rounded-lg transition-colors text-muted-foreground can-hover:hover:text-foreground can-hover:hover:bg-foreground/10 active:text-foreground active:bg-foreground/10 flex-shrink-0"
-                        >
-                          {copiedSharedLink ? (
-                            <CheckIcon className="w-5 h-5 text-primary" />
-                          ) : (
-                            <ClipboardDocumentIcon className="w-5 h-5" />
-                          )}
-                        </button>
-                        <button
-                          onClick={() => setSharedInfo(null)}
-                          className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10 flex-shrink-0"
-                        >
-                          <XMarkIcon className="w-5 h-5" />
-                        </button>
-                      </div>
-                    )}
+                      </PopoverContent>
+                    </Popover>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDownload(file); }}
+                      className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
+                      title={t('common.download')}
+                    >
+                      <ArrowDownTrayIcon className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleDelete(file.id); }}
+                      className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 active:text-red-600 dark:active:text-red-400 active:bg-red-100/50 dark:active:bg-red-500/15"
+                      title={t('common.delete')}
+                    >
+                      <TrashIcon className="w-5 h-5" />
+                    </button>
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           </>
         )}
