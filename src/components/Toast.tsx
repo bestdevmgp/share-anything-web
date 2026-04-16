@@ -211,9 +211,13 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; is
         onTouchEnd={handleTouchEnd}
       >
         <div
-          className="bg-card dark:border dark:border-border rounded-3xl pl-2.5 pr-4 py-2 flex items-center gap-2.5 w-fit max-w-full sm:max-w-[520px]"
+          className="rounded-3xl pl-2.5 pr-4 py-2 flex items-center gap-2.5 w-fit max-w-full sm:max-w-[520px]"
           style={{
-            boxShadow: '0 4px 20px -2px rgba(0, 0, 0, 0.12), 0 2px 8px -2px rgba(0, 0, 0, 0.08)',
+            background: 'var(--share-bubble-bg)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+            border: '1px solid var(--share-bubble-border)',
+            boxShadow: 'var(--share-bubble-shadow)',
           }}
         >
           <ToastIcon type={toast.type} />
