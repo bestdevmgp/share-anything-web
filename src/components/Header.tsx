@@ -23,7 +23,16 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-card dark:bg-background shadow-[0_1px_2px_0_rgb(0,0,0,0.03)] dark:shadow-none dark:border-b dark:border-border/80 sticky top-0 z-50">
+    <header
+      className="sticky top-0 z-50"
+      style={{
+        background: 'var(--share-bubble-bg)',
+        backdropFilter: 'blur(20px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        borderBottom: '1px solid var(--share-bubble-border)',
+        boxShadow: 'var(--share-bubble-shadow)',
+      }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="flex items-center space-x-2">
