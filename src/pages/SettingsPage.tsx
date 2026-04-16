@@ -652,18 +652,23 @@ const SettingsPage: React.FC = () => {
 
               {/* Create new token */}
               <div className="mb-6 p-4 border border-border rounded-lg">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:max-w-sm">
                   <Input
                     type="text"
                     value={newTokenName}
                     onChange={(e) => setNewTokenName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !creatingToken) {
+                        handleCreatePersonalToken();
+                      }
+                    }}
                     placeholder={t('settings.personalTokenNamePlaceholder')}
-                    className="flex-1 h-[50px] rounded-lg px-4 text-sm"
+                    className="flex-1 h-10 rounded-lg px-4 text-sm"
                   />
                   <Button
                     onClick={handleCreatePersonalToken}
                     disabled={creatingToken}
-                    className="flex-shrink-0 relative h-[48px]"
+                    className="flex-shrink-0 relative h-10"
                   >
                     <span className={creatingToken ? 'invisible' : ''}>{t('settings.createPersonalToken')}</span>
                     {creatingToken && <Spinner size="sm" className="text-primary-foreground absolute" />}
