@@ -395,7 +395,7 @@ const QuickAccess: React.FC = () => {
                         <button
                           onClick={(e) => { e.stopPropagation(); handleShare(file); }}
                           disabled={sharingFileId === file.id}
-                          className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-primary can-hover:hover:bg-primary/10 active:text-primary active:bg-primary/10 disabled:opacity-50"
+                          className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10 disabled:opacity-50"
                           title={t('quickAccess.share')}
                         >
                           <ArrowUpTrayIcon className="w-5 h-5" />
@@ -405,26 +405,27 @@ const QuickAccess: React.FC = () => {
                         side="left"
                         align="center"
                         sideOffset={10}
-                        className="w-auto p-0 rounded-none border-none bg-transparent shadow-none"
+                        className="w-auto p-0 border-none bg-transparent shadow-none overflow-visible"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <div className="relative flex items-center gap-1 pl-3 pr-1.5 py-1.5 rounded-lg bg-[#1a1a1a] shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_4px_16px_rgba(0,0,0,0.3)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_4px_16px_rgba(0,0,0,0.5)]">
-                          <p className="font-mono text-lg font-bold text-white tracking-[0.05em]">
-                            {sharedCode?.code.slice(0, 3)}<span className="inline-block w-[5px]" />{sharedCode?.code.slice(3)}
-                          </p>
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleCopySharedLink(); }}
-                            className="p-1.5 rounded-md transition-colors can-hover:hover:bg-white/10 active:bg-white/10"
-                          >
-                            {copiedSharedLink ? (
-                              <CheckIcon className="w-4 h-4 text-primary" />
-                            ) : (
-                              <ClipboardDocumentIcon className="w-4 h-4 text-white/40" />
-                            )}
-                          </button>
-                          {/* Arrow pointing right toward the share button */}
-                          <div className="absolute -right-[6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-[#1a1a1a] rotate-45 shadow-[1px_-1px_0_0_rgba(255,255,255,0.1)]" />
-                        </div>
+                        <span className="relative inline-flex items-center bg-[#1a1a1a] border border-white/10 rounded-md shadow-lg pl-3 pr-1.5 py-1.5">
+                          <span className="absolute top-1/2 -right-[5px] -translate-y-1/2 w-[9px] h-[9px] bg-[#1a1a1a] border-r border-b border-white/10 rotate-[-45deg]" />
+                          <span className="relative flex items-center gap-1">
+                            <span className="font-mono text-lg font-bold text-white tracking-[0.05em]">
+                              {sharedCode?.code.slice(0, 3)}<span className="inline-block w-[5px]" />{sharedCode?.code.slice(3)}
+                            </span>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleCopySharedLink(); }}
+                              className="p-1.5 rounded-md transition-colors can-hover:hover:bg-white/10 active:bg-white/10"
+                            >
+                              {copiedSharedLink ? (
+                                <CheckIcon className="w-4 h-4 text-green-400" />
+                              ) : (
+                                <ClipboardDocumentIcon className="w-4 h-4 text-white/40" />
+                              )}
+                            </button>
+                          </span>
+                        </span>
                       </PopoverContent>
                     </Popover>
                     <button
