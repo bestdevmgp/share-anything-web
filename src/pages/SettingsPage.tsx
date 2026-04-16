@@ -651,7 +651,7 @@ const SettingsPage: React.FC = () => {
               </div>
 
               {/* Create new token */}
-              <div className="mb-6 p-4 border border-border rounded-lg">
+              <div className="mb-6">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:max-w-sm">
                   <Input
                     type="text"
@@ -704,11 +704,11 @@ const SettingsPage: React.FC = () => {
               </div>
 
               {/* Token list */}
-              <div className="space-y-3">
+              <div className="space-y-6">
                 {personalTokensLoading ? (
                   <div className="animate-pulse space-y-3">
                     {[1, 2].map((i) => (
-                      <div key={i} className="h-16 bg-muted rounded-lg" />
+                      <div key={i} className="h-12 bg-muted rounded-lg" />
                     ))}
                   </div>
                 ) : personalTokens.length === 0 ? (
@@ -717,11 +717,10 @@ const SettingsPage: React.FC = () => {
                     <p className="text-sm">{t('settings.noPersonalTokens')}</p>
                   </div>
                 ) : (
-                  personalTokens.map((token) => (
-                    <div
-                      key={token.id}
-                      className="flex items-center justify-between p-4 border border-border rounded-lg"
-                    >
+                  personalTokens.map((token, index) => (
+                    <div key={token.id}>
+                      {index > 0 && <Separator className="mb-6" />}
+                      <div className="flex items-center justify-between">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-medium text-foreground">{token.name}</span>
@@ -748,6 +747,7 @@ const SettingsPage: React.FC = () => {
                       >
                         {t('settings.revokePersonalToken')}
                       </Button>
+                      </div>
                     </div>
                   ))
                 )}
