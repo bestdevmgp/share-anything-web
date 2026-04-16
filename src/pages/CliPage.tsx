@@ -152,7 +152,7 @@ const CliPage: React.FC = () => {
         </div>
       </section>
 
-      <hr className="border-black/25 dark:border-zinc-500 mb-12" />
+      <hr className="border-black/25 dark:border-zinc-600 mb-12" />
 
       {/* Quick Start with curl */}
       <section className="mb-12">
@@ -180,7 +180,7 @@ const CliPage: React.FC = () => {
         </div>
       </section>
 
-      <hr className="border-black/25 dark:border-zinc-500 mb-12" />
+      <hr className="border-black/25 dark:border-zinc-600 mb-12" />
 
       {/* Option Reference */}
       <section className="mb-12">
@@ -227,7 +227,7 @@ const CliPage: React.FC = () => {
         <p className="text-xs text-muted-foreground mt-3">{t('cli.optionsNote')}</p>
       </section>
 
-      <hr className="border-black/25 dark:border-zinc-500 mb-12" />
+      <hr className="border-black/25 dark:border-zinc-600 mb-12" />
 
       {/* Comparison Table */}
       <section className="mb-12">
@@ -254,7 +254,7 @@ const CliPage: React.FC = () => {
         </div>
       </section>
 
-      <hr className="border-black/25 dark:border-zinc-500 mb-12" />
+      <hr className="border-black/25 dark:border-zinc-600 mb-12" />
 
       {/* Guest vs Personal Token */}
       <section className="mb-12">
@@ -279,7 +279,7 @@ const CliPage: React.FC = () => {
         </div>
       </section>
 
-      <hr className="border-black/25 dark:border-zinc-500 mb-12" />
+      <hr className="border-black/25 dark:border-zinc-600 mb-12" />
 
       {/* Personal Token */}
       <section className="mb-12">
