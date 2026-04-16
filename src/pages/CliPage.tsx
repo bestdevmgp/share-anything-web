@@ -104,7 +104,7 @@ const CliPage: React.FC = () => {
             <CodeBlock code="curl -fsSL share-api.mingyu.dev/install | sh" index={4} />
           </div>
 
-          <hr className="border-black/8 dark:border-border" />
+          <hr className="border-black/[0.11] dark:border-border" />
 
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryUpload')}</p>
@@ -122,7 +122,7 @@ const CliPage: React.FC = () => {
             <CodeBlock code="share list" index={13} />
           </div>
 
-          <hr className="border-black/8 dark:border-border" />
+          <hr className="border-black/[0.11] dark:border-border" />
 
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryDownload')}</p>
@@ -134,7 +134,7 @@ const CliPage: React.FC = () => {
             <CodeBlock code="share info 123456" index={12} />
           </div>
 
-          <hr className="border-black/8 dark:border-border" />
+          <hr className="border-black/[0.11] dark:border-border" />
 
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryBrowserAuth')}</p>
