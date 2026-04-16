@@ -421,7 +421,7 @@
     "accountDelete": "Delete account",
     "accountDeleteDescription": "Once deleted, you will no longer be able to sign in. Your uploaded files will remain.",
     "accountDeleteConfirmTitle": "Are you sure you want to delete your account?",
-    "accountDeleteConfirmDescription": "This action cannot be undone. Your account will be permanently deactivated.",
+    "accountDeleteConfirmDescription": "Your account will be temporarily retained for 14 days before being permanently deleted. You can restore it by logging in again within 14 days.",
     "accountDeleteCancel": "Cancel",
     "accountDeleteConfirm": "Delete",
     "accountDeleteFailed": "Failed to delete account"

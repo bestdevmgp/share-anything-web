@@ -421,7 +421,7 @@
     "accountDelete": "アカウント削除",
     "accountDeleteDescription": "削除するとログインできなくなります。アップロードしたファイルは保持されます。",
     "accountDeleteConfirmTitle": "本当にアカウントを削除しますか？",
-    "accountDeleteConfirmDescription": "この操作は取り消せません。アカウントは永久に無効化されます。",
+    "accountDeleteConfirmDescription": "アカウントは14日間一時保管された後、完全に削除されます。14日以内に再ログインすると復元できます。",
     "accountDeleteCancel": "キャンセル",
     "accountDeleteConfirm": "削除",
     "accountDeleteFailed": "アカウントの削除に失敗しました"

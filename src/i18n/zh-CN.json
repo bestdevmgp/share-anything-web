@@ -421,7 +421,7 @@
     "accountDelete": "注销账户",
     "accountDeleteDescription": "注销后将无法登录。已上传的文件将保留。",
     "accountDeleteConfirmTitle": "确定要注销账户吗？",
-    "accountDeleteConfirmDescription": "此操作无法撤销。您的账户将被永久停用。",
+    "accountDeleteConfirmDescription": "账户将临时保留14天，之后将被永久删除。14天内重新登录即可恢复账户。",
     "accountDeleteCancel": "取消",
     "accountDeleteConfirm": "注销",
     "accountDeleteFailed": "账户注销失败"

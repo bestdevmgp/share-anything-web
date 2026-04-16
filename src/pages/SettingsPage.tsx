@@ -563,18 +563,23 @@ const SettingsPage: React.FC = () => {
                   <p className="text-sm text-muted-foreground mt-1 mb-3">
                     {t('settings.accountNameDescription')}
                   </p>
-                  <div className="flex flex-col sm:flex-row gap-3 max-w-sm">
+                  <div className="flex flex-col sm:flex-row gap-3 sm:max-w-sm">
                     <Input
                       type="text"
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && editName.trim() && editName.trim() !== user?.name && !savingName) {
+                          handleUpdateName();
+                        }
+                      }}
                       maxLength={50}
-                      className="flex-1 h-[50px] rounded-lg px-4 text-sm"
+                      className="flex-1 h-10 rounded-lg px-4 text-sm"
                     />
                     <Button
                       onClick={handleUpdateName}
                       disabled={savingName || !editName.trim() || editName.trim() === user?.name}
-                      className="flex-shrink-0 relative h-[48px]"
+                      className="flex-shrink-0 relative h-10"
                     >
                       <span className={savingName ? 'invisible' : ''}>{t('settings.accountNameSave')}</span>
                       {savingName && <Spinner size="sm" className="text-primary-foreground absolute" />}
@@ -594,7 +599,7 @@ const SettingsPage: React.FC = () => {
                     <Button
                       variant="ghost"
                       onClick={() => setShowDeleteConfirm(true)}
-                      className="bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400 can-hover:hover:bg-red-200 dark:can-hover:hover:bg-red-500/25 active:bg-red-200 dark:active:bg-red-500/25"
+                      className="bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400 can-hover:hover:bg-red-200 dark:can-hover:hover:bg-red-500/25 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 active:bg-red-200 dark:active:bg-red-500/25 active:text-red-600 dark:active:text-red-400"
                     >
                       {t('settings.accountDelete')}
                     </Button>
@@ -609,12 +614,13 @@ const SettingsPage: React.FC = () => {
                           <p className="text-sm text-muted-foreground mt-1">
                             {t('settings.accountDeleteConfirmDescription')}
                           </p>
-                          <div className="flex gap-3 mt-4">
+                          <div className="flex gap-2 mt-4">
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => setShowDeleteConfirm(false)}
                               disabled={deletingAccount}
+                              className="px-5"
                             >
                               {t('settings.accountDeleteCancel')}
                             </Button>
@@ -623,7 +629,7 @@ const SettingsPage: React.FC = () => {
                               size="sm"
                               onClick={handleDeleteAccount}
                               disabled={deletingAccount}
-                              className="relative"
+                              className="relative px-5"
                             >
                               <span className={deletingAccount ? 'invisible' : ''}>{t('settings.accountDeleteConfirm')}</span>
                               {deletingAccount && <Spinner size="sm" className="text-destructive-foreground absolute" />}
