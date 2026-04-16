@@ -195,11 +195,12 @@ const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
         }}
     >
         <span
-            className="absolute top-1/2 -left-[4px] -translate-y-1/2 w-[7px] h-[7px] rotate-45"
+            className="absolute top-1/2 -left-[6px] -translate-y-1/2 w-[10px] h-[12px]"
             style={{
                 background: 'var(--share-bubble-bg)',
-                borderLeft: '1px solid var(--share-bubble-border)',
-                borderBottom: '1px solid var(--share-bubble-border)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                clipPath: 'polygon(0% 50%, 100% 0%, 100% 100%)',
             }}
         />
         <span className="relative text-xs leading-none font-medium text-popover-foreground whitespace-nowrap">
