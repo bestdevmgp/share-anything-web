@@ -420,11 +420,12 @@ const QuickAccess: React.FC = () => {
                         >
                           {/* Arrow */}
                           <span
-                            className="absolute top-1/2 -right-[6px] -translate-y-1/2 w-[12px] h-[12px]"
+                            className="absolute top-1/2 -translate-y-1/2"
                             style={{
+                              right: '-6px',
+                              width: '7px',
+                              height: '12px',
                               background: 'var(--share-bubble-bg)',
-                              backdropFilter: 'blur(20px) saturate(180%)',
-                              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
                               clipPath: 'polygon(0% 0%, 100% 50%, 0% 100%)',
                             }}
                           />
