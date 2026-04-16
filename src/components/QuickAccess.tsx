@@ -362,91 +362,83 @@ const QuickAccess: React.FC = () => {
               {files.map((file) => {
                 const isShared = sharedInfo?.fileId === file.id;
                 return (
-                  <div key={file.id} className="space-y-1.5">
-                    <div
-                      className={cn(
-                        "flex items-center px-3 py-2.5 rounded-lg border transition-colors cursor-pointer",
-                        isShared
-                          ? "bg-primary/5 border-primary/30"
-                          : "bg-muted border-foreground/[0.09] can-hover:hover:bg-accent active:bg-accent"
-                      )}
-                      onClick={(e) => { e.stopPropagation(); handlePreviewClick(file); }}
-                    >
-                      <div className="flex-shrink-0 mr-3">
-                        <FileThumbnail
-                          source={previewUrls.get(file.id) || null}
-                          fileName={file.file_name}
-                          size="sm"
-                        />
-                      </div>
-                      <div className="flex-1 min-w-0 mr-3">
-                        <p className="text-sm font-medium text-foreground truncate">
-                          {file.file_name}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatFileSize(file.file_size)} · {getRemainingTime(file.expires_at)}
-                        </p>
-                        <p className="text-xs text-muted-foreground/50 truncate mt-0.5">
-                          {formatCompactDate(file.created_at)}
-                          {file.uploaded_from && <> · {t('quickAccess.uploadedFrom', { device: file.uploaded_from })}</>}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-1 flex-shrink-0">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleShare(file); }}
-                          disabled={sharingFileId === file.id}
-                          className={cn(
-                            "p-1.5 rounded-lg transition-colors disabled:opacity-50",
-                            isShared
-                              ? "text-primary"
-                              : "text-muted-foreground/50 can-hover:hover:text-primary can-hover:hover:bg-primary/10 active:text-primary active:bg-primary/10"
-                          )}
-                          title={t('quickAccess.share')}
-                        >
-                          <ArrowUpTrayIcon className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleDownload(file); }}
-                          className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
-                          title={t('common.download')}
-                        >
-                          <ArrowDownTrayIcon className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleDelete(file.id); }}
-                          className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 active:text-red-600 dark:active:text-red-400 active:bg-red-100/50 dark:active:bg-red-500/15"
-                          title={t('common.delete')}
-                        >
-                          <TrashIcon className="w-5 h-5" />
-                        </button>
-                      </div>
+                  <div
+                    key={file.id}
+                    className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/[0.09] can-hover:hover:bg-accent active:bg-accent transition-colors cursor-pointer relative overflow-hidden"
+                    onClick={(e) => { e.stopPropagation(); if (!isShared) handlePreviewClick(file); }}
+                  >
+                    <div className="flex-shrink-0 mr-3">
+                      <FileThumbnail
+                        source={previewUrls.get(file.id) || null}
+                        fileName={file.file_name}
+                        size="sm"
+                      />
+                    </div>
+                    <div className={cn(
+                      "flex-1 min-w-0 mr-3 transition-all duration-300",
+                      isShared ? "opacity-0 blur-sm" : "opacity-100 blur-0"
+                    )}>
+                      <p className="text-sm font-medium text-foreground truncate">
+                        {file.file_name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatFileSize(file.file_size)} · {getRemainingTime(file.expires_at)}
+                      </p>
+                      <p className="text-xs text-muted-foreground/50 truncate mt-0.5">
+                        {formatCompactDate(file.created_at)}
+                        {file.uploaded_from && <> · {t('quickAccess.uploadedFrom', { device: file.uploaded_from })}</>}
+                      </p>
+                    </div>
+                    <div className={cn(
+                      "flex items-center gap-1 flex-shrink-0 transition-all duration-300",
+                      isShared ? "opacity-0 blur-sm" : "opacity-100 blur-0"
+                    )}>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleShare(file); }}
+                        disabled={sharingFileId === file.id}
+                        className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-primary can-hover:hover:bg-primary/10 active:text-primary active:bg-primary/10 disabled:opacity-50"
+                        title={t('quickAccess.share')}
+                      >
+                        <ArrowUpTrayIcon className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDownload(file); }}
+                        className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
+                        title={t('common.download')}
+                      >
+                        <ArrowDownTrayIcon className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDelete(file.id); }}
+                        className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 active:text-red-600 dark:active:text-red-400 active:bg-red-100/50 dark:active:bg-red-500/15"
+                        title={t('common.delete')}
+                      >
+                        <TrashIcon className="w-5 h-5" />
+                      </button>
                     </div>
                     {isShared && (
                       <div
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-primary/5 border border-primary/20"
+                        className="absolute inset-0 flex items-center pl-[52px] pr-3 animate-in fade-in duration-300"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <span className="font-mono text-lg font-bold text-primary tracking-widest">
+                        <p className="font-mono text-2xl font-bold text-foreground tracking-[0.1em] flex-1">
                           {sharedInfo.code.slice(0, 3)} {sharedInfo.code.slice(3)}
-                        </span>
-                        <span className="text-xs text-muted-foreground truncate flex-1">
-                          {sharedInfo.url}
-                        </span>
+                        </p>
                         <button
                           onClick={handleCopySharedLink}
                           className="p-1.5 rounded-lg transition-colors text-muted-foreground can-hover:hover:text-foreground can-hover:hover:bg-foreground/10 active:text-foreground active:bg-foreground/10 flex-shrink-0"
                         >
                           {copiedSharedLink ? (
-                            <CheckIcon className="w-4 h-4 text-primary" />
+                            <CheckIcon className="w-5 h-5 text-primary" />
                           ) : (
-                            <ClipboardDocumentIcon className="w-4 h-4" />
+                            <ClipboardDocumentIcon className="w-5 h-5" />
                           )}
                         </button>
                         <button
                           onClick={() => setSharedInfo(null)}
                           className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10 flex-shrink-0"
                         >
-                          <XMarkIcon className="w-4 h-4" />
+                          <XMarkIcon className="w-5 h-5" />
                         </button>
                       </div>
                     )}
