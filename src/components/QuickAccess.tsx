@@ -422,7 +422,7 @@ const QuickAccess: React.FC = () => {
                           <span
                             className="absolute top-1/2 -translate-y-1/2"
                             style={{
-                              right: '-6px',
+                              right: '-7px',
                               width: '7px',
                               height: '12px',
                               background: 'var(--share-bubble-bg)',
