@@ -359,7 +359,10 @@
     "downloadStarted": "Download started",
     "downloadFailed": "Download failed",
     "uploadedFrom": "From {{device}}",
-    "fileCount": "{{count}}"
+    "fileCount": "{{count}}",
+    "share": "Share",
+    "shareSuccess": "Share link copied to clipboard",
+    "shareFailed": "Failed to share"
   },
   "p2p": {
     "fileNotFound": "Requested file not found",
@@ -424,7 +427,8 @@
     "accountDeleteConfirmDescription": "Your account will be temporarily retained for 14 days before being permanently deleted. You can restore it by logging in again within 14 days.",
     "accountDeleteCancel": "Cancel",
     "accountDeleteConfirm": "Delete",
-    "accountDeleteFailed": "Failed to delete account"
+    "accountDeleteFailed": "Failed to delete account",
+    "accountDeleted": "Your account has been deleted"
   },
   "cliSignin": {
     "pageTitle": "CLI Sign In",

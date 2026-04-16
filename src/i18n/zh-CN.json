@@ -359,7 +359,10 @@
     "downloadStarted": "下载已开始",
     "downloadFailed": "下载失败",
     "uploadedFrom": "从 {{device}} 上传",
-    "fileCount": "{{count}}个"
+    "fileCount": "{{count}}个",
+    "share": "分享",
+    "shareSuccess": "分享链接已复制到剪贴板",
+    "shareFailed": "分享失败"
   },
   "p2p": {
     "fileNotFound": "未找到请求的文件",
@@ -424,7 +427,8 @@
     "accountDeleteConfirmDescription": "账户将临时保留14天，之后将被永久删除。14天内重新登录即可恢复账户。",
     "accountDeleteCancel": "取消",
     "accountDeleteConfirm": "注销",
-    "accountDeleteFailed": "账户注销失败"
+    "accountDeleteFailed": "账户注销失败",
+    "accountDeleted": "账户已注销"
   },
   "cliSignin": {
     "pageTitle": "CLI 登录",

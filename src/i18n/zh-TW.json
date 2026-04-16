@@ -359,7 +359,10 @@
     "downloadStarted": "下載已開始",
     "downloadFailed": "下載失敗",
     "uploadedFrom": "從 {{device}} 上傳",
-    "fileCount": "{{count}}個"
+    "fileCount": "{{count}}個",
+    "share": "分享",
+    "shareSuccess": "分享連結已複製到剪貼簿",
+    "shareFailed": "分享失敗"
   },
   "p2p": {
     "fileNotFound": "找不到所請求的檔案",
@@ -424,7 +427,8 @@
     "accountDeleteConfirmDescription": "帳戶將臨時保留14天，之後將被永久刪除。14天內重新登入即可恢復帳戶。",
     "accountDeleteCancel": "取消",
     "accountDeleteConfirm": "刪除",
-    "accountDeleteFailed": "帳戶刪除失敗"
+    "accountDeleteFailed": "帳戶刪除失敗",
+    "accountDeleted": "帳戶已刪除"
   },
   "cliSignin": {
     "pageTitle": "CLI 登入",

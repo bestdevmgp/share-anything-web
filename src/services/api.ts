@@ -595,6 +595,11 @@ export const quickAccessAPI = {
     return response.data;
   },
 
+  shareFile: async (fileId: string): Promise<{ share_code: string }> => {
+    const response = await api.post<{ share_code: string }>(`/user/quick-access/share/${fileId}`);
+    return response.data;
+  },
+
   downloadFile: async (fileId: string): Promise<{ download_url: string; file_name: string; expires_in_secs: number }> => {
     const response = await api.get<{ download_url: string; file_name: string; expires_in_secs: number }>(
       `/user/quick-access/download/${fileId}`

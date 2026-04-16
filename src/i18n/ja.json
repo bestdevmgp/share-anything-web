@@ -359,7 +359,10 @@
     "downloadStarted": "ダウンロードが開始されました",
     "downloadFailed": "ダウンロードに失敗しました",
     "uploadedFrom": "{{device}}からアップロード",
-    "fileCount": "{{count}}件"
+    "fileCount": "{{count}}件",
+    "share": "共有",
+    "shareSuccess": "共有リンクがクリップボードにコピーされました",
+    "shareFailed": "共有に失敗しました"
   },
   "p2p": {
     "fileNotFound": "リクエストされたファイルが見つかりません",
@@ -424,7 +427,8 @@
     "accountDeleteConfirmDescription": "アカウントは14日間一時保管された後、完全に削除されます。14日以内に再ログインすると復元できます。",
     "accountDeleteCancel": "キャンセル",
     "accountDeleteConfirm": "削除",
-    "accountDeleteFailed": "アカウントの削除に失敗しました"
+    "accountDeleteFailed": "アカウントの削除に失敗しました",
+    "accountDeleted": "退会処理が完了しました"
   },
   "cliSignin": {
     "pageTitle": "CLIサインイン",

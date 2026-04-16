@@ -226,6 +226,7 @@ const SettingsPage: React.FC = () => {
     try {
       await userAPI.deleteAccount();
       logout();
+      toast.success(t('settings.accountDeleted'));
       navigate('/');
     } catch {
       toast.error(t('settings.accountDeleteFailed'));
@@ -720,7 +721,7 @@ const SettingsPage: React.FC = () => {
                   personalTokens.map((token, index) => (
                     <div key={token.id}>
                       {index > 0 && <Separator />}
-                      <div className="flex items-center justify-between py-[14px]">
+                      <div className="flex items-center justify-between py-4">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-medium text-foreground">{token.name}</span>

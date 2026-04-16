@@ -344,7 +344,7 @@
     "title": "로그인된 다른 기기로 전송",
     "titleShort": "빠른 접근",
     "description": "동일 계정으로 로그인된 다른 기기에서 파일을 즉시 다운로드할 수 있습니다.",
-    "dragOrClick": "파일을 드래그하거나 클릭하여 추가",
+    "dragOrClick": "드래그하거나 클릭하여 파일 추가",
     "uploading": "업로드 중...",
     "uploadComplete": "업로드 완료",
     "uploadFailed": "업로드에 실패하였습니다",
@@ -359,7 +359,10 @@
     "downloadStarted": "다운로드가 시작되었습니다",
     "downloadFailed": "다운로드에 실패하였습니다",
     "uploadedFrom": "{{device}}에서 업로드",
-    "fileCount": "{{count}}개"
+    "fileCount": "{{count}}개",
+    "share": "공유",
+    "shareSuccess": "공유 링크가 클립보드에 복사되었습니다",
+    "shareFailed": "공유에 실패하였습니다"
   },
   "p2p": {
     "fileNotFound": "요청된 파일을 찾을 수 없습니다",
@@ -424,7 +427,8 @@
     "accountDeleteConfirmDescription": "계정은 14일간 임시 보관된 후 완전히 삭제됩니다. 14일 이내에 다시 로그인하면 복구할 수 있습니다.",
     "accountDeleteCancel": "취소",
     "accountDeleteConfirm": "탈퇴",
-    "accountDeleteFailed": "회원 탈퇴에 실패하였습니다"
+    "accountDeleteFailed": "회원 탈퇴에 실패하였습니다",
+    "accountDeleted": "탈퇴 처리되었습니다"
   },
   "cliSignin": {
     "pageTitle": "CLI 로그인",
