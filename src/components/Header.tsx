@@ -29,8 +29,6 @@ const Header: React.FC = () => {
         background: 'var(--share-bubble-bg)',
         backdropFilter: 'blur(20px) saturate(180%)',
         WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-        borderBottom: '1px solid var(--share-bubble-border)',
-        boxShadow: 'var(--share-bubble-shadow)',
       }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
