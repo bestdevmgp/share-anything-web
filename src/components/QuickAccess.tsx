@@ -386,7 +386,7 @@ const QuickAccess: React.FC = () => {
                       {file.uploaded_from && <> · {t('quickAccess.uploadedFrom', { device: file.uploaded_from })}</>}
                     </p>
                   </div>
-                  <div className="flex items-center gap-1 flex-shrink-0">
+                  <div className="flex items-center gap-0.5 flex-shrink-0">
                     <Popover
                       open={sharedCode?.fileId === file.id}
                       onOpenChange={(open) => { if (!open) setSharedCode(null); }}
@@ -408,20 +408,37 @@ const QuickAccess: React.FC = () => {
                         className="w-auto p-0 border-none bg-transparent shadow-none overflow-visible"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <span className="relative inline-flex items-center bg-[#1a1a1a] border border-white/10 rounded-md shadow-lg pl-3 pr-1.5 py-1.5">
-                          <span className="absolute top-1/2 -right-[5px] -translate-y-1/2 w-[9px] h-[9px] bg-[#1a1a1a] border-r border-b border-white/10 rotate-[-45deg]" />
-                          <span className="relative flex items-center gap-1">
-                            <span className="font-mono text-lg font-bold text-white tracking-[0.05em]">
-                              {sharedCode?.code.slice(0, 3)}<span className="inline-block w-[5px]" />{sharedCode?.code.slice(3)}
+                        <span
+                          className="relative inline-flex items-center rounded-[10px] pl-3 pr-1.5 py-[7px]"
+                          style={{
+                            background: 'var(--share-bubble-bg)',
+                            backdropFilter: 'blur(20px) saturate(180%)',
+                            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                            boxShadow: 'var(--share-bubble-shadow)',
+                            border: '1px solid var(--share-bubble-border)',
+                          }}
+                        >
+                          {/* Arrow */}
+                          <span
+                            className="absolute top-1/2 -right-[5px] -translate-y-1/2 w-[10px] h-[10px] rotate-[-45deg]"
+                            style={{
+                              background: 'var(--share-bubble-bg)',
+                              borderRight: '1px solid var(--share-bubble-border)',
+                              borderBottom: '1px solid var(--share-bubble-border)',
+                            }}
+                          />
+                          <span className="relative flex items-center gap-1.5">
+                            <span className="font-mono text-[1.125rem] font-bold text-foreground tracking-[0.06em] leading-none">
+                              {sharedCode?.code.slice(0, 3)}<span className="inline-block w-1" />{sharedCode?.code.slice(3)}
                             </span>
                             <button
                               onClick={(e) => { e.stopPropagation(); handleCopySharedLink(); }}
-                              className="p-1.5 rounded-md transition-colors can-hover:hover:bg-white/10 active:bg-white/10"
+                              className="p-1.5 rounded-md transition-colors can-hover:hover:bg-foreground/10 active:bg-foreground/10"
                             >
                               {copiedSharedLink ? (
-                                <CheckIcon className="w-4 h-4 text-green-400" />
+                                <CheckIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
                               ) : (
-                                <ClipboardDocumentIcon className="w-4 h-4 text-white/40" />
+                                <ClipboardDocumentIcon className="w-4 h-4 text-muted-foreground" />
                               )}
                             </button>
                           </span>

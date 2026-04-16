@@ -57,6 +57,14 @@
     --input: 0 0% 80%;
     --ring: 0 0% 3.9%;
     --radius: 0.625rem;
+
+    /* Share bubble glassmorphism */
+    --share-bubble-bg: rgba(255, 255, 255, 0.72);
+    --share-bubble-border: rgba(0, 0, 0, 0.06);
+    --share-bubble-shadow:
+      0 0 0 0.5px rgba(0, 0, 0, 0.03),
+      0 2px 6px rgba(0, 0, 0, 0.04),
+      0 8px 24px rgba(0, 0, 0, 0.06);
   }
 
   .dark {
@@ -79,6 +87,14 @@
     --border: 0 0% 12%;
     --input: 0 0% 22%;
     --ring: 0 0% 98%;
+
+    /* Share bubble glassmorphism */
+    --share-bubble-bg: rgba(30, 30, 30, 0.82);
+    --share-bubble-border: rgba(255, 255, 255, 0.1);
+    --share-bubble-shadow:
+      0 0 0 0.5px rgba(255, 255, 255, 0.04),
+      0 2px 6px rgba(0, 0, 0, 0.2),
+      0 8px 24px rgba(0, 0, 0, 0.35);
   }
 }
 
