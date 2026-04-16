@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { quickAccessAPI } from '../services/api';
 import { QuickAccessFile } from '../types';
 import { formatFileSize } from '../utils/format';
-import { PlusIcon, TrashIcon, ArrowDownTrayIcon, ArrowUpTrayIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, TrashIcon, ArrowDownTrayIcon, ArrowUpTrayIcon, XMarkIcon, ClipboardDocumentIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { toast } from '../context/ToastContext';
 import { useTranslation } from '../i18n';
 import { useNavigate } from 'react-router-dom';
@@ -163,7 +163,8 @@ const QuickAccess: React.FC = () => {
   };
 
   const [sharingFileId, setSharingFileId] = useState<string | null>(null);
-  const [sharedCode, setSharedCode] = useState<{ fileId: string; code: string } | null>(null);
+  const [sharedCode, setSharedCode] = useState<{ fileId: string; code: string; url: string } | null>(null);
+  const [copiedSharedLink, setCopiedSharedLink] = useState(false);
 
   const handleShare = async (file: QuickAccessFile) => {
     try {
@@ -171,13 +172,23 @@ const QuickAccess: React.FC = () => {
       const response = await quickAccessAPI.shareFile(file.id);
       const shareUrl = `${window.location.origin}/download/${response.share_code}`;
       await navigator.clipboard.writeText(shareUrl);
-      setSharedCode({ fileId: file.id, code: response.share_code });
+      setSharedCode({ fileId: file.id, code: response.share_code, url: shareUrl });
+      setCopiedSharedLink(true);
+      setTimeout(() => setCopiedSharedLink(false), 2000);
       toast.success(t('quickAccess.shareSuccess'));
     } catch {
       toast.error(t('quickAccess.shareFailed'));
     } finally {
       setSharingFileId(null);
     }
+  };
+
+  const handleCopySharedLink = async () => {
+    if (!sharedCode) return;
+    await navigator.clipboard.writeText(sharedCode.url);
+    setCopiedSharedLink(true);
+    setTimeout(() => setCopiedSharedLink(false), 2000);
+    toast.success(t('quickAccess.shareSuccess'));
   };
 
   const handlePreviewClick = async (file: QuickAccessFile) => {
@@ -391,15 +402,27 @@ const QuickAccess: React.FC = () => {
                         </button>
                       </PopoverTrigger>
                       <PopoverContent
-                        side="top"
+                        side="left"
                         align="center"
-                        sideOffset={8}
-                        className="w-auto px-4 py-2.5"
+                        sideOffset={6}
+                        className="w-auto p-0 rounded-lg border-none bg-transparent shadow-none"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <p className="font-mono text-xl font-bold text-foreground tracking-[0.1em] text-center">
-                          {sharedCode?.code.slice(0, 3)} {sharedCode?.code.slice(3)}
-                        </p>
+                        <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#1a1a1a] dark:bg-[#1a1a1a] shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_4px_16px_rgba(0,0,0,0.3)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_4px_16px_rgba(0,0,0,0.5)]">
+                          <p className="font-mono text-lg font-bold text-white tracking-[0.05em]">
+                            {sharedCode?.code.slice(0, 3)}<span className="mx-[3px]" />{sharedCode?.code.slice(3)}
+                          </p>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleCopySharedLink(); }}
+                            className="p-1 rounded transition-colors text-white/40 can-hover:hover:text-white active:text-white"
+                          >
+                            {copiedSharedLink ? (
+                              <CheckIcon className="w-4 h-4 text-primary" />
+                            ) : (
+                              <ClipboardDocumentIcon className="w-4 h-4" />
+                            )}
+                          </button>
+                        </div>
                       </PopoverContent>
                     </Popover>
                     <button
