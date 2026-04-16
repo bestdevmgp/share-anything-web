@@ -704,7 +704,7 @@ const SettingsPage: React.FC = () => {
               </div>
 
               {/* Token list */}
-              <div className="space-y-6">
+              <div>
                 {personalTokensLoading ? (
                   <div className="animate-pulse space-y-3">
                     {[1, 2].map((i) => (
@@ -719,8 +719,8 @@ const SettingsPage: React.FC = () => {
                 ) : (
                   personalTokens.map((token, index) => (
                     <div key={token.id}>
-                      {index > 0 && <Separator className="mb-6" />}
-                      <div className="flex items-center justify-between">
+                      {index > 0 && <Separator />}
+                      <div className="flex items-center justify-between py-3">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-medium text-foreground">{token.name}</span>
