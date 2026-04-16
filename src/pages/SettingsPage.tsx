@@ -246,22 +246,22 @@ const SettingsPage: React.FC = () => {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
         <div className="animate-pulse">
           {/* Title */}
-          <div className="h-8 bg-muted rounded w-20 mb-8" />
+          <div className="h-8 bg-black/[0.08] dark:bg-muted rounded w-20 mb-8" />
 
           <div className="flex flex-col md:flex-row gap-0">
             {/* Sidebar skeleton */}
-            <div className="md:w-56 flex-shrink-0 md:pr-8 md:border-r md:border-border pb-4 md:pb-0">
+            <div className="md:w-56 flex-shrink-0 md:pr-8 md:border-r md:border-black/15 md:dark:border-border pb-4 md:pb-0">
               <div className="flex gap-2 md:flex-col md:gap-1.5">
-                <div className="h-[34px] bg-muted rounded-lg w-14 md:w-full" />
-                <div className="h-[34px] bg-muted rounded-lg w-14 md:w-full" />
-                <div className="h-[34px] bg-muted rounded-lg w-14 md:w-full" />
-                <div className="h-[34px] bg-muted rounded-lg w-24 md:hidden" />
+                <div className="h-[34px] bg-black/[0.08] dark:bg-muted rounded-lg w-14 md:w-full" />
+                <div className="h-[34px] bg-black/[0.08] dark:bg-muted rounded-lg w-14 md:w-full" />
+                <div className="h-[34px] bg-black/[0.08] dark:bg-muted rounded-lg w-14 md:w-full" />
+                <div className="h-[34px] bg-black/[0.08] dark:bg-muted rounded-lg w-24 md:hidden" />
               </div>
-              <div className="hidden md:block pt-3 mt-3 border-t border-border">
-                <div className="h-3 bg-muted rounded w-10 mx-3 mb-2" />
+              <div className="hidden md:block pt-3 mt-3 border-t border-black/15 dark:border-border">
+                <div className="h-3 bg-black/[0.08] dark:bg-muted rounded w-10 mx-3 mb-2" />
               </div>
               <div className="hidden md:block">
-                <div className="h-[34px] bg-muted rounded-lg w-full" />
+                <div className="h-[34px] bg-black/[0.08] dark:bg-muted rounded-lg w-full" />
               </div>
               <Separator className="md:hidden mt-4" />
             </div>
@@ -270,8 +270,8 @@ const SettingsPage: React.FC = () => {
             <div className="flex-1 md:pl-10 pt-4 md:pt-0 space-y-6">
               {/* Section header */}
               <div>
-                <div className="h-6 bg-muted rounded w-16 mb-2" />
-                <div className="h-4 bg-muted rounded w-56" />
+                <div className="h-6 bg-black/[0.08] dark:bg-muted rounded w-16 mb-2" />
+                <div className="h-4 bg-black/[0.08] dark:bg-muted rounded w-56" />
               </div>
 
               {/* Setting rows */}
@@ -280,10 +280,10 @@ const SettingsPage: React.FC = () => {
                   <Separator />
                   <div className="pt-6">
                     <div className="flex items-center justify-between">
-                      <div className="h-4 bg-muted rounded w-24" />
-                      <div className="h-6 w-11 bg-muted rounded-full" />
+                      <div className="h-4 bg-black/[0.08] dark:bg-muted rounded w-24" />
+                      <div className="h-6 w-11 bg-black/[0.08] dark:bg-muted rounded-full" />
                     </div>
-                    <div className="h-4 bg-muted rounded w-48 mt-2" />
+                    <div className="h-4 bg-black/[0.08] dark:bg-muted rounded w-48 mt-2" />
                   </div>
                 </div>
               ))}
@@ -303,7 +303,7 @@ const SettingsPage: React.FC = () => {
 
       <div className="flex flex-col md:flex-row gap-0">
         {/* Sidebar / Mobile Tabs */}
-        <div className="md:w-56 flex-shrink-0 md:pr-8 md:border-r md:border-border pb-4 md:pb-0">
+        <div className="md:w-56 flex-shrink-0 md:pr-8 md:border-r md:border-black/15 md:dark:border-border pb-4 md:pb-0">
           <nav className="flex gap-2 md:flex-col md:space-y-1 md:gap-0">
             <button
               onClick={() => setActiveTab('general')}
@@ -335,7 +335,7 @@ const SettingsPage: React.FC = () => {
             >
               {t('settings.account')}
             </button>
-            <div className="hidden md:block pt-3 mt-3 border-t border-border">
+            <div className="hidden md:block pt-3 mt-3 border-t border-black/15 dark:border-border">
               <p className="px-3 pb-1 text-xs text-muted-foreground/60">{t('settings.developerSection')}</p>
             </div>
             <Separator orientation="vertical" className="md:hidden h-6 self-center" />
@@ -708,7 +708,7 @@ const SettingsPage: React.FC = () => {
                 {personalTokensLoading ? (
                   <div className="animate-pulse space-y-3">
                     {[1, 2].map((i) => (
-                      <div key={i} className="h-12 bg-muted rounded-lg" />
+                      <div key={i} className="h-12 bg-black/[0.08] dark:bg-muted rounded-lg" />
                     ))}
                   </div>
                 ) : personalTokens.length === 0 ? (
