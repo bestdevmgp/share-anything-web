@@ -404,24 +404,26 @@ const QuickAccess: React.FC = () => {
                       <PopoverContent
                         side="left"
                         align="center"
-                        sideOffset={6}
-                        className="w-auto p-0 rounded-lg border-none bg-transparent shadow-none"
+                        sideOffset={10}
+                        className="w-auto p-0 rounded-none border-none bg-transparent shadow-none"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <div className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#1a1a1a] dark:bg-[#1a1a1a] shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_4px_16px_rgba(0,0,0,0.3)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_4px_16px_rgba(0,0,0,0.5)]">
+                        <div className="relative flex items-center gap-1 pl-3 pr-1.5 py-1.5 rounded-lg bg-[#1a1a1a] shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_4px_16px_rgba(0,0,0,0.3)] dark:shadow-[0_0_0_1px_rgba(255,255,255,0.1),0_4px_16px_rgba(0,0,0,0.5)]">
                           <p className="font-mono text-lg font-bold text-white tracking-[0.05em]">
-                            {sharedCode?.code.slice(0, 3)}<span className="mx-[3px]" />{sharedCode?.code.slice(3)}
+                            {sharedCode?.code.slice(0, 3)}<span className="inline-block w-[5px]" />{sharedCode?.code.slice(3)}
                           </p>
                           <button
                             onClick={(e) => { e.stopPropagation(); handleCopySharedLink(); }}
-                            className="p-1 rounded transition-colors text-white/40 can-hover:hover:text-white active:text-white"
+                            className="p-1.5 rounded-md transition-colors can-hover:hover:bg-white/10 active:bg-white/10"
                           >
                             {copiedSharedLink ? (
                               <CheckIcon className="w-4 h-4 text-primary" />
                             ) : (
-                              <ClipboardDocumentIcon className="w-4 h-4" />
+                              <ClipboardDocumentIcon className="w-4 h-4 text-white/40" />
                             )}
                           </button>
+                          {/* Arrow pointing right toward the share button */}
+                          <div className="absolute -right-[6px] top-1/2 -translate-y-1/2 w-3 h-3 bg-[#1a1a1a] rotate-45 shadow-[1px_-1px_0_0_rgba(255,255,255,0.1)]" />
                         </div>
                       </PopoverContent>
                     </Popover>
