@@ -431,7 +431,7 @@ const QuickAccess: React.FC = () => {
                               style={{
                                 position: 'absolute',
                                 inset: 0,
-                                background: 'var(--share-bubble-bg)',
+                                background: 'var(--share-bubble-tail-bg)',
                                 backdropFilter: 'blur(20px) saturate(180%)',
                                 WebkitBackdropFilter: 'blur(20px) saturate(180%)',
                                 clipPath: 'polygon(0% 0%, 100% 50%, 0% 100%)',
@@ -451,7 +451,7 @@ const QuickAccess: React.FC = () => {
                                 points="0,0 7,6 0,12"
                                 fill="none"
                                 stroke="var(--share-bubble-border)"
-                                strokeWidth="1"
+                                strokeWidth="2"
                                 strokeLinejoin="miter"
                                 vectorEffect="non-scaling-stroke"
                               />

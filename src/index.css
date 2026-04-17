@@ -60,6 +60,7 @@
 
     /* Share bubble glassmorphism */
     --share-bubble-bg: rgba(255, 255, 255, 0.42);
+    --share-bubble-tail-bg: rgba(255, 255, 255, 0.15);
     --share-bubble-border: rgba(0, 0, 0, 0.06);
     --share-bubble-shadow:
       0 0 0 0.5px rgba(0, 0, 0, 0.03),
@@ -90,6 +91,7 @@
 
     /* Share bubble glassmorphism */
     --share-bubble-bg: rgba(30, 30, 30, 0.5);
+    --share-bubble-tail-bg: rgba(30, 30, 30, 0.2);
     --share-bubble-border: rgba(255, 255, 255, 0.1);
     --share-bubble-shadow:
       0 0 0 0.5px rgba(255, 255, 255, 0.04),

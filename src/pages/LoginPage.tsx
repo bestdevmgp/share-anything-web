@@ -206,7 +206,7 @@ const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
                 style={{
                     position: 'absolute',
                     inset: 0,
-                    background: 'var(--share-bubble-bg)',
+                    background: 'var(--share-bubble-tail-bg)',
                     backdropFilter: 'blur(20px) saturate(180%)',
                     WebkitBackdropFilter: 'blur(20px) saturate(180%)',
                     clipPath: 'polygon(0% 50%, 100% 0%, 100% 100%)',
@@ -226,7 +226,7 @@ const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
                     points="6,0 0,5 6,10"
                     fill="none"
                     stroke="var(--share-bubble-border)"
-                    strokeWidth="1"
+                    strokeWidth="2"
                     strokeLinejoin="miter"
                     vectorEffect="non-scaling-stroke"
                 />
