@@ -448,10 +448,10 @@ const QuickAccess: React.FC = () => {
                               }}
                             >
                               <polyline
-                                points="0,0 7,6 0,12"
+                                points="-1,0 7,6 -1,12"
                                 fill="none"
-                                stroke="var(--share-bubble-border)"
-                                strokeWidth="2"
+                                stroke="var(--share-bubble-tail-stroke)"
+                                strokeWidth="1"
                                 strokeLinejoin="miter"
                                 vectorEffect="non-scaling-stroke"
                               />
