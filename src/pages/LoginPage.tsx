@@ -206,23 +206,31 @@ const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
                 style={{
                     position: 'absolute',
                     inset: 0,
-                    background: 'var(--share-bubble-border)',
-                    clipPath: 'polygon(0% 50%, 100% 0%, 100% 100%)',
-                }}
-            />
-            <span
-                style={{
-                    position: 'absolute',
-                    top: '1px',
-                    left: '1px',
-                    right: 0,
-                    bottom: '1px',
                     background: 'var(--share-bubble-bg)',
                     backdropFilter: 'blur(20px) saturate(180%)',
                     WebkitBackdropFilter: 'blur(20px) saturate(180%)',
                     clipPath: 'polygon(0% 50%, 100% 0%, 100% 100%)',
                 }}
             />
+            <svg
+                width="6"
+                height="10"
+                viewBox="0 0 6 10"
+                style={{
+                    position: 'absolute',
+                    inset: 0,
+                    overflow: 'visible',
+                }}
+            >
+                <polyline
+                    points="6,0 0,5 6,10"
+                    fill="none"
+                    stroke="var(--share-bubble-border)"
+                    strokeWidth="1"
+                    strokeLinejoin="miter"
+                    vectorEffect="non-scaling-stroke"
+                />
+            </svg>
         </span>
         <span className="relative text-xs leading-none font-medium text-popover-foreground whitespace-nowrap">
             {label}

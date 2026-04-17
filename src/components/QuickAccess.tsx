@@ -431,23 +431,31 @@ const QuickAccess: React.FC = () => {
                               style={{
                                 position: 'absolute',
                                 inset: 0,
-                                background: 'var(--share-bubble-border)',
-                                clipPath: 'polygon(0% 0%, 100% 50%, 0% 100%)',
-                              }}
-                            />
-                            <span
-                              style={{
-                                position: 'absolute',
-                                top: '1px',
-                                left: 0,
-                                right: '1px',
-                                bottom: '1px',
                                 background: 'var(--share-bubble-bg)',
                                 backdropFilter: 'blur(20px) saturate(180%)',
                                 WebkitBackdropFilter: 'blur(20px) saturate(180%)',
                                 clipPath: 'polygon(0% 0%, 100% 50%, 0% 100%)',
                               }}
                             />
+                            <svg
+                              width="7"
+                              height="12"
+                              viewBox="0 0 7 12"
+                              style={{
+                                position: 'absolute',
+                                inset: 0,
+                                overflow: 'visible',
+                              }}
+                            >
+                              <polyline
+                                points="0,0 7,6 0,12"
+                                fill="none"
+                                stroke="var(--share-bubble-border)"
+                                strokeWidth="1"
+                                strokeLinejoin="miter"
+                                vectorEffect="non-scaling-stroke"
+                              />
+                            </svg>
                           </span>
                           <span className="relative flex items-center gap-1.5">
                             <span className="font-mono text-[1.125rem] font-bold text-foreground tracking-[0.06em] leading-none">
