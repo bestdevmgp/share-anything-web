@@ -197,13 +197,33 @@ const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
         <span
             className="absolute top-1/2 -translate-y-1/2"
             style={{
-                left: '-6px',
+                left: '-7px',
                 width: '6px',
                 height: '10px',
-                background: 'var(--share-bubble-bg)',
-                clipPath: 'polygon(0% 50%, 100% 0%, 100% 100%)',
             }}
-        />
+        >
+            <span
+                style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'var(--share-bubble-border)',
+                    clipPath: 'polygon(0% 50%, 100% 0%, 100% 100%)',
+                }}
+            />
+            <span
+                style={{
+                    position: 'absolute',
+                    top: '1px',
+                    left: '1px',
+                    right: 0,
+                    bottom: '1px',
+                    background: 'var(--share-bubble-bg)',
+                    backdropFilter: 'blur(20px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                    clipPath: 'polygon(0% 50%, 100% 0%, 100% 100%)',
+                }}
+            />
+        </span>
         <span className="relative text-xs leading-none font-medium text-popover-foreground whitespace-nowrap">
             {label}
         </span>

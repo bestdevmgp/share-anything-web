@@ -173,19 +173,18 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; is
       return `translateY(${swipeStartOffset.current - 40}px) scale(0.9)`;
     }
     if (isLeaving) {
-      return 'translateY(-16px) scale(0.95)';
+      return 'translateY(calc(-100% - 40px)) scale(0.95)';
     }
     if (!isVisible) {
-      return 'translateY(-32px) scale(0.95)';
+      return 'translateY(calc(-100% - 40px)) scale(0.95)';
     }
     return 'translateY(0) scale(1)';
   };
 
   const getOpacity = () => {
     if (isSwipeDismissing) return 0;
-    if (isLeaving) return 0;
-    if (!isVisible) return 0;
-    return dragOpacity;
+    if (isDragging) return dragOpacity;
+    return 1;
   };
 
   const getTransition = () => {

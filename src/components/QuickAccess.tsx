@@ -420,15 +420,35 @@ const QuickAccess: React.FC = () => {
                         >
                           {/* Arrow */}
                           <span
-                            className="absolute top-1/2 -translate-y-1/2"
+                            className="absolute top-1/2 -translate-y-1/2 pointer-events-none"
                             style={{
-                              right: '-7px',
+                              right: '-8px',
                               width: '7px',
                               height: '12px',
-                              background: 'var(--share-bubble-bg)',
-                              clipPath: 'polygon(0% 0%, 100% 50%, 0% 100%)',
                             }}
-                          />
+                          >
+                            <span
+                              style={{
+                                position: 'absolute',
+                                inset: 0,
+                                background: 'var(--share-bubble-border)',
+                                clipPath: 'polygon(0% 0%, 100% 50%, 0% 100%)',
+                              }}
+                            />
+                            <span
+                              style={{
+                                position: 'absolute',
+                                top: '1px',
+                                left: 0,
+                                right: '1px',
+                                bottom: '1px',
+                                background: 'var(--share-bubble-bg)',
+                                backdropFilter: 'blur(20px) saturate(180%)',
+                                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                                clipPath: 'polygon(0% 0%, 100% 50%, 0% 100%)',
+                              }}
+                            />
+                          </span>
                           <span className="relative flex items-center gap-1.5">
                             <span className="font-mono text-[1.125rem] font-bold text-foreground tracking-[0.06em] leading-none">
                               {sharedCode?.code.slice(0, 3)}<span className="inline-block w-1" />{sharedCode?.code.slice(3)}
