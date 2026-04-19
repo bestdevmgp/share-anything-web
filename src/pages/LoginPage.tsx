@@ -220,7 +220,7 @@ const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
                     points="6,0 0,5 6,10"
                     fill="none"
                     stroke="var(--share-bubble-border)"
-                    strokeWidth="1.5"
+                    strokeWidth="2"
                     strokeLinejoin="miter"
                     vectorEffect="non-scaling-stroke"
                 />
