@@ -191,7 +191,7 @@ const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
         <span
             className="absolute top-1/2 -translate-y-1/2"
             style={{
-                left: '-6px',
+                left: '-5px',
                 width: '6px',
                 height: '10px',
             }}
@@ -217,7 +217,7 @@ const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
                 }}
             >
                 <polyline
-                    points="6,0 0,5 6,10"
+                    points="5.5,0 0,5 5.5,10"
                     fill="none"
                     stroke="var(--share-bubble-border)"
                     strokeWidth="2"
