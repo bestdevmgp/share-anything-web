@@ -431,7 +431,7 @@ const QuickAccess: React.FC = () => {
                               style={{
                                 position: 'absolute',
                                 inset: 0,
-                                background: 'var(--share-bubble-tail-bg)',
+                                background: 'var(--share-bubble-bg)',
                                 backdropFilter: 'blur(20px) saturate(180%)',
                                 WebkitBackdropFilter: 'blur(20px) saturate(180%)',
                                 clipPath: 'polygon(0% 0%, 100% 50%, 0% 100%)',
