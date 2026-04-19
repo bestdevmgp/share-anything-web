@@ -191,7 +191,7 @@ const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
         <span
             className="absolute top-1/2 -translate-y-1/2"
             style={{
-                left: '-7px',
+                left: '-6px',
                 width: '6px',
                 height: '10px',
             }}
@@ -220,7 +220,7 @@ const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
                     points="6,0 0,5 6,10"
                     fill="none"
                     stroke="var(--share-bubble-border)"
-                    strokeWidth="1.5"
+                    strokeWidth="1"
                     strokeLinejoin="miter"
                     vectorEffect="non-scaling-stroke"
                 />
