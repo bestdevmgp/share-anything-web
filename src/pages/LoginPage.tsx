@@ -185,15 +185,9 @@ const LoginPage: React.FC = () => {
 
 const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
     <span
-        className="absolute left-full top-1/2 -translate-y-1/2 ml-[10px] opacity-0 [animation-delay:500ms] animate-bubble-pop pointer-events-none inline-flex items-center rounded-[6px] px-[7px] py-[6.5px]"
-        style={{
-            background: 'var(--share-bubble-bg)',
-            backdropFilter: 'blur(20px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-            boxShadow: 'var(--share-bubble-shadow)',
-            border: '1px solid var(--share-bubble-border)',
-        }}
+        className="absolute left-full top-1/2 -translate-y-1/2 ml-[10px] opacity-0 [animation-delay:500ms] animate-bubble-pop pointer-events-none inline-flex items-center"
     >
+        {/* Tail - sibling of body to avoid nested backdrop-filter */}
         <span
             className="absolute top-1/2 -translate-y-1/2"
             style={{
@@ -226,14 +220,26 @@ const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
                     points="6,0 0,5 6,10"
                     fill="none"
                     stroke="var(--share-bubble-border)"
-                    strokeWidth="1"
+                    strokeWidth="1.5"
                     strokeLinejoin="miter"
                     vectorEffect="non-scaling-stroke"
                 />
             </svg>
         </span>
-        <span className="relative text-xs leading-none font-medium text-popover-foreground whitespace-nowrap">
-            {label}
+        {/* Body */}
+        <span
+            className="inline-flex items-center rounded-[6px] px-[7px] py-[6.5px]"
+            style={{
+                background: 'var(--share-bubble-bg)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                boxShadow: 'var(--share-bubble-shadow)',
+                border: '1px solid var(--share-bubble-border)',
+            }}
+        >
+            <span className="text-xs leading-none font-medium text-popover-foreground whitespace-nowrap">
+                {label}
+            </span>
         </span>
     </span>
 );

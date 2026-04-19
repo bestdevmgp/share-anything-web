@@ -408,21 +408,39 @@ const QuickAccess: React.FC = () => {
                         className="w-auto p-0 border-none bg-transparent shadow-none overflow-visible"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <span
-                          className="relative inline-flex items-center rounded-[10px] pl-3 pr-1.5 py-[7px]"
-                          style={{
-                            background: 'var(--share-bubble-bg)',
-                            backdropFilter: 'blur(20px) saturate(180%)',
-                            WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                            boxShadow: 'var(--share-bubble-shadow)',
-                            border: '1px solid var(--share-bubble-border)',
-                          }}
-                        >
-                          {/* Arrow */}
+                        <span className="relative inline-flex items-center">
+                          {/* Body */}
+                          <span
+                            className="inline-flex items-center rounded-[10px] pl-3 pr-1.5 py-[7px]"
+                            style={{
+                              background: 'var(--share-bubble-bg)',
+                              backdropFilter: 'blur(20px) saturate(180%)',
+                              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                              boxShadow: 'var(--share-bubble-shadow)',
+                              border: '1px solid var(--share-bubble-border)',
+                            }}
+                          >
+                            <span className="flex items-center gap-1.5">
+                              <span className="font-mono text-[1.125rem] font-bold text-foreground tracking-[0.06em] leading-none">
+                                {sharedCode?.code.slice(0, 3)}<span className="inline-block w-1" />{sharedCode?.code.slice(3)}
+                              </span>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); handleCopySharedLink(); }}
+                                className="p-1.5 rounded-md transition-colors can-hover:hover:bg-foreground/10 active:bg-foreground/10"
+                              >
+                                {copiedSharedLink ? (
+                                  <CheckIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
+                                ) : (
+                                  <ClipboardDocumentIcon className="w-4 h-4 text-muted-foreground" />
+                                )}
+                            </button>
+                          </span>
+                        </span>
+                          {/* Tail - sibling of body */}
                           <span
                             className="absolute top-1/2 -translate-y-1/2 pointer-events-none"
                             style={{
-                              right: '-8px',
+                              right: '-7px',
                               width: '7px',
                               height: '12px',
                             }}
@@ -451,26 +469,11 @@ const QuickAccess: React.FC = () => {
                                 points="0,0 7,6 0,12"
                                 fill="none"
                                 stroke="var(--share-bubble-border)"
-                                strokeWidth="1"
+                                strokeWidth="1.5"
                                 strokeLinejoin="miter"
                                 vectorEffect="non-scaling-stroke"
                               />
                             </svg>
-                          </span>
-                          <span className="relative flex items-center gap-1.5">
-                            <span className="font-mono text-[1.125rem] font-bold text-foreground tracking-[0.06em] leading-none">
-                              {sharedCode?.code.slice(0, 3)}<span className="inline-block w-1" />{sharedCode?.code.slice(3)}
-                            </span>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); handleCopySharedLink(); }}
-                              className="p-1.5 rounded-md transition-colors can-hover:hover:bg-foreground/10 active:bg-foreground/10"
-                            >
-                              {copiedSharedLink ? (
-                                <CheckIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
-                              ) : (
-                                <ClipboardDocumentIcon className="w-4 h-4 text-muted-foreground" />
-                              )}
-                            </button>
                           </span>
                         </span>
                       </PopoverContent>
