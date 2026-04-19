@@ -187,7 +187,22 @@ const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
     <span
         className="absolute left-full top-1/2 -translate-y-1/2 ml-[10px] opacity-0 [animation-delay:500ms] animate-bubble-pop pointer-events-none inline-flex items-center"
     >
-        {/* Tail - sibling of body to avoid nested backdrop-filter */}
+        {/* Body */}
+        <span
+            className="inline-flex items-center rounded-[6px] px-[7px] py-[6.5px]"
+            style={{
+                background: 'var(--share-bubble-bg)',
+                backdropFilter: 'blur(20px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                boxShadow: 'var(--share-bubble-shadow)',
+                border: '1px solid var(--share-bubble-border)',
+            }}
+        >
+            <span className="text-xs leading-none font-medium text-popover-foreground whitespace-nowrap">
+                {label}
+            </span>
+        </span>
+        {/* Tail - rendered on top of body to hide body's left border */}
         <span
             className="absolute top-1/2 -translate-y-1/2"
             style={{
@@ -203,7 +218,7 @@ const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
                     background: 'var(--share-bubble-bg)',
                     backdropFilter: 'blur(20px) saturate(180%)',
                     WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                    clipPath: 'polygon(18% 50%, 100% 15%, 100% 85%)',
+                    clipPath: 'polygon(0% 50%, 100% 0%, 100% 100%)',
                 }}
             />
             <svg
@@ -225,21 +240,6 @@ const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
                     vectorEffect="non-scaling-stroke"
                 />
             </svg>
-        </span>
-        {/* Body */}
-        <span
-            className="inline-flex items-center rounded-[6px] px-[7px] py-[6.5px]"
-            style={{
-                background: 'var(--share-bubble-bg)',
-                backdropFilter: 'blur(20px) saturate(180%)',
-                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                boxShadow: 'var(--share-bubble-shadow)',
-                border: '1px solid var(--share-bubble-border)',
-            }}
-        >
-            <span className="text-xs leading-none font-medium text-popover-foreground whitespace-nowrap">
-                {label}
-            </span>
         </span>
     </span>
 );
