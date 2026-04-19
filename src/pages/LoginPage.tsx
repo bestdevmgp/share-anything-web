@@ -206,7 +206,7 @@ const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
         <span
             className="absolute top-1/2 -translate-y-1/2"
             style={{
-                left: '-5px',
+                left: '-6px',
                 width: '6px',
                 height: '10px',
             }}

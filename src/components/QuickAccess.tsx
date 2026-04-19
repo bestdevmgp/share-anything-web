@@ -466,7 +466,7 @@ const QuickAccess: React.FC = () => {
                               }}
                             >
                               <polyline
-                                points="2,0 7,6 2,12"
+                                points="1,0 7,6 1,12"
                                 fill="none"
                                 stroke="var(--share-bubble-border)"
                                 strokeWidth="1.5"
