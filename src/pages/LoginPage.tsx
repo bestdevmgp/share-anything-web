@@ -203,7 +203,7 @@ const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
                     background: 'var(--share-bubble-bg)',
                     backdropFilter: 'blur(20px) saturate(180%)',
                     WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                    clipPath: 'polygon(0% 50%, 100% 0%, 100% 100%)',
+                    clipPath: 'polygon(18% 50%, 100% 15%, 100% 85%)',
                 }}
             />
             <svg
