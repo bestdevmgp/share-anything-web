@@ -440,7 +440,7 @@ const QuickAccess: React.FC = () => {
                           <span
                             className="absolute top-1/2 -translate-y-1/2 pointer-events-none"
                             style={{
-                              right: '-7px',
+                              right: '-6px',
                               width: '7px',
                               height: '12px',
                             }}
