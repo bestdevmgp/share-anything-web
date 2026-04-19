@@ -223,9 +223,9 @@ const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
                 }}
             >
                 <polyline
-                    points="7,0 0,5 7,10"
+                    points="6,0 0,5 6,10"
                     fill="none"
-                    stroke="var(--share-bubble-tail-stroke)"
+                    stroke="var(--share-bubble-border)"
                     strokeWidth="1"
                     strokeLinejoin="miter"
                     vectorEffect="non-scaling-stroke"
