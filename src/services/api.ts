@@ -23,6 +23,8 @@ import type {
   EmailAuthStatusResponse,
   EmailAuthVerifyResponse,
   EmailAuthVerifyCodeResponse,
+  Session,
+  TrustedDevice,
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
@@ -613,6 +615,30 @@ export const cliAuthAPI = {
     api.post(`/cli/auth/session/${sessionId}/complete`).then(res => res.data),
   getStatus: (sessionId: string) =>
     api.get<{ status: string }>(`/cli/auth/session/${sessionId}/status`).then(res => res.data),
+};
+
+export const sessionAPI = {
+  list: async (): Promise<Session[]> => {
+    const response = await api.get<Session[]>('/user/sessions');
+    return response.data;
+  },
+
+  terminate: async (jti: string): Promise<void> => {
+    await api.delete(`/user/sessions/${jti}`);
+  },
+
+  terminateOthers: async (): Promise<void> => {
+    await api.delete('/user/sessions');
+  },
+
+  listTrusted: async (): Promise<TrustedDevice[]> => {
+    const response = await api.get<TrustedDevice[]>('/user/trusted-devices');
+    return response.data;
+  },
+
+  deleteTrusted: async (id: string): Promise<void> => {
+    await api.delete(`/user/trusted-devices/${id}`);
+  },
 };
 
 export const personalTokenAPI = {

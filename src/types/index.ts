@@ -302,3 +302,20 @@ export interface EmailAuthVerifyCodeResponse {
   user: User;
   existing_provider?: string;
 }
+
+export interface Session {
+  jti: string;
+  device_label?: string;
+  ip_address: string;
+  location?: string;
+  last_seen_at: string;
+  created_at: string;
+  is_current: boolean;
+}
+
+export interface TrustedDevice {
+  id: string;
+  device_label?: string;
+  ip_address: string;
+  trusted_at: string;
+}

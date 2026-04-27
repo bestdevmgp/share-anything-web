@@ -5,8 +5,9 @@ import { toast } from 'context/ToastContext';
 import { useTranslation } from 'i18n';
 import { useLanguage } from 'context/LanguageContext';
 import { useTheme } from 'context/ThemeContext';
-import { userAPI, personalTokenAPI } from 'services/api';
-import { formatDateOnly } from 'utils/format';
+import { userAPI, personalTokenAPI, sessionAPI } from 'services/api';
+import { formatDateOnly, formatDateTime } from 'utils/format';
+import type { Session, TrustedDevice } from 'types';
 import { Button } from 'components/ui/button';
 import { Input } from 'components/ui/input';
 import { Switch } from 'components/ui/switch';
@@ -14,9 +15,9 @@ import { Label } from 'components/ui/label';
 import { Separator } from 'components/ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from 'components/ui/popover';
 import { Spinner } from 'components/ui/spinner';
-import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, KeyIcon, ExclamationTriangleIcon } from '@heroicons/react/24/outline';
+import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, KeyIcon, ExclamationTriangleIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 
-type Tab = 'notifications' | 'general' | 'account' | 'personal-tokens';
+type Tab = 'notifications' | 'general' | 'account' | 'sessions' | 'personal-tokens';
 
 interface PersonalTokenItem {
   id: string;
@@ -50,7 +51,13 @@ const SettingsPage: React.FC = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
   const tabParam = searchParams.get('tab');
-  const activeTab: Tab = (tabParam === 'notifications' ? 'notifications' : tabParam === 'account' ? 'account' : tabParam === 'personal-tokens' ? 'personal-tokens' : 'general');
+  const activeTab: Tab = (
+    tabParam === 'notifications' ? 'notifications'
+      : tabParam === 'account' ? 'account'
+      : tabParam === 'sessions' ? 'sessions'
+      : tabParam === 'personal-tokens' ? 'personal-tokens'
+      : 'general'
+  );
   const setActiveTab = (tab: Tab) => setSearchParams({ tab }, { replace: true });
   const [notifyUpload, setNotifyUpload] = useState(true);
   const [notifyDownload, setNotifyDownload] = useState(true);
@@ -80,6 +87,16 @@ const SettingsPage: React.FC = () => {
   const [savingName, setSavingName] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
+
+  // Sessions state
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [trustedDevices, setTrustedDevices] = useState<TrustedDevice[]>([]);
+  const [sessionsLoading, setSessionsLoading] = useState(false);
+  const [sessionsLoaded, setSessionsLoaded] = useState(false);
+  const [terminatingJti, setTerminatingJti] = useState<string | null>(null);
+  const [deletingTrustedId, setDeletingTrustedId] = useState<string | null>(null);
+  const [showTerminateOthersConfirm, setShowTerminateOthersConfirm] = useState(false);
+  const [terminatingOthers, setTerminatingOthers] = useState(false);
 
   const themeOptions = [
     { key: 'system' as const, label: t('footer.themeSystem') },
@@ -129,6 +146,70 @@ const SettingsPage: React.FC = () => {
     fetchPersonalTokens();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, authLoading, navigate]);
+
+  useEffect(() => {
+    if (activeTab !== 'sessions' || sessionsLoaded || !isAuthenticated) return;
+
+    const fetchSessions = async () => {
+      setSessionsLoading(true);
+      try {
+        const [sessionList, trustedList] = await Promise.all([
+          sessionAPI.list(),
+          sessionAPI.listTrusted(),
+        ]);
+        setSessions(sessionList);
+        setTrustedDevices(trustedList);
+        setSessionsLoaded(true);
+      } catch {
+        toast.error(t('settings.fetchFailed'));
+      } finally {
+        setSessionsLoading(false);
+      }
+    };
+
+    fetchSessions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, isAuthenticated]);
+
+  const handleTerminateSession = async (jti: string) => {
+    setTerminatingJti(jti);
+    try {
+      await sessionAPI.terminate(jti);
+      setSessions((prev) => prev.filter((s) => s.jti !== jti));
+      toast.success(t('settings.terminateSessionSuccess'));
+    } catch {
+      toast.error(t('settings.terminateSessionFailed'));
+    } finally {
+      setTerminatingJti(null);
+    }
+  };
+
+  const handleTerminateOthers = async () => {
+    setTerminatingOthers(true);
+    try {
+      await sessionAPI.terminateOthers();
+      setSessions((prev) => prev.filter((s) => s.is_current));
+      setShowTerminateOthersConfirm(false);
+      toast.success(t('settings.terminateOthersSuccess'));
+    } catch {
+      toast.error(t('settings.terminateSessionFailed'));
+    } finally {
+      setTerminatingOthers(false);
+    }
+  };
+
+  const handleDeleteTrustedDevice = async (id: string) => {
+    setDeletingTrustedId(id);
+    try {
+      await sessionAPI.deleteTrusted(id);
+      setTrustedDevices((prev) => prev.filter((d) => d.id !== id));
+      toast.success(t('settings.deleteTrustedDeviceSuccess'));
+    } catch {
+      toast.error(t('settings.deleteTrustedDeviceFailed'));
+    } finally {
+      setDeletingTrustedId(null);
+    }
+  };
 
   const handleToggle = async (field: 'upload' | 'download' | 'downloadAlert', value: boolean) => {
     const prevUpload = notifyUpload;
@@ -325,6 +406,16 @@ const SettingsPage: React.FC = () => {
               }`}
             >
               {t('settings.notifications')}
+            </button>
+            <button
+              onClick={() => setActiveTab('sessions')}
+              className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors md:w-full md:text-left ${
+                activeTab === 'sessions'
+                  ? 'text-foreground bg-accent'
+                  : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
+              }`}
+            >
+              {t('settings.sessions')}
             </button>
             <button
               onClick={() => setActiveTab('account')}
@@ -641,6 +732,188 @@ const SettingsPage: React.FC = () => {
                     </div>
                   )}
                 </div>
+              </div>
+            </div>
+          )}
+          {activeTab === 'sessions' && (
+            <div>
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold text-foreground">{t('settings.sessions')}</h2>
+                <p className="text-sm text-muted-foreground mt-1">{t('settings.sessionsDescription')}</p>
+              </div>
+
+              {/* Active Sessions */}
+              <div className="mb-10">
+                <div className="mb-4">
+                  <Label className="text-sm font-medium">{t('settings.activeSessions')}</Label>
+                  <p className="text-sm text-muted-foreground mt-1">{t('settings.activeSessionsDescription')}</p>
+                </div>
+
+                {sessionsLoading && !sessionsLoaded ? (
+                  <div className="animate-pulse space-y-3">
+                    {[1, 2].map((i) => (
+                      <div key={i} className="h-16 bg-black/[0.08] dark:bg-muted rounded-lg" />
+                    ))}
+                  </div>
+                ) : sessions.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <ComputerDesktopIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">{t('settings.noActiveSessions')}</p>
+                  </div>
+                ) : (
+                  <>
+                    {sessions.map((session, index) => (
+                      <div key={session.jti}>
+                        {index > 0 && <Separator />}
+                        <div className="flex items-start justify-between gap-3 py-4">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-sm font-medium text-foreground truncate">
+                                {session.device_label || t('settings.unknownDevice')}
+                              </span>
+                              {session.is_current && (
+                                <span className="text-xs bg-green-100 dark:bg-green-500/15 text-green-700 dark:text-green-400 px-2 py-0.5 rounded">
+                                  {t('settings.currentSession')}
+                                </span>
+                              )}
+                            </div>
+                            <div className="mt-1 text-xs text-muted-foreground space-y-0.5">
+                              <div>
+                                {session.ip_address}
+                                {session.location && <span> · {session.location}</span>}
+                              </div>
+                              <div>
+                                {t('settings.lastActive')}: {formatDateTime(session.last_seen_at, siteLanguage)}
+                              </div>
+                              <div>
+                                {t('settings.loggedInAt')}: {formatDateTime(session.created_at, siteLanguage)}
+                              </div>
+                            </div>
+                          </div>
+                          {!session.is_current && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleTerminateSession(session.jti)}
+                              disabled={terminatingJti === session.jti}
+                              className="relative text-red-600 dark:text-red-400 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 flex-shrink-0"
+                            >
+                              <span className={terminatingJti === session.jti ? 'invisible' : ''}>
+                                {t('settings.terminateSession')}
+                              </span>
+                              {terminatingJti === session.jti && <Spinner size="sm" className="absolute" />}
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+
+                    {sessions.filter((s) => !s.is_current).length > 0 && (
+                      <div className="pt-4">
+                        {!showTerminateOthersConfirm ? (
+                          <Button
+                            variant="ghost"
+                            onClick={() => setShowTerminateOthersConfirm(true)}
+                            className="bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400 can-hover:hover:bg-red-200 dark:can-hover:hover:bg-red-500/25 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 active:bg-red-200 dark:active:bg-red-500/25 active:text-red-600 dark:active:text-red-400"
+                          >
+                            {t('settings.terminateOthers')}
+                          </Button>
+                        ) : (
+                          <div className="p-4 border border-border rounded-lg bg-muted/50">
+                            <div className="flex items-start gap-3">
+                              <ExclamationTriangleIcon className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                              <div className="flex-1">
+                                <p className="text-sm font-medium text-foreground">
+                                  {t('settings.terminateOthersConfirmTitle')}
+                                </p>
+                                <p className="text-sm text-muted-foreground mt-1">
+                                  {t('settings.terminateOthersConfirmDescription')}
+                                </p>
+                                <div className="flex gap-2 mt-4">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setShowTerminateOthersConfirm(false)}
+                                    disabled={terminatingOthers}
+                                    className="px-5"
+                                  >
+                                    {t('settings.accountDeleteCancel')}
+                                  </Button>
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={handleTerminateOthers}
+                                    disabled={terminatingOthers}
+                                    className="relative px-5"
+                                  >
+                                    <span className={terminatingOthers ? 'invisible' : ''}>
+                                      {t('settings.terminateOthers')}
+                                    </span>
+                                    {terminatingOthers && <Spinner size="sm" className="text-destructive-foreground absolute" />}
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+
+              <Separator />
+
+              {/* Trusted Devices */}
+              <div className="mt-8">
+                <div className="mb-4">
+                  <Label className="text-sm font-medium">{t('settings.trustedDevices')}</Label>
+                  <p className="text-sm text-muted-foreground mt-1">{t('settings.trustedDevicesDescription')}</p>
+                </div>
+
+                {sessionsLoading && !sessionsLoaded ? (
+                  <div className="animate-pulse space-y-3">
+                    {[1, 2].map((i) => (
+                      <div key={i} className="h-12 bg-black/[0.08] dark:bg-muted rounded-lg" />
+                    ))}
+                  </div>
+                ) : trustedDevices.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <ShieldCheckIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">{t('settings.noTrustedDevices')}</p>
+                  </div>
+                ) : (
+                  trustedDevices.map((device, index) => (
+                    <div key={device.id}>
+                      {index > 0 && <Separator />}
+                      <div className="flex items-start justify-between gap-3 py-4">
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-medium text-foreground truncate">
+                            {device.device_label || t('settings.unknownDevice')}
+                          </div>
+                          <div className="mt-1 text-xs text-muted-foreground space-y-0.5">
+                            <div>{device.ip_address}</div>
+                            <div>
+                              {t('settings.trustedAt')}: {formatDateOnly(device.trusted_at, siteLanguage)}
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteTrustedDevice(device.id)}
+                          disabled={deletingTrustedId === device.id}
+                          className="relative text-red-600 dark:text-red-400 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 flex-shrink-0"
+                        >
+                          <span className={deletingTrustedId === device.id ? 'invisible' : ''}>
+                            {t('settings.deleteTrustedDevice')}
+                          </span>
+                          {deletingTrustedId === device.id && <Spinner size="sm" className="absolute" />}
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           )}

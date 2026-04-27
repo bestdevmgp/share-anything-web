@@ -23,6 +23,7 @@ import EmailVerifyWaitPage from './pages/EmailVerifyWaitPage';
 import EmailMagicLinkCallbackPage from './pages/EmailMagicLinkCallbackPage';
 import CliPage from './pages/CliPage';
 import CliSigninPage from './pages/CliSigninPage';
+import DeviceConfirmResultPage from './pages/DeviceConfirmResultPage';
 import NotFoundPage from './pages/NotFoundPage';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -48,6 +49,7 @@ const AppContent: React.FC = () => {
           <Route path="/auth/callback/:provider" element={<OAuthCallbackPage />} />
           <Route path="/auth/email/verify-wait" element={<EmailVerifyWaitPage />} />
           <Route path="/auth/email/magic-link" element={<EmailMagicLinkCallbackPage />} />
+          <Route path="/auth/device/result" element={<DeviceConfirmResultPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/terms-of-use" element={<TermsOfUsePage />} />
           <Route path="*" element={<NotFoundPage />} />
