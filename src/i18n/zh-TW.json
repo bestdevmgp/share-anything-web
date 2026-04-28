@@ -454,11 +454,9 @@
     "noTrustedDevices": "沒有信任裝置"
   },
   "deviceConfirm": {
-    "pageTitle": "確認新裝置",
-    "trustedTitle": "已新增到信任裝置",
-    "trustedDescription": "今後從該裝置登入將不再傳送通知郵件。",
-    "terminatedTitle": "工作階段已終止",
-    "terminatedDescription": "該裝置已立即登出。如果不是您本人操作，請修改密碼並採取其他安全措施。",
+    "pageTitle": "新裝置通知",
+    "revokedTitle": "已完成",
+    "revokedDescription": "該裝置的工作階段已登出，並已從信任裝置清單中移除。如果不是您本人操作，請同時修改密碼。",
     "invalidTitle": "連結無效",
     "invalidDescription": "連結已過期或權杖無效。",
     "errorTitle": "發生錯誤",

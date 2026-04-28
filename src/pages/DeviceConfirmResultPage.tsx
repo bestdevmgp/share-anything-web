@@ -4,10 +4,10 @@ import { useTranslation } from 'i18n';
 import { Card, CardContent } from '../components/ui/card';
 import { buttonVariants } from '../components/ui/button';
 
-type Status = 'trusted' | 'terminated' | 'invalid' | 'error';
+type Status = 'revoked' | 'invalid' | 'error';
 
 const parseStatus = (raw: string | null): Status => {
-  if (raw === 'trusted' || raw === 'terminated' || raw === 'invalid' || raw === 'error') {
+  if (raw === 'revoked' || raw === 'invalid' || raw === 'error') {
     return raw;
   }
   return 'invalid';
@@ -25,22 +25,10 @@ const DeviceConfirmResultPage: React.FC = () => {
 
   const config = (() => {
     switch (status) {
-      case 'trusted':
+      case 'revoked':
         return {
-          title: t('deviceConfirm.trustedTitle'),
-          description: t('deviceConfirm.trustedDescription'),
-          iconBg: 'bg-green-100 dark:bg-green-500/15',
-          icon: (
-            <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 13l4 4L19 7" className="device-confirm-check-path" />
-            </svg>
-          ),
-          showSettings: true,
-        };
-      case 'terminated':
-        return {
-          title: t('deviceConfirm.terminatedTitle'),
-          description: t('deviceConfirm.terminatedDescription'),
+          title: t('deviceConfirm.revokedTitle'),
+          description: t('deviceConfirm.revokedDescription'),
           iconBg: 'bg-blue-100 dark:bg-blue-500/15',
           icon: (
             <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -104,18 +92,6 @@ const DeviceConfirmResultPage: React.FC = () => {
             </div>
           </CardContent>
         </Card>
-        <style>{`
-          .device-confirm-check-path {
-            stroke-dasharray: 20;
-            stroke-dashoffset: 20;
-            animation: drawDeviceConfirmCheck 0.6s ease-out forwards;
-          }
-          @keyframes drawDeviceConfirmCheck {
-            to {
-              stroke-dashoffset: 0;
-            }
-          }
-        `}</style>
       </div>
     </div>
   );

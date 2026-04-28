@@ -474,11 +474,9 @@
     "signInFirst": "먼저 로그인을 진행해주세요"
   },
   "deviceConfirm": {
-    "pageTitle": "새 기기 확인",
-    "trustedTitle": "신뢰 기기로 등록되었습니다",
-    "trustedDescription": "이제 이 기기에서 로그인해도 알림 메일이 발송되지 않습니다.",
-    "terminatedTitle": "세션이 종료되었습니다",
-    "terminatedDescription": "해당 기기는 즉시 로그아웃됩니다. 본인이 아니라면 비밀번호 변경 또는 기타 보안 조치를 취해주세요.",
+    "pageTitle": "새 기기 알림",
+    "revokedTitle": "처리되었습니다",
+    "revokedDescription": "해당 기기의 세션을 종료하고 신뢰 기기 목록에서 제거했습니다. 본인이 아닌 로그인이라면 비밀번호도 변경해주세요.",
     "invalidTitle": "유효하지 않은 링크입니다",
     "invalidDescription": "링크가 만료되었거나 잘못된 토큰입니다.",
     "errorTitle": "오류가 발생했습니다",

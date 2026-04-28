@@ -454,11 +454,9 @@
     "noTrustedDevices": "信頼済み端末はありません"
   },
   "deviceConfirm": {
-    "pageTitle": "新しい端末の確認",
-    "trustedTitle": "信頼済み端末に登録しました",
-    "trustedDescription": "この端末からのログインでは、今後通知メールは送信されません。",
-    "terminatedTitle": "セッションを終了しました",
-    "terminatedDescription": "該当端末は直ちにログアウトされます。本人でない場合は、パスワードの変更などの対策を行ってください。",
+    "pageTitle": "新しい端末の通知",
+    "revokedTitle": "処理が完了しました",
+    "revokedDescription": "該当セッションをログアウトし、信頼済み端末からも削除しました。本人でない場合は、パスワードも変更してください。",
     "invalidTitle": "無効なリンクです",
     "invalidDescription": "リンクの期限が切れているか、トークンが無効です。",
     "errorTitle": "エラーが発生しました",

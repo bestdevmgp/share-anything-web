@@ -454,11 +454,9 @@
     "noTrustedDevices": "没有受信任设备"
   },
   "deviceConfirm": {
-    "pageTitle": "确认新设备",
-    "trustedTitle": "已添加到受信任设备",
-    "trustedDescription": "今后从该设备登录将不再发送通知邮件。",
-    "terminatedTitle": "会话已终止",
-    "terminatedDescription": "该设备已立即登出。如果不是您本人操作，请修改密码并采取其他安全措施。",
+    "pageTitle": "新设备通知",
+    "revokedTitle": "已完成",
+    "revokedDescription": "该设备的会话已登出，并已从受信任设备列表中移除。如果不是您本人操作，请同时修改密码。",
     "invalidTitle": "链接无效",
     "invalidDescription": "链接已过期或令牌无效。",
     "errorTitle": "发生错误",

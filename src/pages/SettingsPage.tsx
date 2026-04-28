@@ -892,7 +892,10 @@ const SettingsPage: React.FC = () => {
                             {device.device_label || t('settings.unknownDevice')}
                           </div>
                           <div className="mt-1 text-xs text-muted-foreground space-y-0.5">
-                            <div>{device.ip_address}</div>
+                            <div>
+                              {device.ip_address}
+                              {device.location && <span> · {device.location}</span>}
+                            </div>
                             <div>
                               {t('settings.trustedAt')}: {formatDateOnly(device.trusted_at, siteLanguage)}
                             </div>

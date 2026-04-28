@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { ensureDeviceId } from '../utils/deviceId';
 import type {
   FileUploadResponse,
   FileInfo,
@@ -108,6 +109,8 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+
+  config.headers['X-Device-Id'] = ensureDeviceId();
 
   if (!(config.data instanceof FormData)) {
     config.headers['Content-Type'] = 'application/json';

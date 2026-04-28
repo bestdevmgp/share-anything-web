@@ -454,11 +454,9 @@
     "noTrustedDevices": "No trusted devices"
   },
   "deviceConfirm": {
-    "pageTitle": "Confirm New Device",
-    "trustedTitle": "Device added to trusted list",
-    "trustedDescription": "You won't receive new-device emails for this device anymore.",
-    "terminatedTitle": "Session terminated",
-    "terminatedDescription": "That device has been signed out. If this wasn't you, change your password and review your account security.",
+    "pageTitle": "New Device Notification",
+    "revokedTitle": "Done",
+    "revokedDescription": "That session has been signed out and the device removed from your trusted list. If this wasn't you, change your password as well.",
     "invalidTitle": "Invalid link",
     "invalidDescription": "This link has expired or the token is invalid.",
     "errorTitle": "Something went wrong",
