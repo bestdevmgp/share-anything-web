@@ -111,6 +111,33 @@ export const isImageFile = (filename: string): boolean => {
   return imageExtensions.includes(extension);
 };
 
+export const getImageDimensions = (
+  file: File
+): Promise<{ width: number; height: number } | null> => {
+  return new Promise((resolve) => {
+    const type = file.type.toLowerCase();
+    if (!type.startsWith('image/') || type === 'image/svg+xml') {
+      resolve(null);
+      return;
+    }
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+        resolve({ width: img.naturalWidth, height: img.naturalHeight });
+      } else {
+        resolve(null);
+      }
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve(null);
+    };
+    img.src = url;
+  });
+};
+
 export const isPdfFile = (filename: string): boolean => {
   const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
   return extension === '.pdf';

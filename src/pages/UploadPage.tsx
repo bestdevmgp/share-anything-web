@@ -4,7 +4,7 @@ import { useDropzone } from 'react-dropzone';
 import { useAuth } from '../context/AuthContext';
 import { fileAPI, workerAPI } from '../services/api';
 import { ExpirationOption } from '../types';
-import { formatTimeRemaining, calculateTimeRemaining } from '../utils/format';
+import { formatTimeRemaining, calculateTimeRemaining, getImageDimensions } from '../utils/format';
 import { toast } from '../context/ToastContext';
 import { useTranslation } from '../i18n';
 import FilePreviewModal from '../components/FilePreviewModal';
@@ -378,6 +378,10 @@ const UploadPage: React.FC = () => {
       setUploadProgress(100);
       setIsCompleting(true);
 
+      const dimensions = await Promise.all(
+        files.map(file => getImageDimensions(file))
+      );
+
       const response = await fileAPI.completeMultipartUpload({
         upload_session_id: initResponse.upload_session_id,
         share_code: initResponse.share_code,
@@ -387,7 +391,9 @@ const UploadPage: React.FC = () => {
           upload_id: workerUploadIds[fileInit.storage_key],
           file_size: files[i].size,
           content_type: files[i].type || 'application/octet-stream',
-          parts: completedFileParts[fileInit.storage_key]
+          parts: completedFileParts[fileInit.storage_key],
+          image_width: dimensions[i]?.width,
+          image_height: dimensions[i]?.height,
         }))
       });
 

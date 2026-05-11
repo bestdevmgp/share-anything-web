@@ -1,13 +1,13 @@
 import React from 'react';
 import { NavigateFunction } from 'react-router-dom';
-import { DocumentIcon, ArrowDownTrayIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { ArrowDownTrayIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { FileListResponse, FileListItem } from '../../types';
 import { formatFileSize, formatDateTime, isImageFile, isVideoFile } from '../../utils/format';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Progress } from '../../components/ui/progress';
 import { Spinner } from '../../components/ui/spinner';
-import FileThumbnail from '../../components/FileThumbnail';
+import LargeFileIcon from '../../components/LargeFileIcon';
 import { cn } from 'lib/utils';
 import { Language } from '../../context/LanguageContext';
 
@@ -115,9 +115,23 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
         <Card className="rounded-3xl border-2 p-6 md:p-8">
           <div className="flex justify-center mb-5">
             {loadingPreview ? (
-              <div className="w-24 h-24 bg-muted rounded-full border border-border flex items-center justify-center">
-                <Spinner size="lg" />
-              </div>
+              file.image_width && file.image_height && isImageFile(file.file_name) ? (
+                <div
+                  className="rounded-2xl bg-muted/40 flex items-center justify-center"
+                  style={{
+                    aspectRatio: `${file.image_width} / ${file.image_height}`,
+                    width: '100%',
+                    maxWidth: `${file.image_width}px`,
+                    maxHeight: '24rem',
+                  }}
+                >
+                  <Spinner size="lg" />
+                </div>
+              ) : (
+                <div className="w-24 h-24 bg-muted rounded-full border border-border flex items-center justify-center">
+                  <Spinner size="lg" />
+                </div>
+              )
             ) : singleFilePreviewUrl && isImageFile(file.file_name) ? (
               <div
                 className="max-w-full max-h-96 overflow-hidden rounded-2xl cursor-pointer select-none"
@@ -158,16 +172,15 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
                 )}
               </div>
             ) : singleFilePreviewUrl ? (
-              <div
-                className="cursor-pointer"
+              <button
+                type="button"
                 onClick={() => openPreview(file.file_name, file.file_size, file.id, singleFilePreviewUrl!)}
+                className="transition-transform can-hover:hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-2xl"
               >
-                <FileThumbnail source={singleFilePreviewUrl} fileName={file.file_name} size="md" />
-              </div>
+                <LargeFileIcon fileName={file.file_name} />
+              </button>
             ) : (
-              <div className="w-24 h-24 bg-muted rounded-full border border-border flex items-center justify-center">
-                <DocumentIcon className="w-12 h-12 text-muted-foreground" />
-              </div>
+              <LargeFileIcon fileName={file.file_name} />
             )}
           </div>
 

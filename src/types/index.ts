@@ -92,6 +92,8 @@ export interface FileListItem {
   file_name: string;
   file_size: number;
   file_type: string;
+  image_width?: number;
+  image_height?: number;
 }
 
 export interface FileListResponse {
@@ -181,6 +183,8 @@ export interface CompleteUploadFile {
   storage_key: string;
   file_size: number;
   content_type: string;
+  image_width?: number;
+  image_height?: number;
 }
 
 export interface CompleteUploadRequest {
@@ -249,6 +253,8 @@ export interface CompleteMultipartFileInfo {
   file_size: number;
   content_type: string;
   parts: CompletedPart[];
+  image_width?: number;
+  image_height?: number;
 }
 
 export interface CompleteMultipartUploadRequest {

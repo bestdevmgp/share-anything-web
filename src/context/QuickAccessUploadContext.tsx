@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { quickAccessAPI, fileAPI, workerAPI } from '../services/api';
-import { formatTimeRemaining, getDeviceInfo } from '../utils/format';
+import { formatTimeRemaining, getDeviceInfo, getImageDimensions } from '../utils/format';
 import { toast } from './ToastContext';
 import { useTranslation } from '../i18n';
 
@@ -310,16 +310,22 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
         .filter(({ uploadId }) => !cancelledIds.has(uploadId));
 
       if (successfulFiles.length > 0) {
+        const dimensions = await Promise.all(
+          successfulFiles.map(({ originalIndex }) => getImageDimensions(droppedFiles[originalIndex]))
+        );
+
         await fileAPI.completeMultipartUpload({
           upload_session_id: initResponse.upload_session_id,
           share_code: initResponse.share_code,
-          files: successfulFiles.map(({ fileInit, originalIndex }) => ({
+          files: successfulFiles.map(({ fileInit, originalIndex }, idx) => ({
             file_name: fileInit.file_name,
             storage_key: fileInit.storage_key,
             upload_id: workerUploadIds[fileInit.storage_key],
             file_size: droppedFiles[originalIndex].size,
             content_type: droppedFiles[originalIndex].type || 'application/octet-stream',
             parts: completedFileParts[fileInit.storage_key],
+            image_width: dimensions[idx]?.width,
+            image_height: dimensions[idx]?.height,
           })),
         });
 
