@@ -446,7 +446,6 @@
     "terminateOthersSuccess": "他の端末からログアウトしました",
     "noActiveSessions": "アクティブなセッションはありません",
     "trustedDevices": "信頼済み端末",
-    "trustedDevicesDescription": "新しい端末ログイン通知メールで「はい」を選択した端末の一覧です。削除すると、次回ログイン時に再び通知メールが送信されます。",
     "trustedAt": "登録日",
     "deleteTrustedDevice": "削除",
     "deleteTrustedDeviceFailed": "信頼済み端末の削除に失敗しました",

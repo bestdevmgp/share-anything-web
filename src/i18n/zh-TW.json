@@ -446,7 +446,6 @@
     "terminateOthersSuccess": "已登出其他裝置",
     "noActiveSessions": "沒有活動工作階段",
     "trustedDevices": "信任裝置",
-    "trustedDevicesDescription": "在新裝置登入通知郵件中選擇「是」的裝置清單。刪除後，下次從該裝置登入時將再次傳送通知郵件。",
     "trustedAt": "新增時間",
     "deleteTrustedDevice": "刪除",
     "deleteTrustedDeviceFailed": "刪除信任裝置失敗",

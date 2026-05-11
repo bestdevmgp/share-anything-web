@@ -446,7 +446,6 @@
     "terminateOthersSuccess": "已登出其他设备",
     "noActiveSessions": "没有活动会话",
     "trustedDevices": "受信任设备",
-    "trustedDevicesDescription": "在新设备登录通知邮件中选择\"是\"的设备列表。删除后，下次从该设备登录时将再次发送通知邮件。",
     "trustedAt": "添加时间",
     "deleteTrustedDevice": "删除",
     "deleteTrustedDeviceFailed": "删除受信任设备失败",

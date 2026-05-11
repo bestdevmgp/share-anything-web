@@ -337,6 +337,7 @@ const SettingsPage: React.FC = () => {
                 <div className="h-[34px] bg-black/[0.08] dark:bg-muted rounded-lg w-14 md:w-full" />
                 <div className="h-[34px] bg-black/[0.08] dark:bg-muted rounded-lg w-14 md:w-full" />
                 <div className="h-[34px] bg-black/[0.08] dark:bg-muted rounded-lg w-14 md:w-full" />
+                <div className="h-[34px] bg-black/[0.08] dark:bg-muted rounded-lg w-14 md:w-full" />
                 <div className="h-[34px] bg-black/[0.08] dark:bg-muted rounded-lg w-24 md:hidden" />
               </div>
               <div className="hidden md:block pt-3 mt-3 border-t border-black/15 dark:border-border">
@@ -868,7 +869,6 @@ const SettingsPage: React.FC = () => {
               <div className="mt-8">
                 <div className="mb-4">
                   <Label className="text-sm font-medium">{t('settings.trustedDevices')}</Label>
-                  <p className="text-sm text-muted-foreground mt-1">{t('settings.trustedDevicesDescription')}</p>
                 </div>
 
                 {sessionsLoading && !sessionsLoaded ? (

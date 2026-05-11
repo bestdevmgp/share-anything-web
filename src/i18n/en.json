@@ -446,7 +446,6 @@
     "terminateOthersSuccess": "Other devices have been signed out",
     "noActiveSessions": "No active sessions",
     "trustedDevices": "Trusted Devices",
-    "trustedDevicesDescription": "Devices you confirmed as \"Yes, this was me\" from the new-device email. Removing one means a confirmation email will be sent again on the next sign-in from that device.",
     "trustedAt": "Trusted",
     "deleteTrustedDevice": "Remove",
     "deleteTrustedDeviceFailed": "Failed to remove trusted device",
