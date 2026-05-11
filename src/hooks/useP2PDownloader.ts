@@ -219,7 +219,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
               setProgress(Math.round(progressPercent));
 
               const elapsedMs = now - downloadStartTimeRef.current;
-              if (elapsedMs > 500 && receivedSizeRef.current > 0) {
+              if (elapsedMs >= 2000 && receivedSizeRef.current >= actualFileSize * 0.02) {
                 const bytesPerMs = receivedSizeRef.current / elapsedMs;
                 const remainingBytes = actualFileSize - receivedSizeRef.current;
                 const remainingSeconds = remainingBytes / bytesPerMs / 1000;

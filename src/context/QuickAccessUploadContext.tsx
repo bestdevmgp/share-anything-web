@@ -37,7 +37,8 @@ interface QuickAccessUploadContextType {
 const QuickAccessUploadContext = createContext<QuickAccessUploadContextType | null>(null);
 
 const SPEED_WINDOW_MS = 5000;
-const MIN_SAMPLES_FOR_ESTIMATE = 2;
+const MIN_SAMPLES_FOR_ESTIMATE = 4;
+const MIN_PROGRESS_FOR_ESTIMATE = 0.02;
 
 const runConcurrent = async <T,>(
   tasks: (() => Promise<T>)[],
@@ -102,7 +103,10 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
           const cutoff = now - SPEED_WINDOW_MS;
           data.speedSamples = data.speedSamples.filter(s => s.time >= cutoff);
 
-          if (data.speedSamples.length >= MIN_SAMPLES_FOR_ESTIMATE) {
+          if (
+            data.speedSamples.length >= MIN_SAMPLES_FOR_ESTIMATE
+            && totalUploaded >= uf.fileSize * MIN_PROGRESS_FOR_ESTIMATE
+          ) {
             const oldest = data.speedSamples[0];
             const newest = data.speedSamples[data.speedSamples.length - 1];
             const timeDiffMs = newest.time - oldest.time;

@@ -144,7 +144,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
             const elapsedMs = now - transferStartTimeRef.current;
             let timeRemainingStr = '';
 
-            if (elapsedMs > 500 && offset > 0) {
+            if (elapsedMs >= 2000 && offset >= file.size * 0.02) {
               const bytesPerMs = offset / elapsedMs;
               const remainingBytes = file.size - offset;
               const remainingSeconds = remainingBytes / bytesPerMs / 1000;

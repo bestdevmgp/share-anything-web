@@ -14,7 +14,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ variant, className }) => {
     case 'success':
       return (
         <div className={`${wrapperBase} bg-green-100 dark:bg-green-500/15 ${className ?? ''}`}>
-          <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
             <path d="M5 13l4 4L19 7" className="status-check-path" />
           </svg>
         </div>
@@ -22,7 +22,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ variant, className }) => {
     case 'info':
       return (
         <div className={`${wrapperBase} bg-blue-100 dark:bg-blue-500/15 ${className ?? ''}`}>
-          <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 12l2 2 4-4" />
             <circle cx="12" cy="12" r="10" />
           </svg>
@@ -31,7 +31,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ variant, className }) => {
     case 'expired':
       return (
         <div className={`${wrapperBase} bg-yellow-100 dark:bg-yellow-500/15 ${className ?? ''}`}>
-          <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />
             <polyline points="12 6 12 12 16 14" />
           </svg>
@@ -40,7 +40,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ variant, className }) => {
     case 'invalid':
       return (
         <div className={`${wrapperBase} bg-yellow-100 dark:bg-yellow-500/15 ${className ?? ''}`}>
-          <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -50,7 +50,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ variant, className }) => {
     case 'error':
       return (
         <div className={`${wrapperBase} bg-red-100 dark:bg-red-500/15 ${className ?? ''}`}>
-          <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 18L18 6" className="status-error-x-1" />
             <path d="M6 6l12 12" className="status-error-x-2" />
           </svg>

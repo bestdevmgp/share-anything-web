@@ -187,7 +187,7 @@ export const calculateTimeRemaining = (
   totalBytes: number
 ): number => {
   const elapsedMs = Date.now() - startTime;
-  if (elapsedMs < 500 || loadedBytes === 0) {
+  if (elapsedMs < 2000 || loadedBytes <= 0 || loadedBytes < totalBytes * 0.02) {
     return Infinity;
   }
 
