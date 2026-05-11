@@ -152,7 +152,7 @@ const LargeFileIcon: React.FC<Props> = ({ fileName, className }) => {
   return (
     <div
       className={cn(
-        'relative w-40 h-48 rounded-2xl flex flex-col items-center justify-center gap-3.5 ring-1 ring-inset shadow-sm',
+        'relative w-40 h-40 rounded-2xl flex flex-col items-center justify-center gap-3 ring-1 ring-inset shadow-sm',
         style.bg,
         style.ring,
         className,

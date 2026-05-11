@@ -2,7 +2,7 @@ import React from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { ArrowDownTrayIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { FileListResponse, FileListItem } from '../../types';
-import { formatFileSize, formatDateTime, isImageFile, isVideoFile } from '../../utils/format';
+import { formatFileSize, formatDateTime, isImageFile, isVideoFile, isPdfFile, isPptxFile, isHwpFile } from '../../utils/format';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Progress } from '../../components/ui/progress';
@@ -60,6 +60,15 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
   t,
   language,
 }) => {
+  const needsThumbnail =
+    isPdfFile(file.file_name) ||
+    isVideoFile(file.file_name) ||
+    isPptxFile(file.file_name) ||
+    isHwpFile(file.file_name);
+  const waitingForThumbnail =
+    !!singleFilePreviewUrl && needsThumbnail && !singleFileThumbnail.url;
+  const showSpinner = loadingPreview || waitingForThumbnail;
+
   return (
     <div className="flex items-center justify-center px-4 pt-12 pb-20">
       <div className="max-w-2xl w-full">
@@ -114,7 +123,7 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
 
         <Card className="rounded-3xl border-2 p-6 md:p-8">
           <div className="flex justify-center mb-5">
-            {loadingPreview ? (
+            {showSpinner ? (
               file.image_width && file.image_height && isImageFile(file.file_name) ? (
                 <div
                   className="rounded-2xl bg-muted/40 flex items-center justify-center"
