@@ -143,3 +143,33 @@ code {
   margin: 0 !important;
   padding-top: 12px !important;
 }
+
+/* StatusIcon: success variant check animation */
+.status-check-path {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: drawStatusCheck 0.4s ease-out forwards;
+}
+@keyframes drawStatusCheck {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* StatusIcon: error variant X animation (staggered) */
+.status-error-x-1,
+.status-error-x-2 {
+  stroke-dasharray: 17;
+  stroke-dashoffset: 17;
+}
+.status-error-x-1 {
+  animation: drawStatusErrorX 0.4s ease-out forwards;
+}
+.status-error-x-2 {
+  animation: drawStatusErrorX 0.4s ease-out 0.2s forwards;
+}
+@keyframes drawStatusErrorX {
+  to {
+    stroke-dashoffset: 0;
+  }
+}

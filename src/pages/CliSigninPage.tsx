@@ -7,6 +7,7 @@ import { toast } from '../context/ToastContext';
 import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Spinner } from '../components/ui/spinner';
+import StatusIcon from '../components/StatusIcon';
 
 type SessionStatus = 'loading' | 'pending' | 'completed' | 'expired' | 'error';
 
@@ -101,27 +102,11 @@ const CliSigninPage: React.FC = () => {
         <div className="max-w-md w-full text-center">
           <Card className="rounded-3xl border-2 p-8">
             <CardContent className="p-0">
-              <div className="w-16 h-16 bg-green-100 dark:bg-green-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 13l4 4L19 7" className="cli-signin-checkmark-path" />
-                </svg>
-              </div>
+              <StatusIcon variant="success" />
               <h2 className="text-2xl font-bold text-foreground mb-2">{t('cliSignin.successTitle')}</h2>
               <p className="text-muted-foreground">{t('cliSignin.successDescription')}</p>
             </CardContent>
           </Card>
-          <style>{`
-            .cli-signin-checkmark-path {
-              stroke-dasharray: 20;
-              stroke-dashoffset: 20;
-              animation: drawCliSigninCheck 0.6s ease-out forwards;
-            }
-            @keyframes drawCliSigninCheck {
-              to {
-                stroke-dashoffset: 0;
-              }
-            }
-          `}</style>
         </div>
       </div>
     );
@@ -133,12 +118,7 @@ const CliSigninPage: React.FC = () => {
         <div className="max-w-md w-full text-center">
           <Card className="rounded-3xl border-2 p-8">
             <CardContent className="p-0">
-              <div className="w-16 h-16 bg-yellow-100 dark:bg-yellow-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <polyline points="12 6 12 12 16 14" />
-                </svg>
-              </div>
+              <StatusIcon variant="expired" />
               <h2 className="text-2xl font-bold text-foreground mb-2">{t('cliSignin.expiredTitle')}</h2>
               <p className="text-muted-foreground">{t('cliSignin.expiredDescription')}</p>
             </CardContent>
@@ -154,12 +134,7 @@ const CliSigninPage: React.FC = () => {
         <div className="max-w-md w-full text-center">
           <Card className="rounded-3xl border-2 p-8">
             <CardContent className="p-0">
-              <div className="w-16 h-16 bg-blue-100 dark:bg-blue-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M9 12l2 2 4-4" />
-                  <circle cx="12" cy="12" r="10" />
-                </svg>
-              </div>
+              <StatusIcon variant="info" />
               <h2 className="text-2xl font-bold text-foreground mb-2">{t('cliSignin.alreadyCompletedTitle')}</h2>
               <p className="text-muted-foreground">{t('cliSignin.alreadyCompletedDescription')}</p>
             </CardContent>
@@ -175,12 +150,7 @@ const CliSigninPage: React.FC = () => {
         <div className="max-w-md w-full text-center">
           <Card className="rounded-3xl border-2 p-8">
             <CardContent className="p-0">
-              <div className="w-16 h-16 bg-red-100 dark:bg-red-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M6 18L18 6" />
-                  <path d="M6 6l12 12" />
-                </svg>
-              </div>
+              <StatusIcon variant="error" />
               <h2 className="text-2xl font-bold text-foreground mb-2">{t('cliSignin.errorTitle')}</h2>
               <p className="text-muted-foreground">{error || t('cliSignin.errorDefault')}</p>
             </CardContent>

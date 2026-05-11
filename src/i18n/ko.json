@@ -475,7 +475,9 @@
   "deviceConfirm": {
     "pageTitle": "새 기기 알림",
     "revokedTitle": "처리되었습니다",
-    "revokedDescription": "해당 기기의 세션을 종료하고 신뢰하는 기기 목록에서 제거했습니다. 본인이 아닌 로그인이라면 비밀번호도 변경해주세요.",
+    "revokedDescription": "해당 기기의 세션을 종료하고 신뢰하는 기기 목록에서 제거하였습니다.",
+    "alreadyTitle": "이미 처리된 요청입니다",
+    "alreadyDescription": "이 요청은 이미 처리되었습니다.",
     "invalidTitle": "유효하지 않은 링크입니다",
     "invalidDescription": "링크가 만료되었거나 잘못된 토큰입니다.",
     "errorTitle": "오류가 발생했습니다",

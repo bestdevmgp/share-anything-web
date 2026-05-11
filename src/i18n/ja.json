@@ -455,7 +455,9 @@
   "deviceConfirm": {
     "pageTitle": "新しい端末の通知",
     "revokedTitle": "処理が完了しました",
-    "revokedDescription": "該当セッションをログアウトし、信頼済み端末からも削除しました。本人でない場合は、パスワードも変更してください。",
+    "revokedDescription": "該当セッションをログアウトし、信頼済み端末からも削除しました。",
+    "alreadyTitle": "すでに処理済みです",
+    "alreadyDescription": "このリクエストはすでに処理されています。",
     "invalidTitle": "無効なリンクです",
     "invalidDescription": "リンクの期限が切れているか、トークンが無効です。",
     "errorTitle": "エラーが発生しました",

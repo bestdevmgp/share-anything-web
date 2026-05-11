@@ -455,7 +455,9 @@
   "deviceConfirm": {
     "pageTitle": "New Device Notification",
     "revokedTitle": "Done",
-    "revokedDescription": "That session has been signed out and the device removed from your trusted list. If this wasn't you, change your password as well.",
+    "revokedDescription": "That session has been signed out and the device removed from your trusted list.",
+    "alreadyTitle": "Already processed",
+    "alreadyDescription": "This request has already been processed.",
     "invalidTitle": "Invalid link",
     "invalidDescription": "This link has expired or the token is invalid.",
     "errorTitle": "Something went wrong",

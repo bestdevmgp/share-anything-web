@@ -8,6 +8,7 @@ import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Spinner } from '../components/ui/spinner';
 import { Tooltip, TooltipTrigger, TooltipContent } from '../components/ui/tooltip';
+import StatusIcon from '../components/StatusIcon';
 import { DevicePhoneMobileIcon, ClipboardDocumentIcon, CheckIcon, EnvelopeIcon, LinkIcon } from '@heroicons/react/24/outline';
 import { providerLogoMap } from '../utils/providerLogos';
 import type { User } from '../types';
@@ -129,27 +130,11 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
         <div className="max-w-md w-full text-center">
           <Card className="rounded-3xl border-2 p-8">
             <CardContent className="p-0">
-              <div className="w-16 h-16 bg-green-100 dark:bg-green-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M5 13l4 4L19 7" className="check-path" />
-                </svg>
-              </div>
+              <StatusIcon variant="success" />
               <h2 className="text-2xl font-bold text-foreground mb-2">{t('emailAuth.loginCompleteTitle')}</h2>
               <p className="text-muted-foreground">{t('emailAuth.canCloseTab')}</p>
             </CardContent>
           </Card>
-          <style>{`
-            .check-path {
-              stroke-dasharray: 24;
-              stroke-dashoffset: 24;
-              animation: drawCheck 0.4s ease-out forwards;
-            }
-            @keyframes drawCheck {
-              to {
-                stroke-dashoffset: 0;
-              }
-            }
-          `}</style>
         </div>
       </div>
     );
@@ -219,35 +204,12 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
         <div className="max-w-md w-full text-center">
           <Card className="rounded-3xl border-2 p-8">
             <CardContent className="p-0">
-              <div className="w-16 h-16 bg-red-100 dark:bg-red-500/15 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M6 18L18 6" className="error-x-path-1" />
-                  <path d="M6 6l12 12" className="error-x-path-2" />
-                </svg>
-              </div>
+              <StatusIcon variant="error" />
               <h2 className="text-2xl font-bold text-foreground mb-2">{t('oauth.loginFailedTitle')}</h2>
               <p className="text-muted-foreground mb-6">{error}</p>
               <p className="text-sm text-muted-foreground/70">{t('oauth.redirectingToLogin')}</p>
             </CardContent>
           </Card>
-          <style>{`
-            .error-x-path-1,
-            .error-x-path-2 {
-              stroke-dasharray: 17;
-              stroke-dashoffset: 17;
-            }
-            .error-x-path-1 {
-              animation: drawX 0.4s ease-out forwards;
-            }
-            .error-x-path-2 {
-              animation: drawX 0.4s ease-out 0.2s forwards;
-            }
-            @keyframes drawX {
-              to {
-                stroke-dashoffset: 0;
-              }
-            }
-          `}</style>
         </div>
       </div>
     );

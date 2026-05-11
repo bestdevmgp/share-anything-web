@@ -455,7 +455,9 @@
   "deviceConfirm": {
     "pageTitle": "新设备通知",
     "revokedTitle": "已完成",
-    "revokedDescription": "该设备的会话已登出，并已从受信任设备列表中移除。如果不是您本人操作，请同时修改密码。",
+    "revokedDescription": "该设备的会话已登出，并已从受信任设备列表中移除。",
+    "alreadyTitle": "请求已处理",
+    "alreadyDescription": "此请求已被处理过。",
     "invalidTitle": "链接无效",
     "invalidDescription": "链接已过期或令牌无效。",
     "errorTitle": "发生错误",
