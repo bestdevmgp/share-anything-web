@@ -15,7 +15,6 @@ import { Switch } from 'components/ui/switch';
 import { Label } from 'components/ui/label';
 import { Separator } from 'components/ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from 'components/ui/popover';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from 'components/ui/dialog';
 import { Spinner } from 'components/ui/spinner';
 import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, KeyIcon, ExclamationTriangleIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 
@@ -65,8 +64,6 @@ const SettingsPage: React.FC = () => {
   const [notifyDownload, setNotifyDownload] = useState(true);
   const [notifyDownloadAlert, setNotifyDownloadAlert] = useState(true);
   const [notifySecurity, setNotifySecurity] = useState(true);
-  const [showSecurityDisableConfirm, setShowSecurityDisableConfirm] = useState(false);
-  const [disablingSecurity, setDisablingSecurity] = useState(false);
   const [notifyLanguage, setNotifyLanguage] = useState('ko');
   const [loading, setLoading] = useState(true);
 
@@ -215,8 +212,8 @@ const SettingsPage: React.FC = () => {
 
   const handleToggle = async (field: 'upload' | 'download' | 'downloadAlert' | 'security', value: boolean) => {
     if (field === 'security' && !value) {
-      setShowSecurityDisableConfirm(true);
-      return;
+      const confirmed = window.confirm(t('settings.securityNotificationDisableWarning'));
+      if (!confirmed) return;
     }
 
     const prevUpload = notifyUpload;
@@ -249,28 +246,6 @@ const SettingsPage: React.FC = () => {
       setNotifyDownloadAlert(prevDownloadAlert);
       setNotifySecurity(prevSecurity);
       toast.error(t('settings.updateFailed'));
-    }
-  };
-
-  const handleConfirmDisableSecurity = async () => {
-    setDisablingSecurity(true);
-    const prevSecurity = notifySecurity;
-    setNotifySecurity(false);
-    try {
-      await userAPI.updateNotificationSettings({
-        notify_upload: notifyUpload,
-        notify_download: notifyDownload,
-        notify_download_alert: notifyDownloadAlert,
-        notify_security: false,
-        notify_language: notifyLanguage,
-      });
-      toast.success(t('settings.updateSuccess'));
-      setShowSecurityDisableConfirm(false);
-    } catch {
-      setNotifySecurity(prevSecurity);
-      toast.error(t('settings.updateFailed'));
-    } finally {
-      setDisablingSecurity(false);
     }
   };
 
@@ -1072,38 +1047,6 @@ const SettingsPage: React.FC = () => {
           )}
         </div>
       </div>
-
-      <Dialog open={showSecurityDisableConfirm} onOpenChange={(open) => { if (!open && !disablingSecurity) setShowSecurityDisableConfirm(false); }}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>{t('settings.securityNotificationDisableTitle')}</DialogTitle>
-            <DialogDescription className="pt-2">
-              {t('settings.securityNotificationDisableDescription')}
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-2 mt-2">
-            <Button
-              variant="outline"
-              onClick={() => setShowSecurityDisableConfirm(false)}
-              disabled={disablingSecurity}
-              className="px-5"
-            >
-              {t('common.cancel')}
-            </Button>
-            <Button
-              variant="destructive"
-              onClick={handleConfirmDisableSecurity}
-              disabled={disablingSecurity}
-              className="relative px-5"
-            >
-              <span className={disablingSecurity ? 'invisible' : ''}>
-                {t('settings.securityNotificationDisableConfirm')}
-              </span>
-              {disablingSecurity && <Spinner size="sm" className="text-destructive-foreground absolute" />}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
