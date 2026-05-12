@@ -16,7 +16,8 @@ import { Label } from 'components/ui/label';
 import { Separator } from 'components/ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from 'components/ui/popover';
 import { Spinner } from 'components/ui/spinner';
-import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, KeyIcon, ExclamationTriangleIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, DevicePhoneMobileIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, KeyIcon, ExclamationTriangleIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
+import { providerLogoMap } from 'utils/providerLogos';
 
 type Tab = 'notifications' | 'general' | 'account' | 'sessions' | 'personal-tokens';
 
@@ -662,7 +663,34 @@ const SettingsPage: React.FC = () => {
 
               <div className="space-y-6">
                 <div>
-                  <Label className="text-sm font-medium">{t('settings.accountName')}</Label>
+                  <div className="flex items-center gap-2">
+                    <Label className="text-sm font-medium">{t('settings.accountName')}</Label>
+                    {(() => {
+                      const provider = user?.oauth_provider;
+                      if (!provider) return null;
+                      if (provider === 'email') {
+                        return (
+                          <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                            <EnvelopeIcon className="w-3 h-3 text-primary" strokeWidth={2} />
+                          </div>
+                        );
+                      }
+                      const ProviderLogo = providerLogoMap[provider];
+                      if (!ProviderLogo) return null;
+                      const bgClass = ({
+                        google: 'bg-[#F2F2F2] dark:bg-[#131314]',
+                        naver: 'bg-[#03C75A]',
+                        kakao: 'bg-[#FEE500]',
+                        apple: 'bg-black dark:bg-white text-white dark:text-black',
+                      } as Record<string, string>)[provider] || 'bg-muted';
+                      const logoSizeClass = provider === 'naver' ? 'w-2.5 h-2.5' : 'w-3.5 h-3.5';
+                      return (
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${bgClass}`}>
+                          <ProviderLogo className={logoSizeClass} />
+                        </div>
+                      );
+                    })()}
+                  </div>
                   <p className="text-sm text-muted-foreground mt-1 mb-3">
                     {t('settings.accountNameDescription')}
                   </p>
@@ -886,7 +914,10 @@ const SettingsPage: React.FC = () => {
                   </div>
                 ) : trustedDevices.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    <ShieldCheckIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <div className="flex items-end justify-center gap-1 mb-2 opacity-50">
+                      <ComputerDesktopIcon className="w-8 h-8" />
+                      <DevicePhoneMobileIcon className="w-5 h-5" />
+                    </div>
                     <p className="text-sm">{t('settings.noTrustedDevices')}</p>
                   </div>
                 ) : (
