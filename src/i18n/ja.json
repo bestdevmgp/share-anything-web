@@ -455,7 +455,7 @@
     "deleteTrustedDevice": "削除",
     "deleteTrustedDeviceFailed": "信頼済み端末の削除に失敗しました",
     "deleteTrustedDeviceSuccess": "信頼済み端末から削除しました",
-    "noTrustedDevices": "信頼済み端末はありません"
+    "noTrustedDevices": "信頼済み端末はありません。"
   },
   "deviceConfirm": {
     "pageTitle": "新しい端末の通知",

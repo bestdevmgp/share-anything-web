@@ -455,7 +455,7 @@
     "deleteTrustedDevice": "删除",
     "deleteTrustedDeviceFailed": "删除受信任设备失败",
     "deleteTrustedDeviceSuccess": "已从受信任设备中删除",
-    "noTrustedDevices": "没有受信任设备"
+    "noTrustedDevices": "没有受信任设备。"
   },
   "deviceConfirm": {
     "pageTitle": "新设备通知",

@@ -455,7 +455,7 @@
     "deleteTrustedDevice": "刪除",
     "deleteTrustedDeviceFailed": "刪除信任裝置失敗",
     "deleteTrustedDeviceSuccess": "已從信任裝置中刪除",
-    "noTrustedDevices": "沒有信任裝置"
+    "noTrustedDevices": "沒有信任裝置。"
   },
   "deviceConfirm": {
     "pageTitle": "新裝置通知",

@@ -342,19 +342,19 @@ const SettingsPage: React.FC = () => {
             <div className="md:w-56 flex-shrink-0 md:pr-8 md:border-r md:border-black/15 md:dark:border-border pb-4 md:pb-0">
               <div className="flex gap-2 md:flex-col md:gap-1.5">
                 <div className="h-[34px] flex items-center px-3 md:w-full">
-                  <div className="h-3.5 bg-black/[0.08] dark:bg-muted rounded w-8" />
+                  <div className="h-3.5 bg-black/[0.08] dark:bg-muted rounded w-10 md:w-full" />
                 </div>
                 <div className="h-[34px] flex items-center px-3 md:w-full">
-                  <div className="h-3.5 bg-black/[0.08] dark:bg-muted rounded w-12" />
+                  <div className="h-3.5 bg-black/[0.08] dark:bg-muted rounded w-10 md:w-full" />
                 </div>
                 <div className="h-[34px] flex items-center px-3 md:w-full">
-                  <div className="h-3.5 bg-black/[0.08] dark:bg-muted rounded w-8" />
+                  <div className="h-3.5 bg-black/[0.08] dark:bg-muted rounded w-10 md:w-full" />
                 </div>
                 <div className="h-[34px] flex items-center px-3 md:w-full">
-                  <div className="h-3.5 bg-black/[0.08] dark:bg-muted rounded w-8" />
+                  <div className="h-3.5 bg-black/[0.08] dark:bg-muted rounded w-10 md:w-full" />
                 </div>
                 <div className="h-[34px] flex items-center px-3 md:hidden">
-                  <div className="h-3.5 bg-black/[0.08] dark:bg-muted rounded w-14" />
+                  <div className="h-3.5 bg-black/[0.08] dark:bg-muted rounded w-10" />
                 </div>
               </div>
               <div className="hidden md:block pt-3 mt-3 border-t border-black/15 dark:border-border">
@@ -362,7 +362,7 @@ const SettingsPage: React.FC = () => {
               </div>
               <div className="hidden md:block">
                 <div className="h-[34px] flex items-center px-3">
-                  <div className="h-3.5 bg-black/[0.08] dark:bg-muted rounded w-14" />
+                  <div className="h-3.5 bg-black/[0.08] dark:bg-muted rounded w-full" />
                 </div>
               </div>
               <Separator className="md:hidden mt-4" />
@@ -931,9 +931,8 @@ const SettingsPage: React.FC = () => {
                   </div>
                 ) : trustedDevices.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    <div className="flex items-end justify-center gap-1 mb-2 opacity-50">
+                    <div className="flex justify-center mb-3 opacity-50">
                       <ComputerDesktopIcon className="w-8 h-8" />
-                      <DevicePhoneMobileIcon className="w-5 h-5" />
                     </div>
                     <p className="text-sm">{t('settings.noTrustedDevices')}</p>
                   </div>
@@ -1052,7 +1051,7 @@ const SettingsPage: React.FC = () => {
                   </div>
                 ) : personalTokens.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
-                    <KeyIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                    <KeyIcon className="w-8 h-8 mx-auto mb-3 opacity-50" />
                     <p className="text-sm">{t('settings.noPersonalTokens')}</p>
                   </div>
                 ) : (

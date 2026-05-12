@@ -455,7 +455,7 @@
     "deleteTrustedDevice": "Remove",
     "deleteTrustedDeviceFailed": "Failed to remove trusted device",
     "deleteTrustedDeviceSuccess": "Removed from trusted devices",
-    "noTrustedDevices": "No trusted devices"
+    "noTrustedDevices": "No trusted devices."
   },
   "deviceConfirm": {
     "pageTitle": "New Device Notification",
