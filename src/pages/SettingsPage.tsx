@@ -342,19 +342,19 @@ const SettingsPage: React.FC = () => {
             <div className="md:w-56 flex-shrink-0 md:pr-8 md:border-r md:border-black/15 md:dark:border-border pb-4 md:pb-0">
               <div className="flex gap-2 md:flex-col md:gap-1.5">
                 <div className="h-[34px] flex items-center px-3 md:w-full">
-                  <div className="h-3.5 bg-black/[0.08] dark:bg-muted rounded w-10 md:w-full" />
+                  <div className="h-[18px] bg-black/[0.08] dark:bg-muted rounded w-10 md:w-full" />
                 </div>
                 <div className="h-[34px] flex items-center px-3 md:w-full">
-                  <div className="h-3.5 bg-black/[0.08] dark:bg-muted rounded w-10 md:w-full" />
+                  <div className="h-[18px] bg-black/[0.08] dark:bg-muted rounded w-10 md:w-full" />
                 </div>
                 <div className="h-[34px] flex items-center px-3 md:w-full">
-                  <div className="h-3.5 bg-black/[0.08] dark:bg-muted rounded w-10 md:w-full" />
+                  <div className="h-[18px] bg-black/[0.08] dark:bg-muted rounded w-10 md:w-full" />
                 </div>
                 <div className="h-[34px] flex items-center px-3 md:w-full">
-                  <div className="h-3.5 bg-black/[0.08] dark:bg-muted rounded w-10 md:w-full" />
+                  <div className="h-[18px] bg-black/[0.08] dark:bg-muted rounded w-10 md:w-full" />
                 </div>
                 <div className="h-[34px] flex items-center px-3 md:hidden">
-                  <div className="h-3.5 bg-black/[0.08] dark:bg-muted rounded w-10" />
+                  <div className="h-[18px] bg-black/[0.08] dark:bg-muted rounded w-10" />
                 </div>
               </div>
               <div className="hidden md:block pt-3 mt-3 border-t border-black/15 dark:border-border">
@@ -362,7 +362,7 @@ const SettingsPage: React.FC = () => {
               </div>
               <div className="hidden md:block">
                 <div className="h-[34px] flex items-center px-3">
-                  <div className="h-3.5 bg-black/[0.08] dark:bg-muted rounded w-full" />
+                  <div className="h-[18px] bg-black/[0.08] dark:bg-muted rounded w-full" />
                 </div>
               </div>
               <Separator className="md:hidden mt-4" />
