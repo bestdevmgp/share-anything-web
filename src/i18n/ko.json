@@ -424,6 +424,7 @@
     "accountName": "사용자명",
     "accountNameDescription": "다른 사용자에게 표시되는 이름입니다.",
     "accountNameSave": "저장",
+    "signinMethod": "로그인 수단",
     "accountDelete": "회원 탈퇴",
     "accountDeleteDescription": "계정을 삭제하면 더 이상 로그인할 수 없습니다. 업로드한 파일은 유지됩니다.",
     "accountDeleteConfirmTitle": "정말 탈퇴하시겠습니까?",

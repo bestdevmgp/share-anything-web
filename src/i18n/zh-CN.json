@@ -424,6 +424,7 @@
     "accountName": "显示名称",
     "accountNameDescription": "向其他用户显示的名称。",
     "accountNameSave": "保存",
+    "signinMethod": "登录方式",
     "accountDelete": "注销账户",
     "accountDeleteDescription": "注销后将无法登录。已上传的文件将保留。",
     "accountDeleteConfirmTitle": "确定要注销账户吗？",

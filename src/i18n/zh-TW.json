@@ -424,6 +424,7 @@
     "accountName": "顯示名稱",
     "accountNameDescription": "向其他使用者顯示的名稱。",
     "accountNameSave": "儲存",
+    "signinMethod": "登入方式",
     "accountDelete": "刪除帳戶",
     "accountDeleteDescription": "刪除後將無法登入。已上傳的檔案將保留。",
     "accountDeleteConfirmTitle": "確定要刪除帳戶嗎？",

@@ -663,34 +663,7 @@ const SettingsPage: React.FC = () => {
 
               <div className="space-y-6">
                 <div>
-                  <div className="flex items-center gap-2">
-                    <Label className="text-sm font-medium">{t('settings.accountName')}</Label>
-                    {(() => {
-                      const provider = user?.oauth_provider;
-                      if (!provider) return null;
-                      if (provider === 'email') {
-                        return (
-                          <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                            <EnvelopeIcon className="w-3 h-3 text-primary" strokeWidth={2} />
-                          </div>
-                        );
-                      }
-                      const ProviderLogo = providerLogoMap[provider];
-                      if (!ProviderLogo) return null;
-                      const bgClass = ({
-                        google: 'bg-[#F2F2F2] dark:bg-[#131314]',
-                        naver: 'bg-[#03C75A]',
-                        kakao: 'bg-[#FEE500]',
-                        apple: 'bg-black dark:bg-white text-white dark:text-black',
-                      } as Record<string, string>)[provider] || 'bg-muted';
-                      const logoSizeClass = provider === 'naver' ? 'w-2.5 h-2.5' : 'w-3.5 h-3.5';
-                      return (
-                        <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${bgClass}`}>
-                          <ProviderLogo className={logoSizeClass} />
-                        </div>
-                      );
-                    })()}
-                  </div>
+                  <Label className="text-sm font-medium">{t('settings.accountName')}</Label>
                   <p className="text-sm text-muted-foreground mt-1 mb-3">
                     {t('settings.accountNameDescription')}
                   </p>
@@ -717,6 +690,38 @@ const SettingsPage: React.FC = () => {
                     </Button>
                   </div>
                 </div>
+
+                {user?.oauth_provider && (
+                  <div>
+                    <Label className="text-sm font-medium">{t('settings.signinMethod')}</Label>
+                    <div className="mt-2">
+                      {(() => {
+                        const provider = user.oauth_provider!;
+                        if (provider === 'email') {
+                          return (
+                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                              <EnvelopeIcon className="w-5 h-5 text-primary" strokeWidth={2} />
+                            </div>
+                          );
+                        }
+                        const ProviderLogo = providerLogoMap[provider];
+                        if (!ProviderLogo) return null;
+                        const bgClass = ({
+                          google: 'bg-[#F2F2F2] dark:bg-[#131314]',
+                          naver: 'bg-[#03C75A]',
+                          kakao: 'bg-[#FEE500]',
+                          apple: 'bg-black dark:bg-white text-white dark:text-black',
+                        } as Record<string, string>)[provider] || 'bg-muted';
+                        const logoSizeClass = provider === 'naver' ? 'w-4 h-4' : 'w-5 h-5';
+                        return (
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${bgClass}`}>
+                            <ProviderLogo className={logoSizeClass} />
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                )}
 
                 <Separator />
 

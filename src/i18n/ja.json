@@ -424,6 +424,7 @@
     "accountName": "表示名",
     "accountNameDescription": "他のユーザーに表示される名前です。",
     "accountNameSave": "保存",
+    "signinMethod": "ログイン方法",
     "accountDelete": "アカウント削除",
     "accountDeleteDescription": "削除するとログインできなくなります。アップロードしたファイルは保持されます。",
     "accountDeleteConfirmTitle": "本当にアカウントを削除しますか？",

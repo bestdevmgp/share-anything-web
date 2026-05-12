@@ -424,6 +424,7 @@
     "accountName": "Display name",
     "accountNameDescription": "The name displayed to other users.",
     "accountNameSave": "Save",
+    "signinMethod": "Sign-in method",
     "accountDelete": "Delete account",
     "accountDeleteDescription": "Once deleted, you will no longer be able to sign in. Your uploaded files will remain.",
     "accountDeleteConfirmTitle": "Are you sure you want to delete your account?",
