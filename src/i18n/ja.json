@@ -434,6 +434,7 @@
     "activeSessions": "アクティブセッション",
     "activeSessionsDescription": "現在アカウントにログインしている端末の一覧です。",
     "currentSession": "現在のセッション",
+    "thisDevice": "この端末",
     "lastActive": "最終アクティビティ",
     "loggedInAt": "ログイン",
     "unknownDevice": "不明な端末",

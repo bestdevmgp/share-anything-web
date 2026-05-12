@@ -434,6 +434,7 @@
     "activeSessions": "活动会话",
     "activeSessionsDescription": "当前已登录到您账户的设备列表。",
     "currentSession": "当前会话",
+    "thisDevice": "此设备",
     "lastActive": "最近活跃",
     "loggedInAt": "登录",
     "unknownDevice": "未知设备",

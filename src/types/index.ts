@@ -321,6 +321,7 @@ export interface Session {
 
 export interface TrustedDevice {
   id: string;
+  device_id?: string;
   device_label?: string;
   ip_address: string;
   location?: string;

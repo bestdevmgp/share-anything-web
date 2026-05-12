@@ -7,6 +7,7 @@ import { useLanguage } from 'context/LanguageContext';
 import { useTheme } from 'context/ThemeContext';
 import { userAPI, personalTokenAPI, sessionAPI } from 'services/api';
 import { formatDateOnly, formatDateTime } from 'utils/format';
+import { ensureDeviceId } from 'utils/deviceId';
 import type { Session, TrustedDevice } from 'types';
 import { Button } from 'components/ui/button';
 import { Input } from 'components/ui/input';
@@ -883,13 +884,22 @@ const SettingsPage: React.FC = () => {
                     <p className="text-sm">{t('settings.noTrustedDevices')}</p>
                   </div>
                 ) : (
-                  trustedDevices.map((device, index) => (
+                  trustedDevices.map((device, index) => {
+                    const isCurrentDevice = !!device.device_id && device.device_id === ensureDeviceId();
+                    return (
                     <div key={device.id}>
                       {index > 0 && <Separator />}
                       <div className="flex items-start justify-between gap-3 py-4">
                         <div className="min-w-0 flex-1">
-                          <div className="text-sm font-medium text-foreground truncate">
-                            {device.device_label || t('settings.unknownDevice')}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm font-medium text-foreground truncate">
+                              {device.device_label || t('settings.unknownDevice')}
+                            </span>
+                            {isCurrentDevice && (
+                              <span className="text-xs bg-green-100 dark:bg-green-500/15 text-green-700 dark:text-green-400 px-2 py-0.5 rounded">
+                                {t('settings.thisDevice')}
+                              </span>
+                            )}
                           </div>
                           <div className="mt-1 text-xs text-muted-foreground space-y-0.5">
                             <div>
@@ -915,7 +925,8 @@ const SettingsPage: React.FC = () => {
                         </Button>
                       </div>
                     </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
             </div>

@@ -434,6 +434,7 @@
     "activeSessions": "活動工作階段",
     "activeSessionsDescription": "目前已登入您帳戶的裝置清單。",
     "currentSession": "目前工作階段",
+    "thisDevice": "此裝置",
     "lastActive": "最近活動",
     "loggedInAt": "登入",
     "unknownDevice": "不明裝置",

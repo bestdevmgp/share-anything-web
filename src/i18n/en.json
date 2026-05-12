@@ -434,6 +434,7 @@
     "activeSessions": "Active Sessions",
     "activeSessionsDescription": "Devices currently signed into your account.",
     "currentSession": "Current session",
+    "thisDevice": "This device",
     "lastActive": "Last active",
     "loggedInAt": "Signed in",
     "unknownDevice": "Unknown device",
