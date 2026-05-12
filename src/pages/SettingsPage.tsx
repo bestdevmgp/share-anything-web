@@ -694,7 +694,7 @@ const SettingsPage: React.FC = () => {
                 {user?.oauth_provider && (
                   <div>
                     <Label className="text-sm font-medium">{t('settings.signinMethod')}</Label>
-                    <div className="mt-2">
+                    <div className="mt-3">
                       {(() => {
                         const provider = user.oauth_provider!;
                         if (provider === 'email') {
