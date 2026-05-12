@@ -802,7 +802,7 @@ const SettingsPage: React.FC = () => {
                   <Label className="text-sm font-medium">
                     {t('settings.activeSessions')}
                     {sessionsLoaded && (
-                      <span className="ml-1.5 text-muted-foreground font-normal">({sessions.length})</span>
+                      <span className="ml-1.5 text-muted-foreground">({sessions.length})</span>
                     )}
                   </Label>
                   <p className="text-sm text-muted-foreground mt-1">{t('settings.activeSessionsDescription')}</p>
@@ -928,7 +928,7 @@ const SettingsPage: React.FC = () => {
                   <Label className="text-sm font-medium">
                     {t('settings.trustedDevices')}
                     {sessionsLoaded && (
-                      <span className="ml-1.5 text-muted-foreground font-normal">({trustedDevices.length})</span>
+                      <span className="ml-1.5 text-muted-foreground">({trustedDevices.length})</span>
                     )}
                   </Label>
                 </div>
