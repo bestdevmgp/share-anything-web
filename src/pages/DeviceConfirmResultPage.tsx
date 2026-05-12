@@ -69,11 +69,11 @@ const DeviceConfirmResultPage: React.FC = () => {
             <p className="text-muted-foreground text-sm">{config.description}</p>
 
             <div className="flex flex-col sm:flex-row gap-2 justify-center mt-8">
-              <Link to="/" className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'px-4')}>
+              <Link to="/" className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'px-5')}>
                 {t('deviceConfirm.goHome')}
               </Link>
               {config.showSettings && (
-                <Link to="/settings?tab=sessions" className={cn(buttonVariants({ size: 'lg' }), 'px-4')}>
+                <Link to="/settings?tab=sessions" className={cn(buttonVariants({ size: 'lg' }), 'px-5')}>
                   {t('deviceConfirm.goSettings')}
                 </Link>
               )}
