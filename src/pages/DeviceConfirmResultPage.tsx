@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'i18n';
 import { Card, CardContent } from '../components/ui/card';
 import { buttonVariants } from '../components/ui/button';
+import { cn } from 'lib/utils';
 import StatusIcon, { type StatusIconVariant } from '../components/StatusIcon';
 
 type Status = 'revoked' | 'already' | 'invalid' | 'error';
@@ -68,11 +69,11 @@ const DeviceConfirmResultPage: React.FC = () => {
             <p className="text-muted-foreground text-sm">{config.description}</p>
 
             <div className="flex flex-col sm:flex-row gap-2 justify-center mt-8">
-              <Link to="/" className={buttonVariants({ variant: 'outline', size: 'lg' })}>
+              <Link to="/" className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'px-4')}>
                 {t('deviceConfirm.goHome')}
               </Link>
               {config.showSettings && (
-                <Link to="/settings?tab=sessions" className={buttonVariants({ size: 'lg' })}>
+                <Link to="/settings?tab=sessions" className={cn(buttonVariants({ size: 'lg' }), 'px-4')}>
                   {t('deviceConfirm.goSettings')}
                 </Link>
               )}
