@@ -21,7 +21,6 @@ const EmailVerifyWaitPage: React.FC = () => {
   const location = useLocation();
   const { login } = useAuth();
 
-  // Restore from location state or sessionStorage
   const stateEmail = (location.state as any)?.email;
   const stateSessionId = (location.state as any)?.sessionId;
 
@@ -48,7 +47,6 @@ const EmailVerifyWaitPage: React.FC = () => {
   const [verifying, setVerifying] = useState(false);
   const [showCodeInput, setShowCodeInput] = useState(false);
 
-  // Account merge state
   const [mergeInfo, setMergeInfo] = useState<{
     token: string;
     user: User;
@@ -61,14 +59,12 @@ const EmailVerifyWaitPage: React.FC = () => {
     document.title = t('emailAuth.checkEmail');
   }, [t]);
 
-  // Persist to sessionStorage
   useEffect(() => {
     if (email && sessionId) {
       sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify({ email, sessionId }));
     }
   }, [email, sessionId]);
 
-  // Redirect if no session data
   useEffect(() => {
     if (!email || !sessionId) {
       navigate('/signin', { replace: true });
@@ -90,7 +86,6 @@ const EmailVerifyWaitPage: React.FC = () => {
     navigate('/', { replace: true });
   }, [login, navigate, t]);
 
-  // Polling for status
   useEffect(() => {
     if (!sessionId || hasLoggedIn.current || mergeInfo) return;
 
@@ -160,7 +155,6 @@ const EmailVerifyWaitPage: React.FC = () => {
     navigate('/', { replace: true });
   };
 
-  // Account merge view
   if (mergeInfo) {
     const ProviderLogo = providerLogoMap[mergeInfo.existingProvider];
     const providerName = t(`emailAuth.providerName.${mergeInfo.existingProvider}`);
@@ -214,7 +208,6 @@ const EmailVerifyWaitPage: React.FC = () => {
     );
   }
 
-  // Main waiting view
   return (
     <div className="flex items-center justify-center px-4 py-20">
       <div className="max-w-md w-full">

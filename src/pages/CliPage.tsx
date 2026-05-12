@@ -90,7 +90,6 @@ const CliPage: React.FC = () => {
         {t('cli.pageDescription')}
       </p>
 
-      {/* CLI Tool (share-cli) */}
       <section className="mb-12">
         <h2 className="text-xl font-semibold text-foreground mb-4">{t('cli.binaryTitle')}</h2>
 
@@ -154,7 +153,6 @@ const CliPage: React.FC = () => {
 
       <hr className="border-black/25 dark:border-zinc-600 mb-12" />
 
-      {/* Quick Start with curl */}
       <section className="mb-12">
         <h2 className="text-xl font-semibold text-foreground mb-4">{t('cli.curlTitle')}</h2>
         <p className="text-muted-foreground mb-4">{t('cli.curlDescription')}</p>
@@ -182,7 +180,6 @@ const CliPage: React.FC = () => {
 
       <hr className="border-black/25 dark:border-zinc-600 mb-12" />
 
-      {/* Option Reference */}
       <section className="mb-12">
         <h2 className="text-xl font-semibold text-foreground mb-4">{t('cli.optionsTitle')}</h2>
         <p className="text-muted-foreground mb-4">{t('cli.optionsDescription')}</p>
@@ -229,7 +226,6 @@ const CliPage: React.FC = () => {
 
       <hr className="border-black/25 dark:border-zinc-600 mb-12" />
 
-      {/* Comparison Table */}
       <section className="mb-12">
         <h2 className="text-xl font-semibold text-foreground mb-4">{t('cli.comparisonTitle')}</h2>
         <div className="overflow-x-auto">
@@ -256,7 +252,6 @@ const CliPage: React.FC = () => {
 
       <hr className="border-black/25 dark:border-zinc-600 mb-12" />
 
-      {/* Guest vs Personal Token */}
       <section className="mb-12">
         <h2 className="text-xl font-semibold text-foreground mb-4">{t('cli.limitsTitle')}</h2>
         <div className="overflow-x-auto">
@@ -281,7 +276,6 @@ const CliPage: React.FC = () => {
 
       <hr className="border-black/25 dark:border-zinc-600 mb-12" />
 
-      {/* Personal Token */}
       <section className="mb-12">
         <h2 className="text-xl font-semibold text-foreground mb-4">{t('cli.personalTokenTitle')}</h2>
         <p className="text-muted-foreground mb-4">{t('cli.personalTokenDescription')}</p>

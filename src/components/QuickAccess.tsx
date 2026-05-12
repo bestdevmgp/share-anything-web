@@ -409,7 +409,6 @@ const QuickAccess: React.FC = () => {
                         onClick={(e) => e.stopPropagation()}
                       >
                         <span className="relative inline-flex items-center">
-                          {/* Body */}
                           <span
                             className="inline-flex items-center rounded-[10px] pl-3 pr-1.5 py-[7px]"
                             style={{
@@ -436,7 +435,6 @@ const QuickAccess: React.FC = () => {
                             </button>
                           </span>
                         </span>
-                          {/* Tail - sibling of body */}
                           <span
                             className="absolute top-1/2 -translate-y-1/2 pointer-events-none"
                             style={{

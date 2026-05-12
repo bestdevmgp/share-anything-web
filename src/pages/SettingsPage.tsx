@@ -63,6 +63,7 @@ const SettingsPage: React.FC = () => {
   const [notifyUpload, setNotifyUpload] = useState(true);
   const [notifyDownload, setNotifyDownload] = useState(true);
   const [notifyDownloadAlert, setNotifyDownloadAlert] = useState(true);
+  const [notifySecurity, setNotifySecurity] = useState(true);
   const [notifyLanguage, setNotifyLanguage] = useState('ko');
   const [loading, setLoading] = useState(true);
 
@@ -75,7 +76,6 @@ const SettingsPage: React.FC = () => {
   const [siteLangOpen, setSiteLangOpen] = useState(false);
   const [siteThemeOpen, setSiteThemeOpen] = useState(false);
 
-  // Personal Tokens state
   const [personalTokens, setPersonalTokens] = useState<PersonalTokenItem[]>([]);
   const [personalTokensLoading, setPersonalTokensLoading] = useState(false);
   const [newTokenName, setNewTokenName] = useState('');
@@ -83,13 +83,11 @@ const SettingsPage: React.FC = () => {
   const [creatingToken, setCreatingToken] = useState(false);
   const [copiedToken, setCopiedToken] = useState(false);
 
-  // Account state
   const [editName, setEditName] = useState('');
   const [savingName, setSavingName] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
 
-  // Sessions state
   const [sessions, setSessions] = useState<Session[]>([]);
   const [trustedDevices, setTrustedDevices] = useState<TrustedDevice[]>([]);
   const [sessionsLoading, setSessionsLoading] = useState(false);
@@ -119,6 +117,7 @@ const SettingsPage: React.FC = () => {
         setNotifyUpload(settings.notify_upload);
         setNotifyDownload(settings.notify_download);
         setNotifyDownloadAlert(settings.notify_download_alert);
+        setNotifySecurity(settings.notify_security);
         setNotifyLanguage(settings.notify_language);
       } catch {
         toast.error(t('settings.fetchFailed'));
@@ -139,7 +138,6 @@ const SettingsPage: React.FC = () => {
         const tokens = await personalTokenAPI.list();
         setPersonalTokens(tokens);
       } catch {
-        // Silently fail - user can retry
       } finally {
         setPersonalTokensLoading(false);
       }
@@ -212,18 +210,25 @@ const SettingsPage: React.FC = () => {
     }
   };
 
-  const handleToggle = async (field: 'upload' | 'download' | 'downloadAlert', value: boolean) => {
+  const handleToggle = async (field: 'upload' | 'download' | 'downloadAlert' | 'security', value: boolean) => {
+    if (field === 'security' && !value) {
+      const confirmed = window.confirm(t('settings.securityNotificationDisableWarning'));
+      if (!confirmed) return;
+    }
+
     const prevUpload = notifyUpload;
     const prevDownload = notifyDownload;
     const prevDownloadAlert = notifyDownloadAlert;
+    const prevSecurity = notifySecurity;
 
-    // Optimistic update
     if (field === 'upload') {
       setNotifyUpload(value);
     } else if (field === 'download') {
       setNotifyDownload(value);
-    } else {
+    } else if (field === 'downloadAlert') {
       setNotifyDownloadAlert(value);
+    } else {
+      setNotifySecurity(value);
     }
 
     try {
@@ -231,14 +236,15 @@ const SettingsPage: React.FC = () => {
         notify_upload: field === 'upload' ? value : notifyUpload,
         notify_download: field === 'download' ? value : notifyDownload,
         notify_download_alert: field === 'downloadAlert' ? value : notifyDownloadAlert,
+        notify_security: field === 'security' ? value : notifySecurity,
         notify_language: notifyLanguage,
       });
       toast.success(t('settings.updateSuccess'));
     } catch {
-      // Rollback
       setNotifyUpload(prevUpload);
       setNotifyDownload(prevDownload);
       setNotifyDownloadAlert(prevDownloadAlert);
+      setNotifySecurity(prevSecurity);
       toast.error(t('settings.updateFailed'));
     }
   };
@@ -253,6 +259,7 @@ const SettingsPage: React.FC = () => {
         notify_upload: notifyUpload,
         notify_download: notifyDownload,
         notify_download_alert: notifyDownloadAlert,
+        notify_security: notifySecurity,
         notify_language: newLang,
       });
       toast.success(t('settings.updateSuccess'));
@@ -328,11 +335,9 @@ const SettingsPage: React.FC = () => {
     return (
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
         <div className="animate-pulse">
-          {/* Title */}
           <div className="h-8 bg-black/[0.08] dark:bg-muted rounded w-20 mb-8" />
 
           <div className="flex flex-col md:flex-row gap-0">
-            {/* Sidebar skeleton */}
             <div className="md:w-56 flex-shrink-0 md:pr-8 md:border-r md:border-black/15 md:dark:border-border pb-4 md:pb-0">
               <div className="flex gap-2 md:flex-col md:gap-1.5">
                 <div className="h-[34px] bg-black/[0.08] dark:bg-muted rounded-lg w-14 md:w-full" />
@@ -350,15 +355,12 @@ const SettingsPage: React.FC = () => {
               <Separator className="md:hidden mt-4" />
             </div>
 
-            {/* Content skeleton */}
             <div className="flex-1 md:pl-10 pt-4 md:pt-0 space-y-6">
-              {/* Section header */}
               <div>
                 <div className="h-6 bg-black/[0.08] dark:bg-muted rounded w-16 mb-2" />
                 <div className="h-4 bg-black/[0.08] dark:bg-muted rounded w-56" />
               </div>
 
-              {/* Setting rows */}
               {[1, 2, 3].map((i) => (
                 <div key={i}>
                   <Separator />
@@ -386,7 +388,6 @@ const SettingsPage: React.FC = () => {
       <h1 className="text-2xl font-bold text-foreground mb-8">{t('settings.pageTitle')}</h1>
 
       <div className="flex flex-col md:flex-row gap-0">
-        {/* Sidebar / Mobile Tabs */}
         <div className="md:w-56 flex-shrink-0 md:pr-8 md:border-r md:border-black/15 md:dark:border-border pb-4 md:pb-0">
           <nav className="flex gap-2 md:flex-col md:space-y-1 md:gap-0">
             <button
@@ -447,7 +448,6 @@ const SettingsPage: React.FC = () => {
           <Separator className="md:hidden mt-4" />
         </div>
 
-        {/* Content */}
         <div className="flex-1 md:pl-10 pt-4 md:pt-0">
           {activeTab === 'notifications' && (
             <div>
@@ -457,7 +457,6 @@ const SettingsPage: React.FC = () => {
               </div>
 
               <div className="space-y-6">
-                {/* Upload Notification */}
                 <div className="flex items-center justify-between gap-4">
                   <div className="min-w-0">
                     <Label className="text-sm font-medium">{t('settings.uploadNotification')}</Label>
@@ -474,7 +473,6 @@ const SettingsPage: React.FC = () => {
 
                 <Separator />
 
-                {/* Download Notification */}
                 <div className="flex items-center justify-between gap-4">
                   <div className="min-w-0">
                     <Label className="text-sm font-medium">{t('settings.downloadNotification')}</Label>
@@ -491,7 +489,6 @@ const SettingsPage: React.FC = () => {
 
                 <Separator />
 
-                {/* Download Alert Notification */}
                 <div className="flex items-center justify-between gap-4">
                   <div className="min-w-0">
                     <Label className="text-sm font-medium">{t('settings.downloadAlertNotification')}</Label>
@@ -508,7 +505,22 @@ const SettingsPage: React.FC = () => {
 
                 <Separator />
 
-                {/* Notification Language */}
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0">
+                    <Label className="text-sm font-medium">{t('settings.securityNotification')}</Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {t('settings.securityNotificationDescription')}
+                    </p>
+                  </div>
+                  <Switch
+                    className="flex-shrink-0"
+                    checked={notifySecurity}
+                    onCheckedChange={(checked) => handleToggle('security', checked)}
+                  />
+                </div>
+
+                <Separator />
+
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="min-w-0">
                     <Label className="text-sm font-medium">{t('settings.notifyLanguage')}</Label>
@@ -559,7 +571,6 @@ const SettingsPage: React.FC = () => {
               </div>
 
               <div className="space-y-6">
-                {/* Site Language */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="min-w-0">
                     <Label className="text-sm font-medium">{t('settings.siteLanguage')}</Label>
@@ -601,7 +612,6 @@ const SettingsPage: React.FC = () => {
 
                 <Separator />
 
-                {/* Site Theme */}
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="min-w-0">
                     <Label className="text-sm font-medium">{t('settings.siteTheme')}</Label>
@@ -651,7 +661,6 @@ const SettingsPage: React.FC = () => {
               </div>
 
               <div className="space-y-6">
-                {/* Username change */}
                 <div>
                   <Label className="text-sm font-medium">{t('settings.accountName')}</Label>
                   <p className="text-sm text-muted-foreground mt-1 mb-3">
@@ -683,7 +692,6 @@ const SettingsPage: React.FC = () => {
 
                 <Separator />
 
-                {/* Account deletion */}
                 <div>
                   <Label className="text-sm font-medium">{t('settings.accountDelete')}</Label>
                   <p className="text-sm text-muted-foreground mt-1 mb-3">
@@ -744,7 +752,6 @@ const SettingsPage: React.FC = () => {
                 <p className="text-sm text-muted-foreground mt-1">{t('settings.sessionsDescription')}</p>
               </div>
 
-              {/* Active Sessions */}
               <div className="mb-10">
                 <div className="mb-4">
                   <Label className="text-sm font-medium">{t('settings.activeSessions')}</Label>
@@ -866,7 +873,6 @@ const SettingsPage: React.FC = () => {
 
               <Separator />
 
-              {/* Trusted Devices */}
               <div className="mt-8">
                 <div className="mb-4">
                   <Label className="text-sm font-medium">{t('settings.trustedDevices')}</Label>
@@ -938,7 +944,6 @@ const SettingsPage: React.FC = () => {
                 <p className="text-sm text-muted-foreground mt-1">{t('settings.personalTokensDescription')}</p>
               </div>
 
-              {/* Create new token */}
               <div className="mb-6">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:max-w-sm">
                   <Input
@@ -963,7 +968,6 @@ const SettingsPage: React.FC = () => {
                   </Button>
                 </div>
 
-                {/* Show newly created token */}
                 {createdToken && (
                   <div className="mt-4 p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg">
                     <p className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">
@@ -991,7 +995,6 @@ const SettingsPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Token list */}
               <div>
                 {personalTokensLoading ? (
                   <div className="animate-pulse space-y-3">

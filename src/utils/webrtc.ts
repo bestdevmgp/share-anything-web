@@ -4,7 +4,6 @@ import { turnAPI } from '../services/api';
 const API_BASE_URL = process.env.REACT_APP_API_URL || '';
 const WS_URL = API_BASE_URL.replace(/^http/, 'ws');
 
-// ICE 서버 캐시
 let cachedIceServers: RTCIceServer[] | null = null;
 let cacheExpiry: number = 0;
 const CACHE_DURATION_MS = 12 * 60 * 60 * 1000; // 12시간 (자격증명 유효기간 24시간)
@@ -32,7 +31,6 @@ const convertToRTCIceServers = (servers: IceServer[]): RTCIceServer[] => {
   }));
 };
 
-// STUN 전용 폴백 서버
 const getFallbackIceServers = (): RTCIceServer[] => {
   return [
     { urls: 'stun:stun.cloudflare.com:3478' },

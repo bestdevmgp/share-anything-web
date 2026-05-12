@@ -95,7 +95,6 @@ const Footer: React.FC = () => {
         </div>
 
         <div className="flex justify-center items-end gap-[12px]">
-          {/* Language Dropdown */}
           <Popover open={langOpen} onOpenChange={setLangOpen}>
             <PopoverTrigger asChild>
               <button
@@ -127,7 +126,6 @@ const Footer: React.FC = () => {
             </PopoverContent>
           </Popover>
 
-          {/* Theme Dropdown */}
           <Popover open={themeOpen} onOpenChange={setThemeOpen}>
             <PopoverTrigger asChild>
               <button

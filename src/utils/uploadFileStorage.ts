@@ -49,7 +49,6 @@ export async function storeUploadFiles(files: File[]): Promise<void> {
 
     db.close();
   } catch {
-    // Silently fail - graceful degradation
   }
 }
 
@@ -89,6 +88,5 @@ export async function clearUploadFiles(): Promise<void> {
     });
     db.close();
   } catch {
-    // Silently fail
   }
 }

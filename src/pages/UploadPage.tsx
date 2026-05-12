@@ -85,7 +85,6 @@ const UploadPage: React.FC = () => {
     document.title = t('upload.pageTitle');
   }, [t]);
 
-  // Restore files and settings from sessionStorage on refresh
   useEffect(() => {
     const wasRefresh = sessionStorage.getItem('uploadPageRefreshing');
     sessionStorage.removeItem('uploadPageRefreshing');
@@ -124,7 +123,6 @@ const UploadPage: React.FC = () => {
     }
   }, []);
 
-  // Save settings to sessionStorage on every change
   useEffect(() => {
     if (isRestoringRef.current) return;
     sessionStorage.setItem('uploadTransferType', transferType);
@@ -134,7 +132,6 @@ const UploadPage: React.FC = () => {
     sessionStorage.setItem('uploadIsOneTime', isOneTime ? 'true' : 'false');
   }, [transferType, description, password, expiration, isOneTime]);
 
-  // Store files in IndexedDB when they change
   useEffect(() => {
     if (isRestoringRef.current) return;
 

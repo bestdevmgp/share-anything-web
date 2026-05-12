@@ -133,14 +133,12 @@ const LoginPage: React.FC = () => {
                                     </button>
                                 </div>
 
-                                {/* Divider */}
                                 <div className="flex items-center gap-3 mb-6">
                                     <div className="flex-1 h-px bg-border" />
                                     <span className="text-sm text-muted-foreground">{t('login.or')}</span>
                                     <div className="flex-1 h-px bg-border" />
                                 </div>
 
-                                {/* Email input */}
                                 <div className="mb-8">
                                     <div className="relative">
                                         <Input
@@ -187,7 +185,6 @@ const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
     <span
         className="absolute left-full top-1/2 -translate-y-1/2 ml-[10px] opacity-0 [animation-delay:500ms] animate-bubble-pop pointer-events-none inline-flex items-center"
     >
-        {/* Body */}
         <span
             className="inline-flex items-center rounded-[6px] px-[7px] py-[6.5px]"
             style={{
@@ -202,7 +199,6 @@ const RecentLoginBubble: React.FC<{ label: string }> = ({ label }) => (
                 {label}
             </span>
         </span>
-        {/* Tail - rendered on top of body to hide body's left border */}
         <span
             className="absolute top-1/2 -translate-y-1/2"
             style={{
