@@ -318,6 +318,7 @@ export interface Session {
   last_seen_at: string;
   created_at: string;
   is_current: boolean;
+  kind?: 'web' | 'cli';
 }
 
 export interface TrustedDevice {

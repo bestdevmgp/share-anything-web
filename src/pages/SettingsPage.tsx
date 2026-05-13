@@ -16,7 +16,7 @@ import { Label } from 'components/ui/label';
 import { Separator } from 'components/ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from 'components/ui/popover';
 import { Spinner } from 'components/ui/spinner';
-import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, KeyIcon, ExclamationTriangleIcon, EnvelopeIcon } from '@heroicons/react/24/outline';
+import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, KeyIcon, ExclamationTriangleIcon, EnvelopeIcon, CommandLineIcon } from '@heroicons/react/24/outline';
 import { providerLogoMap } from 'utils/providerLogos';
 
 type Tab = 'notifications' | 'general' | 'account' | 'sessions' | 'personal-tokens';
@@ -830,6 +830,12 @@ const SettingsPage: React.FC = () => {
                               <span className="text-sm font-medium text-foreground truncate">
                                 {session.device_label || t('settings.unknownDevice')}
                               </span>
+                              {session.kind === 'cli' && (
+                                <span className="text-xs bg-muted text-muted-foreground px-2 py-0.5 rounded inline-flex items-center gap-1">
+                                  <CommandLineIcon className="w-3 h-3" />
+                                  CLI
+                                </span>
+                              )}
                               {session.is_current && (
                                 <span className="text-xs bg-green-100 dark:bg-green-500/15 text-green-700 dark:text-green-400 px-2 py-0.5 rounded">
                                   {t('settings.currentSession')}
@@ -837,10 +843,12 @@ const SettingsPage: React.FC = () => {
                               )}
                             </div>
                             <div className="mt-1 text-xs text-muted-foreground space-y-0.5">
-                              <div>
-                                {session.ip_address}
-                                {session.location && <span> · {session.location}</span>}
-                              </div>
+                              {session.kind !== 'cli' && (
+                                <div>
+                                  {session.ip_address}
+                                  {session.location && <span> · {session.location}</span>}
+                                </div>
+                              )}
                               <div>
                                 {t('settings.lastActive')}: {formatDateTime(session.last_seen_at, siteLanguage)}
                               </div>
