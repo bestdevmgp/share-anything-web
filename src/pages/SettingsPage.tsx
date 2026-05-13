@@ -831,7 +831,7 @@ const SettingsPage: React.FC = () => {
                                 {session.device_label || t('settings.unknownDevice')}
                               </span>
                               {session.kind === 'cli' && (
-                                <span className="text-xs bg-foreground/[0.08] text-muted-foreground px-2 py-0.5 rounded inline-flex items-center gap-1">
+                                <span className="text-xs bg-foreground/[0.05] dark:bg-foreground/[0.08] text-muted-foreground px-2 py-0.5 rounded inline-flex items-center gap-1">
                                   <CommandLineIcon className="w-3 h-3" />
                                   CLI
                                 </span>
