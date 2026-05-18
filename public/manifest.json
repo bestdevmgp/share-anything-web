@@ -1,6 +1,10 @@
 {
   "short_name": "ShareAnything",
-  "name": "ShareAnything - 파일 공유 서비스",
+  "name": "ShareAnything — 무료 파일 공유 서비스",
+  "description": "종단간 암호화를 적용한 무료 파일 공유 서비스. 회원가입 없이 대용량 파일을 빠르고 안전하게 전송하세요.",
+  "lang": "ko-KR",
+  "dir": "ltr",
+  "scope": "/",
   "icons": [
     {
       "src": "favicon.svg",
@@ -10,16 +14,20 @@
     {
       "src": "logo192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ],
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "theme_color": "#ffffff",
-  "background_color": "#ffffff"
+  "background_color": "#ffffff",
+  "categories": ["productivity", "utilities", "business"]
 }
