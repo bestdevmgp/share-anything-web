@@ -660,4 +660,58 @@ export const personalTokenAPI = {
   },
 };
 
+export interface ApiKeyApplicationRequest {
+  service_name: string;
+  service_url: string;
+  purpose: string;
+}
+
+export interface ApiKeyApplicationResponse {
+  id: number;
+  service_name: string;
+  service_url: string;
+  purpose: string;
+  status: 'pending' | 'approved' | 'rejected';
+  reject_reason: string | null;
+  api_key_id: string | null;
+  created_at: string;
+  reviewed_at: string | null;
+}
+
+export interface ApiKeyItem {
+  id: string;
+  token_prefix: string;
+  name: string;
+  scopes: ('read' | 'upload' | 'delete')[];
+  last_used_at: string | null;
+  expires_at: string | null;
+  created_at: string;
+}
+
+export const apiKeyAPI = {
+  apply: async (req: ApiKeyApplicationRequest): Promise<ApiKeyApplicationResponse> => {
+    const response = await api.post('/user/api-keys/applications', req);
+    return response.data;
+  },
+
+  listApplications: async (): Promise<ApiKeyApplicationResponse[]> => {
+    const response = await api.get('/user/api-keys/applications');
+    return response.data;
+  },
+
+  getApplication: async (id: number): Promise<ApiKeyApplicationResponse> => {
+    const response = await api.get(`/user/api-keys/applications/${id}`);
+    return response.data;
+  },
+
+  listKeys: async (): Promise<ApiKeyItem[]> => {
+    const response = await api.get('/user/api-keys');
+    return response.data;
+  },
+
+  revoke: async (id: string): Promise<void> => {
+    await api.delete(`/user/api-keys/${id}`);
+  },
+};
+
 export default api;

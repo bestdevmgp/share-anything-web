@@ -5,7 +5,8 @@ import { toast } from 'context/ToastContext';
 import { useTranslation } from 'i18n';
 import { useLanguage } from 'context/LanguageContext';
 import { useTheme } from 'context/ThemeContext';
-import { userAPI, personalTokenAPI, sessionAPI } from 'services/api';
+import { userAPI, personalTokenAPI, sessionAPI, apiKeyAPI } from 'services/api';
+import type { ApiKeyApplicationResponse, ApiKeyItem } from 'services/api';
 import { formatDateOnly, formatDateTime } from 'utils/format';
 import { ensureDeviceId } from 'utils/deviceId';
 import type { Session, TrustedDevice } from 'types';
@@ -20,7 +21,7 @@ import { Spinner } from 'components/ui/spinner';
 import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, KeyIcon, ExclamationTriangleIcon, EnvelopeIcon, CommandLineIcon } from '@heroicons/react/24/outline';
 import { providerLogoMap } from 'utils/providerLogos';
 
-type Tab = 'notifications' | 'general' | 'account' | 'sessions' | 'personal-tokens';
+type Tab = 'notifications' | 'general' | 'account' | 'sessions' | 'personal-tokens' | 'api-keys';
 
 interface PersonalTokenItem {
   id: string;
@@ -60,6 +61,7 @@ const SettingsPage: React.FC = () => {
       : tabParam === 'account' ? 'account'
       : tabParam === 'sessions' ? 'sessions'
       : tabParam === 'personal-tokens' ? 'personal-tokens'
+      : tabParam === 'api-keys' ? 'api-keys'
       : 'general'
   );
   const setActiveTab = (tab: Tab) => setSearchParams({ tab }, { replace: true });
@@ -90,6 +92,20 @@ const SettingsPage: React.FC = () => {
   const toggleScope = (s: 'read' | 'upload' | 'delete') => {
     setScopes((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
   };
+
+  const [apiApplications, setApiApplications] = useState<ApiKeyApplicationResponse[]>([]);
+  const [apiApplicationsLoading, setApiApplicationsLoading] = useState(false);
+  const [apiKeys, setApiKeys] = useState<ApiKeyItem[]>([]);
+  const [apiKeysLoading, setApiKeysLoading] = useState(false);
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  const [applyServiceName, setApplyServiceName] = useState('');
+  const [applyServiceUrl, setApplyServiceUrl] = useState('');
+  const [applyPurpose, setApplyPurpose] = useState('');
+  const [applyTerms, setApplyTerms] = useState(false);
+  const [applySubmitting, setApplySubmitting] = useState(false);
+  const [selectedApplication, setSelectedApplication] = useState<ApiKeyApplicationResponse | null>(null);
+  const [revokeKeyId, setRevokeKeyId] = useState<string | null>(null);
+  const [revokingKeyId, setRevokingKeyId] = useState<string | null>(null);
 
   const [editName, setEditName] = useState('');
   const [savingName, setSavingName] = useState(false);
@@ -153,6 +169,31 @@ const SettingsPage: React.FC = () => {
     fetchPersonalTokens();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, authLoading, navigate]);
+
+  useEffect(() => {
+    if (activeTab !== 'api-keys' || !isAuthenticated) return;
+
+    const fetchApiKeysData = async () => {
+      setApiApplicationsLoading(true);
+      setApiKeysLoading(true);
+      try {
+        const [applications, keys] = await Promise.all([
+          apiKeyAPI.listApplications(),
+          apiKeyAPI.listKeys(),
+        ]);
+        setApiApplications(applications);
+        setApiKeys(keys);
+      } catch {
+        toast.error(t('settings.fetchFailed'));
+      } finally {
+        setApiApplicationsLoading(false);
+        setApiKeysLoading(false);
+      }
+    };
+
+    fetchApiKeysData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, isAuthenticated]);
 
   useEffect(() => {
     if (activeTab !== 'sessions' || sessionsLoaded || !isAuthenticated) return;
@@ -300,6 +341,47 @@ const SettingsPage: React.FC = () => {
       toast.success(t('settings.personalTokenRevoked'));
     } catch {
       toast.error(t('settings.personalTokenRevokeFailed'));
+    }
+  };
+
+  const handleApplyApiKey = async () => {
+    setApplySubmitting(true);
+    try {
+      await apiKeyAPI.apply({
+        service_name: applyServiceName.trim(),
+        service_url: applyServiceUrl.trim(),
+        purpose: applyPurpose.trim(),
+      });
+      setShowApplyModal(false);
+      setApplyServiceName('');
+      setApplyServiceUrl('');
+      setApplyPurpose('');
+      setApplyTerms(false);
+      toast.success(t('settings.apiKeys.toast.applied'));
+      const applications = await apiKeyAPI.listApplications();
+      setApiApplications(applications);
+    } catch (err: any) {
+      if (err?.response?.status === 429) {
+        toast.error(t('settings.apiKeys.toast.dailyLimit'));
+      } else {
+        toast.error(err?.response?.data?.message || t('settings.updateFailed'));
+      }
+    } finally {
+      setApplySubmitting(false);
+    }
+  };
+
+  const handleRevokeApiKey = async (id: string) => {
+    setRevokingKeyId(id);
+    try {
+      await apiKeyAPI.revoke(id);
+      setApiKeys(apiKeys.filter(k => k.id !== id));
+      setRevokeKeyId(null);
+      toast.success(t('settings.apiKeys.toast.revoked'));
+    } catch {
+      toast.error(t('settings.updateFailed'));
+    } finally {
+      setRevokingKeyId(null);
     }
   };
 
@@ -464,6 +546,16 @@ const SettingsPage: React.FC = () => {
               }`}
             >
               {t('settings.personalTokens')}
+            </button>
+            <button
+              onClick={() => setActiveTab('api-keys')}
+              className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors md:w-full md:text-left ${
+                activeTab === 'api-keys'
+                  ? 'text-foreground bg-accent'
+                  : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
+              }`}
+            >
+              {t('settings.apiKeys.title')}
             </button>
           </nav>
           <Separator className="md:hidden mt-4" />
@@ -1136,6 +1228,356 @@ const SettingsPage: React.FC = () => {
                   ))
                 )}
               </div>
+            </div>
+          )}
+          {activeTab === 'api-keys' && (
+            <div>
+              <div className="mb-6">
+                <h2 className="text-lg font-semibold text-foreground">{t('settings.apiKeys.title')}</h2>
+                <p className="text-sm text-muted-foreground mt-1">{t('settings.apiKeys.subtitle')}</p>
+              </div>
+
+              {/* Applications sub-section */}
+              <div className="mb-8">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="text-base font-medium text-foreground">{t('settings.apiKeys.applicationsTitle')}</h3>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => setShowApplyModal(true)}
+                  >
+                    {t('settings.apiKeys.applyButton')}
+                  </Button>
+                </div>
+
+                {apiApplicationsLoading ? (
+                  <div className="animate-pulse space-y-3">
+                    {[1, 2].map((i) => (
+                      <div key={i} className="h-12 bg-black/[0.08] dark:bg-muted rounded-lg" />
+                    ))}
+                  </div>
+                ) : apiApplications.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground border border-border rounded-lg">
+                    <p className="text-sm">{t('settings.apiKeys.emptyApplications')}</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm border border-border rounded-lg overflow-hidden">
+                      <thead>
+                        <tr className="bg-muted/50">
+                          <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">ID</th>
+                          <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">{t('settings.apiKeys.modal.serviceName')}</th>
+                          <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">Status</th>
+                          <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">{t('settings.personalTokenCreatedAt')}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {apiApplications.map((app, index) => (
+                          <tr
+                            key={app.id}
+                            className={`cursor-pointer transition-colors can-hover:hover:bg-muted/40 ${index !== 0 ? 'border-t border-border' : ''}`}
+                            onClick={() => setSelectedApplication(app)}
+                          >
+                            <td className="px-4 py-3 text-muted-foreground">#{app.id}</td>
+                            <td className="px-4 py-3 font-medium text-foreground">{app.service_name}</td>
+                            <td className="px-4 py-3">
+                              <span className={`text-xs px-2 py-0.5 rounded font-medium ${
+                                app.status === 'approved'
+                                  ? 'bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400'
+                                  : app.status === 'rejected'
+                                  ? 'bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-400'
+                                  : 'bg-yellow-100 dark:bg-yellow-950/50 text-yellow-700 dark:text-yellow-400'
+                              }`}>
+                                {t(`settings.apiKeys.status.${app.status}`)}
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-muted-foreground">{formatDateOnly(app.created_at, siteLanguage)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+
+              {/* Issued Keys sub-section */}
+              <div>
+                <h3 className="text-base font-medium text-foreground mb-3">{t('settings.apiKeys.keysTitle')}</h3>
+
+                {apiKeysLoading ? (
+                  <div className="animate-pulse space-y-3">
+                    {[1, 2].map((i) => (
+                      <div key={i} className="h-12 bg-black/[0.08] dark:bg-muted rounded-lg" />
+                    ))}
+                  </div>
+                ) : apiKeys.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground border border-border rounded-lg">
+                    <KeyIcon className="w-8 h-8 mx-auto mb-3 opacity-50" />
+                    <p className="text-sm">{t('settings.apiKeys.emptyKeys')}</p>
+                  </div>
+                ) : (
+                  <div>
+                    {apiKeys.map((key, index) => (
+                      <div key={key.id}>
+                        {index > 0 && <Separator />}
+                        <div className="flex items-center justify-between py-4">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-sm font-medium text-foreground">{key.name}</span>
+                              <code className="text-xs bg-muted px-2 py-0.5 rounded font-mono text-muted-foreground">
+                                {key.token_prefix}...
+                              </code>
+                            </div>
+                            {key.scopes && key.scopes.length > 0 && (
+                              <div className="flex gap-1 flex-wrap mt-1">
+                                {key.scopes.map((s) => (
+                                  <span key={s} className="text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                                    {s}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                            <div className="flex gap-3 mt-1 text-xs text-muted-foreground">
+                              <span>{t('settings.personalTokenCreatedAt')}: {formatDateOnly(key.created_at, siteLanguage)}</span>
+                              {key.last_used_at && (
+                                <span>{t('settings.personalTokenLastUsed')}: {formatDateOnly(key.last_used_at, siteLanguage)}</span>
+                              )}
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setRevokeKeyId(key.id)}
+                            className="text-red-600 dark:text-red-400 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 flex-shrink-0"
+                          >
+                            {t('settings.apiKeys.revoke.button')}
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Apply Modal */}
+              {showApplyModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                  <div className="absolute inset-0 bg-black/50" onClick={() => !applySubmitting && setShowApplyModal(false)} />
+                  <div className="relative bg-background border border-border rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+                    <div className="p-6">
+                      <h2 className="text-lg font-semibold text-foreground mb-4">{t('settings.apiKeys.modal.title')}</h2>
+
+                      <div className="space-y-4">
+                        <div>
+                          <Label htmlFor="apply-service-name" className="text-sm font-medium mb-1.5 block">
+                            {t('settings.apiKeys.modal.serviceName')}
+                          </Label>
+                          <Input
+                            id="apply-service-name"
+                            type="text"
+                            value={applyServiceName}
+                            onChange={(e) => setApplyServiceName(e.target.value)}
+                            maxLength={255}
+                            className="w-full"
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="apply-service-url" className="text-sm font-medium mb-1.5 block">
+                            {t('settings.apiKeys.modal.serviceUrl')}
+                          </Label>
+                          <Input
+                            id="apply-service-url"
+                            type="url"
+                            value={applyServiceUrl}
+                            onChange={(e) => setApplyServiceUrl(e.target.value)}
+                            placeholder="https://"
+                            className="w-full"
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="apply-purpose" className="text-sm font-medium mb-1.5 block">
+                            {t('settings.apiKeys.modal.purpose')}
+                          </Label>
+                          <textarea
+                            id="apply-purpose"
+                            value={applyPurpose}
+                            onChange={(e) => setApplyPurpose(e.target.value)}
+                            rows={4}
+                            className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                          />
+                          <div className="flex justify-between items-center mt-1">
+                            {applyPurpose.length > 0 && applyPurpose.length < 30 && (
+                              <p className="text-xs text-red-500">{t('settings.apiKeys.modal.purposeMinChars')}</p>
+                            )}
+                            <p className={`text-xs ml-auto ${applyPurpose.length >= 30 ? 'text-muted-foreground' : 'text-red-500'}`}>
+                              {applyPurpose.length} / 30
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
+                          {t('settings.apiKeys.modal.emailNotice', { email: user?.email || '' })}
+                        </div>
+
+                        <label className="flex items-start gap-2 cursor-pointer">
+                          <Checkbox
+                            checked={applyTerms}
+                            onCheckedChange={(checked) => setApplyTerms(checked === true)}
+                            className="mt-0.5"
+                          />
+                          <span className="text-sm text-foreground">{t('settings.apiKeys.modal.terms')}</span>
+                        </label>
+                      </div>
+
+                      <div className="flex gap-2 mt-6 justify-end">
+                        <Button
+                          variant="outline"
+                          onClick={() => setShowApplyModal(false)}
+                          disabled={applySubmitting}
+                        >
+                          {t('settings.apiKeys.modal.cancel')}
+                        </Button>
+                        <Button
+                          onClick={handleApplyApiKey}
+                          disabled={
+                            applySubmitting ||
+                            !applyServiceName.trim() ||
+                            !applyServiceUrl.trim() ||
+                            !(applyServiceUrl.startsWith('http://') || applyServiceUrl.startsWith('https://')) ||
+                            applyPurpose.trim().length < 30 ||
+                            !applyTerms
+                          }
+                          className="relative"
+                        >
+                          <span className={applySubmitting ? 'invisible' : ''}>{t('settings.apiKeys.modal.submit')}</span>
+                          {applySubmitting && <Spinner size="sm" className="text-primary-foreground absolute" />}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Application Detail Modal */}
+              {selectedApplication && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                  <div className="absolute inset-0 bg-black/50" onClick={() => setSelectedApplication(null)} />
+                  <div className="relative bg-background border border-border rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+                    <div className="p-6">
+                      <h2 className="text-lg font-semibold text-foreground mb-4">{t('settings.apiKeys.detail.title')}</h2>
+
+                      <div className="space-y-3 text-sm">
+                        <div>
+                          <span className="text-muted-foreground">ID: </span>
+                          <span className="text-foreground font-medium">#{selectedApplication.id}</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">{t('settings.apiKeys.modal.serviceName')}: </span>
+                          <span className="text-foreground font-medium">{selectedApplication.service_name}</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">{t('settings.apiKeys.modal.serviceUrl')}: </span>
+                          <a
+                            href={selectedApplication.service_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 dark:text-blue-400 underline break-all"
+                          >
+                            {selectedApplication.service_url}
+                          </a>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">{t('settings.apiKeys.modal.purpose')}: </span>
+                          <span className="text-foreground">{selectedApplication.purpose}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-muted-foreground">Status: </span>
+                          <span className={`text-xs px-2 py-0.5 rounded font-medium ${
+                            selectedApplication.status === 'approved'
+                              ? 'bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400'
+                              : selectedApplication.status === 'rejected'
+                              ? 'bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-400'
+                              : 'bg-yellow-100 dark:bg-yellow-950/50 text-yellow-700 dark:text-yellow-400'
+                          }`}>
+                            {t(`settings.apiKeys.status.${selectedApplication.status}`)}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">{t('settings.personalTokenCreatedAt')}: </span>
+                          <span className="text-foreground">{formatDateOnly(selectedApplication.created_at, siteLanguage)}</span>
+                        </div>
+
+                        {selectedApplication.status === 'approved' && selectedApplication.api_key_id && (
+                          <div className="mt-3 p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg">
+                            <p className="text-sm font-medium text-green-800 dark:text-green-200 mb-1">
+                              {t('settings.apiKeys.detail.issuedKeyId')}
+                            </p>
+                            <code className="text-sm font-mono text-green-900 dark:text-green-100 break-all">
+                              {selectedApplication.api_key_id}
+                            </code>
+                            <button
+                              className="mt-2 text-xs text-green-700 dark:text-green-400 underline block"
+                              onClick={() => { setSelectedApplication(null); setActiveTab('api-keys'); }}
+                            >
+                              → {t('settings.apiKeys.keysTitle')}
+                            </button>
+                          </div>
+                        )}
+
+                        {selectedApplication.status === 'rejected' && selectedApplication.reject_reason && (
+                          <div className="mt-3 p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg">
+                            <p className="text-sm font-semibold text-red-800 dark:text-red-300 mb-1">
+                              {t('settings.apiKeys.detail.rejectReason')}
+                            </p>
+                            <p className="text-sm text-red-700 dark:text-red-400">
+                              {selectedApplication.reject_reason}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="mt-6 flex justify-end">
+                        <Button variant="outline" onClick={() => setSelectedApplication(null)}>
+                          {t('settings.apiKeys.modal.cancel')}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Revoke Confirmation Modal */}
+              {revokeKeyId && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                  <div className="absolute inset-0 bg-black/50" onClick={() => !revokingKeyId && setRevokeKeyId(null)} />
+                  <div className="relative bg-background border border-border rounded-xl shadow-xl w-full max-w-sm">
+                    <div className="p-6">
+                      <h2 className="text-lg font-semibold text-foreground mb-2">{t('settings.apiKeys.revoke.title')}</h2>
+                      <p className="text-sm text-muted-foreground mb-6">{t('settings.apiKeys.revoke.confirm')}</p>
+                      <div className="flex gap-2 justify-end">
+                        <Button
+                          variant="outline"
+                          onClick={() => setRevokeKeyId(null)}
+                          disabled={!!revokingKeyId}
+                        >
+                          {t('settings.apiKeys.modal.cancel')}
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          onClick={() => handleRevokeApiKey(revokeKeyId)}
+                          disabled={!!revokingKeyId}
+                          className="relative"
+                        >
+                          <span className={revokingKeyId ? 'invisible' : ''}>{t('settings.apiKeys.revoke.button')}</span>
+                          {revokingKeyId && <Spinner size="sm" className="absolute" />}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

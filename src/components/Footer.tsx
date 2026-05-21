@@ -57,7 +57,7 @@ const Footer: React.FC = () => {
             CLI
           </a>
           <a
-            href={process.env.REACT_APP_DOCS_URL || 'https://share-api.mingyu.dev/docs'}
+            href={process.env.REACT_APP_DOCS_URL || 'https://share-api.mingyu.dev/reference'}
             target="_blank"
             rel="noopener noreferrer"
             className="text-muted-foreground can-hover:hover:text-foreground active:text-foreground text-sm transition-colors"

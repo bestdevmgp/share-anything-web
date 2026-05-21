@@ -50,7 +50,7 @@ const Header: React.FC = () => {
               Try CLI
             </Link>
             <a
-              href={process.env.REACT_APP_DOCS_URL || 'https://share-api.mingyu.dev/docs'}
+              href={process.env.REACT_APP_DOCS_URL || 'https://share-api.mingyu.dev/reference'}
               target="_blank"
               rel="noopener noreferrer"
               className="hidden sm:inline-flex items-center gap-1 pl-3 pr-2.5 py-2 text-sm font-medium text-muted-foreground rounded-sm can-hover:hover:bg-accent active:bg-accent transition-colors"
