@@ -61,7 +61,8 @@
     "theme": "主題",
     "themeLight": "淺色",
     "themeDark": "深色",
-    "themeSystem": "系統"
+    "themeSystem": "系統",
+    "apiDocs": "OpenAPI"
   },
   "preview": {
     "loading": "載入中...",
@@ -490,6 +491,12 @@
     "approveButton": "批准",
     "signInFirst": "請先登入"
   },
+  "docs": {
+    "pageTitle": "API 文件",
+    "pageDescription": "Share Anything 公開 API 使用指南。所有請求皆需透過 X-Personal-Token 標頭進行驗證。",
+    "tokenHint": "尚未有權杖？",
+    "openSettings": "前往設定建立"
+  },
   "cli": {
     "pageTitle": "開始使用 CLI",
     "pageDescription": "也可以從終端輕鬆分享檔案。透過 npm 安裝專用 CLI 工具，或使用 curl 立即開始。",
@@ -545,5 +552,11 @@
     "personalTokenDescription": "發放令牌即可關聯帳戶。可使用資料同步、更大檔案上傳、自訂到期時間、密碼保護等附加功能。",
     "managePersonalTokens": "管理令牌",
     "loginToGetPersonalToken": "登入以取得令牌"
+  },
+  "tokens": {
+    "scopesLabel": "權限",
+    "scope.read": "讀取（下載、查看資訊）",
+    "scope.upload": "上傳",
+    "scope.delete": "刪除"
   }
 }

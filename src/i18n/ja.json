@@ -61,7 +61,8 @@
     "theme": "テーマ",
     "themeLight": "ライト",
     "themeDark": "ダーク",
-    "themeSystem": "システム"
+    "themeSystem": "システム",
+    "apiDocs": "OpenAPI"
   },
   "preview": {
     "loading": "読み込み中...",
@@ -490,6 +491,12 @@
     "approveButton": "承認",
     "signInFirst": "先にサインインしてください"
   },
+  "docs": {
+    "pageTitle": "API ドキュメント",
+    "pageDescription": "Share Anything の公開 API 利用ガイドです。すべてのリクエストは X-Personal-Token ヘッダーで認証します。",
+    "tokenHint": "トークンがまだない場合は",
+    "openSettings": "設定から作成"
+  },
   "cli": {
     "pageTitle": "CLIをはじめる",
     "pageDescription": "ターミナルからもファイルを簡単に共有できます。npmで専用CLIツールをインストールするか、curlですぐに使用できます。",
@@ -545,5 +552,11 @@
     "personalTokenDescription": "トークンを発行してアカウントを連携できます。データ同期、大容量アップロード、有効期限の設定、パスワード保護などの追加機能を利用できます。",
     "managePersonalTokens": "トークン管理",
     "loginToGetPersonalToken": "ログインしてトークンを発行"
+  },
+  "tokens": {
+    "scopesLabel": "権限",
+    "scope.read": "読取 (ダウンロード・情報取得)",
+    "scope.upload": "アップロード",
+    "scope.delete": "削除"
   }
 }

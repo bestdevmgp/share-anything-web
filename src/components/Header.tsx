@@ -45,16 +45,24 @@ const Header: React.FC = () => {
           <div className="flex items-center space-x-2">
             <Link
               to="/cli"
-              className="hidden sm:inline-flex items-center gap-1 pl-3 pr-2 py-1.5 text-xs font-medium text-muted-foreground can-hover:hover:text-foreground active:text-foreground border border-border can-hover:hover:border-foreground/20 active:border-foreground/20 rounded-md transition-colors"
+              className="hidden sm:inline-flex items-center px-3 py-2 text-sm font-medium text-muted-foreground rounded-sm can-hover:hover:bg-accent active:bg-accent transition-colors"
             >
               Try CLI
+            </Link>
+            <a
+              href={process.env.REACT_APP_DOCS_URL || 'https://share-api.mingyu.dev/docs'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:inline-flex items-center gap-1 pl-3 pr-2.5 py-2 text-sm font-medium text-muted-foreground rounded-sm can-hover:hover:bg-accent active:bg-accent transition-colors"
+            >
+              OpenAPI
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
                 <path fillRule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clipRule="evenodd" />
               </svg>
-            </Link>
+            </a>
             {isAuthenticated && user ? (
               <DropdownMenu>
-                <DropdownMenuTrigger className="group flex items-center space-x-2 active:bg-accent can-hover:hover:bg-accent rounded-lg px-3 py-2 transition-colors focus:outline-none data-[state=open]:bg-accent">
+                <DropdownMenuTrigger className="group flex items-center space-x-2 active:bg-accent can-hover:hover:bg-accent rounded-sm px-3 py-2 transition-colors focus:outline-none data-[state=open]:bg-accent">
                   {user.profile_image && (
                     <img
                       src={user.profile_image}
@@ -89,7 +97,7 @@ const Header: React.FC = () => {
             ) : (
               <Link
                 to="/signin"
-                className="px-4 py-2 text-sm text-primary can-hover:hover:bg-primary/10 active:bg-primary/10 rounded-lg font-medium"
+                className="px-3.5 py-2 text-sm text-primary can-hover:hover:bg-primary/10 active:bg-primary/10 rounded-sm font-medium transition-colors"
               >
                 {t('header.login')}
               </Link>

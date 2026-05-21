@@ -56,6 +56,14 @@ const Footer: React.FC = () => {
           >
             CLI
           </a>
+          <a
+            href={process.env.REACT_APP_DOCS_URL || 'https://share-api.mingyu.dev/docs'}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground can-hover:hover:text-foreground active:text-foreground text-sm transition-colors"
+          >
+            {t('footer.apiDocs')}
+          </a>
         </div>
 
         <div className="flex justify-center items-center gap-4 mb-6">

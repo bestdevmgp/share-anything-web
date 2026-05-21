@@ -61,7 +61,8 @@
     "theme": "Theme",
     "themeLight": "Light",
     "themeDark": "Dark",
-    "themeSystem": "System"
+    "themeSystem": "System",
+    "apiDocs": "OpenAPI"
   },
   "preview": {
     "loading": "Loading...",
@@ -490,6 +491,12 @@
     "approveButton": "Approve",
     "signInFirst": "Please sign in first"
   },
+  "docs": {
+    "pageTitle": "API Documentation",
+    "pageDescription": "Programmatic access to Share Anything. Authenticate every request with the X-Personal-Token header.",
+    "tokenHint": "Don't have a token yet?",
+    "openSettings": "Create one in Settings"
+  },
   "cli": {
     "pageTitle": "Get Started with CLI",
     "pageDescription": "Share files from your terminal, too. Install the CLI tool via npm, or use curl to get started instantly.",
@@ -545,5 +552,11 @@
     "personalTokenDescription": "Issue a token to link your account. Unlock data sync, larger uploads, custom expiration, password protection, and more.",
     "managePersonalTokens": "Manage tokens",
     "loginToGetPersonalToken": "Sign in to get a token"
+  },
+  "tokens": {
+    "scopesLabel": "Scopes",
+    "scope.read": "Read (download, view info)",
+    "scope.upload": "Upload",
+    "scope.delete": "Delete"
   }
 }

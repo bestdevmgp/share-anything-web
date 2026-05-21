@@ -10,6 +10,7 @@ import { formatDateOnly, formatDateTime } from 'utils/format';
 import { ensureDeviceId } from 'utils/deviceId';
 import type { Session, TrustedDevice } from 'types';
 import { Button } from 'components/ui/button';
+import { Checkbox } from 'components/ui/checkbox';
 import { Input } from 'components/ui/input';
 import { Switch } from 'components/ui/switch';
 import { Label } from 'components/ui/label';
@@ -28,6 +29,7 @@ interface PersonalTokenItem {
   last_used_at: string | null;
   expires_at: string | null;
   created_at: string;
+  scopes?: string[];
 }
 
 const langOptions = [
@@ -80,9 +82,14 @@ const SettingsPage: React.FC = () => {
   const [personalTokens, setPersonalTokens] = useState<PersonalTokenItem[]>([]);
   const [personalTokensLoading, setPersonalTokensLoading] = useState(false);
   const [newTokenName, setNewTokenName] = useState('');
+  const [scopes, setScopes] = useState<Array<'read' | 'upload' | 'delete'>>(['read', 'upload', 'delete']);
   const [createdToken, setCreatedToken] = useState<string | null>(null);
   const [creatingToken, setCreatingToken] = useState(false);
   const [copiedToken, setCopiedToken] = useState(false);
+
+  const toggleScope = (s: 'read' | 'upload' | 'delete') => {
+    setScopes((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
+  };
 
   const [editName, setEditName] = useState('');
   const [savingName, setSavingName] = useState(false);
@@ -273,9 +280,10 @@ const SettingsPage: React.FC = () => {
   const handleCreatePersonalToken = async () => {
     setCreatingToken(true);
     try {
-      const result = await personalTokenAPI.generate(newTokenName || undefined);
+      const result = await personalTokenAPI.generate(newTokenName || undefined, undefined, scopes);
       setCreatedToken(result.personal_token);
       setNewTokenName('');
+      setScopes(['read', 'upload', 'delete']);
       const tokens = await personalTokenAPI.list();
       setPersonalTokens(tokens);
     } catch {
@@ -1010,27 +1018,38 @@ const SettingsPage: React.FC = () => {
               </div>
 
               <div className="mb-6">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:max-w-sm">
-                  <Input
-                    type="text"
-                    value={newTokenName}
-                    onChange={(e) => setNewTokenName(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && !creatingToken) {
-                        handleCreatePersonalToken();
-                      }
-                    }}
-                    placeholder={t('settings.personalTokenNamePlaceholder')}
-                    className="flex-1 h-10 rounded-lg px-4 text-sm"
-                  />
-                  <Button
-                    onClick={handleCreatePersonalToken}
-                    disabled={creatingToken}
-                    className="flex-shrink-0 relative h-10"
-                  >
-                    <span className={creatingToken ? 'invisible' : ''}>{t('settings.createPersonalToken')}</span>
-                    {creatingToken && <Spinner size="sm" className="text-primary-foreground absolute" />}
-                  </Button>
+                <div className="flex flex-col gap-3 sm:max-w-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <Input
+                      type="text"
+                      value={newTokenName}
+                      onChange={(e) => setNewTokenName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !creatingToken) {
+                          handleCreatePersonalToken();
+                        }
+                      }}
+                      placeholder={t('settings.personalTokenNamePlaceholder')}
+                      className="flex-1 h-10 rounded-lg px-4 text-sm"
+                    />
+                    <Button
+                      onClick={handleCreatePersonalToken}
+                      disabled={creatingToken || scopes.length === 0}
+                      className="flex-shrink-0 relative h-10"
+                    >
+                      <span className={creatingToken ? 'invisible' : ''}>{t('settings.createPersonalToken')}</span>
+                      {creatingToken && <Spinner size="sm" className="text-primary-foreground absolute" />}
+                    </Button>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">{t('tokens.scopesLabel')}</label>
+                    {(['read', 'upload', 'delete'] as const).map((s) => (
+                      <label key={s} className="flex items-center gap-2 text-sm cursor-pointer">
+                        <Checkbox checked={scopes.includes(s)} onCheckedChange={() => toggleScope(s)} />
+                        <span>{t(`tokens.scope.${s}`)}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
 
                 {createdToken && (
@@ -1078,12 +1097,21 @@ const SettingsPage: React.FC = () => {
                       {index > 0 && <Separator />}
                       <div className="flex items-center justify-between py-4">
                       <div className="min-w-0">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-sm font-medium text-foreground">{token.name}</span>
                           <code className="text-xs bg-muted px-2 py-0.5 rounded font-mono text-muted-foreground">
                             {token.token_prefix}...
                           </code>
                         </div>
+                        {token.scopes && token.scopes.length > 0 && (
+                          <div className="flex gap-1 flex-wrap mt-1">
+                            {token.scopes.map((s) => (
+                              <span key={s} className="text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                                {s}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                         <div className="flex gap-3 mt-1 text-xs text-muted-foreground">
                           <span>
                             {t('settings.personalTokenCreatedAt')}: {formatDateOnly(token.created_at, siteLanguage)}
