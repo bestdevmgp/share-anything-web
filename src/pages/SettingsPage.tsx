@@ -18,7 +18,7 @@ import { Label } from 'components/ui/label';
 import { Separator } from 'components/ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from 'components/ui/popover';
 import { Spinner } from 'components/ui/spinner';
-import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, KeyIcon, ExclamationTriangleIcon, EnvelopeIcon, CommandLineIcon } from '@heroicons/react/24/outline';
+import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, KeyIcon, ExclamationTriangleIcon, EnvelopeIcon, CommandLineIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { providerLogoMap } from 'utils/providerLogos';
 
 type Tab = 'notifications' | 'general' | 'account' | 'sessions' | 'personal-tokens' | 'api-keys';
@@ -1283,10 +1283,10 @@ const SettingsPage: React.FC = () => {
                             <td className="px-4 py-3">
                               <span className={`text-xs px-2 py-0.5 rounded font-medium ${
                                 app.status === 'approved'
-                                  ? 'bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400'
+                                  ? 'bg-green-600 text-white'
                                   : app.status === 'rejected'
-                                  ? 'bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-400'
-                                  : 'bg-yellow-100 dark:bg-yellow-950/50 text-yellow-700 dark:text-yellow-400'
+                                  ? 'bg-red-600 text-white'
+                                  : 'bg-yellow-600 text-white'
                               }`}>
                                 {t(`settings.apiKeys.status.${app.status}`)}
                               </span>
@@ -1362,10 +1362,19 @@ const SettingsPage: React.FC = () => {
               {/* Apply Modal */}
               {showApplyModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                  <div className="absolute inset-0 bg-black/50" onClick={() => !applySubmitting && setShowApplyModal(false)} />
-                  <div className="relative bg-background border border-border rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-                    <div className="p-6">
-                      <h2 className="text-lg font-semibold text-foreground mb-4">{t('settings.apiKeys.modal.title')}</h2>
+                  <div className="absolute inset-0 bg-black/50" />
+                  <div className="relative bg-background border border-border rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
+                    <button
+                      type="button"
+                      onClick={() => !applySubmitting && setShowApplyModal(false)}
+                      disabled={applySubmitting}
+                      className="absolute top-4 right-4 z-10 p-1.5 rounded-md text-muted-foreground can-hover:hover:bg-accent can-hover:hover:text-foreground transition-colors disabled:opacity-50"
+                      aria-label="Close"
+                    >
+                      <XMarkIcon className="w-5 h-5" />
+                    </button>
+                    <div className="p-8">
+                      <h2 className="text-xl font-semibold text-foreground mb-6">{t('settings.apiKeys.modal.title')}</h2>
 
                       <div className="space-y-4">
                         <div>
@@ -1412,7 +1421,7 @@ const SettingsPage: React.FC = () => {
                               <p className="text-xs text-red-500">{t('settings.apiKeys.modal.purposeMinChars')}</p>
                             )}
                             <p className={`text-xs ml-auto ${applyPurpose.length >= 30 ? 'text-muted-foreground' : 'text-red-500'}`}>
-                              {applyPurpose.length} / 30
+                              {applyPurpose.length}
                             </p>
                           </div>
                         </div>
@@ -1463,21 +1472,29 @@ const SettingsPage: React.FC = () => {
               {/* Application Detail Modal */}
               {selectedApplication && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                  <div className="absolute inset-0 bg-black/50" onClick={() => setSelectedApplication(null)} />
-                  <div className="relative bg-background border border-border rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-                    <div className="p-6">
-                      <h2 className="text-lg font-semibold text-foreground mb-4">{t('settings.apiKeys.detail.title')}</h2>
+                  <div className="absolute inset-0 bg-black/50" />
+                  <div className="relative bg-background border border-border rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedApplication(null)}
+                      className="absolute top-4 right-4 z-10 p-1.5 rounded-md text-muted-foreground can-hover:hover:bg-accent can-hover:hover:text-foreground transition-colors"
+                      aria-label="Close"
+                    >
+                      <XMarkIcon className="w-5 h-5" />
+                    </button>
+                    <div className="p-8 min-w-0">
+                      <h2 className="text-xl font-semibold text-foreground mb-6">{t('settings.apiKeys.detail.title')}</h2>
 
-                      <div className="space-y-3 text-sm">
-                        <div>
+                      <div className="space-y-3 text-sm min-w-0">
+                        <div className="break-words">
                           <span className="text-muted-foreground">ID: </span>
                           <span className="text-foreground font-medium">#{selectedApplication.id}</span>
                         </div>
-                        <div>
+                        <div className="break-words">
                           <span className="text-muted-foreground">{t('settings.apiKeys.modal.serviceName')}: </span>
                           <span className="text-foreground font-medium">{selectedApplication.service_name}</span>
                         </div>
-                        <div>
+                        <div className="break-words">
                           <span className="text-muted-foreground">{t('settings.apiKeys.modal.serviceUrl')}: </span>
                           <a
                             href={selectedApplication.service_url}
@@ -1488,18 +1505,18 @@ const SettingsPage: React.FC = () => {
                             {selectedApplication.service_url}
                           </a>
                         </div>
-                        <div>
+                        <div className="break-words">
                           <span className="text-muted-foreground">{t('settings.apiKeys.modal.purpose')}: </span>
-                          <span className="text-foreground">{selectedApplication.purpose}</span>
+                          <span className="text-foreground whitespace-pre-wrap">{selectedApplication.purpose}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-muted-foreground">Status: </span>
                           <span className={`text-xs px-2 py-0.5 rounded font-medium ${
                             selectedApplication.status === 'approved'
-                              ? 'bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-400'
+                              ? 'bg-green-600 text-white'
                               : selectedApplication.status === 'rejected'
-                              ? 'bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-400'
-                              : 'bg-yellow-100 dark:bg-yellow-950/50 text-yellow-700 dark:text-yellow-400'
+                              ? 'bg-red-600 text-white'
+                              : 'bg-yellow-600 text-white'
                           }`}>
                             {t(`settings.apiKeys.status.${selectedApplication.status}`)}
                           </span>
