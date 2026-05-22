@@ -645,12 +645,12 @@ export const sessionAPI = {
 };
 
 export const personalTokenAPI = {
-  generate: async (name?: string, expiresInDays?: number, scopes?: string[]): Promise<{ id: string; personal_token: string; token_prefix: string; name: string; expires_at: string | null; created_at: string }> => {
-    const response = await api.post('/user/personal-tokens', { name, expires_in_days: expiresInDays, scopes });
+  generate: async (name?: string, expiresInDays?: number): Promise<{ id: string; personal_token: string; token_prefix: string; name: string; expires_at: string | null; created_at: string }> => {
+    const response = await api.post('/user/personal-tokens', { name, expires_in_days: expiresInDays });
     return response.data;
   },
 
-  list: async (): Promise<{ id: string; token_prefix: string; name: string; last_used_at: string | null; expires_at: string | null; created_at: string; scopes?: string[] }[]> => {
+  list: async (): Promise<{ id: string; token_prefix: string; name: string; last_used_at: string | null; expires_at: string | null; created_at: string }[]> => {
     const response = await api.get('/user/personal-tokens');
     return response.data;
   },
@@ -664,6 +664,7 @@ export interface ApiKeyApplicationRequest {
   service_name: string;
   service_url: string;
   purpose: string;
+  scopes: string[];
 }
 
 export interface ApiKeyApplicationResponse {
@@ -676,6 +677,7 @@ export interface ApiKeyApplicationResponse {
   api_key_id: string | null;
   created_at: string;
   reviewed_at: string | null;
+  scopes: string[];
 }
 
 export interface ApiKeyItem {

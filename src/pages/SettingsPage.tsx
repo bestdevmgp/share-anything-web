@@ -30,7 +30,6 @@ interface PersonalTokenItem {
   last_used_at: string | null;
   expires_at: string | null;
   created_at: string;
-  scopes?: string[];
 }
 
 const langOptions = [
@@ -84,14 +83,9 @@ const SettingsPage: React.FC = () => {
   const [personalTokens, setPersonalTokens] = useState<PersonalTokenItem[]>([]);
   const [personalTokensLoading, setPersonalTokensLoading] = useState(false);
   const [newTokenName, setNewTokenName] = useState('');
-  const [scopes, setScopes] = useState<Array<'read' | 'upload' | 'delete'>>(['read', 'upload', 'delete']);
   const [createdToken, setCreatedToken] = useState<string | null>(null);
   const [creatingToken, setCreatingToken] = useState(false);
   const [copiedToken, setCopiedToken] = useState(false);
-
-  const toggleScope = (s: 'read' | 'upload' | 'delete') => {
-    setScopes((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
-  };
 
   const [apiApplications, setApiApplications] = useState<ApiKeyApplicationResponse[]>([]);
   const [apiApplicationsLoading, setApiApplicationsLoading] = useState(false);
@@ -101,8 +95,13 @@ const SettingsPage: React.FC = () => {
   const [applyServiceName, setApplyServiceName] = useState('');
   const [applyServiceUrl, setApplyServiceUrl] = useState('');
   const [applyPurpose, setApplyPurpose] = useState('');
+  const [applyScopes, setApplyScopes] = useState<Array<'read' | 'upload' | 'delete'>>(['read', 'upload', 'delete']);
   const [applyTerms, setApplyTerms] = useState(false);
   const [applySubmitting, setApplySubmitting] = useState(false);
+
+  const toggleApplyScope = (s: 'read' | 'upload' | 'delete') => {
+    setApplyScopes((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
+  };
   const [selectedApplication, setSelectedApplication] = useState<ApiKeyApplicationResponse | null>(null);
   const [revokeKeyId, setRevokeKeyId] = useState<string | null>(null);
   const [revokingKeyId, setRevokingKeyId] = useState<string | null>(null);
@@ -321,10 +320,9 @@ const SettingsPage: React.FC = () => {
   const handleCreatePersonalToken = async () => {
     setCreatingToken(true);
     try {
-      const result = await personalTokenAPI.generate(newTokenName || undefined, undefined, scopes);
+      const result = await personalTokenAPI.generate(newTokenName || undefined, undefined);
       setCreatedToken(result.personal_token);
       setNewTokenName('');
-      setScopes(['read', 'upload', 'delete']);
       const tokens = await personalTokenAPI.list();
       setPersonalTokens(tokens);
     } catch {
@@ -351,11 +349,13 @@ const SettingsPage: React.FC = () => {
         service_name: applyServiceName.trim(),
         service_url: applyServiceUrl.trim(),
         purpose: applyPurpose.trim(),
+        scopes: applyScopes,
       });
       setShowApplyModal(false);
       setApplyServiceName('');
       setApplyServiceUrl('');
       setApplyPurpose('');
+      setApplyScopes(['read', 'upload', 'delete']);
       setApplyTerms(false);
       toast.success(t('settings.apiKeys.toast.applied'));
       const applications = await apiKeyAPI.listApplications();
@@ -446,11 +446,17 @@ const SettingsPage: React.FC = () => {
                 <div className="h-[34px] flex items-center px-3 md:hidden">
                   <div className="h-[18px] bg-black/[0.08] dark:bg-muted rounded w-8" />
                 </div>
+                <div className="h-[34px] flex items-center px-3 md:hidden">
+                  <div className="h-[18px] bg-black/[0.08] dark:bg-muted rounded w-8" />
+                </div>
               </div>
               <div className="hidden md:block pt-3 mt-3 border-t border-black/15 dark:border-border">
                 <div className="h-3 bg-black/[0.08] dark:bg-muted rounded w-10 mx-3 mb-2" />
               </div>
-              <div className="hidden md:block">
+              <div className="hidden md:block space-y-1">
+                <div className="h-[34px] flex items-center px-3">
+                  <div className="h-[18px] bg-black/[0.08] dark:bg-muted rounded w-4/5" />
+                </div>
                 <div className="h-[34px] flex items-center px-3">
                   <div className="h-[18px] bg-black/[0.08] dark:bg-muted rounded w-4/5" />
                 </div>
@@ -1126,21 +1132,12 @@ const SettingsPage: React.FC = () => {
                     />
                     <Button
                       onClick={handleCreatePersonalToken}
-                      disabled={creatingToken || scopes.length === 0}
+                      disabled={creatingToken}
                       className="flex-shrink-0 relative h-10"
                     >
                       <span className={creatingToken ? 'invisible' : ''}>{t('settings.createPersonalToken')}</span>
                       {creatingToken && <Spinner size="sm" className="text-primary-foreground absolute" />}
                     </Button>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">{t('tokens.scopesLabel')}</label>
-                    {(['read', 'upload', 'delete'] as const).map((s) => (
-                      <label key={s} className="flex items-center gap-2 text-sm cursor-pointer">
-                        <Checkbox checked={scopes.includes(s)} onCheckedChange={() => toggleScope(s)} />
-                        <span>{t(`tokens.scope.${s}`)}</span>
-                      </label>
-                    ))}
                   </div>
                 </div>
 
@@ -1195,15 +1192,6 @@ const SettingsPage: React.FC = () => {
                             {token.token_prefix}...
                           </code>
                         </div>
-                        {token.scopes && token.scopes.length > 0 && (
-                          <div className="flex gap-1 flex-wrap mt-1">
-                            {token.scopes.map((s) => (
-                              <span key={s} className="text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
-                                {s}
-                              </span>
-                            ))}
-                          </div>
-                        )}
                         <div className="flex gap-3 mt-1 text-xs text-muted-foreground">
                           <span>
                             {t('settings.personalTokenCreatedAt')}: {formatDateOnly(token.created_at, siteLanguage)}
@@ -1264,10 +1252,11 @@ const SettingsPage: React.FC = () => {
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm border border-border rounded-lg overflow-hidden">
                       <thead>
-                        <tr className="bg-muted/50">
+                        <tr className="bg-muted">
                           <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">ID</th>
                           <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">{t('settings.apiKeys.modal.serviceName')}</th>
-                          <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">Status</th>
+                          <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">{t('settings.apiKeys.scopesColumn')}</th>
+                          <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">{t('settings.apiKeys.statusLabel')}</th>
                           <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">{t('settings.personalTokenCreatedAt')}</th>
                         </tr>
                       </thead>
@@ -1281,7 +1270,18 @@ const SettingsPage: React.FC = () => {
                             <td className="px-4 py-3 text-muted-foreground">#{app.id}</td>
                             <td className="px-4 py-3 font-medium text-foreground">{app.service_name}</td>
                             <td className="px-4 py-3">
-                              <span className={`text-xs px-2 py-0.5 rounded font-medium ${
+                              {app.scopes && app.scopes.length > 0 && (
+                                <div className="flex gap-1 flex-wrap">
+                                  {app.scopes.map((s) => (
+                                    <span key={s} className="text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                                      {s}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
                                 app.status === 'approved'
                                   ? 'bg-green-600 text-white'
                                   : app.status === 'rejected'
@@ -1363,18 +1363,18 @@ const SettingsPage: React.FC = () => {
               {showApplyModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                   <div className="absolute inset-0 bg-black/50" />
-                  <div className="relative bg-background border border-border rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
+                  <div className="relative bg-background border border-border rounded-xl shadow-xl w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
                     <button
                       type="button"
                       onClick={() => !applySubmitting && setShowApplyModal(false)}
                       disabled={applySubmitting}
-                      className="absolute top-4 right-4 z-10 p-1.5 rounded-md text-muted-foreground can-hover:hover:bg-accent can-hover:hover:text-foreground transition-colors disabled:opacity-50"
+                      className="absolute top-4 right-4 z-10 p-1.5 rounded-lg opacity-70 transition-opacity can-hover:hover:opacity-100 can-hover:hover:bg-accent active:opacity-100 active:bg-accent focus:outline-none disabled:pointer-events-none"
                       aria-label="Close"
                     >
                       <XMarkIcon className="w-5 h-5" />
                     </button>
-                    <div className="p-8">
-                      <h2 className="text-xl font-semibold text-foreground mb-6">{t('settings.apiKeys.modal.title')}</h2>
+                    <div className="p-6 md:p-8 lg:p-10">
+                      <h2 className="text-lg md:text-xl lg:text-2xl font-semibold text-foreground mb-6">{t('settings.apiKeys.modal.title')}</h2>
 
                       <div className="space-y-4">
                         <div>
@@ -1414,7 +1414,7 @@ const SettingsPage: React.FC = () => {
                             value={applyPurpose}
                             onChange={(e) => setApplyPurpose(e.target.value)}
                             rows={4}
-                            className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                            className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                           />
                           <div className="flex justify-between items-center mt-1">
                             {applyPurpose.length > 0 && applyPurpose.length < 30 && (
@@ -1423,6 +1423,21 @@ const SettingsPage: React.FC = () => {
                             <p className={`text-xs ml-auto ${applyPurpose.length >= 30 ? 'text-muted-foreground' : 'text-red-500'}`}>
                               {applyPurpose.length}
                             </p>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium mb-1.5 block">
+                            {t('settings.apiKeys.modal.scopesLabel')}
+                            <span className="text-xs font-normal text-muted-foreground ml-1.5">{t('settings.apiKeys.modal.scopesHint')}</span>
+                          </label>
+                          <div className="space-y-2">
+                            {(['read', 'upload', 'delete'] as const).map((s) => (
+                              <label key={s} className="flex items-center gap-2 text-sm cursor-pointer">
+                                <Checkbox checked={applyScopes.includes(s)} onCheckedChange={() => toggleApplyScope(s)} />
+                                <span>{t(`settings.apiKeys.modal.scope.${s}`)}</span>
+                              </label>
+                            ))}
                           </div>
                         </div>
 
@@ -1456,6 +1471,7 @@ const SettingsPage: React.FC = () => {
                             !applyServiceUrl.trim() ||
                             !(applyServiceUrl.startsWith('http://') || applyServiceUrl.startsWith('https://')) ||
                             applyPurpose.trim().length < 30 ||
+                            applyScopes.length === 0 ||
                             !applyTerms
                           }
                           className="relative"
@@ -1473,17 +1489,17 @@ const SettingsPage: React.FC = () => {
               {selectedApplication && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                   <div className="absolute inset-0 bg-black/50" />
-                  <div className="relative bg-background border border-border rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
+                  <div className="relative bg-background border border-border rounded-xl shadow-xl w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
                     <button
                       type="button"
                       onClick={() => setSelectedApplication(null)}
-                      className="absolute top-4 right-4 z-10 p-1.5 rounded-md text-muted-foreground can-hover:hover:bg-accent can-hover:hover:text-foreground transition-colors"
+                      className="absolute top-4 right-4 z-10 p-1.5 rounded-lg opacity-70 transition-opacity can-hover:hover:opacity-100 can-hover:hover:bg-accent active:opacity-100 active:bg-accent focus:outline-none disabled:pointer-events-none"
                       aria-label="Close"
                     >
                       <XMarkIcon className="w-5 h-5" />
                     </button>
-                    <div className="p-8 min-w-0">
-                      <h2 className="text-xl font-semibold text-foreground mb-6">{t('settings.apiKeys.detail.title')}</h2>
+                    <div className="p-6 md:p-8 lg:p-10 min-w-0">
+                      <h2 className="text-lg md:text-xl lg:text-2xl font-semibold text-foreground mb-6">{t('settings.apiKeys.detail.title')}</h2>
 
                       <div className="space-y-3 text-sm min-w-0">
                         <div className="break-words">
@@ -1510,8 +1526,8 @@ const SettingsPage: React.FC = () => {
                           <span className="text-foreground whitespace-pre-wrap">{selectedApplication.purpose}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-muted-foreground">Status: </span>
-                          <span className={`text-xs px-2 py-0.5 rounded font-medium ${
+                          <span className="text-muted-foreground">{t('settings.apiKeys.statusLabel')}: </span>
+                          <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
                             selectedApplication.status === 'approved'
                               ? 'bg-green-600 text-white'
                               : selectedApplication.status === 'rejected'
@@ -1521,6 +1537,18 @@ const SettingsPage: React.FC = () => {
                             {t(`settings.apiKeys.status.${selectedApplication.status}`)}
                           </span>
                         </div>
+                        {selectedApplication.scopes && selectedApplication.scopes.length > 0 && (
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-muted-foreground">{t('settings.apiKeys.detail.scopes')}: </span>
+                            <div className="flex gap-1 flex-wrap">
+                              {selectedApplication.scopes.map((s) => (
+                                <span key={s} className="text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                                  {s}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                         <div>
                           <span className="text-muted-foreground">{t('settings.personalTokenCreatedAt')}: </span>
                           <span className="text-foreground">{formatDateOnly(selectedApplication.created_at, siteLanguage)}</span>
@@ -1569,7 +1597,7 @@ const SettingsPage: React.FC = () => {
               {revokeKeyId && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                   <div className="absolute inset-0 bg-black/50" onClick={() => !revokingKeyId && setRevokeKeyId(null)} />
-                  <div className="relative bg-background border border-border rounded-xl shadow-xl w-full max-w-sm">
+                  <div className="relative bg-background border border-border rounded-xl shadow-xl w-full max-w-sm sm:max-w-md md:max-w-lg">
                     <div className="p-6">
                       <h2 className="text-lg font-semibold text-foreground mb-2">{t('settings.apiKeys.revoke.title')}</h2>
                       <p className="text-sm text-muted-foreground mb-6">{t('settings.apiKeys.revoke.confirm')}</p>
