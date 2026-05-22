@@ -665,6 +665,7 @@ export interface ApiKeyApplicationRequest {
   service_url: string;
   purpose: string;
   scopes: string[];
+  tz_offset_minutes: number;
 }
 
 export interface ApiKeyApplicationResponse {
@@ -672,7 +673,7 @@ export interface ApiKeyApplicationResponse {
   service_name: string;
   service_url: string;
   purpose: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'cancelled';
   reject_reason: string | null;
   api_key_id: string | null;
   created_at: string;
@@ -704,6 +705,10 @@ export const apiKeyAPI = {
   getApplication: async (id: number): Promise<ApiKeyApplicationResponse> => {
     const response = await api.get(`/user/api-keys/applications/${id}`);
     return response.data;
+  },
+
+  cancel: async (id: number): Promise<void> => {
+    await api.delete(`/user/api-keys/applications/${id}`);
   },
 
   listKeys: async (): Promise<ApiKeyItem[]> => {

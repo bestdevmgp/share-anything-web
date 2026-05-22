@@ -229,7 +229,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     const pc = await createPeerConnection();
     pcRef.current = pc;
 
-    // 30초 타임아웃 (TURN 릴레이 협상 포함)
     const connectionTimeout = setTimeout(() => {
       if (pc.iceConnectionState !== 'connected' && pc.iceConnectionState !== 'completed') {
         setConnectionFailed(true);

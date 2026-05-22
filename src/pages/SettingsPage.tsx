@@ -18,7 +18,14 @@ import { Label } from 'components/ui/label';
 import { Separator } from 'components/ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from 'components/ui/popover';
 import { Spinner } from 'components/ui/spinner';
-import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, KeyIcon, ExclamationTriangleIcon, EnvelopeIcon, CommandLineIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from 'components/ui/dialog';
+import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, KeyIcon, ExclamationTriangleIcon, EnvelopeIcon, CommandLineIcon } from '@heroicons/react/24/outline';
 import { providerLogoMap } from 'utils/providerLogos';
 
 type Tab = 'notifications' | 'general' | 'account' | 'sessions' | 'personal-tokens' | 'api-keys';
@@ -345,11 +352,13 @@ const SettingsPage: React.FC = () => {
   const handleApplyApiKey = async () => {
     setApplySubmitting(true);
     try {
+      const tzOffsetMinutes = -new Date().getTimezoneOffset();
       await apiKeyAPI.apply({
         service_name: applyServiceName.trim(),
         service_url: applyServiceUrl.trim(),
         purpose: applyPurpose.trim(),
         scopes: applyScopes,
+        tz_offset_minutes: tzOffsetMinutes,
       });
       setShowApplyModal(false);
       setApplyServiceName('');
@@ -1225,7 +1234,6 @@ const SettingsPage: React.FC = () => {
                 <p className="text-sm text-muted-foreground mt-1">{t('settings.apiKeys.subtitle')}</p>
               </div>
 
-              {/* Applications sub-section */}
               <div className="mb-8">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-base font-medium text-foreground">{t('settings.apiKeys.applicationsTitle')}</h3>
@@ -1281,15 +1289,19 @@ const SettingsPage: React.FC = () => {
                               )}
                             </td>
                             <td className="px-4 py-3">
-                              <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-                                app.status === 'approved'
-                                  ? 'bg-green-600 text-white'
-                                  : app.status === 'rejected'
-                                  ? 'bg-red-600 text-white'
-                                  : 'bg-yellow-600 text-white'
-                              }`}>
-                                {t(`settings.apiKeys.status.${app.status}`)}
-                              </span>
+                              {app.status === 'cancelled' ? (
+                                <span className="text-xs text-muted-foreground">{t('settings.apiKeys.status.cancelled')}</span>
+                              ) : (
+                                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                                  app.status === 'approved'
+                                    ? 'bg-green-600 text-white'
+                                    : app.status === 'rejected'
+                                    ? 'bg-red-600 text-white'
+                                    : 'bg-yellow-600 text-white'
+                                }`}>
+                                  {t(`settings.apiKeys.status.${app.status}`)}
+                                </span>
+                              )}
                             </td>
                             <td className="px-4 py-3 text-muted-foreground">{formatDateOnly(app.created_at, siteLanguage)}</td>
                           </tr>
@@ -1300,7 +1312,6 @@ const SettingsPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Issued Keys sub-section */}
               <div>
                 <h3 className="text-base font-medium text-foreground mb-3">{t('settings.apiKeys.keysTitle')}</h3>
 
@@ -1359,148 +1370,127 @@ const SettingsPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Apply Modal */}
-              {showApplyModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                  <div className="absolute inset-0 bg-black/50" />
-                  <div className="relative bg-background border border-border rounded-xl shadow-xl w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
-                    <button
-                      type="button"
-                      onClick={() => !applySubmitting && setShowApplyModal(false)}
-                      disabled={applySubmitting}
-                      className="absolute top-4 right-4 z-10 p-1.5 rounded-lg opacity-70 transition-opacity can-hover:hover:opacity-100 can-hover:hover:bg-accent active:opacity-100 active:bg-accent focus:outline-none disabled:pointer-events-none"
-                      aria-label="Close"
-                    >
-                      <XMarkIcon className="w-5 h-5" />
-                    </button>
-                    <div className="p-6 md:p-8 lg:p-10">
-                      <h2 className="text-lg md:text-xl lg:text-2xl font-semibold text-foreground mb-6">{t('settings.apiKeys.modal.title')}</h2>
+              <Dialog open={showApplyModal} onOpenChange={(open) => { if (!open && !applySubmitting) setShowApplyModal(false); }}>
+                <DialogContent className="w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden p-6 md:p-8 lg:p-10">
+                  <DialogHeader className="mb-6">
+                    <DialogTitle className="text-lg md:text-xl lg:text-2xl">{t('settings.apiKeys.modal.title')}</DialogTitle>
+                  </DialogHeader>
 
-                      <div className="space-y-4">
-                        <div>
-                          <Label htmlFor="apply-service-name" className="text-sm font-medium mb-1.5 block">
-                            {t('settings.apiKeys.modal.serviceName')}
-                          </Label>
-                          <Input
-                            id="apply-service-name"
-                            type="text"
-                            value={applyServiceName}
-                            onChange={(e) => setApplyServiceName(e.target.value)}
-                            maxLength={255}
-                            className="w-full"
-                          />
-                        </div>
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="apply-service-name" className="text-sm font-medium mb-1.5 block">
+                        {t('settings.apiKeys.modal.serviceName')}
+                      </Label>
+                      <Input
+                        id="apply-service-name"
+                        type="text"
+                        value={applyServiceName}
+                        onChange={(e) => setApplyServiceName(e.target.value)}
+                        maxLength={255}
+                        className="w-full"
+                      />
+                    </div>
 
-                        <div>
-                          <Label htmlFor="apply-service-url" className="text-sm font-medium mb-1.5 block">
-                            {t('settings.apiKeys.modal.serviceUrl')}
-                          </Label>
-                          <Input
-                            id="apply-service-url"
-                            type="url"
-                            value={applyServiceUrl}
-                            onChange={(e) => setApplyServiceUrl(e.target.value)}
-                            placeholder="https://"
-                            className="w-full"
-                          />
-                        </div>
+                    <div>
+                      <Label htmlFor="apply-service-url" className="text-sm font-medium mb-1.5 block">
+                        {t('settings.apiKeys.modal.serviceUrl')}
+                      </Label>
+                      <Input
+                        id="apply-service-url"
+                        type="url"
+                        value={applyServiceUrl}
+                        onChange={(e) => setApplyServiceUrl(e.target.value)}
+                        placeholder="https://"
+                        className="w-full"
+                      />
+                    </div>
 
-                        <div>
-                          <Label htmlFor="apply-purpose" className="text-sm font-medium mb-1.5 block">
-                            {t('settings.apiKeys.modal.purpose')}
-                          </Label>
-                          <textarea
-                            id="apply-purpose"
-                            value={applyPurpose}
-                            onChange={(e) => setApplyPurpose(e.target.value)}
-                            rows={4}
-                            className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                          />
-                          <div className="flex justify-between items-center mt-1">
-                            {applyPurpose.length > 0 && applyPurpose.length < 30 && (
-                              <p className="text-xs text-red-500">{t('settings.apiKeys.modal.purposeMinChars')}</p>
-                            )}
-                            <p className={`text-xs ml-auto ${applyPurpose.length >= 30 ? 'text-muted-foreground' : 'text-red-500'}`}>
-                              {applyPurpose.length}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="text-sm font-medium mb-1.5 block">
-                            {t('settings.apiKeys.modal.scopesLabel')}
-                            <span className="text-xs font-normal text-muted-foreground ml-1.5">{t('settings.apiKeys.modal.scopesHint')}</span>
-                          </label>
-                          <div className="space-y-2">
-                            {(['read', 'upload', 'delete'] as const).map((s) => (
-                              <label key={s} className="flex items-center gap-2 text-sm cursor-pointer">
-                                <Checkbox checked={applyScopes.includes(s)} onCheckedChange={() => toggleApplyScope(s)} />
-                                <span>{t(`settings.apiKeys.modal.scope.${s}`)}</span>
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-
-                        <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
-                          {t('settings.apiKeys.modal.emailNotice', { email: user?.email || '' })}
-                        </div>
-
-                        <label className="flex items-start gap-2 cursor-pointer">
-                          <Checkbox
-                            checked={applyTerms}
-                            onCheckedChange={(checked) => setApplyTerms(checked === true)}
-                            className="mt-0.5"
-                          />
-                          <span className="text-sm text-foreground">{t('settings.apiKeys.modal.terms')}</span>
-                        </label>
-                      </div>
-
-                      <div className="flex gap-2 mt-6 justify-end">
-                        <Button
-                          variant="outline"
-                          onClick={() => setShowApplyModal(false)}
-                          disabled={applySubmitting}
-                        >
-                          {t('settings.apiKeys.modal.cancel')}
-                        </Button>
-                        <Button
-                          onClick={handleApplyApiKey}
-                          disabled={
-                            applySubmitting ||
-                            !applyServiceName.trim() ||
-                            !applyServiceUrl.trim() ||
-                            !(applyServiceUrl.startsWith('http://') || applyServiceUrl.startsWith('https://')) ||
-                            applyPurpose.trim().length < 30 ||
-                            applyScopes.length === 0 ||
-                            !applyTerms
-                          }
-                          className="relative"
-                        >
-                          <span className={applySubmitting ? 'invisible' : ''}>{t('settings.apiKeys.modal.submit')}</span>
-                          {applySubmitting && <Spinner size="sm" className="text-primary-foreground absolute" />}
-                        </Button>
+                    <div>
+                      <Label htmlFor="apply-purpose" className="text-sm font-medium mb-1.5 block">
+                        {t('settings.apiKeys.modal.purpose')}
+                      </Label>
+                      <textarea
+                        id="apply-purpose"
+                        value={applyPurpose}
+                        onChange={(e) => setApplyPurpose(e.target.value)}
+                        rows={4}
+                        className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                      />
+                      <div className="flex justify-between items-center mt-1">
+                        {applyPurpose.length > 0 && applyPurpose.length < 30 && (
+                          <p className="text-xs text-red-500">{t('settings.apiKeys.modal.purposeMinChars')}</p>
+                        )}
+                        <p className={`text-xs ml-auto ${applyPurpose.length >= 30 ? 'text-muted-foreground' : 'text-red-500'}`}>
+                          {applyPurpose.length}
+                        </p>
                       </div>
                     </div>
+
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">
+                        {t('settings.apiKeys.modal.scopesLabel')}
+                        <span className="text-xs font-normal text-muted-foreground ml-1.5">{t('settings.apiKeys.modal.scopesHint')}</span>
+                      </label>
+                      <div className="space-y-2">
+                        {(['read', 'upload', 'delete'] as const).map((s) => (
+                          <label key={s} className="flex items-center gap-2 text-sm cursor-pointer">
+                            <Checkbox checked={applyScopes.includes(s)} onCheckedChange={() => toggleApplyScope(s)} />
+                            <span>{t(`settings.apiKeys.modal.scope.${s}`)}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-muted/50 rounded-lg text-sm text-muted-foreground">
+                      {t('settings.apiKeys.modal.emailNotice', { email: user?.email || '' })}
+                    </div>
+
+                    <label className="flex items-start gap-2 cursor-pointer">
+                      <Checkbox
+                        checked={applyTerms}
+                        onCheckedChange={(checked) => setApplyTerms(checked === true)}
+                        className="mt-0.5"
+                      />
+                      <span className="text-sm text-foreground">{t('settings.apiKeys.modal.terms')}</span>
+                    </label>
                   </div>
-                </div>
-              )}
 
-              {/* Application Detail Modal */}
-              {selectedApplication && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                  <div className="absolute inset-0 bg-black/50" />
-                  <div className="relative bg-background border border-border rounded-xl shadow-xl w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedApplication(null)}
-                      className="absolute top-4 right-4 z-10 p-1.5 rounded-lg opacity-70 transition-opacity can-hover:hover:opacity-100 can-hover:hover:bg-accent active:opacity-100 active:bg-accent focus:outline-none disabled:pointer-events-none"
-                      aria-label="Close"
+                  <div className="flex gap-2 mt-6 justify-end">
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowApplyModal(false)}
+                      disabled={applySubmitting}
                     >
-                      <XMarkIcon className="w-5 h-5" />
-                    </button>
-                    <div className="p-6 md:p-8 lg:p-10 min-w-0">
-                      <h2 className="text-lg md:text-xl lg:text-2xl font-semibold text-foreground mb-6">{t('settings.apiKeys.detail.title')}</h2>
+                      {t('settings.apiKeys.modal.cancel')}
+                    </Button>
+                    <Button
+                      onClick={handleApplyApiKey}
+                      disabled={
+                        applySubmitting ||
+                        !applyServiceName.trim() ||
+                        !applyServiceUrl.trim() ||
+                        !(applyServiceUrl.startsWith('http://') || applyServiceUrl.startsWith('https://')) ||
+                        applyPurpose.trim().length < 30 ||
+                        applyScopes.length === 0 ||
+                        !applyTerms
+                      }
+                      className="relative"
+                    >
+                      <span className={applySubmitting ? 'invisible' : ''}>{t('settings.apiKeys.modal.submit')}</span>
+                      {applySubmitting && <Spinner size="sm" className="text-primary-foreground absolute" />}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
 
+              <Dialog open={!!selectedApplication} onOpenChange={(open) => { if (!open) setSelectedApplication(null); }}>
+                <DialogContent className="w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden p-6 md:p-8 lg:p-10 min-w-0">
+                  <DialogHeader className="mb-6">
+                    <DialogTitle className="text-lg md:text-xl lg:text-2xl">{t('settings.apiKeys.detail.title')}</DialogTitle>
+                  </DialogHeader>
+
+                  {selectedApplication && (
+                    <>
                       <div className="space-y-3 text-sm min-w-0">
                         <div className="break-words">
                           <span className="text-muted-foreground">ID: </span>
@@ -1527,15 +1517,19 @@ const SettingsPage: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-muted-foreground">{t('settings.apiKeys.statusLabel')}: </span>
-                          <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-                            selectedApplication.status === 'approved'
-                              ? 'bg-green-600 text-white'
-                              : selectedApplication.status === 'rejected'
-                              ? 'bg-red-600 text-white'
-                              : 'bg-yellow-600 text-white'
-                          }`}>
-                            {t(`settings.apiKeys.status.${selectedApplication.status}`)}
-                          </span>
+                          {selectedApplication.status === 'cancelled' ? (
+                            <span className="text-xs text-muted-foreground">{t('settings.apiKeys.status.cancelled')}</span>
+                          ) : (
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                              selectedApplication.status === 'approved'
+                                ? 'bg-green-600 text-white'
+                                : selectedApplication.status === 'rejected'
+                                ? 'bg-red-600 text-white'
+                                : 'bg-yellow-600 text-white'
+                            }`}>
+                              {t(`settings.apiKeys.status.${selectedApplication.status}`)}
+                            </span>
+                          )}
                         </div>
                         {selectedApplication.scopes && selectedApplication.scopes.length > 0 && (
                           <div className="flex items-center gap-2 flex-wrap">
@@ -1583,46 +1577,58 @@ const SettingsPage: React.FC = () => {
                         )}
                       </div>
 
-                      <div className="mt-6 flex justify-end">
-                        <Button variant="outline" onClick={() => setSelectedApplication(null)}>
-                          {t('settings.apiKeys.modal.cancel')}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
+                      {selectedApplication.status === 'pending' && (
+                        <div className="mt-6 flex justify-end">
+                          <Button
+                            variant="destructive"
+                            onClick={async () => {
+                              if (!window.confirm(t('settings.apiKeys.detail.cancelConfirm'))) return;
+                              try {
+                                await apiKeyAPI.cancel(selectedApplication.id);
+                                setSelectedApplication(null);
+                                const applications = await apiKeyAPI.listApplications();
+                                setApiApplications(applications);
+                                toast.success(t('settings.apiKeys.detail.cancelled'));
+                              } catch {
+                                toast.error(t('settings.updateFailed'));
+                              }
+                            }}
+                          >
+                            {t('settings.apiKeys.detail.cancelButton')}
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </DialogContent>
+              </Dialog>
 
-              {/* Revoke Confirmation Modal */}
-              {revokeKeyId && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                  <div className="absolute inset-0 bg-black/50" onClick={() => !revokingKeyId && setRevokeKeyId(null)} />
-                  <div className="relative bg-background border border-border rounded-xl shadow-xl w-full max-w-sm sm:max-w-md md:max-w-lg">
-                    <div className="p-6">
-                      <h2 className="text-lg font-semibold text-foreground mb-2">{t('settings.apiKeys.revoke.title')}</h2>
-                      <p className="text-sm text-muted-foreground mb-6">{t('settings.apiKeys.revoke.confirm')}</p>
-                      <div className="flex gap-2 justify-end">
-                        <Button
-                          variant="outline"
-                          onClick={() => setRevokeKeyId(null)}
-                          disabled={!!revokingKeyId}
-                        >
-                          {t('settings.apiKeys.modal.cancel')}
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          onClick={() => handleRevokeApiKey(revokeKeyId)}
-                          disabled={!!revokingKeyId}
-                          className="relative"
-                        >
-                          <span className={revokingKeyId ? 'invisible' : ''}>{t('settings.apiKeys.revoke.button')}</span>
-                          {revokingKeyId && <Spinner size="sm" className="absolute" />}
-                        </Button>
-                      </div>
-                    </div>
+              <Dialog open={!!revokeKeyId} onOpenChange={(open) => { if (!open && !revokingKeyId) setRevokeKeyId(null); }}>
+                <DialogContent className="w-full max-w-sm sm:max-w-md md:max-w-lg p-6">
+                  <DialogHeader className="mb-2">
+                    <DialogTitle>{t('settings.apiKeys.revoke.title')}</DialogTitle>
+                    <DialogDescription>{t('settings.apiKeys.revoke.confirm')}</DialogDescription>
+                  </DialogHeader>
+                  <div className="flex gap-2 justify-end mt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => setRevokeKeyId(null)}
+                      disabled={!!revokingKeyId}
+                    >
+                      {t('settings.apiKeys.modal.cancel')}
+                    </Button>
+                    <Button
+                      variant="destructive"
+                      onClick={() => revokeKeyId && handleRevokeApiKey(revokeKeyId)}
+                      disabled={!!revokingKeyId}
+                      className="relative"
+                    >
+                      <span className={revokingKeyId ? 'invisible' : ''}>{t('settings.apiKeys.revoke.button')}</span>
+                      {revokingKeyId && <Spinner size="sm" className="absolute" />}
+                    </Button>
                   </div>
-                </div>
-              )}
+                </DialogContent>
+              </Dialog>
             </div>
           )}
         </div>

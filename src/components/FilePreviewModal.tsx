@@ -365,7 +365,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
 
   return (
     <Dialog open onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="w-auto min-w-[18rem] max-w-[calc(100vw-3rem)] max-h-[calc(100vh-6rem)] overflow-hidden p-0 flex flex-col gap-0">
+      <DialogContent className="w-full max-w-xl sm:max-w-2xl md:max-w-3xl lg:max-w-4xl xl:max-w-5xl max-h-[calc(100vh-6rem)] overflow-hidden p-0 flex flex-col gap-0">
         <DialogHeader className="pl-4 pr-12 pt-[18px] pb-4 flex-shrink-0">
           <DialogTitle className="text-sm font-semibold break-all">{fileName}</DialogTitle>
           <DialogDescription className="text-xs">{formatFileSize(fileSize)}</DialogDescription>

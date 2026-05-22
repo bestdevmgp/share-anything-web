@@ -31,7 +31,6 @@ function extractTextFromRecord(data: Uint8Array): string {
     } else if (code === 10) {
       chars.push('\n');
     } else if (code === 13) {
-      // paragraph end
     } else if (code === 24) {
       chars.push('-');
     } else if (code === 30 || code === 31) {

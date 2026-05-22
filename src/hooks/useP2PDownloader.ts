@@ -106,7 +106,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
         const pc = await createPeerConnection();
         pcRef.current = pc;
 
-        // 10초 연결 타임아웃
         const connectionTimeout = setTimeout(() => {
           if (!isCleaningUpRef.current && !completedRef.current && pc.iceConnectionState !== 'connected' && pc.iceConnectionState !== 'completed') {
             setStatus('error');
@@ -159,7 +158,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
                 setProgress(100);
                 setTimeRemaining('');
 
-                // 100% 표시 후 processing 상태로 전환하여 Blob 생성
                 setTimeout(() => {
                   setStatus('processing');
 

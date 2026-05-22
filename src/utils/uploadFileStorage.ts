@@ -1,7 +1,7 @@
 const DB_NAME = 'ShareAnythingUpload';
 const STORE_NAME = 'pendingFiles';
 const DB_VERSION = 1;
-const MAX_TOTAL_SIZE = 500 * 1024 * 1024; // 500MB
+const MAX_TOTAL_SIZE = 500 * 1024 * 1024;
 
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
