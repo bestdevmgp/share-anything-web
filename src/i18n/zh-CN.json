@@ -57,7 +57,6 @@
   "footer": {
     "privacyPolicy": "隐私政策",
     "termsOfUse": "使用条款",
-    "apiTerms": "OpenAPI 使用条款",
     "language": "语言",
     "theme": "主题",
     "themeLight": "浅色",
@@ -80,8 +79,6 @@
     "downloadDate": "下载日期"
   },
   "home": {
-    "heroTitle": "轻松共享文件",
-    "heroDescription": "无需注册，即可快速安全地共享大文件。选择文件生成共享链接，或输入代码即可下载。",
     "uploadTitle": "发送文件",
     "uploadDescription": "选择文件，获取安全链接。",
     "uploadButton": "发送",
@@ -477,11 +474,9 @@
     "apiKeys.modal.purpose": "使用目的",
     "apiKeys.modal.purposeMinChars": "请输入至少 30 个字符",
     "apiKeys.modal.emailNotice": "申请结果将发送至您当前登录的邮箱（{{email}}）。",
-    "apiKeys.modal.terms": "我同意遵守速率限制及服务条款",
     "apiKeys.modal.termsLinkText": "OpenAPI 使用条款",
     "apiKeys.modal.termsText": "我已阅读并理解 {link}。",
     "apiKeys.modal.scopesLabel": "权限",
-    "apiKeys.modal.scopesHint": "至少选择1项",
     "apiKeys.modal.scope.read": "读取（下载、查看信息）",
     "apiKeys.modal.scope.upload": "上传",
     "apiKeys.modal.scope.delete": "删除",
@@ -543,12 +538,6 @@
     "approveButton": "批准",
     "signInFirst": "请先登录"
   },
-  "docs": {
-    "pageTitle": "API 文档",
-    "pageDescription": "Share Anything 公开 API 使用指南。所有请求需通过 X-Personal-Token 请求头进行身份验证。",
-    "tokenHint": "还没有令牌？",
-    "openSettings": "前往设置创建"
-  },
   "cli": {
     "pageTitle": "开始使用 CLI",
     "pageDescription": "也可以从终端轻松共享文件。通过 npm 安装专用 CLI 工具，或使用 curl 立即开始。",
@@ -604,11 +593,5 @@
     "personalTokenDescription": "发放令牌即可关联账户。可使用数据同步、更大文件上传、自定义过期时间、密码保护等附加功能。",
     "managePersonalTokens": "管理令牌",
     "loginToGetPersonalToken": "登录以获取令牌"
-  },
-  "tokens": {
-    "scopesLabel": "权限",
-    "scope.read": "读取（下载、查看信息）",
-    "scope.upload": "上传",
-    "scope.delete": "删除"
   }
 }

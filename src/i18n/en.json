@@ -57,7 +57,6 @@
   "footer": {
     "privacyPolicy": "Privacy Policy",
     "termsOfUse": "Terms of Use",
-    "apiTerms": "OpenAPI Terms",
     "language": "Language",
     "theme": "Theme",
     "themeLight": "Light",
@@ -80,8 +79,6 @@
     "downloadDate": "Download Date"
   },
   "home": {
-    "heroTitle": "Effortless File Sharing",
-    "heroDescription": "Share large files quickly and securely without signing up. Select files to create a share link, or enter a code to download.",
     "uploadTitle": "Send Files",
     "uploadDescription": "Select files to get a secure link.",
     "uploadButton": "Send",
@@ -477,11 +474,9 @@
     "apiKeys.modal.purpose": "Purpose",
     "apiKeys.modal.purposeMinChars": "Please enter at least 30 characters",
     "apiKeys.modal.emailNotice": "The application result will be sent to your current login email ({{email}}).",
-    "apiKeys.modal.terms": "I agree to comply with the rate limit and terms of service",
     "apiKeys.modal.termsLinkText": "OpenAPI Terms of Use",
     "apiKeys.modal.termsText": "I have read and agreed to the {link}.",
     "apiKeys.modal.scopesLabel": "Scopes",
-    "apiKeys.modal.scopesHint": "Select at least one",
     "apiKeys.modal.scope.read": "Read (download, view info)",
     "apiKeys.modal.scope.upload": "Upload",
     "apiKeys.modal.scope.delete": "Delete",
@@ -543,12 +538,6 @@
     "approveButton": "Approve",
     "signInFirst": "Please sign in first"
   },
-  "docs": {
-    "pageTitle": "API Documentation",
-    "pageDescription": "Programmatic access to Share Anything. Authenticate every request with the X-Personal-Token header.",
-    "tokenHint": "Don't have a token yet?",
-    "openSettings": "Create one in Settings"
-  },
   "cli": {
     "pageTitle": "Get Started with CLI",
     "pageDescription": "Share files from your terminal, too. Install the CLI tool via npm, or use curl to get started instantly.",
@@ -604,11 +593,5 @@
     "personalTokenDescription": "Issue a token to link your account. Unlock data sync, larger uploads, custom expiration, password protection, and more.",
     "managePersonalTokens": "Manage tokens",
     "loginToGetPersonalToken": "Sign in to get a token"
-  },
-  "tokens": {
-    "scopesLabel": "Scopes",
-    "scope.read": "Read (download, view info)",
-    "scope.upload": "Upload",
-    "scope.delete": "Delete"
   }
 }

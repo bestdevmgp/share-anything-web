@@ -57,7 +57,6 @@
   "footer": {
     "privacyPolicy": "隱私權政策",
     "termsOfUse": "服務條款",
-    "apiTerms": "OpenAPI 使用條款",
     "language": "語言",
     "theme": "主題",
     "themeLight": "淺色",
@@ -80,8 +79,6 @@
     "downloadDate": "下載日期"
   },
   "home": {
-    "heroTitle": "輕鬆分享檔案",
-    "heroDescription": "無需註冊，即可快速安全地分享大型檔案。選擇檔案產生分享連結，或輸入代碼下載檔案。",
     "uploadTitle": "傳送檔案",
     "uploadDescription": "選擇檔案，取得安全的分享連結。",
     "uploadButton": "傳送",
@@ -477,11 +474,9 @@
     "apiKeys.modal.purpose": "使用目的",
     "apiKeys.modal.purposeMinChars": "請輸入至少 30 個字元",
     "apiKeys.modal.emailNotice": "申請結果將發送至您目前登入的信箱（{{email}}）。",
-    "apiKeys.modal.terms": "我同意遵守速率限制及服務條款",
     "apiKeys.modal.termsLinkText": "OpenAPI 使用條款",
     "apiKeys.modal.termsText": "我已閱讀並理解 {link}。",
     "apiKeys.modal.scopesLabel": "權限",
-    "apiKeys.modal.scopesHint": "至少選擇1項",
     "apiKeys.modal.scope.read": "讀取（下載、查看資訊）",
     "apiKeys.modal.scope.upload": "上傳",
     "apiKeys.modal.scope.delete": "刪除",
@@ -543,12 +538,6 @@
     "approveButton": "批准",
     "signInFirst": "請先登入"
   },
-  "docs": {
-    "pageTitle": "API 文件",
-    "pageDescription": "Share Anything 公開 API 使用指南。所有請求皆需透過 X-Personal-Token 標頭進行驗證。",
-    "tokenHint": "尚未有權杖？",
-    "openSettings": "前往設定建立"
-  },
   "cli": {
     "pageTitle": "開始使用 CLI",
     "pageDescription": "也可以從終端輕鬆分享檔案。透過 npm 安裝專用 CLI 工具，或使用 curl 立即開始。",
@@ -604,11 +593,5 @@
     "personalTokenDescription": "發放令牌即可關聯帳戶。可使用資料同步、更大檔案上傳、自訂到期時間、密碼保護等附加功能。",
     "managePersonalTokens": "管理令牌",
     "loginToGetPersonalToken": "登入以取得令牌"
-  },
-  "tokens": {
-    "scopesLabel": "權限",
-    "scope.read": "讀取（下載、查看資訊）",
-    "scope.upload": "上傳",
-    "scope.delete": "刪除"
   }
 }

@@ -57,7 +57,6 @@
   "footer": {
     "privacyPolicy": "プライバシーポリシー",
     "termsOfUse": "利用規約",
-    "apiTerms": "OpenAPI 利用規約",
     "language": "言語",
     "theme": "テーマ",
     "themeLight": "ライト",
@@ -80,8 +79,6 @@
     "downloadDate": "ダウンロード日時"
   },
   "home": {
-    "heroTitle": "かんたんファイル共有",
-    "heroDescription": "会員登録不要で、大容量ファイルをすばやく安全に共有できます。ファイルを選択して共有リンクを作成するか、コードを入力してダウンロードできます。",
     "uploadTitle": "ファイルを送る",
     "uploadDescription": "ファイルを選択して安全なリンクを取得しましょう。",
     "uploadButton": "送信",
@@ -477,11 +474,9 @@
     "apiKeys.modal.purpose": "利用目的",
     "apiKeys.modal.purposeMinChars": "30文字以上入力してください",
     "apiKeys.modal.emailNotice": "申請結果は現在ログイン中のメール（{{email}}）に送信されます。",
-    "apiKeys.modal.terms": "レート制限の遵守およびサービス利用規約に同意します",
     "apiKeys.modal.termsLinkText": "OpenAPI 利用規約",
     "apiKeys.modal.termsText": "{link}を理解しました。",
     "apiKeys.modal.scopesLabel": "権限",
-    "apiKeys.modal.scopesHint": "1つ以上選択",
     "apiKeys.modal.scope.read": "読取 (ダウンロード・情報取得)",
     "apiKeys.modal.scope.upload": "アップロード",
     "apiKeys.modal.scope.delete": "削除",
@@ -543,12 +538,6 @@
     "approveButton": "承認",
     "signInFirst": "先にサインインしてください"
   },
-  "docs": {
-    "pageTitle": "API ドキュメント",
-    "pageDescription": "Share Anything の公開 API 利用ガイドです。すべてのリクエストは X-Personal-Token ヘッダーで認証します。",
-    "tokenHint": "トークンがまだない場合は",
-    "openSettings": "設定から作成"
-  },
   "cli": {
     "pageTitle": "CLIをはじめる",
     "pageDescription": "ターミナルからもファイルを簡単に共有できます。npmで専用CLIツールをインストールするか、curlですぐに使用できます。",
@@ -604,11 +593,5 @@
     "personalTokenDescription": "トークンを発行してアカウントを連携できます。データ同期、大容量アップロード、有効期限の設定、パスワード保護などの追加機能を利用できます。",
     "managePersonalTokens": "トークン管理",
     "loginToGetPersonalToken": "ログインしてトークンを発行"
-  },
-  "tokens": {
-    "scopesLabel": "権限",
-    "scope.read": "読取 (ダウンロード・情報取得)",
-    "scope.upload": "アップロード",
-    "scope.delete": "削除"
   }
 }

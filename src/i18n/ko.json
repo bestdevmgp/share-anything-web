@@ -57,7 +57,6 @@
   "footer": {
     "privacyPolicy": "개인정보처리방침",
     "termsOfUse": "이용약관",
-    "apiTerms": "OpenAPI 이용약관",
     "language": "언어",
     "theme": "테마",
     "themeLight": "라이트",
@@ -80,8 +79,6 @@
     "downloadDate": "다운로드 날짜"
   },
   "home": {
-    "heroTitle": "간편한 파일 공유",
-    "heroDescription": "회원가입 없이 빠르고 안전하게 대용량 파일을 공유하세요. 파일을 선택하여 공유 링크를 생성하거나 코드를 입력하여 다운로드할 수 있습니다.",
     "uploadTitle": "파일 보내기",
     "uploadDescription": "파일을 선택하여 안전한 링크를 받으세요.",
     "uploadButton": "보내기",
@@ -477,11 +474,9 @@
     "apiKeys.modal.purpose": "사용 목적",
     "apiKeys.modal.purposeMinChars": "30자 이상 입력해 주세요",
     "apiKeys.modal.emailNotice": "신청 결과는 현재 로그인된 이메일({{email}})로 전송됩니다.",
-    "apiKeys.modal.terms": "Rate limit 준수 및 서비스 약관에 동의합니다",
     "apiKeys.modal.termsLinkText": "OpenAPI 이용약관",
     "apiKeys.modal.termsText": "{link}을 이해하였습니다.",
     "apiKeys.modal.scopesLabel": "권한",
-    "apiKeys.modal.scopesHint": "1개 이상 선택해 주세요",
     "apiKeys.modal.scope.read": "읽기 (다운로드 · 정보 조회)",
     "apiKeys.modal.scope.upload": "업로드",
     "apiKeys.modal.scope.delete": "삭제",
@@ -543,12 +538,6 @@
     "goHome": "홈으로",
     "goSettings": "설정에서 확인하기"
   },
-  "docs": {
-    "pageTitle": "API 문서",
-    "pageDescription": "Share Anything 공개 API 사용 가이드입니다. 모든 요청은 X-Personal-Token 헤더로 인증합니다.",
-    "tokenHint": "토큰이 없다면",
-    "openSettings": "설정에서 발급"
-  },
   "cli": {
     "pageTitle": "CLI 시작하기",
     "pageDescription": "터미널에서도 파일을 간편하게 공유하세요. npm으로 전용 CLI 도구를 설치하거나, curl로 바로 사용할 수 있습니다.",
@@ -604,11 +593,5 @@
     "personalTokenDescription": "토큰을 발급하여 계정을 연동할 수 있습니다. 데이터 동기화, 더 큰 파일 업로드, 만료 시간 설정, 비밀번호 보호 등의 추가 기능을 사용할 수 있습니다.",
     "managePersonalTokens": "토큰 관리",
     "loginToGetPersonalToken": "로그인하여 토큰 발급"
-  },
-  "tokens": {
-    "scopesLabel": "권한",
-    "scope.read": "읽기 (다운로드 · 정보 조회)",
-    "scope.upload": "업로드",
-    "scope.delete": "삭제"
   }
 }
