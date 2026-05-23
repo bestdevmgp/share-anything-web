@@ -677,6 +677,7 @@ export interface ApiKeyApplicationResponse {
   status: 'pending' | 'approved' | 'rejected' | 'cancelled';
   reject_reason: string | null;
   api_key_id: string | null;
+  reveal_token: string | null;
   created_at: string;
   reviewed_at: string | null;
   scopes: string[];
@@ -691,6 +692,7 @@ export interface ApiKeyItem {
   last_used_at: string | null;
   expires_at: string | null;
   created_at: string;
+  reveal_token: string | null;
 }
 
 export interface ApiKeyRevealResponse {

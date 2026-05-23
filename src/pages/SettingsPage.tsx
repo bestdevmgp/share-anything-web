@@ -23,7 +23,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from 'components/ui/dialog';
 import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, KeyIcon, ExclamationTriangleIcon, EnvelopeIcon, CommandLineIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { providerLogoMap } from 'utils/providerLogos';
@@ -159,7 +158,6 @@ const SettingsPage: React.FC = () => {
   }, [showApplyModal, applyServiceName, applyServiceUrl, applyPurpose, applyScopes, applyTerms, applyExpiration, applyCustomDate]);
 
   const [selectedApplication, setSelectedApplication] = useState<ApiKeyApplicationResponse | null>(null);
-  const [revokeKeyId, setRevokeKeyId] = useState<string | null>(null);
   const [revokingKeyId, setRevokingKeyId] = useState<string | null>(null);
 
   const [editName, setEditName] = useState('');
@@ -478,7 +476,6 @@ const SettingsPage: React.FC = () => {
     try {
       await apiKeyAPI.revoke(id);
       setApiKeys(apiKeys.filter(k => k.id !== id));
-      setRevokeKeyId(null);
       toast.success(t('settings.apiKeys.toast.revoked'));
     } catch {
       toast.error(t('settings.updateFailed'));
@@ -1242,26 +1239,27 @@ const SettingsPage: React.FC = () => {
                 </div>
 
                 {createdToken && (
-                  <div className="mt-4 p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg">
-                    <p className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">
+                  <div className="mt-4">
+                    <label className="text-xs text-muted-foreground block mb-2">
                       {t('settings.personalTokenCreated')}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <code className="flex-1 text-sm bg-green-100 dark:bg-green-900/50 px-3 py-2 rounded font-mono break-all text-green-900 dark:text-green-100">
+                    </label>
+                    <div className="relative">
+                      <div className="bg-muted/40 border border-border rounded-md pl-3 pr-12 py-2 font-mono text-sm break-all">
                         {createdToken}
-                      </code>
+                      </div>
                       <button
+                        type="button"
                         onClick={handleCopyToken}
-                        className="p-2 rounded-lg can-hover:hover:bg-green-200 dark:can-hover:hover:bg-green-800 transition-colors flex-shrink-0"
+                        className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-md text-muted-foreground can-hover:hover:text-foreground can-hover:hover:bg-accent transition-colors"
                       >
                         {copiedToken ? (
-                          <CheckIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
+                          <CheckIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                         ) : (
-                          <ClipboardDocumentIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
+                          <ClipboardDocumentIcon className="w-4 h-4" />
                         )}
                       </button>
                     </div>
-                    <p className="text-xs text-green-600 dark:text-green-400 mt-2">
+                    <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
                       {t('settings.personalTokenOnceWarning')}
                     </p>
                   </div>
@@ -1486,7 +1484,12 @@ const SettingsPage: React.FC = () => {
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => setRevokeKeyId(key.id)}
+                                onClick={() => {
+                                  if (window.confirm(t('settings.apiKeys.revoke.confirm'))) {
+                                    handleRevokeApiKey(key.id);
+                                  }
+                                }}
+                                disabled={revokingKeyId === key.id}
                                 className="text-red-600 dark:text-red-400 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15"
                               >
                                 {t('settings.apiKeys.revoke.button')}
@@ -1693,10 +1696,6 @@ const SettingsPage: React.FC = () => {
                     <>
                       <div className="space-y-3 text-sm min-w-0">
                         <div className="break-words">
-                          <span className="text-muted-foreground">ID: </span>
-                          <span className="text-foreground font-medium">#{selectedApplication.id}</span>
-                        </div>
-                        <div className="break-words">
                           <span className="text-muted-foreground">{t('settings.apiKeys.modal.serviceName')}: </span>
                           <span className="text-foreground font-medium">{selectedApplication.service_name}</span>
                         </div>
@@ -1715,22 +1714,22 @@ const SettingsPage: React.FC = () => {
                           <span className="text-muted-foreground">{t('settings.apiKeys.modal.purpose')}: </span>
                           <span className="text-foreground whitespace-pre-wrap">{selectedApplication.purpose}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-muted-foreground">{t('settings.apiKeys.statusLabel')}: </span>
-                          {selectedApplication.status === 'cancelled' ? (
-                            <span className="text-xs text-muted-foreground">{t('settings.apiKeys.status.cancelled')}</span>
-                          ) : (
-                            <span className={`text-xs px-2 py-[3px] rounded-full font-medium ${
-                              selectedApplication.status === 'approved'
-                                ? 'bg-green-600 text-white'
-                                : selectedApplication.status === 'rejected'
-                                ? 'bg-red-600 text-white'
-                                : 'bg-yellow-600 text-white'
-                            }`}>
-                              {t(`settings.apiKeys.status.${selectedApplication.status}`)}
-                            </span>
-                          )}
-                        </div>
+                        {selectedApplication.status !== 'rejected' && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-muted-foreground">{t('settings.apiKeys.statusLabel')}: </span>
+                            {selectedApplication.status === 'cancelled' ? (
+                              <span className="text-xs text-muted-foreground">{t('settings.apiKeys.status.cancelled')}</span>
+                            ) : (
+                              <span className={`text-xs px-2 py-[3px] rounded-full font-medium ${
+                                selectedApplication.status === 'approved'
+                                  ? 'bg-green-600 text-white'
+                                  : 'bg-yellow-600 text-white'
+                              }`}>
+                                {t(`settings.apiKeys.status.${selectedApplication.status}`)}
+                              </span>
+                            )}
+                          </div>
+                        )}
                         {selectedApplication.scopes && selectedApplication.scopes.length > 0 && (
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-muted-foreground">{t('settings.apiKeys.detail.scopes')}: </span>
@@ -1756,34 +1755,31 @@ const SettingsPage: React.FC = () => {
                           </span>
                         </div>
 
-                        {selectedApplication.status === 'approved' && selectedApplication.api_key_id && (
-                          <div className="mt-3 p-3 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg">
-                            <p className="text-sm font-medium text-green-800 dark:text-green-200 mb-1">
-                              {t('settings.apiKeys.detail.issuedKeyId')}
-                            </p>
-                            <code className="text-sm font-mono text-green-900 dark:text-green-100 break-all">
-                              {selectedApplication.api_key_id}
-                            </code>
-                            <button
-                              className="mt-2 text-xs text-green-700 dark:text-green-400 underline block"
-                              onClick={() => { setSelectedApplication(null); setActiveTab('api-keys'); }}
-                            >
-                              → {t('settings.apiKeys.keysTitle')}
-                            </button>
-                          </div>
-                        )}
-
-                        {selectedApplication.status === 'rejected' && selectedApplication.reject_reason && (
-                          <div className="mt-3 p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg">
-                            <p className="text-sm font-semibold text-red-800 dark:text-red-300 mb-1">
-                              {t('settings.apiKeys.detail.rejectReason')}
-                            </p>
-                            <p className="text-sm text-red-700 dark:text-red-400">
-                              {selectedApplication.reject_reason}
-                            </p>
-                          </div>
-                        )}
                       </div>
+
+                      {selectedApplication.status === 'rejected' && (
+                        <>
+                          <Separator className="my-6" />
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-2">
+                              <span className="text-muted-foreground text-sm">{t('settings.apiKeys.statusLabel')}: </span>
+                              <span className="text-xs px-2 py-[3px] rounded-full font-medium bg-red-600 text-white">
+                                {t('settings.apiKeys.status.rejected')}
+                              </span>
+                            </div>
+                            {selectedApplication.reject_reason && (
+                              <div>
+                                <h3 className="text-base font-semibold text-foreground mb-2">
+                                  {t('settings.apiKeys.detail.rejectReason')}
+                                </h3>
+                                <p className="text-sm text-foreground whitespace-pre-wrap">
+                                  {selectedApplication.reject_reason}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </>
+                      )}
 
                       {selectedApplication.status === 'pending' && (
                         <div className="mt-6 flex justify-end">
@@ -1807,37 +1803,19 @@ const SettingsPage: React.FC = () => {
                           </Button>
                         </div>
                       )}
+
+                      {selectedApplication.status === 'approved' && selectedApplication.reveal_token && (
+                        <div className="mt-6 flex justify-end">
+                          <Button onClick={() => navigate(`/api-keys/reveal/${selectedApplication.reveal_token}`)}>
+                            {t('settings.apiKeys.detail.revealButton')}
+                          </Button>
+                        </div>
+                      )}
                     </>
                   )}
                 </DialogContent>
               </Dialog>
 
-              <Dialog open={!!revokeKeyId} onOpenChange={(open) => { if (!open && !revokingKeyId) setRevokeKeyId(null); }}>
-                <DialogContent className="w-[calc(100%-2rem)] max-w-sm sm:max-w-md md:max-w-lg p-6">
-                  <DialogHeader className="mb-2">
-                    <DialogTitle>{t('settings.apiKeys.revoke.title')}</DialogTitle>
-                    <DialogDescription>{t('settings.apiKeys.revoke.confirm')}</DialogDescription>
-                  </DialogHeader>
-                  <div className="flex gap-2 justify-end mt-4">
-                    <Button
-                      variant="outline"
-                      onClick={() => setRevokeKeyId(null)}
-                      disabled={!!revokingKeyId}
-                    >
-                      {t('settings.apiKeys.modal.cancel')}
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      onClick={() => revokeKeyId && handleRevokeApiKey(revokeKeyId)}
-                      disabled={!!revokingKeyId}
-                      className="relative"
-                    >
-                      <span className={revokingKeyId ? 'invisible' : ''}>{t('settings.apiKeys.revoke.button')}</span>
-                      {revokingKeyId && <Spinner size="sm" className="absolute" />}
-                    </Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
             </div>
           )}
         </div>
