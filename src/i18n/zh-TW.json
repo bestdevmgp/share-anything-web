@@ -57,6 +57,7 @@
   "footer": {
     "privacyPolicy": "隱私權政策",
     "termsOfUse": "服務條款",
+    "apiTerms": "OpenAPI 使用條款",
     "language": "語言",
     "theme": "主題",
     "themeLight": "淺色",
@@ -477,6 +478,8 @@
     "apiKeys.modal.purposeMinChars": "請輸入至少 30 個字元",
     "apiKeys.modal.emailNotice": "申請結果將發送至您目前登入的信箱（{{email}}）。",
     "apiKeys.modal.terms": "我同意遵守速率限制及服務條款",
+    "apiKeys.modal.termsLinkText": "OpenAPI 使用條款",
+    "apiKeys.modal.termsText": "我已閱讀並理解 {link}。",
     "apiKeys.modal.scopesLabel": "權限",
     "apiKeys.modal.scopesHint": "至少選擇1項",
     "apiKeys.modal.scope.read": "讀取（下載、查看資訊）",

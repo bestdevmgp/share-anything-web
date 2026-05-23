@@ -57,6 +57,7 @@
   "footer": {
     "privacyPolicy": "隐私政策",
     "termsOfUse": "使用条款",
+    "apiTerms": "OpenAPI 使用条款",
     "language": "语言",
     "theme": "主题",
     "themeLight": "浅色",
@@ -477,6 +478,8 @@
     "apiKeys.modal.purposeMinChars": "请输入至少 30 个字符",
     "apiKeys.modal.emailNotice": "申请结果将发送至您当前登录的邮箱（{{email}}）。",
     "apiKeys.modal.terms": "我同意遵守速率限制及服务条款",
+    "apiKeys.modal.termsLinkText": "OpenAPI 使用条款",
+    "apiKeys.modal.termsText": "我已阅读并理解 {link}。",
     "apiKeys.modal.scopesLabel": "权限",
     "apiKeys.modal.scopesHint": "至少选择1项",
     "apiKeys.modal.scope.read": "读取（下载、查看信息）",

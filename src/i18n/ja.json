@@ -57,6 +57,7 @@
   "footer": {
     "privacyPolicy": "プライバシーポリシー",
     "termsOfUse": "利用規約",
+    "apiTerms": "OpenAPI 利用規約",
     "language": "言語",
     "theme": "テーマ",
     "themeLight": "ライト",
@@ -477,6 +478,8 @@
     "apiKeys.modal.purposeMinChars": "30文字以上入力してください",
     "apiKeys.modal.emailNotice": "申請結果は現在ログイン中のメール（{{email}}）に送信されます。",
     "apiKeys.modal.terms": "レート制限の遵守およびサービス利用規約に同意します",
+    "apiKeys.modal.termsLinkText": "OpenAPI 利用規約",
+    "apiKeys.modal.termsText": "{link}を理解しました。",
     "apiKeys.modal.scopesLabel": "権限",
     "apiKeys.modal.scopesHint": "1つ以上選択",
     "apiKeys.modal.scope.read": "読取 (ダウンロード・情報取得)",

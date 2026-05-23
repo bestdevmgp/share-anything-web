@@ -57,6 +57,7 @@
   "footer": {
     "privacyPolicy": "개인정보처리방침",
     "termsOfUse": "이용약관",
+    "apiTerms": "OpenAPI 이용약관",
     "language": "언어",
     "theme": "테마",
     "themeLight": "라이트",
@@ -477,6 +478,8 @@
     "apiKeys.modal.purposeMinChars": "30자 이상 입력해 주세요",
     "apiKeys.modal.emailNotice": "신청 결과는 현재 로그인된 이메일({{email}})로 전송됩니다.",
     "apiKeys.modal.terms": "Rate limit 준수 및 서비스 약관에 동의합니다",
+    "apiKeys.modal.termsLinkText": "OpenAPI 이용약관",
+    "apiKeys.modal.termsText": "{link}을 이해하였습니다.",
     "apiKeys.modal.scopesLabel": "권한",
     "apiKeys.modal.scopesHint": "1개 이상 선택해 주세요",
     "apiKeys.modal.scope.read": "읽기 (다운로드 · 정보 조회)",

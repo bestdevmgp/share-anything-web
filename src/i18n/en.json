@@ -57,6 +57,7 @@
   "footer": {
     "privacyPolicy": "Privacy Policy",
     "termsOfUse": "Terms of Use",
+    "apiTerms": "OpenAPI Terms",
     "language": "Language",
     "theme": "Theme",
     "themeLight": "Light",
@@ -477,6 +478,8 @@
     "apiKeys.modal.purposeMinChars": "Please enter at least 30 characters",
     "apiKeys.modal.emailNotice": "The application result will be sent to your current login email ({{email}}).",
     "apiKeys.modal.terms": "I agree to comply with the rate limit and terms of service",
+    "apiKeys.modal.termsLinkText": "OpenAPI Terms of Use",
+    "apiKeys.modal.termsText": "I have read and agreed to the {link}.",
     "apiKeys.modal.scopesLabel": "Scopes",
     "apiKeys.modal.scopesHint": "Select at least one",
     "apiKeys.modal.scope.read": "Read (download, view info)",

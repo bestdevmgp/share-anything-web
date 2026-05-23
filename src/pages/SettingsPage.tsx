@@ -25,7 +25,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from 'components/ui/dialog';
-import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, KeyIcon, ExclamationTriangleIcon, EnvelopeIcon, CommandLineIcon, ClockIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
+import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, KeyIcon, ExclamationTriangleIcon, EnvelopeIcon, CommandLineIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { providerLogoMap } from 'utils/providerLogos';
 
 type Tab = 'notifications' | 'general' | 'account' | 'sessions' | 'personal-tokens' | 'api-keys';
@@ -1327,7 +1327,7 @@ const SettingsPage: React.FC = () => {
                         {apiApplications.map((app, index) => (
                           <tr
                             key={app.id}
-                            className={`cursor-pointer transition-colors can-hover:hover:bg-muted/40 ${index !== 0 ? 'border-t border-border' : ''}`}
+                            className={`cursor-pointer transition-colors can-hover:hover:bg-muted active:bg-muted ${index !== 0 ? 'border-t border-border' : ''}`}
                             onClick={() => setSelectedApplication(app)}
                           >
                             <td className="px-4 py-3 text-center text-muted-foreground">#{app.id}</td>
@@ -1476,7 +1476,7 @@ const SettingsPage: React.FC = () => {
                         rows={4}
                         className="flex w-full rounded-lg border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                       />
-                      <div className="flex justify-between items-center mt-1">
+                      <div className="flex justify-between items-center mt-0.5">
                         {applyPurpose.length > 0 && applyPurpose.length < 30 && (
                           <p className="text-xs text-red-500">{t('settings.apiKeys.modal.purposeMinChars')}</p>
                         )}
@@ -1498,7 +1498,7 @@ const SettingsPage: React.FC = () => {
                                 <ClockIcon className="w-4 h-4" />
                                 <span>{t(`settings.apiKeys.expiration.${applyExpiration}`)}</span>
                               </div>
-                              <ChevronUpIcon className="w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                              <ChevronDownIcon className="w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                             </button>
                           </PopoverTrigger>
                           <PopoverContent side="bottom" align="start" className="w-44 p-0 rounded-none border border-border bg-card">
@@ -1534,7 +1534,6 @@ const SettingsPage: React.FC = () => {
                     <div>
                       <label className="text-sm font-medium mb-1.5 block">
                         {t('settings.apiKeys.modal.scopesLabel')}
-                        <span className="text-xs font-normal text-muted-foreground ml-1.5">{t('settings.apiKeys.modal.scopesHint')}</span>
                       </label>
                       <div className="space-y-2">
                         {(['read', 'upload', 'delete'] as const).map((s) => (
@@ -1556,7 +1555,28 @@ const SettingsPage: React.FC = () => {
                         onCheckedChange={(checked) => setApplyTerms(checked === true)}
                         className="mt-0.5"
                       />
-                      <span className="text-sm text-foreground">{t('settings.apiKeys.modal.terms')}</span>
+                      <span className="text-sm text-foreground">
+                        {(() => {
+                          const linkText = t('settings.apiKeys.modal.termsLinkText');
+                          const fullText = t('settings.apiKeys.modal.termsText');
+                          const [before, after] = fullText.split('{link}');
+                          return (
+                            <>
+                              {before}
+                              <a
+                                href="/api-terms-of-use"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-foreground underline underline-offset-2 can-hover:hover:text-primary"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                {linkText}
+                              </a>
+                              {after}
+                            </>
+                          );
+                        })()}
+                      </span>
                     </label>
                   </div>
 

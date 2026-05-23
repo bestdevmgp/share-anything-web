@@ -17,6 +17,7 @@ import DownloadFilePage from './pages/DownloadFilePage';
 import OAuthCallbackPage from './pages/OAuthCallbackPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import TermsOfUsePage from './pages/TermsOfUsePage';
+import ApiTermsOfUsePage from './pages/ApiTermsOfUsePage';
 import UploadHistoryPage from './pages/UploadHistoryPage';
 import SettingsPage from './pages/SettingsPage';
 import EmailVerifyWaitPage from './pages/EmailVerifyWaitPage';
@@ -52,6 +53,7 @@ const AppContent: React.FC = () => {
           <Route path="/auth/device/result" element={<DeviceConfirmResultPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/terms-of-use" element={<TermsOfUsePage />} />
+          <Route path="/api-terms-of-use" element={<ApiTermsOfUsePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
