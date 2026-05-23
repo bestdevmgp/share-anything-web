@@ -495,6 +495,7 @@
     "apiKeys.revoke.button": "Revoke",
     "apiKeys.toast.applied": "Your application has been submitted",
     "apiKeys.toast.dailyLimit": "You can only apply once per day",
+    "apiKeys.toast.pendingExists": "You already have an application under review",
     "apiKeys.toast.revoked": "API Key has been revoked",
     "apiKeys.expiration.label": "Expiration",
     "apiKeys.expiration.7d": "7 days",

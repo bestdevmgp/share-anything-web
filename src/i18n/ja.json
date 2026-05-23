@@ -495,6 +495,7 @@
     "apiKeys.revoke.button": "失効",
     "apiKeys.toast.applied": "申請を受け付けました",
     "apiKeys.toast.dailyLimit": "申請は1日1回のみ可能です",
+    "apiKeys.toast.pendingExists": "すでに審査中の申請があります",
     "apiKeys.toast.revoked": "API Keyが失効されました",
     "apiKeys.expiration.label": "有効期限",
     "apiKeys.expiration.7d": "7日間",

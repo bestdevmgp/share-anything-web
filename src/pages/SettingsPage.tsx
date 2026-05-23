@@ -564,7 +564,7 @@ const SettingsPage: React.FC = () => {
 
       <div className="flex flex-col md:flex-row gap-0">
         <div className="md:w-56 flex-shrink-0 md:pr-8 md:border-r md:border-black/15 md:dark:border-border pb-4 md:pb-0">
-          <nav className="flex gap-2 overflow-x-auto whitespace-nowrap md:overflow-visible md:whitespace-normal md:flex-col md:space-y-1 md:gap-0">
+          <nav className="flex gap-2 overflow-x-auto whitespace-nowrap pb-2 md:pb-0 md:overflow-visible md:whitespace-normal md:flex-col md:space-y-1 md:gap-0">
             <button
               onClick={() => setActiveTab('general')}
               className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors md:w-full md:text-left ${
@@ -1294,7 +1294,13 @@ const SettingsPage: React.FC = () => {
                   <h3 className="text-base font-medium text-foreground">{t('settings.apiKeys.applicationsTitle')}</h3>
                   <Button
                     variant="default"
-                    onClick={() => setShowApplyModal(true)}
+                    onClick={() => {
+                      if (apiApplications.some(a => a.status === 'pending')) {
+                        toast.error(t('settings.apiKeys.toast.pendingExists'));
+                        return;
+                      }
+                      setShowApplyModal(true);
+                    }}
                   >
                     {t('settings.apiKeys.applyButton')}
                   </Button>
@@ -1451,7 +1457,7 @@ const SettingsPage: React.FC = () => {
                         value={applyServiceName}
                         onChange={(e) => setApplyServiceName(e.target.value)}
                         maxLength={255}
-                        className="w-full"
+                        className="w-full text-sm"
                       />
                     </div>
 
@@ -1465,7 +1471,7 @@ const SettingsPage: React.FC = () => {
                         value={applyServiceUrl}
                         onChange={(e) => setApplyServiceUrl(e.target.value)}
                         placeholder="https://"
-                        className="w-full"
+                        className="w-full text-sm"
                       />
                     </div>
 

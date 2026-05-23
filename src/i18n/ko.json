@@ -495,6 +495,7 @@
     "apiKeys.revoke.button": "폐기",
     "apiKeys.toast.applied": "신청이 접수되었습니다",
     "apiKeys.toast.dailyLimit": "하루에 한 번만 신청할 수 있습니다",
+    "apiKeys.toast.pendingExists": "이미 검토 중인 신청이 있습니다",
     "apiKeys.toast.revoked": "API Key가 폐기되었습니다",
     "apiKeys.expiration.label": "유효 기간",
     "apiKeys.expiration.7d": "7일",

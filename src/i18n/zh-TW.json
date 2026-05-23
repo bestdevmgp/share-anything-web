@@ -495,6 +495,7 @@
     "apiKeys.revoke.button": "撤銷",
     "apiKeys.toast.applied": "申請已提交",
     "apiKeys.toast.dailyLimit": "每天只能申請一次",
+    "apiKeys.toast.pendingExists": "您已有正在審核中的申請",
     "apiKeys.toast.revoked": "API Key 已撤銷",
     "apiKeys.expiration.label": "有效期",
     "apiKeys.expiration.7d": "7天",
