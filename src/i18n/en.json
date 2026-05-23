@@ -475,7 +475,7 @@
     "apiKeys.modal.serviceUrl": "Service URL",
     "apiKeys.modal.purpose": "Purpose",
     "apiKeys.modal.purposeMinChars": "Please enter at least 30 characters",
-    "apiKeys.modal.emailNotice": "Results will be sent to your login email ({{email}}).",
+    "apiKeys.modal.emailNotice": "The application result will be sent to your current login email ({{email}}).",
     "apiKeys.modal.terms": "I agree to comply with the rate limit and terms of service",
     "apiKeys.modal.scopesLabel": "Scopes",
     "apiKeys.modal.scopesHint": "Select at least one",

@@ -475,7 +475,7 @@
     "apiKeys.modal.serviceUrl": "サービスURL",
     "apiKeys.modal.purpose": "利用目的",
     "apiKeys.modal.purposeMinChars": "30文字以上入力してください",
-    "apiKeys.modal.emailNotice": "結果はログインメール（{{email}}）に送信されます。",
+    "apiKeys.modal.emailNotice": "申請結果は現在ログイン中のメール（{{email}}）に送信されます。",
     "apiKeys.modal.terms": "レート制限の遵守およびサービス利用規約に同意します",
     "apiKeys.modal.scopesLabel": "権限",
     "apiKeys.modal.scopesHint": "1つ以上選択",

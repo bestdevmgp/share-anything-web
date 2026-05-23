@@ -475,7 +475,7 @@
     "apiKeys.modal.serviceUrl": "服务 URL",
     "apiKeys.modal.purpose": "使用目的",
     "apiKeys.modal.purposeMinChars": "请输入至少 30 个字符",
-    "apiKeys.modal.emailNotice": "结果将发送至您的登录邮箱（{{email}}）。",
+    "apiKeys.modal.emailNotice": "申请结果将发送至您当前登录的邮箱（{{email}}）。",
     "apiKeys.modal.terms": "我同意遵守速率限制及服务条款",
     "apiKeys.modal.scopesLabel": "权限",
     "apiKeys.modal.scopesHint": "至少选择1项",

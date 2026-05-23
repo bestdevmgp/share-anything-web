@@ -204,11 +204,11 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                   </TableCell>
                   <TableCell className="px-6 py-3 whitespace-nowrap text-center">
                     {isExpired(upload.expires_at) ? (
-                      <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-full font-medium bg-red-600 text-white">
+                      <span className="inline-flex items-center text-xs px-2 py-[3px] rounded-full font-medium bg-red-600 text-white">
                         {t('history.expired')}
                       </span>
                     ) : (
-                      <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-full font-medium bg-green-600 text-white">
+                      <span className="inline-flex items-center text-xs px-2 py-[3px] rounded-full font-medium bg-green-600 text-white">
                         {t('history.active')}
                       </span>
                     )}

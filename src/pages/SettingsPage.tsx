@@ -1272,7 +1272,6 @@ const SettingsPage: React.FC = () => {
                   <h3 className="text-base font-medium text-foreground">{t('settings.apiKeys.applicationsTitle')}</h3>
                   <Button
                     variant="default"
-                    size="sm"
                     onClick={() => setShowApplyModal(true)}
                   >
                     {t('settings.apiKeys.applyButton')}
@@ -1325,7 +1324,7 @@ const SettingsPage: React.FC = () => {
                               {app.status === 'cancelled' ? (
                                 <span className="text-xs text-muted-foreground">{t('settings.apiKeys.status.cancelled')}</span>
                               ) : (
-                                <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                                <span className={`text-xs px-2 py-[3px] rounded-full font-medium ${
                                   app.status === 'approved'
                                     ? 'bg-green-600 text-white'
                                     : app.status === 'rejected'
@@ -1553,7 +1552,7 @@ const SettingsPage: React.FC = () => {
                           {selectedApplication.status === 'cancelled' ? (
                             <span className="text-xs text-muted-foreground">{t('settings.apiKeys.status.cancelled')}</span>
                           ) : (
-                            <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                            <span className={`text-xs px-2 py-[3px] rounded-full font-medium ${
                               selectedApplication.status === 'approved'
                                 ? 'bg-green-600 text-white'
                                 : selectedApplication.status === 'rejected'
