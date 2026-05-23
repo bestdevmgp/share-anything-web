@@ -497,7 +497,15 @@
     "apiKeys.revoke.button": "폐기",
     "apiKeys.toast.applied": "신청이 접수되었습니다",
     "apiKeys.toast.dailyLimit": "하루에 한 번만 신청할 수 있습니다",
-    "apiKeys.toast.revoked": "API Key가 폐기되었습니다"
+    "apiKeys.toast.revoked": "API Key가 폐기되었습니다",
+    "apiKeys.expiration.label": "유효 기간",
+    "apiKeys.expiration.7d": "7일",
+    "apiKeys.expiration.30d": "30일",
+    "apiKeys.expiration.60d": "60일",
+    "apiKeys.expiration.90d": "90일",
+    "apiKeys.expiration.custom": "사용자 지정",
+    "apiKeys.expiration.none": "만료 기한 없음",
+    "apiKeys.expiration.column": "유효 기간"
   },
   "cliSignin": {
     "pageTitle": "CLI 로그인",

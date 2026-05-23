@@ -25,7 +25,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from 'components/ui/dialog';
-import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, KeyIcon, ExclamationTriangleIcon, EnvelopeIcon, CommandLineIcon } from '@heroicons/react/24/outline';
+import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, KeyIcon, ExclamationTriangleIcon, EnvelopeIcon, CommandLineIcon, ClockIcon, ChevronUpIcon } from '@heroicons/react/24/outline';
 import { providerLogoMap } from 'utils/providerLogos';
 
 type Tab = 'notifications' | 'general' | 'account' | 'sessions' | 'personal-tokens' | 'api-keys';
@@ -106,6 +106,11 @@ const SettingsPage: React.FC = () => {
   const [applyTerms, setApplyTerms] = useState(false);
   const [applySubmitting, setApplySubmitting] = useState(false);
 
+  type ExpirationOption = '7d' | '30d' | '60d' | '90d' | 'custom' | 'none';
+  const [applyExpiration, setApplyExpiration] = useState<ExpirationOption>('30d');
+  const [applyCustomDate, setApplyCustomDate] = useState<string>('');
+  const [applyExpirationOpen, setApplyExpirationOpen] = useState(false);
+
   const toggleApplyScope = (s: 'read' | 'upload' | 'delete') => {
     setApplyScopes((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
   };
@@ -120,6 +125,8 @@ const SettingsPage: React.FC = () => {
     setApplyPurpose('');
     setApplyScopes(['read', 'upload', 'delete']);
     setApplyTerms(false);
+    setApplyExpiration('30d');
+    setApplyCustomDate('');
   };
 
   useEffect(() => {
@@ -132,6 +139,8 @@ const SettingsPage: React.FC = () => {
       setApplyPurpose(d.purpose || '');
       if (Array.isArray(d.scopes)) setApplyScopes(d.scopes);
       setApplyTerms(!!d.terms);
+      if (d.expiration) setApplyExpiration(d.expiration);
+      if (d.customDate) setApplyCustomDate(d.customDate);
       setShowApplyModal(true);
     } catch {}
   }, []);
@@ -144,8 +153,10 @@ const SettingsPage: React.FC = () => {
       purpose: applyPurpose,
       scopes: applyScopes,
       terms: applyTerms,
+      expiration: applyExpiration,
+      customDate: applyCustomDate,
     }));
-  }, [showApplyModal, applyServiceName, applyServiceUrl, applyPurpose, applyScopes, applyTerms]);
+  }, [showApplyModal, applyServiceName, applyServiceUrl, applyPurpose, applyScopes, applyTerms, applyExpiration, applyCustomDate]);
 
   const [selectedApplication, setSelectedApplication] = useState<ApiKeyApplicationResponse | null>(null);
   const [revokeKeyId, setRevokeKeyId] = useState<string | null>(null);
@@ -387,6 +398,18 @@ const SettingsPage: React.FC = () => {
     }
   };
 
+  const computeExpiresAt = (opt: ExpirationOption, customDate: string): string | null => {
+    if (opt === 'none') return null;
+    if (opt === 'custom') {
+      if (!customDate) return null;
+      return new Date(customDate + 'T23:59:59Z').toISOString();
+    }
+    const days = ({ '7d': 7, '30d': 30, '60d': 60, '90d': 90 } as Record<string, number>)[opt]!;
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    return d.toISOString();
+  };
+
   const handleApplyApiKey = async () => {
     setApplySubmitting(true);
     try {
@@ -397,6 +420,7 @@ const SettingsPage: React.FC = () => {
         purpose: applyPurpose.trim(),
         scopes: applyScopes,
         tz_offset_minutes: tzOffsetMinutes,
+        requested_expires_at: computeExpiresAt(applyExpiration, applyCustomDate),
       });
       clearApplyDraft();
       toast.success(t('settings.apiKeys.toast.applied'));
@@ -1294,6 +1318,7 @@ const SettingsPage: React.FC = () => {
                           <th className="text-center px-4 py-2.5 font-medium text-muted-foreground">ID</th>
                           <th className="text-center px-4 py-2.5 font-medium text-muted-foreground">{t('settings.apiKeys.modal.serviceName')}</th>
                           <th className="text-center px-4 py-2.5 font-medium text-muted-foreground">{t('settings.apiKeys.scopesColumn')}</th>
+                          <th className="text-center px-4 py-2.5 font-medium text-muted-foreground">{t('settings.apiKeys.expiration.column')}</th>
                           <th className="text-center px-4 py-2.5 font-medium text-muted-foreground">{t('settings.apiKeys.statusLabel')}</th>
                           <th className="text-center px-4 py-2.5 font-medium text-muted-foreground">{t('settings.personalTokenCreatedAt')}</th>
                         </tr>
@@ -1317,6 +1342,11 @@ const SettingsPage: React.FC = () => {
                                   ))}
                                 </div>
                               )}
+                            </td>
+                            <td className="px-4 py-3 text-center text-muted-foreground text-xs">
+                              {app.requested_expires_at
+                                ? formatDateTime(app.requested_expires_at, siteLanguage)
+                                : t('settings.apiKeys.expiration.none')}
                             </td>
                             <td className="px-4 py-3 text-center">
                               {app.status === 'cancelled' ? (
@@ -1458,6 +1488,51 @@ const SettingsPage: React.FC = () => {
 
                     <div>
                       <label className="text-sm font-medium mb-1.5 block">
+                        {t('settings.apiKeys.expiration.label')}
+                      </label>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Popover open={applyExpirationOpen} onOpenChange={setApplyExpirationOpen}>
+                          <PopoverTrigger asChild>
+                            <button className="group flex items-center justify-between w-44 h-10 px-2.5 border border-border bg-card text-muted-foreground can-hover:hover:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors text-sm">
+                              <div className="flex items-center gap-2">
+                                <ClockIcon className="w-4 h-4" />
+                                <span>{t(`settings.apiKeys.expiration.${applyExpiration}`)}</span>
+                              </div>
+                              <ChevronUpIcon className="w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent side="bottom" align="start" className="w-44 p-0 rounded-none border border-border bg-card">
+                            <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('settings.apiKeys.expiration.label')}</div>
+                            {(['7d', '30d', '60d', '90d', 'custom', 'none'] as ExpirationOption[]).map((opt) => (
+                              <button
+                                key={opt}
+                                onClick={() => { setApplyExpiration(opt); setApplyExpirationOpen(false); }}
+                                className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors ${
+                                  applyExpiration === opt
+                                    ? 'text-foreground'
+                                    : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
+                                }`}
+                              >
+                                <CheckIcon className={`w-3.5 h-3.5 flex-shrink-0 ${applyExpiration === opt ? 'opacity-100' : 'opacity-0'}`} />
+                                <span>{t(`settings.apiKeys.expiration.${opt}`)}</span>
+                              </button>
+                            ))}
+                          </PopoverContent>
+                        </Popover>
+                        {applyExpiration === 'custom' && (
+                          <input
+                            type="date"
+                            value={applyCustomDate}
+                            onChange={(e) => setApplyCustomDate(e.target.value)}
+                            min={new Date().toISOString().split('T')[0]}
+                            className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          />
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">
                         {t('settings.apiKeys.modal.scopesLabel')}
                         <span className="text-xs font-normal text-muted-foreground ml-1.5">{t('settings.apiKeys.modal.scopesHint')}</span>
                       </label>
@@ -1502,7 +1577,8 @@ const SettingsPage: React.FC = () => {
                         !(applyServiceUrl.startsWith('http://') || applyServiceUrl.startsWith('https://')) ||
                         applyPurpose.trim().length < 30 ||
                         applyScopes.length === 0 ||
-                        !applyTerms
+                        !applyTerms ||
+                        (applyExpiration === 'custom' && !applyCustomDate)
                       }
                       className="relative"
                     >
@@ -1576,6 +1652,14 @@ const SettingsPage: React.FC = () => {
                         <div>
                           <span className="text-muted-foreground">{t('settings.personalTokenCreatedAt')}: </span>
                           <span className="text-foreground">{formatDateOnly(selectedApplication.created_at, siteLanguage)}</span>
+                        </div>
+                        <div>
+                          <span className="text-muted-foreground">{t('settings.apiKeys.expiration.label')}: </span>
+                          <span className="text-foreground">
+                            {selectedApplication.requested_expires_at
+                              ? formatDateTime(selectedApplication.requested_expires_at, siteLanguage)
+                              : t('settings.apiKeys.expiration.none')}
+                          </span>
                         </div>
 
                         {selectedApplication.status === 'approved' && selectedApplication.api_key_id && (

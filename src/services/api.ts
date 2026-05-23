@@ -666,6 +666,7 @@ export interface ApiKeyApplicationRequest {
   purpose: string;
   scopes: string[];
   tz_offset_minutes: number;
+  requested_expires_at: string | null;
 }
 
 export interface ApiKeyApplicationResponse {
@@ -679,6 +680,7 @@ export interface ApiKeyApplicationResponse {
   created_at: string;
   reviewed_at: string | null;
   scopes: string[];
+  requested_expires_at: string | null;
 }
 
 export interface ApiKeyItem {
