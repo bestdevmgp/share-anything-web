@@ -685,10 +685,19 @@ export interface ApiKeyApplicationResponse {
 
 export interface ApiKeyItem {
   id: string;
-  token_prefix: string;
+  key_prefix: string;
   name: string;
   scopes: ('read' | 'upload' | 'delete')[];
   last_used_at: string | null;
+  expires_at: string | null;
+  created_at: string;
+}
+
+export interface ApiKeyRevealResponse {
+  api_key: string;
+  key_prefix: string;
+  name: string;
+  scopes: ('read' | 'upload' | 'delete')[];
   expires_at: string | null;
   created_at: string;
 }
@@ -720,6 +729,11 @@ export const apiKeyAPI = {
 
   revoke: async (id: string): Promise<void> => {
     await api.delete(`/user/api-keys/${id}`);
+  },
+
+  reveal: async (token: string): Promise<ApiKeyRevealResponse> => {
+    const response = await api.get(`/user/api-keys/reveal/${token}`);
+    return response.data;
   },
 };
 

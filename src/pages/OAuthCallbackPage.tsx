@@ -8,6 +8,7 @@ import { useTranslation } from '../i18n';
 import { Card, CardContent } from '../components/ui/card';
 import { Spinner } from '../components/ui/spinner';
 import StatusIcon from '../components/StatusIcon';
+import { consumePostLoginRedirect } from '../utils/postLoginRedirect';
 
 const OAuthCallbackPage: React.FC = () => {
   const navigate = useNavigate();
@@ -58,7 +59,8 @@ const OAuthCallbackPage: React.FC = () => {
             localStorage.removeItem('cli_signin_redirect');
             navigate(cliRedirect, { replace: true });
           } else {
-            navigate('/', { replace: true });
+            const next = consumePostLoginRedirect();
+            navigate(next || '/', { replace: true });
           }
           return;
         } catch (err) {
@@ -101,7 +103,8 @@ const OAuthCallbackPage: React.FC = () => {
             localStorage.removeItem('cli_signin_redirect');
             navigate(cliRedirect, { replace: true });
           } else {
-            navigate('/', { replace: true });
+            const next = consumePostLoginRedirect();
+            navigate(next || '/', { replace: true });
           }
         } else {
           toast.error(t('oauth.noLoginInfo'));

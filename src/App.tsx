@@ -20,6 +20,7 @@ import TermsOfUsePage from './pages/TermsOfUsePage';
 import ApiTermsOfUsePage from './pages/ApiTermsOfUsePage';
 import UploadHistoryPage from './pages/UploadHistoryPage';
 import SettingsPage from './pages/SettingsPage';
+import ApiKeyRevealPage from './pages/ApiKeyRevealPage';
 import EmailVerifyWaitPage from './pages/EmailVerifyWaitPage';
 import EmailMagicLinkCallbackPage from './pages/EmailMagicLinkCallbackPage';
 import CliPage from './pages/CliPage';
@@ -44,6 +45,7 @@ const AppContent: React.FC = () => {
           <Route path="/upload/success" element={<UploadSuccessPage />} />
           <Route path="/history" element={<UploadHistoryPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/api-keys/reveal/:token" element={<ApiKeyRevealPage />} />
           <Route path="/cli" element={<CliPage />} />
           <Route path="/cli-signin/:sessionId" element={<CliSigninPage />} />
           <Route path="/download/:code" element={<DownloadFilePage />} />

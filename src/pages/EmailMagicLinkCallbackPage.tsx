@@ -11,6 +11,7 @@ import { Tooltip, TooltipTrigger, TooltipContent } from '../components/ui/toolti
 import StatusIcon from '../components/StatusIcon';
 import { DevicePhoneMobileIcon, ClipboardDocumentIcon, CheckIcon, EnvelopeIcon, LinkIcon } from '@heroicons/react/24/outline';
 import { providerLogoMap } from '../utils/providerLogos';
+import { consumePostLoginRedirect } from '../utils/postLoginRedirect';
 import type { User } from '../types';
 
 const EMAIL_AUTH_CHANNEL = 'email-auth-channel';
@@ -66,7 +67,8 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
               localStorage.removeItem('cli_signin_redirect');
               navigate(cliRedirect, { replace: true });
             } else {
-              navigate('/', { replace: true });
+              const next = consumePostLoginRedirect();
+              navigate(next || '/', { replace: true });
             }
           };
 

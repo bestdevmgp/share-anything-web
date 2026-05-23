@@ -43,23 +43,25 @@ const Header: React.FC = () => {
           </Link>
 
           <div className="flex items-center space-x-2">
-            <Link
-              to="/cli"
-              className="hidden sm:inline-flex items-center px-3 py-2 text-sm font-medium text-muted-foreground rounded-sm can-hover:hover:bg-accent active:bg-accent transition-colors"
-            >
-              Try CLI
-            </Link>
-            <a
-              href={process.env.REACT_APP_DOCS_URL || 'https://share-api.mingyu.dev/reference'}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden sm:inline-flex items-center gap-1 pl-3 pr-2.5 py-2 text-sm font-medium text-muted-foreground rounded-sm can-hover:hover:bg-accent active:bg-accent transition-colors"
-            >
-              OpenAPI
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
-                <path fillRule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clipRule="evenodd" />
-              </svg>
-            </a>
+            <div className="hidden sm:flex items-center space-x-1">
+              <Link
+                to="/cli"
+                className="inline-flex items-center px-3 py-2 text-sm font-medium text-muted-foreground rounded-sm can-hover:hover:bg-accent active:bg-accent transition-colors"
+              >
+                Try CLI
+              </Link>
+              <a
+                href={process.env.REACT_APP_DOCS_URL || 'https://share-api.mingyu.dev/reference'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 pl-3 pr-2.5 py-2 text-sm font-medium text-muted-foreground rounded-sm can-hover:hover:bg-accent active:bg-accent transition-colors"
+              >
+                OpenAPI
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
+                  <path fillRule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clipRule="evenodd" />
+                </svg>
+              </a>
+            </div>
             {isAuthenticated && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger className="group flex items-center space-x-2 active:bg-accent can-hover:hover:bg-accent rounded-sm px-3 py-2 transition-colors focus:outline-none data-[state=open]:bg-accent">

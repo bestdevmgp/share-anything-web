@@ -1444,7 +1444,7 @@ const SettingsPage: React.FC = () => {
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className="text-sm font-medium text-foreground">{key.name}</span>
                                 <code className="text-xs bg-muted px-2 py-0.5 rounded font-mono text-muted-foreground">
-                                  {key.token_prefix}...
+                                  {key.key_prefix}...
                                 </code>
                                 {isExpired && (
                                   <span className="text-xs px-2 py-[3px] rounded-full font-medium bg-gray-500 text-white">
@@ -1685,7 +1685,7 @@ const SettingsPage: React.FC = () => {
 
               <Dialog open={!!selectedApplication} onOpenChange={(open) => { if (!open) setSelectedApplication(null); }}>
                 <DialogContent className="w-[calc(100%-2rem)] max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden p-6 md:p-8 lg:p-10 min-w-0">
-                  <DialogHeader className="mb-3">
+                  <DialogHeader className="mb-1">
                     <DialogTitle className="text-lg md:text-xl lg:text-2xl">{t('settings.apiKeys.detail.title')}</DialogTitle>
                   </DialogHeader>
 

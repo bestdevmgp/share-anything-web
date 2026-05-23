@@ -1,10 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {authAPI} from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import { useTranslation } from '../i18n';
 import { Input } from '../components/ui/input';
 import { GoogleLogo, NaverLogo, KakaoLogo, AppleLogo } from '../utils/providerLogos';
 import { Spinner } from '../components/ui/spinner';
+import { savePostLoginRedirect } from '../utils/postLoginRedirect';
 
 type LoginProvider = 'google' | 'naver' | 'kakao' | 'apple' | 'email';
 
@@ -14,6 +16,7 @@ const LoginPage: React.FC = () => {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const location = useLocation();
+    const { isAuthenticated, loading: authLoading } = useAuth();
     const prefillEmail = (location.state as any)?.email || '';
     const [lastProvider, setLastProvider] = useState<LoginProvider | null>(null);
     const [email, setEmail] = useState(prefillEmail);
@@ -23,6 +26,23 @@ const LoginPage: React.FC = () => {
     useEffect(() => {
         document.title = t('login.title');
     }, [t]);
+
+    useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const next = params.get('next');
+        if (next) {
+            savePostLoginRedirect(next);
+        }
+    }, [location.search]);
+
+    useEffect(() => {
+        if (authLoading || !isAuthenticated) return;
+        const params = new URLSearchParams(location.search);
+        const next = params.get('next');
+        if (next && next.startsWith('/')) {
+            navigate(next, { replace: true });
+        }
+    }, [authLoading, isAuthenticated, location.search, navigate]);
 
     useEffect(() => {
         const saved = localStorage.getItem('lastLoginProvider') as LoginProvider | null;
