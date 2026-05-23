@@ -1685,7 +1685,7 @@ const SettingsPage: React.FC = () => {
 
               <Dialog open={!!selectedApplication} onOpenChange={(open) => { if (!open) setSelectedApplication(null); }}>
                 <DialogContent className="w-[calc(100%-2rem)] max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden p-6 md:p-8 lg:p-10 min-w-0">
-                  <DialogHeader className="mb-6">
+                  <DialogHeader className="mb-3">
                     <DialogTitle className="text-lg md:text-xl lg:text-2xl">{t('settings.apiKeys.detail.title')}</DialogTitle>
                   </DialogHeader>
 
@@ -1789,6 +1789,7 @@ const SettingsPage: React.FC = () => {
                         <div className="mt-6 flex justify-end">
                           <Button
                             variant="destructive"
+                            className="focus-visible:ring-0"
                             onClick={async () => {
                               if (!window.confirm(t('settings.apiKeys.detail.cancelConfirm'))) return;
                               try {
