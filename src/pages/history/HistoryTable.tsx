@@ -4,7 +4,6 @@ import { isPdfFile, isVideoFile, formatFileSize, formatDateTime } from '../../ut
 import { Language } from '../../context/LanguageContext';
 import FileThumbnail from '../../components/FileThumbnail';
 import { Button } from '../../components/ui/button';
-import { Badge } from '../../components/ui/badge';
 import { Tooltip, TooltipTrigger, TooltipContent } from '../../components/ui/tooltip';
 import { Skeleton } from '../../components/ui/skeleton';
 import { Card, CardContent } from '../../components/ui/card';
@@ -205,13 +204,13 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                   </TableCell>
                   <TableCell className="px-6 py-3 whitespace-nowrap text-center">
                     {isExpired(upload.expires_at) ? (
-                      <Badge variant="destructive" className="bg-red-100 text-red-800 dark:bg-red-500/15 dark:text-red-400">
+                      <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-full font-medium bg-red-600 text-white">
                         {t('history.expired')}
-                      </Badge>
+                      </span>
                     ) : (
-                      <Badge className="bg-green-100 text-green-800 dark:bg-green-500/15 dark:text-green-400">
+                      <span className="inline-flex items-center text-xs px-2.5 py-1 rounded-full font-medium bg-green-600 text-white">
                         {t('history.active')}
-                      </Badge>
+                      </span>
                     )}
                   </TableCell>
                   <TableCell className="px-6 py-3 whitespace-nowrap text-center text-sm font-medium">

@@ -109,6 +109,44 @@ const SettingsPage: React.FC = () => {
   const toggleApplyScope = (s: 'read' | 'upload' | 'delete') => {
     setApplyScopes((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
   };
+
+  const APPLY_DRAFT_KEY = 'apiKeyApplyDraft';
+
+  const clearApplyDraft = () => {
+    sessionStorage.removeItem(APPLY_DRAFT_KEY);
+    setShowApplyModal(false);
+    setApplyServiceName('');
+    setApplyServiceUrl('');
+    setApplyPurpose('');
+    setApplyScopes(['read', 'upload', 'delete']);
+    setApplyTerms(false);
+  };
+
+  useEffect(() => {
+    const raw = sessionStorage.getItem(APPLY_DRAFT_KEY);
+    if (!raw) return;
+    try {
+      const d = JSON.parse(raw);
+      setApplyServiceName(d.serviceName || '');
+      setApplyServiceUrl(d.serviceUrl || '');
+      setApplyPurpose(d.purpose || '');
+      if (Array.isArray(d.scopes)) setApplyScopes(d.scopes);
+      setApplyTerms(!!d.terms);
+      setShowApplyModal(true);
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    if (!showApplyModal) return;
+    sessionStorage.setItem(APPLY_DRAFT_KEY, JSON.stringify({
+      serviceName: applyServiceName,
+      serviceUrl: applyServiceUrl,
+      purpose: applyPurpose,
+      scopes: applyScopes,
+      terms: applyTerms,
+    }));
+  }, [showApplyModal, applyServiceName, applyServiceUrl, applyPurpose, applyScopes, applyTerms]);
+
   const [selectedApplication, setSelectedApplication] = useState<ApiKeyApplicationResponse | null>(null);
   const [revokeKeyId, setRevokeKeyId] = useState<string | null>(null);
   const [revokingKeyId, setRevokingKeyId] = useState<string | null>(null);
@@ -360,12 +398,7 @@ const SettingsPage: React.FC = () => {
         scopes: applyScopes,
         tz_offset_minutes: tzOffsetMinutes,
       });
-      setShowApplyModal(false);
-      setApplyServiceName('');
-      setApplyServiceUrl('');
-      setApplyPurpose('');
-      setApplyScopes(['read', 'upload', 'delete']);
-      setApplyTerms(false);
+      clearApplyDraft();
       toast.success(t('settings.apiKeys.toast.applied'));
       const applications = await apiKeyAPI.listApplications();
       setApiApplications(applications);
@@ -1261,11 +1294,11 @@ const SettingsPage: React.FC = () => {
                     <table className="w-full text-sm border border-border rounded-lg overflow-hidden">
                       <thead>
                         <tr className="bg-muted">
-                          <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">ID</th>
-                          <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">{t('settings.apiKeys.modal.serviceName')}</th>
-                          <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">{t('settings.apiKeys.scopesColumn')}</th>
-                          <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">{t('settings.apiKeys.statusLabel')}</th>
-                          <th className="text-left px-4 py-2.5 font-medium text-muted-foreground">{t('settings.personalTokenCreatedAt')}</th>
+                          <th className="text-center px-4 py-2.5 font-medium text-muted-foreground">ID</th>
+                          <th className="text-center px-4 py-2.5 font-medium text-muted-foreground">{t('settings.apiKeys.modal.serviceName')}</th>
+                          <th className="text-center px-4 py-2.5 font-medium text-muted-foreground">{t('settings.apiKeys.scopesColumn')}</th>
+                          <th className="text-center px-4 py-2.5 font-medium text-muted-foreground">{t('settings.apiKeys.statusLabel')}</th>
+                          <th className="text-center px-4 py-2.5 font-medium text-muted-foreground">{t('settings.personalTokenCreatedAt')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1275,11 +1308,11 @@ const SettingsPage: React.FC = () => {
                             className={`cursor-pointer transition-colors can-hover:hover:bg-muted/40 ${index !== 0 ? 'border-t border-border' : ''}`}
                             onClick={() => setSelectedApplication(app)}
                           >
-                            <td className="px-4 py-3 text-muted-foreground">#{app.id}</td>
-                            <td className="px-4 py-3 font-medium text-foreground">{app.service_name}</td>
-                            <td className="px-4 py-3">
+                            <td className="px-4 py-3 text-center text-muted-foreground">#{app.id}</td>
+                            <td className="px-4 py-3 text-center font-medium text-foreground">{app.service_name}</td>
+                            <td className="px-4 py-3 text-center">
                               {app.scopes && app.scopes.length > 0 && (
-                                <div className="flex gap-1 flex-wrap">
+                                <div className="flex gap-1 flex-wrap justify-center">
                                   {app.scopes.map((s) => (
                                     <span key={s} className="text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
                                       {s}
@@ -1288,11 +1321,11 @@ const SettingsPage: React.FC = () => {
                                 </div>
                               )}
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="px-4 py-3 text-center">
                               {app.status === 'cancelled' ? (
                                 <span className="text-xs text-muted-foreground">{t('settings.apiKeys.status.cancelled')}</span>
                               ) : (
-                                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                                <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
                                   app.status === 'approved'
                                     ? 'bg-green-600 text-white'
                                     : app.status === 'rejected'
@@ -1303,7 +1336,7 @@ const SettingsPage: React.FC = () => {
                                 </span>
                               )}
                             </td>
-                            <td className="px-4 py-3 text-muted-foreground">{formatDateOnly(app.created_at, siteLanguage)}</td>
+                            <td className="px-4 py-3 text-center text-muted-foreground">{formatDateTime(app.created_at, siteLanguage)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1370,7 +1403,7 @@ const SettingsPage: React.FC = () => {
                 )}
               </div>
 
-              <Dialog open={showApplyModal} onOpenChange={(open) => { if (!open && !applySubmitting) setShowApplyModal(false); }}>
+              <Dialog open={showApplyModal} onOpenChange={(open) => { if (!open && !applySubmitting) clearApplyDraft(); }}>
                 <DialogContent className="w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden p-6 md:p-8 lg:p-10">
                   <DialogHeader className="mb-6">
                     <DialogTitle className="text-lg md:text-xl lg:text-2xl">{t('settings.apiKeys.modal.title')}</DialogTitle>
@@ -1458,7 +1491,7 @@ const SettingsPage: React.FC = () => {
                   <div className="flex gap-2 mt-6 justify-end">
                     <Button
                       variant="outline"
-                      onClick={() => setShowApplyModal(false)}
+                      onClick={clearApplyDraft}
                       disabled={applySubmitting}
                     >
                       {t('settings.apiKeys.modal.cancel')}
@@ -1520,7 +1553,7 @@ const SettingsPage: React.FC = () => {
                           {selectedApplication.status === 'cancelled' ? (
                             <span className="text-xs text-muted-foreground">{t('settings.apiKeys.status.cancelled')}</span>
                           ) : (
-                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                            <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
                               selectedApplication.status === 'approved'
                                 ? 'bg-green-600 text-white'
                                 : selectedApplication.status === 'rejected'
