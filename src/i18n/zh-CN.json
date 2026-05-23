@@ -505,7 +505,7 @@
     "apiKeys.expiration.90d": "90天",
     "apiKeys.expiration.custom": "自定义",
     "apiKeys.expiration.none": "永不过期",
-    "apiKeys.expiration.column": "有效期",
+    "apiKeys.expiration.column": "失效日",
     "apiKeys.keyStatus.expired": "已过期",
     "apiKeys.keyStatus.expiresIn": "{{days}}天后过期"
   },

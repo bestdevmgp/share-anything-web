@@ -505,7 +505,7 @@
     "apiKeys.expiration.90d": "90日間",
     "apiKeys.expiration.custom": "カスタム",
     "apiKeys.expiration.none": "期限なし",
-    "apiKeys.expiration.column": "有効期限",
+    "apiKeys.expiration.column": "失効日",
     "apiKeys.keyStatus.expired": "期限切れ",
     "apiKeys.keyStatus.expiresIn": "{{days}}日後に期限切れ"
   },

@@ -505,7 +505,7 @@
     "apiKeys.expiration.90d": "90일",
     "apiKeys.expiration.custom": "사용자 지정",
     "apiKeys.expiration.none": "만료 기한 없음",
-    "apiKeys.expiration.column": "만료 기간",
+    "apiKeys.expiration.column": "만료일",
     "apiKeys.keyStatus.expired": "만료됨",
     "apiKeys.keyStatus.expiresIn": "{{days}}일 후 만료"
   },

@@ -1385,7 +1385,7 @@ const SettingsPage: React.FC = () => {
                                 </div>
                               )}
                             </td>
-                            <td className="px-4 py-3 text-center text-muted-foreground text-xs">
+                            <td className="px-4 py-3 text-center text-muted-foreground">
                               {app.requested_expires_at
                                 ? formatDateOnly(app.requested_expires_at, siteLanguage)
                                 : t('settings.apiKeys.expiration.none')}
@@ -1748,7 +1748,7 @@ const SettingsPage: React.FC = () => {
                           <span className="text-foreground">{formatDateTime(selectedApplication.created_at, siteLanguage)}</span>
                         </div>
                         <div>
-                          <span className="text-muted-foreground">{t('settings.apiKeys.expiration.label')}: </span>
+                          <span className="text-muted-foreground">{t('settings.apiKeys.expiration.column')}: </span>
                           <span className="text-foreground">
                             {selectedApplication.requested_expires_at
                               ? formatDateTime(selectedApplication.requested_expires_at, siteLanguage)

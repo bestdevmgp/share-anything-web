@@ -505,7 +505,7 @@
     "apiKeys.expiration.90d": "90 days",
     "apiKeys.expiration.custom": "Custom",
     "apiKeys.expiration.none": "No expiration",
-    "apiKeys.expiration.column": "Expires",
+    "apiKeys.expiration.column": "Expiration Date",
     "apiKeys.keyStatus.expired": "Expired",
     "apiKeys.keyStatus.expiresIn": "Expires in {{days}}d"
   },
