@@ -67,6 +67,12 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; is
     }
   };
 
+  useEffect(() => {
+    if (toast.forceDismiss && !isLeaving && !isSwipeDismissing) {
+      setIsLeaving(true);
+    }
+  }, [toast.forceDismiss, isLeaving, isSwipeDismissing]);
+
   const collapseAndRemove = useCallback(() => {
     const el = wrapperRef.current;
     if (!el) { onRemove(toast.id); return; }

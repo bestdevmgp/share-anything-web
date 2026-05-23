@@ -6,7 +6,10 @@ export interface Toast {
   id: string;
   type: ToastType;
   message: string;
+  forceDismiss?: boolean;
 }
+
+const MAX_TOASTS = 3;
 
 interface ToastContextType {
   toasts: Toast[];
@@ -28,7 +31,17 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const id = `toast-${++toastIdRef.current}`;
     const newToast: Toast = { id, type, message };
 
-    setToasts((prev) => [...prev, newToast]);
+    setToasts((prev) => {
+      const visible = prev.filter((t) => !t.forceDismiss);
+      if (visible.length >= MAX_TOASTS) {
+        const oldestId = visible[0].id;
+        return [
+          ...prev.map((t) => (t.id === oldestId ? { ...t, forceDismiss: true } : t)),
+          newToast,
+        ];
+      }
+      return [...prev, newToast];
+    });
   }, []);
 
   return (
