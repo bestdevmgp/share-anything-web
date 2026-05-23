@@ -404,7 +404,7 @@
     "updateSuccess": "설정이 저장되었습니다",
     "updateFailed": "설정 저장에 실패하였습니다",
     "fetchFailed": "설정을 불러오는데 실패하였습니다",
-    "developerSection": "고급",
+    "developerSection": "개발자 설정",
     "personalTokens": "Personal Token",
     "personalTokensDescription": "CLI 및 API 접근을 위한 토큰을 관리합니다.",
     "createPersonalToken": "생성",

@@ -404,7 +404,7 @@
     "updateSuccess": "Settings saved",
     "updateFailed": "Failed to save settings",
     "fetchFailed": "Failed to load settings",
-    "developerSection": "Advanced",
+    "developerSection": "Developer",
     "personalTokens": "Personal Token",
     "personalTokensDescription": "Manage tokens for CLI and API access.",
     "createPersonalToken": "Create",

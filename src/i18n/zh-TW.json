@@ -404,7 +404,7 @@
     "updateSuccess": "設定已儲存",
     "updateFailed": "設定儲存失敗",
     "fetchFailed": "設定載入失敗",
-    "developerSection": "進階",
+    "developerSection": "開發者",
     "personalTokens": "Personal Token",
     "personalTokensDescription": "管理用於 CLI 和 API 存取的令牌。",
     "createPersonalToken": "建立",

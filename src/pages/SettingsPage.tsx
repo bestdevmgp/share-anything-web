@@ -564,7 +564,7 @@ const SettingsPage: React.FC = () => {
 
       <div className="flex flex-col md:flex-row gap-0">
         <div className="md:w-56 flex-shrink-0 md:pr-8 md:border-r md:border-black/15 md:dark:border-border pb-4 md:pb-0">
-          <nav className="flex gap-2 md:flex-col md:space-y-1 md:gap-0">
+          <nav className="flex gap-2 overflow-x-auto whitespace-nowrap md:overflow-visible md:whitespace-normal md:flex-col md:space-y-1 md:gap-0">
             <button
               onClick={() => setActiveTab('general')}
               className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors md:w-full md:text-left ${
@@ -1431,7 +1431,11 @@ const SettingsPage: React.FC = () => {
               </div>
 
               <Dialog open={showApplyModal} onOpenChange={(open) => { if (!open && !applySubmitting) clearApplyDraft(); }}>
-                <DialogContent className="w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden p-6 md:p-8 lg:p-10">
+                <DialogContent
+                  className="w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden p-6 md:p-8 lg:p-10"
+                  onPointerDownOutside={(e) => e.preventDefault()}
+                  onInteractOutside={(e) => e.preventDefault()}
+                >
                   <DialogHeader className="mb-6">
                     <DialogTitle className="text-lg md:text-xl lg:text-2xl">{t('settings.apiKeys.modal.title')}</DialogTitle>
                   </DialogHeader>
@@ -1490,7 +1494,7 @@ const SettingsPage: React.FC = () => {
                       <label className="text-sm font-medium mb-1.5 block">
                         {t('settings.apiKeys.expiration.label')}
                       </label>
-                      <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-[10px]">
                         <Popover open={applyExpirationOpen} onOpenChange={setApplyExpirationOpen}>
                           <PopoverTrigger asChild>
                             <button className="group flex items-center justify-between w-44 h-10 px-2.5 border border-border bg-card text-muted-foreground can-hover:hover:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors text-sm">
@@ -1567,7 +1571,7 @@ const SettingsPage: React.FC = () => {
                                 href="/api-terms-of-use"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-foreground underline underline-offset-2 can-hover:hover:text-primary"
+                                className="text-muted-foreground underline underline-offset-2 decoration-muted-foreground can-hover:hover:decoration-foreground transition-colors"
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 {linkText}

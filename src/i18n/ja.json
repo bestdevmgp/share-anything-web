@@ -404,7 +404,7 @@
     "updateSuccess": "設定が保存されました",
     "updateFailed": "設定の保存に失敗しました",
     "fetchFailed": "設定の読み込みに失敗しました",
-    "developerSection": "高度",
+    "developerSection": "開発者",
     "personalTokens": "Personal Token",
     "personalTokensDescription": "CLIおよびAPIアクセス用のトークンを管理します。",
     "createPersonalToken": "作成",
