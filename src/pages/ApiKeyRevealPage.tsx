@@ -36,9 +36,9 @@ const ApiKeyRevealPage: React.FC = () => {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    document.title = t('apiKeyReveal.pageTitle');
+    document.title = errorKind ? t('apiKeyReveal.errorTitle') : t('apiKeyReveal.pageTitle');
     return () => { document.title = 'ShareAnything'; };
-  }, [t]);
+  }, [t, errorKind]);
 
   const fetchReveal = useCallback(async () => {
     if (!token) {
@@ -81,14 +81,14 @@ const ApiKeyRevealPage: React.FC = () => {
   };
 
   const handleConfirm = () => {
-    window.close();
-    setTimeout(() => navigate('/settings?tab=api-keys', { replace: true }), 100);
+    navigate('/settings?tab=api-keys', { replace: true });
   };
 
   if (authLoading || !isAuthenticated || loading) {
     return (
-      <div className="flex items-center justify-center py-24">
+      <div className="flex flex-col items-center justify-center py-24 gap-3">
         <Spinner size="lg" />
+        <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
       </div>
     );
   }
@@ -121,15 +121,15 @@ const ApiKeyRevealPage: React.FC = () => {
 
   return (
     <div className="pt-12 pb-20 px-4">
-      <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-10">
+      <div className="max-w-lg mx-auto">
+        <div className="text-center mb-5">
           <div className="flex justify-center mb-5">
             <StatusIcon variant="success" className="mb-0" />
           </div>
-          <h1 className="text-4xl font-bold text-foreground mb-3">{t('apiKeyReveal.title')}</h1>
+          <h1 className="text-4xl font-bold text-foreground">{t('apiKeyReveal.title')}</h1>
         </div>
 
-        <Card className="rounded-3xl border-2 p-6 md:p-10">
+        <Card className="rounded-3xl border-2 px-6 md:px-10 py-4 md:py-5">
           <div className="mb-6">
             <label className="text-xs text-muted-foreground block mb-2">{t('apiKeyReveal.keyLabel')}</label>
             <div className="relative">
@@ -162,7 +162,7 @@ const ApiKeyRevealPage: React.FC = () => {
             <div>
               <p className="text-xs text-muted-foreground mb-1">{t('apiKeyReveal.scopesLabel')}</p>
               <p className="text-foreground font-medium">
-                {data.scopes.length > 0 ? data.scopes.join(', ') : '-'}
+                {data.scopes.length > 0 ? data.scopes.map((s) => t(`settings.apiKeys.scope.${s}`)).join(', ') : '-'}
               </p>
             </div>
             <div>
@@ -178,8 +178,8 @@ const ApiKeyRevealPage: React.FC = () => {
           </div>
         </Card>
 
-        <div className="mt-8 flex justify-center">
-          <Button onClick={handleConfirm} size="lg" className="min-w-[160px]">
+        <div className="mt-8">
+          <Button onClick={handleConfirm} size="lg" className="w-full">
             {t('apiKeyReveal.confirm')}
           </Button>
         </div>

@@ -1423,7 +1423,7 @@ const SettingsPage: React.FC = () => {
                           <th className="text-center px-4 py-2.5 font-medium text-muted-foreground">{t('settings.apiKeys.scopesColumn')}</th>
                           <th className="text-center px-4 py-2.5 font-medium text-muted-foreground">{t('settings.apiKeys.expiration.column')}</th>
                           <th className="text-center px-4 py-2.5 font-medium text-muted-foreground">{t('settings.apiKeys.statusLabel')}</th>
-                          <th className="text-center px-4 py-2.5 font-medium text-muted-foreground">{t('settings.personalTokenCreatedAt')}</th>
+                          <th className="text-center px-4 py-2.5 font-medium text-muted-foreground">{t('settings.apiKeys.createdAtColumn')}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1440,7 +1440,7 @@ const SettingsPage: React.FC = () => {
                                 <div className="flex gap-1 flex-wrap justify-center">
                                   {app.scopes.map((s) => (
                                     <span key={s} className="text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
-                                      {s}
+                                      {t(`settings.apiKeys.scope.${s}`)}
                                     </span>
                                   ))}
                                 </div>
@@ -1517,7 +1517,7 @@ const SettingsPage: React.FC = () => {
                                 <div className="flex gap-1 flex-wrap mt-1">
                                   {key.scopes.map((s) => (
                                     <span key={s} className="text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
-                                      {s}
+                                      {t(`settings.apiKeys.scope.${s}`)}
                                     </span>
                                   ))}
                                 </div>
@@ -1800,7 +1800,7 @@ const SettingsPage: React.FC = () => {
                             <div className="flex gap-1 flex-wrap">
                               {selectedApplication.scopes.map((s) => (
                                 <span key={s} className="text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
-                                  {s}
+                                  {t(`settings.apiKeys.scope.${s}`)}
                                 </span>
                               ))}
                             </div>
@@ -1811,7 +1811,7 @@ const SettingsPage: React.FC = () => {
                           <span className="text-foreground">{formatDateTime(selectedApplication.created_at, siteLanguage)}</span>
                         </div>
                         <div>
-                          <span className="text-muted-foreground">{t('settings.apiKeys.expiration.column')}: </span>
+                          <span className="text-muted-foreground">{t('settings.apiKeys.expiration.fullLabel')}: </span>
                           <span className="text-foreground">
                             {selectedApplication.requested_expires_at
                               ? formatDateTime(selectedApplication.requested_expires_at, siteLanguage)
@@ -1843,7 +1843,10 @@ const SettingsPage: React.FC = () => {
                             )}
                           </div>
                           <div className="mt-6 flex justify-end">
-                            <Button onClick={() => handleEditRejected(selectedApplication)}>
+                            <Button
+                              onClick={() => handleEditRejected(selectedApplication)}
+                              className="focus-visible:ring-0"
+                            >
                               {t('settings.apiKeys.detail.editButton')}
                             </Button>
                           </div>
