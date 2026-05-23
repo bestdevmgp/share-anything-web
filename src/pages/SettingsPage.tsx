@@ -110,6 +110,16 @@ const SettingsPage: React.FC = () => {
   const [applyCustomDate, setApplyCustomDate] = useState<string>('');
   const [applyExpirationOpen, setApplyExpirationOpen] = useState(false);
 
+  type EditOriginal = {
+    serviceName: string;
+    serviceUrl: string;
+    purpose: string;
+    scopes: Array<'read' | 'upload' | 'delete'>;
+    expiration: ExpirationOption;
+    customDate: string;
+  };
+  const [editOriginal, setEditOriginal] = useState<EditOriginal | null>(null);
+
   const toggleApplyScope = (s: 'read' | 'upload' | 'delete') => {
     setApplyScopes((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
   };
@@ -126,7 +136,60 @@ const SettingsPage: React.FC = () => {
     setApplyTerms(false);
     setApplyExpiration('30d');
     setApplyCustomDate('');
+    setEditOriginal(null);
   };
+
+  const handleEditRejected = (app: ApiKeyApplicationResponse) => {
+    const scopes = app.scopes.filter((s): s is 'read' | 'upload' | 'delete' =>
+      s === 'read' || s === 'upload' || s === 'delete'
+    );
+    let expiration: ExpirationOption = 'none';
+    let customDate = '';
+    if (app.requested_expires_at) {
+      const diffDays = Math.round(
+        (new Date(app.requested_expires_at).getTime() - new Date(app.created_at).getTime()) / 86400000
+      );
+      const presets: Record<number, ExpirationOption> = { 7: '7d', 30: '30d', 60: '60d', 90: '90d' };
+      if (presets[diffDays]) {
+        expiration = presets[diffDays];
+      } else {
+        expiration = 'custom';
+        customDate = app.requested_expires_at.slice(0, 10);
+      }
+    }
+    setApplyServiceName(app.service_name);
+    setApplyServiceUrl(app.service_url);
+    setApplyPurpose(app.purpose);
+    setApplyScopes(scopes);
+    setApplyExpiration(expiration);
+    setApplyCustomDate(customDate);
+    setApplyTerms(false);
+    setEditOriginal({
+      serviceName: app.service_name,
+      serviceUrl: app.service_url,
+      purpose: app.purpose,
+      scopes: [...scopes],
+      expiration,
+      customDate,
+    });
+    setSelectedApplication(null);
+    setShowApplyModal(true);
+  };
+
+  const sameScopes = (a: string[], b: string[]) => {
+    if (a.length !== b.length) return false;
+    const sa = [...a].sort();
+    const sb = [...b].sort();
+    return sa.every((v, i) => v === sb[i]);
+  };
+
+  const isEditUnchanged = editOriginal !== null
+    && applyServiceName === editOriginal.serviceName
+    && applyServiceUrl === editOriginal.serviceUrl
+    && applyPurpose === editOriginal.purpose
+    && sameScopes(applyScopes, editOriginal.scopes)
+    && applyExpiration === editOriginal.expiration
+    && applyCustomDate === editOriginal.customDate;
 
   useEffect(() => {
     const raw = sessionStorage.getItem(APPLY_DRAFT_KEY);
@@ -1250,7 +1313,7 @@ const SettingsPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={handleCopyToken}
-                        className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-md text-muted-foreground can-hover:hover:text-foreground can-hover:hover:bg-accent transition-colors"
+                        className="absolute top-1 right-1 w-7 h-7 flex items-center justify-center rounded-md text-muted-foreground can-hover:hover:text-foreground can-hover:hover:bg-accent transition-colors"
                       >
                         {copiedToken ? (
                           <CheckIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
@@ -1675,7 +1738,8 @@ const SettingsPage: React.FC = () => {
                         applyPurpose.trim().length < 30 ||
                         applyScopes.length === 0 ||
                         !applyTerms ||
-                        (applyExpiration === 'custom' && (!applyCustomDate || !isCustomDateValid(applyCustomDate)))
+                        (applyExpiration === 'custom' && (!applyCustomDate || !isCustomDateValid(applyCustomDate))) ||
+                        isEditUnchanged
                       }
                       className="relative"
                     >
@@ -1759,7 +1823,7 @@ const SettingsPage: React.FC = () => {
 
                       {selectedApplication.status === 'rejected' && (
                         <>
-                          <Separator className="my-6" />
+                          <Separator className="my-3" />
                           <div className="space-y-3">
                             <div className="flex items-center gap-2">
                               <span className="text-muted-foreground text-sm">{t('settings.apiKeys.statusLabel')}: </span>
@@ -1777,6 +1841,11 @@ const SettingsPage: React.FC = () => {
                                 </p>
                               </div>
                             )}
+                          </div>
+                          <div className="mt-6 flex justify-end">
+                            <Button onClick={() => handleEditRejected(selectedApplication)}>
+                              {t('settings.apiKeys.detail.editButton')}
+                            </Button>
                           </div>
                         </>
                       )}

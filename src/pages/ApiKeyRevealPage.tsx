@@ -140,7 +140,7 @@ const ApiKeyRevealPage: React.FC = () => {
                 type="button"
                 onClick={handleCopy}
                 aria-label={t('apiKeyReveal.copy')}
-                className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-md text-muted-foreground can-hover:hover:text-foreground can-hover:hover:bg-accent transition-colors"
+                className="absolute top-1 right-1 w-7 h-7 flex items-center justify-center rounded-md text-muted-foreground can-hover:hover:text-foreground can-hover:hover:bg-accent transition-colors"
               >
                 {copied ? (
                   <CheckIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />

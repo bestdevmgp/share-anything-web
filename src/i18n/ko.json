@@ -513,6 +513,7 @@
     "apiKeys.detail.scopes": "권한",
     "apiKeys.list.reveal": "Key 조회하기",
     "apiKeys.detail.cancelButton": "신청 취소",
+    "apiKeys.detail.editButton": "수정하기",
     "apiKeys.detail.cancelConfirm": "정말 취소하시겠습니까?",
     "apiKeys.detail.cancelled": "신청이 취소되었습니다",
     "apiKeys.revoke.title": "API Key 폐기",

@@ -513,6 +513,7 @@
     "apiKeys.detail.scopes": "權限",
     "apiKeys.list.reveal": "查看 Key",
     "apiKeys.detail.cancelButton": "取消申請",
+    "apiKeys.detail.editButton": "修改並重新申請",
     "apiKeys.detail.cancelConfirm": "確定要取消申請嗎？",
     "apiKeys.detail.cancelled": "申請已取消",
     "apiKeys.revoke.title": "撤銷 API Key",

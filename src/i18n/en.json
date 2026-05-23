@@ -513,6 +513,7 @@
     "apiKeys.detail.scopes": "Scopes",
     "apiKeys.list.reveal": "View Key",
     "apiKeys.detail.cancelButton": "Cancel application",
+    "apiKeys.detail.editButton": "Edit and resubmit",
     "apiKeys.detail.cancelConfirm": "Are you sure you want to cancel this application?",
     "apiKeys.detail.cancelled": "Application cancelled",
     "apiKeys.revoke.title": "Revoke API Key",

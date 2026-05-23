@@ -513,6 +513,7 @@
     "apiKeys.detail.scopes": "権限",
     "apiKeys.list.reveal": "Key を確認",
     "apiKeys.detail.cancelButton": "申請を取り消す",
+    "apiKeys.detail.editButton": "修正する",
     "apiKeys.detail.cancelConfirm": "本当にキャンセルしますか？",
     "apiKeys.detail.cancelled": "申請がキャンセルされました",
     "apiKeys.revoke.title": "API Keyの失効",
