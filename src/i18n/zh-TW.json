@@ -497,6 +497,7 @@
     "apiKeys.toast.dailyLimit": "每天只能申請一次",
     "apiKeys.toast.pendingExists": "您已有正在審核中的申請",
     "apiKeys.toast.revoked": "API Key 已撤銷",
+    "apiKeys.toast.pastDate": "有效期必須設置為明天或更晚",
     "apiKeys.expiration.label": "有效期",
     "apiKeys.expiration.7d": "7天",
     "apiKeys.expiration.30d": "30天",
@@ -504,7 +505,9 @@
     "apiKeys.expiration.90d": "90天",
     "apiKeys.expiration.custom": "自訂",
     "apiKeys.expiration.none": "永不過期",
-    "apiKeys.expiration.column": "有效期"
+    "apiKeys.expiration.column": "有效期",
+    "apiKeys.keyStatus.expired": "已過期",
+    "apiKeys.keyStatus.expiresIn": "{{days}}天後過期"
   },
   "deviceConfirm": {
     "pageTitle": "新裝置通知",

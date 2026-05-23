@@ -564,7 +564,7 @@ const UploadHistoryPage: React.FC = () => {
       )}
 
       <Dialog open={showAllLogsModal && !!selectedFileForLogs} onOpenChange={setShowAllLogsModal}>
-        <DialogContent className="w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[80vh] p-0 overflow-hidden flex flex-col">
+        <DialogContent className="w-[calc(100%-2rem)] max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[80vh] p-0 overflow-hidden flex flex-col">
           <DialogHeader className="p-6">
             <DialogTitle>{t('history.allDownloadHistory')}</DialogTitle>
           </DialogHeader>
@@ -632,7 +632,7 @@ const UploadHistoryPage: React.FC = () => {
       </Dialog>
 
       <Dialog open={showQRModal && !!selectedShareCode} onOpenChange={setShowQRModal}>
-        <DialogContent className="w-full max-w-sm sm:max-w-md md:max-w-lg rounded-xl p-6">
+        <DialogContent className="w-[calc(100%-2rem)] max-w-sm sm:max-w-md md:max-w-lg rounded-xl p-6">
           <DialogHeader>
             <DialogTitle>{t('history.qrCode')}</DialogTitle>
           </DialogHeader>

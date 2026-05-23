@@ -497,6 +497,7 @@
     "apiKeys.toast.dailyLimit": "You can only apply once per day",
     "apiKeys.toast.pendingExists": "You already have an application under review",
     "apiKeys.toast.revoked": "API Key has been revoked",
+    "apiKeys.toast.pastDate": "Expiration must be set to tomorrow or later",
     "apiKeys.expiration.label": "Expiration",
     "apiKeys.expiration.7d": "7 days",
     "apiKeys.expiration.30d": "30 days",
@@ -504,7 +505,9 @@
     "apiKeys.expiration.90d": "90 days",
     "apiKeys.expiration.custom": "Custom",
     "apiKeys.expiration.none": "No expiration",
-    "apiKeys.expiration.column": "Expires"
+    "apiKeys.expiration.column": "Expires",
+    "apiKeys.keyStatus.expired": "Expired",
+    "apiKeys.keyStatus.expiresIn": "Expires in {{days}}d"
   },
   "deviceConfirm": {
     "pageTitle": "New Device Notification",

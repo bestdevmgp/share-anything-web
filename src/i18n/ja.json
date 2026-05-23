@@ -497,6 +497,7 @@
     "apiKeys.toast.dailyLimit": "申請は1日1回のみ可能です",
     "apiKeys.toast.pendingExists": "すでに審査中の申請があります",
     "apiKeys.toast.revoked": "API Keyが失効されました",
+    "apiKeys.toast.pastDate": "有効期限は明日以降を指定してください",
     "apiKeys.expiration.label": "有効期限",
     "apiKeys.expiration.7d": "7日間",
     "apiKeys.expiration.30d": "30日間",
@@ -504,7 +505,9 @@
     "apiKeys.expiration.90d": "90日間",
     "apiKeys.expiration.custom": "カスタム",
     "apiKeys.expiration.none": "期限なし",
-    "apiKeys.expiration.column": "有効期限"
+    "apiKeys.expiration.column": "有効期限",
+    "apiKeys.keyStatus.expired": "期限切れ",
+    "apiKeys.keyStatus.expiresIn": "{{days}}日後に期限切れ"
   },
   "deviceConfirm": {
     "pageTitle": "新しい端末の通知",

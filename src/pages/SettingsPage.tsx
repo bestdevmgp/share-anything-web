@@ -410,7 +410,43 @@ const SettingsPage: React.FC = () => {
     return d.toISOString();
   };
 
+  const getTomorrow = (): Date => {
+    const d = new Date();
+    d.setUTCHours(0, 0, 0, 0);
+    d.setUTCDate(d.getUTCDate() + 1);
+    return d;
+  };
+
+  const getTomorrowISO = (): string => {
+    const d = getTomorrow();
+    return d.toISOString().split('T')[0];
+  };
+
+  const isCustomDateValid = (value: string): boolean => {
+    if (!value) return false;
+    const picked = new Date(value + 'T00:00:00Z');
+    return picked >= getTomorrow();
+  };
+
+  const handleCustomDateChange = (value: string) => {
+    if (!value) {
+      setApplyCustomDate('');
+      return;
+    }
+    const picked = new Date(value + 'T00:00:00Z');
+    if (picked < getTomorrow()) {
+      return;
+    }
+    setApplyCustomDate(value);
+  };
+
   const handleApplyApiKey = async () => {
+    if (applyExpiration === 'custom') {
+      if (!applyCustomDate || !isCustomDateValid(applyCustomDate)) {
+        toast.error(t('settings.apiKeys.toast.pastDate'));
+        return;
+      }
+    }
     setApplySubmitting(true);
     try {
       const tzOffsetMinutes = -new Date().getTimezoneOffset();
@@ -1351,7 +1387,7 @@ const SettingsPage: React.FC = () => {
                             </td>
                             <td className="px-4 py-3 text-center text-muted-foreground text-xs">
                               {app.requested_expires_at
-                                ? formatDateTime(app.requested_expires_at, siteLanguage)
+                                ? formatDateOnly(app.requested_expires_at, siteLanguage)
                                 : t('settings.apiKeys.expiration.none')}
                             </td>
                             <td className="px-4 py-3 text-center">
@@ -1369,7 +1405,7 @@ const SettingsPage: React.FC = () => {
                                 </span>
                               )}
                             </td>
-                            <td className="px-4 py-3 text-center text-muted-foreground">{formatDateTime(app.created_at, siteLanguage)}</td>
+                            <td className="px-4 py-3 text-center text-muted-foreground">{formatDateOnly(app.created_at, siteLanguage)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -1394,44 +1430,72 @@ const SettingsPage: React.FC = () => {
                   </div>
                 ) : (
                   <div>
-                    {apiKeys.map((key, index) => (
-                      <div key={key.id}>
-                        {index > 0 && <Separator />}
-                        <div className="flex items-center justify-between py-4">
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-sm font-medium text-foreground">{key.name}</span>
-                              <code className="text-xs bg-muted px-2 py-0.5 rounded font-mono text-muted-foreground">
-                                {key.token_prefix}...
-                              </code>
-                            </div>
-                            {key.scopes && key.scopes.length > 0 && (
-                              <div className="flex gap-1 flex-wrap mt-1">
-                                {key.scopes.map((s) => (
-                                  <span key={s} className="text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
-                                    {s}
+                    {apiKeys.map((key, index) => {
+                      const isExpired = !!key.expires_at && new Date(key.expires_at) < new Date();
+                      const daysLeft = key.expires_at && !isExpired
+                        ? Math.ceil((new Date(key.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+                        : null;
+                      const expiresSoon = daysLeft !== null && daysLeft <= 3;
+                      return (
+                        <div key={key.id}>
+                          {index > 0 && <Separator />}
+                          <div className="flex items-center justify-between py-4">
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-sm font-medium text-foreground">{key.name}</span>
+                                <code className="text-xs bg-muted px-2 py-0.5 rounded font-mono text-muted-foreground">
+                                  {key.token_prefix}...
+                                </code>
+                                {isExpired && (
+                                  <span className="text-xs px-2 py-[3px] rounded-full font-medium bg-gray-500 text-white">
+                                    {t('settings.apiKeys.keyStatus.expired')}
                                   </span>
-                                ))}
+                                )}
                               </div>
-                            )}
-                            <div className="flex gap-3 mt-1 text-xs text-muted-foreground">
-                              <span>{t('settings.personalTokenCreatedAt')}: {formatDateOnly(key.created_at, siteLanguage)}</span>
-                              {key.last_used_at && (
-                                <span>{t('settings.personalTokenLastUsed')}: {formatDateOnly(key.last_used_at, siteLanguage)}</span>
+                              {key.scopes && key.scopes.length > 0 && (
+                                <div className="flex gap-1 flex-wrap mt-1">
+                                  {key.scopes.map((s) => (
+                                    <span key={s} className="text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                                      {s}
+                                    </span>
+                                  ))}
+                                </div>
                               )}
+                              <div className="flex gap-3 mt-1 text-xs text-muted-foreground">
+                                <span>{t('settings.personalTokenCreatedAt')}: {formatDateOnly(key.created_at, siteLanguage)}</span>
+                                {key.last_used_at && (
+                                  <span>{t('settings.personalTokenLastUsed')}: {formatDateOnly(key.last_used_at, siteLanguage)}</span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              {expiresSoon && (
+                                <span
+                                  className="inline-flex items-center rounded-[6px] px-[7px] py-[6.5px] text-xs leading-none font-medium text-popover-foreground whitespace-nowrap"
+                                  style={{
+                                    background: 'var(--share-bubble-bg)',
+                                    backdropFilter: 'blur(20px) saturate(180%)',
+                                    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                                    boxShadow: 'var(--share-bubble-shadow)',
+                                    border: '1px solid var(--share-bubble-border)',
+                                  }}
+                                >
+                                  {t('settings.apiKeys.keyStatus.expiresIn', { days: daysLeft! })}
+                                </span>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setRevokeKeyId(key.id)}
+                                className="text-red-600 dark:text-red-400 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15"
+                              >
+                                {t('settings.apiKeys.revoke.button')}
+                              </Button>
                             </div>
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setRevokeKeyId(key.id)}
-                            className="text-red-600 dark:text-red-400 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 flex-shrink-0"
-                          >
-                            {t('settings.apiKeys.revoke.button')}
-                          </Button>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -1533,8 +1597,8 @@ const SettingsPage: React.FC = () => {
                           <input
                             type="date"
                             value={applyCustomDate}
-                            onChange={(e) => setApplyCustomDate(e.target.value)}
-                            min={new Date().toISOString().split('T')[0]}
+                            onChange={(e) => handleCustomDateChange(e.target.value)}
+                            min={getTomorrowISO()}
                             className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                           />
                         )}
@@ -1608,7 +1672,7 @@ const SettingsPage: React.FC = () => {
                         applyPurpose.trim().length < 30 ||
                         applyScopes.length === 0 ||
                         !applyTerms ||
-                        (applyExpiration === 'custom' && !applyCustomDate)
+                        (applyExpiration === 'custom' && (!applyCustomDate || !isCustomDateValid(applyCustomDate)))
                       }
                       className="relative"
                     >
@@ -1620,7 +1684,7 @@ const SettingsPage: React.FC = () => {
               </Dialog>
 
               <Dialog open={!!selectedApplication} onOpenChange={(open) => { if (!open) setSelectedApplication(null); }}>
-                <DialogContent className="w-full max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden p-6 md:p-8 lg:p-10 min-w-0">
+                <DialogContent className="w-[calc(100%-2rem)] max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-3xl xl:max-w-4xl max-h-[90vh] overflow-y-auto overflow-x-hidden p-6 md:p-8 lg:p-10 min-w-0">
                   <DialogHeader className="mb-6">
                     <DialogTitle className="text-lg md:text-xl lg:text-2xl">{t('settings.apiKeys.detail.title')}</DialogTitle>
                   </DialogHeader>
@@ -1681,7 +1745,7 @@ const SettingsPage: React.FC = () => {
                         )}
                         <div>
                           <span className="text-muted-foreground">{t('settings.personalTokenCreatedAt')}: </span>
-                          <span className="text-foreground">{formatDateOnly(selectedApplication.created_at, siteLanguage)}</span>
+                          <span className="text-foreground">{formatDateTime(selectedApplication.created_at, siteLanguage)}</span>
                         </div>
                         <div>
                           <span className="text-muted-foreground">{t('settings.apiKeys.expiration.label')}: </span>
@@ -1748,7 +1812,7 @@ const SettingsPage: React.FC = () => {
               </Dialog>
 
               <Dialog open={!!revokeKeyId} onOpenChange={(open) => { if (!open && !revokingKeyId) setRevokeKeyId(null); }}>
-                <DialogContent className="w-full max-w-sm sm:max-w-md md:max-w-lg p-6">
+                <DialogContent className="w-[calc(100%-2rem)] max-w-sm sm:max-w-md md:max-w-lg p-6">
                   <DialogHeader className="mb-2">
                     <DialogTitle>{t('settings.apiKeys.revoke.title')}</DialogTitle>
                     <DialogDescription>{t('settings.apiKeys.revoke.confirm')}</DialogDescription>
