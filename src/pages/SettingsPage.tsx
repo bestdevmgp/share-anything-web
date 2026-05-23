@@ -892,9 +892,8 @@ const SettingsPage: React.FC = () => {
                   </p>
                   {!showDeleteConfirm ? (
                     <Button
-                      variant="ghost"
+                      variant="destructive"
                       onClick={() => setShowDeleteConfirm(true)}
-                      className="bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400 can-hover:hover:bg-red-200 dark:can-hover:hover:bg-red-500/25 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 active:bg-red-200 dark:active:bg-red-500/25 active:text-red-600 dark:active:text-red-400"
                     >
                       {t('settings.accountDelete')}
                     </Button>
@@ -1027,9 +1026,8 @@ const SettingsPage: React.FC = () => {
                       <div className="pt-4">
                         {!showTerminateOthersConfirm ? (
                           <Button
-                            variant="ghost"
+                            variant="destructive"
                             onClick={() => setShowTerminateOthersConfirm(true)}
-                            className="bg-red-100 dark:bg-red-500/15 text-red-600 dark:text-red-400 can-hover:hover:bg-red-200 dark:can-hover:hover:bg-red-500/25 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 active:bg-red-200 dark:active:bg-red-500/25 active:text-red-600 dark:active:text-red-400"
                           >
                             {t('settings.terminateOthers')}
                           </Button>
