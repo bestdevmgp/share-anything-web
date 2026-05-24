@@ -122,8 +122,8 @@ const ApiKeyRevealPage: React.FC = () => {
   return (
     <div className="pt-12 pb-20 px-4">
       <div className="max-w-lg mx-auto">
-        <div className="text-center mb-5">
-          <div className="flex justify-center mb-5">
+        <div className="text-center mb-7">
+          <div className="flex justify-center mb-3">
             <StatusIcon variant="success" className="mb-0" />
           </div>
           <h1 className="text-4xl font-bold text-foreground">{t('apiKeyReveal.title')}</h1>
