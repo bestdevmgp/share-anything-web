@@ -86,9 +86,9 @@ const ApiKeyRevealPage: React.FC = () => {
 
   if (authLoading || !isAuthenticated || loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 gap-3">
-        <Spinner size="lg" />
-        <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
+      <div className="flex flex-col items-center justify-center py-24">
+        <Spinner size="xl" />
+        <p className="mt-4 text-muted-foreground">{t('common.loading')}</p>
       </div>
     );
   }
