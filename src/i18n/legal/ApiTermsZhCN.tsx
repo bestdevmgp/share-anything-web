@@ -48,7 +48,7 @@ const ApiTermsZhCN: React.FC = () => (
                         </tr>
                         <tr>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">上传</td>
-                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#888888] font-mono text-xs">POST /v1/uploads, 分片上传, presigned, P2P创建 等</td>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#888888] font-mono text-xs">POST /v1/uploads, POST /v1/uploads/multipart 系列</td>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">80次/小时</td>
                         </tr>
                         <tr>

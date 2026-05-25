@@ -48,7 +48,7 @@ const ApiTermsJa: React.FC = () => (
                         </tr>
                         <tr>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">アップロード</td>
-                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#888888] font-mono text-xs">POST /v1/uploads, マルチパート, presigned, P2P作成 等</td>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#888888] font-mono text-xs">POST /v1/uploads, POST /v1/uploads/multipart 系</td>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">80回/時間</td>
                         </tr>
                         <tr>

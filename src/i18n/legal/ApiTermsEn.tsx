@@ -48,7 +48,7 @@ const ApiTermsEn: React.FC = () => (
                         </tr>
                         <tr>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">Upload</td>
-                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#888888] font-mono text-xs">POST /v1/uploads, multipart, presigned, P2P create, etc.</td>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#888888] font-mono text-xs">POST /v1/uploads, POST /v1/uploads/multipart series</td>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">80 / hour</td>
                         </tr>
                         <tr>

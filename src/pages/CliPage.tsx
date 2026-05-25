@@ -142,7 +142,7 @@ const CliPage: React.FC = () => {
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryAuth')}</p>
-            <CodeBlock code="share login sa_your_token_here" index={8} />
+            <CodeBlock code="share login sat_your_token_here" index={8} />
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryLogout')}</p>
@@ -160,20 +160,20 @@ const CliPage: React.FC = () => {
         <div className="space-y-4">
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.curlUpload')}</p>
-            <CodeBlock code="curl -F 'file=@./myfile.txt' https://share-api.mingyu.dev/cli/upload" index={0} />
+            <CodeBlock code="curl -F 'file=@./myfile.txt' https://share-api.mingyu.dev/cli/uploads" index={0} />
             <p className="text-xs text-muted-foreground mt-1.5">{t('cli.curlPathHint')}</p>
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.curlDownload')}</p>
-            <CodeBlock code="curl -OJ https://share-api.mingyu.dev/cli/download/123456" index={1} />
+            <CodeBlock code="curl -OJ https://share-api.mingyu.dev/cli/shares/123456/download" index={1} />
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.curlMultipleFiles')}</p>
-            <CodeBlock code="curl -F 'file=@./file1.txt' -F 'file=@./file2.png' https://share-api.mingyu.dev/cli/upload" index={2} />
+            <CodeBlock code="curl -F 'file=@./file1.txt' -F 'file=@./file2.png' https://share-api.mingyu.dev/cli/uploads" index={2} />
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.curlWithPersonalToken')}</p>
-            <CodeBlock code="curl -H 'X-Personal-Token: sa_your_token_here' -F 'file=@./myfile.txt' -F 'expiration=1h' https://share-api.mingyu.dev/cli/upload" index={3} />
+            <CodeBlock code="curl -H 'X-Personal-Token: sat_your_token_here' -F 'file=@./myfile.txt' -F 'expiration=1h' https://share-api.mingyu.dev/cli/uploads" index={3} />
           </div>
         </div>
       </section>

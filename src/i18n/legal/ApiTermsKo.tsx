@@ -48,7 +48,7 @@ const ApiTermsKo: React.FC = () => (
                         </tr>
                         <tr>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">업로드</td>
-                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#888888] font-mono text-xs">POST /v1/uploads, multipart 업로드, presigned 업로드, P2P 생성 등</td>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#888888] font-mono text-xs">POST /v1/uploads, POST /v1/uploads/multipart 계열</td>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">시간당 80건</td>
                         </tr>
                         <tr>
