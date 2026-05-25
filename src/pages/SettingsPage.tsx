@@ -1307,9 +1307,10 @@ const SettingsPage: React.FC = () => {
                       {t('settings.personalTokenCreated')}
                     </label>
                     <div className="relative">
-                      <div className="bg-muted/40 border border-border rounded-md pl-3 pr-12 py-2 font-mono text-sm break-all">
+                      <div className="bg-muted border border-border rounded-md pl-3 pr-12 py-2 font-mono text-sm whitespace-nowrap overflow-x-auto">
                         {createdToken}
                       </div>
+                      <div className="absolute top-px right-px bottom-px w-12 pointer-events-none rounded-r-md bg-gradient-to-r from-transparent to-muted to-40%" />
                       <button
                         type="button"
                         onClick={handleCopyToken}

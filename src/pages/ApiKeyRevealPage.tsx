@@ -129,13 +129,14 @@ const ApiKeyRevealPage: React.FC = () => {
           <h1 className="text-4xl font-bold text-foreground">{t('apiKeyReveal.title')}</h1>
         </div>
 
-        <Card className="rounded-3xl border-2 px-6 md:px-10 py-4 md:py-5">
+        <Card className="rounded-3xl border-2 px-6 py-5">
           <div className="mb-6">
             <label className="text-xs text-muted-foreground block mb-2">{t('apiKeyReveal.keyLabel')}</label>
             <div className="relative">
-              <div className="bg-muted/40 border border-border rounded-md pl-3 pr-12 py-2 font-mono text-sm whitespace-nowrap overflow-x-auto">
+              <div className="bg-muted border border-border rounded-md pl-3 pr-12 py-2 font-mono text-sm whitespace-nowrap overflow-x-auto">
                 {data.api_key}
               </div>
+              <div className="absolute top-px right-px bottom-px w-12 pointer-events-none rounded-r-md bg-gradient-to-r from-transparent to-muted to-40%" />
               <button
                 type="button"
                 onClick={handleCopy}
