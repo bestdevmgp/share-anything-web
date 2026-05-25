@@ -133,7 +133,7 @@ const ApiKeyRevealPage: React.FC = () => {
           <div className="mb-6">
             <label className="text-xs text-muted-foreground block mb-2">{t('apiKeyReveal.keyLabel')}</label>
             <div className="relative">
-              <div className="bg-muted/40 border border-border rounded-md pl-3 pr-12 py-2 font-mono text-sm break-all">
+              <div className="bg-muted/40 border border-border rounded-md pl-3 pr-12 py-2 font-mono text-sm whitespace-nowrap overflow-x-auto">
                 {data.api_key}
               </div>
               <button
