@@ -101,7 +101,7 @@ const SettingsPage: React.FC = () => {
   const [applyServiceName, setApplyServiceName] = useState('');
   const [applyServiceUrl, setApplyServiceUrl] = useState('');
   const [applyPurpose, setApplyPurpose] = useState('');
-  const [applyScopes, setApplyScopes] = useState<Array<'read' | 'upload' | 'delete' | 'p2p_transfer'>>(['read', 'upload', 'delete']);
+  const [applyScopes, setApplyScopes] = useState<Array<'read' | 'upload' | 'delete' | 'p2p_transfer'>>([]);
   const [applyTerms, setApplyTerms] = useState(false);
   const [applySubmitting, setApplySubmitting] = useState(false);
 
@@ -132,7 +132,7 @@ const SettingsPage: React.FC = () => {
     setApplyServiceName('');
     setApplyServiceUrl('');
     setApplyPurpose('');
-    setApplyScopes(['read', 'upload', 'delete']);
+    setApplyScopes([]);
     setApplyTerms(false);
     setApplyExpiration('30d');
     setApplyCustomDate('');
