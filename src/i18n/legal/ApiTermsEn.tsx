@@ -49,12 +49,17 @@ const ApiTermsEn: React.FC = () => (
                         <tr>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">Upload</td>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#888888] font-mono text-xs">POST /v1/uploads, POST /v1/uploads/multipart series</td>
-                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">80 / hour</td>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">100 / hour</td>
                         </tr>
                         <tr>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">Download</td>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#888888] font-mono text-xs">GET /v1/shares/…/download</td>
-                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">150 / hour</td>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">300 / hour</td>
+                        </tr>
+                        <tr>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">P2P signaling</td>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#888888] font-mono text-xs">GET /v1/ws/signaling</td>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">10 concurrent · 30 connect attempts / minute</td>
                         </tr>
                     </tbody>
                 </table>
@@ -62,6 +67,9 @@ const ApiTermsEn: React.FC = () => (
             <ul className="list-decimal list-inside space-y-2 ml-4 mt-4">
                 <li>Exceeding a rate limit returns HTTP <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">429 Too Many Requests</code>.</li>
                 <li>You should implement backoff or retry logic when receiving 429 responses.</li>
+                <li>P2P signaling is a long-lived WebSocket and therefore capped by concurrent active connections and connect attempts per minute instead of hourly request count. Exceeding either cap rejects the upgrade with a 429.</li>
+                <li>P2P transfer endpoints (<code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">POST /v1/p2p/sessions</code>, <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">GET /v1/p2p/sessions/&#123;code&#125;/status</code>, <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">GET /v1/turn/credentials</code>, <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">GET /v1/ws/signaling</code>) require a dedicated <strong>p2p_transfer</strong> scope. This scope must be explicitly selected at API key issuance.</li>
+                <li>File payloads transferred over the WebRTC DataChannel do not pass through our servers and therefore are not rate-limited. However, Cloudflare TURN relay traffic is billed to our account; intentionally generating excessive traffic or attempting to abuse TURN relay is prohibited.</li>
                 <li>Repeated limit violations or intentional attempts to circumvent rate limits may result in key revocation or account suspension.</li>
             </ul>
         </section>

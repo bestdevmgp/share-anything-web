@@ -49,12 +49,17 @@ const ApiTermsKo: React.FC = () => (
                         <tr>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">업로드</td>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#888888] font-mono text-xs">POST /v1/uploads, POST /v1/uploads/multipart 계열</td>
-                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">시간당 80건</td>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">시간당 100건</td>
                         </tr>
                         <tr>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">다운로드</td>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#888888] font-mono text-xs">GET /v1/shares/…/download</td>
-                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">시간당 150건</td>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">시간당 300건</td>
+                        </tr>
+                        <tr>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">P2P 시그널링</td>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#888888] font-mono text-xs">GET /v1/ws/signaling</td>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">동시 활성 10건 · 분당 연결 시도 30회</td>
                         </tr>
                     </tbody>
                 </table>
@@ -62,6 +67,9 @@ const ApiTermsKo: React.FC = () => (
             <ul className="list-decimal list-inside space-y-2 ml-4 mt-4">
                 <li>요청 한도를 초과하면 HTTP <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">429 Too Many Requests</code> 응답이 반환됩니다.</li>
                 <li>429 응답을 수신한 경우 지수 백오프(exponential backoff) 또는 재시도 지연 로직을 구현하여야 합니다.</li>
+                <li>P2P 시그널링은 장시간 유지되는 WebSocket 연결이므로 시간당 요청 횟수 대신 동시 활성 연결 수와 분당 연결 시도 횟수로 제한됩니다. 한도 초과 시 업그레이드 단계에서 429로 거부됩니다.</li>
+                <li>P2P 전송 관련 엔드포인트(<code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">POST /v1/p2p/sessions</code>, <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">GET /v1/p2p/sessions/&#123;code&#125;/status</code>, <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">GET /v1/turn/credentials</code>, <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">GET /v1/ws/signaling</code>)는 별도의 <strong>p2p_transfer</strong> 권한을 요구합니다. API 키 신청 시 해당 권한을 명시적으로 선택해야 사용 가능합니다.</li>
+                <li>WebRTC DataChannel을 통한 실제 파일 송수신은 당사 서버를 경유하지 않으므로 별도 요청 한도가 적용되지 않으나, Cloudflare TURN 릴레이 트래픽은 당사 비용으로 발생합니다. 의도적인 대용량 트래픽 유발 또는 트래픽 우회·증폭 시도는 금지됩니다.</li>
                 <li>반복적인 한도 초과 또는 의도적인 한도 우회 시도는 API 키 폐기 및 계정 이용 제한의 사유가 될 수 있습니다.</li>
             </ul>
         </section>

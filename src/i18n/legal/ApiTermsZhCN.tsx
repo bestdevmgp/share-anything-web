@@ -49,12 +49,17 @@ const ApiTermsZhCN: React.FC = () => (
                         <tr>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">上传</td>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#888888] font-mono text-xs">POST /v1/uploads, POST /v1/uploads/multipart 系列</td>
-                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">80次/小时</td>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">100次/小时</td>
                         </tr>
                         <tr>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">下载</td>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#888888] font-mono text-xs">GET /v1/shares/…/download</td>
-                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">150次/小时</td>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">300次/小时</td>
+                        </tr>
+                        <tr>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">P2P 信令</td>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#888888] font-mono text-xs">GET /v1/ws/signaling</td>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">并发活跃 10 个 · 连接尝试 30 次/分钟</td>
                         </tr>
                     </tbody>
                 </table>
@@ -62,6 +67,9 @@ const ApiTermsZhCN: React.FC = () => (
             <ul className="list-decimal list-inside space-y-2 ml-4 mt-4">
                 <li>超出限制将返回HTTP <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">429 Too Many Requests</code>。</li>
                 <li>收到429响应时，请实现指数退避或重试延迟逻辑。</li>
+                <li>P2P 信令是长时间维持的 WebSocket 连接，因此以并发活跃连接数和每分钟连接尝试次数代替每小时请求数进行限制。超出任一限制将在 WebSocket 升级阶段被 429 拒绝。</li>
+                <li>P2P 传输相关端点 (<code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">POST /v1/p2p/sessions</code>, <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">GET /v1/p2p/sessions/&#123;code&#125;/status</code>, <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">GET /v1/turn/credentials</code>, <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">GET /v1/ws/signaling</code>) 需要单独的 <strong>p2p_transfer</strong> 权限。申请 API 密钥时必须显式选择该权限。</li>
+                <li>通过 WebRTC DataChannel 的实际文件传输不经过本服务服务器，因此不另行限速。但 Cloudflare TURN 中继流量由本服务承担，故意产生大量流量或滥用 TURN 中继的行为将被禁止。</li>
                 <li>反复超出限制或故意绕过限制可能导致密钥撤销或账户暂停。</li>
             </ul>
         </section>

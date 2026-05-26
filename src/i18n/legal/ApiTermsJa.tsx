@@ -49,12 +49,17 @@ const ApiTermsJa: React.FC = () => (
                         <tr>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">アップロード</td>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#888888] font-mono text-xs">POST /v1/uploads, POST /v1/uploads/multipart 系</td>
-                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">80回/時間</td>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">100回/時間</td>
                         </tr>
                         <tr>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">ダウンロード</td>
                             <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#888888] font-mono text-xs">GET /v1/shares/…/download</td>
-                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">150回/時間</td>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">300回/時間</td>
+                        </tr>
+                        <tr>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">P2P シグナリング</td>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#888888] font-mono text-xs">GET /v1/ws/signaling</td>
+                            <td className="border border-gray-300 dark:border-white/15 px-4 py-2 dark:text-[#EDEDED]">同時接続 10 件・接続試行 30 回/分</td>
                         </tr>
                     </tbody>
                 </table>
@@ -62,6 +67,9 @@ const ApiTermsJa: React.FC = () => (
             <ul className="list-decimal list-inside space-y-2 ml-4 mt-4">
                 <li>制限を超えるとHTTP <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">429 Too Many Requests</code>が返されます。</li>
                 <li>429を受け取った場合は、指数バックオフなどのリトライ処理を実装してください。</li>
+                <li>P2P シグナリングは長時間維持される WebSocket 接続であるため、1 時間あたりのリクエスト数ではなく同時接続数と分あたりの接続試行回数で制限されます。超過時は WebSocket アップグレード段階で 429 として拒否されます。</li>
+                <li>P2P 転送関連エンドポイント (<code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">POST /v1/p2p/sessions</code>, <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">GET /v1/p2p/sessions/&#123;code&#125;/status</code>, <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">GET /v1/turn/credentials</code>, <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">GET /v1/ws/signaling</code>) は専用の <strong>p2p_transfer</strong> 権限を必要とします。API キー発行時に明示的に選択する必要があります。</li>
+                <li>WebRTC DataChannel を通じた実際のファイル送受信は当社サーバーを経由しないため、別途のリクエスト制限は適用されません。ただし Cloudflare TURN リレートラフィックは当社負担で発生するため、意図的な大量トラフィックの発生や TURN リレーの不正利用は禁止されます。</li>
                 <li>繰り返しの制限超過は、APIキー失効やアカウント停止の原因となる場合があります。</li>
             </ul>
         </section>
