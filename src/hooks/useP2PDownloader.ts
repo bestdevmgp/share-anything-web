@@ -173,13 +173,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
                     setStatus('completed');
                     onComplete(blob);
 
-                    if (wsRef.current) {
-                      sendSignalingMessage(wsRef.current, {
-                        type: 'transfer_complete',
-                        share_code: shareCode
-                      });
-                    }
-
                     setTimeout(() => cleanup(), 1000);
                   }, 0);
                 }, 0);
@@ -437,5 +430,29 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { status, progress, timeRemaining, peerDeviceInfo, reset, cancelDownload };
+  // Receiver explicitly signals they are done. Sends transfer_complete to the
+  // server (which forwards it to the uploader) and tears down local resources.
+  const close = useCallback(() => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      sendSignalingMessage(wsRef.current, {
+        type: 'transfer_complete',
+        share_code: shareCode,
+      });
+    }
+    isCleaningUpRef.current = true;
+    if (keepaliveIntervalRef.current) {
+      clearInterval(keepaliveIntervalRef.current);
+      keepaliveIntervalRef.current = null;
+    }
+    if (pcRef.current) {
+      pcRef.current.close();
+      pcRef.current = null;
+    }
+    if (wsRef.current) {
+      wsRef.current.close();
+      wsRef.current = null;
+    }
+  }, [shareCode]);
+
+  return { status, progress, timeRemaining, peerDeviceInfo, reset, cancelDownload, close };
 };

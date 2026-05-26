@@ -29,6 +29,7 @@ export interface SingleFileViewProps {
   handleDownload: (asZip: boolean) => void;
   handleCancelDownload: () => void;
   handleCancelP2PDownload: () => void;
+  closeP2PSession?: () => void;
   setP2pEnabled: (value: boolean) => void;
   openPreview: (fileName: string, fileSize: number, fileId: string, blobSource: string) => void;
   navigate: NavigateFunction;
@@ -54,6 +55,7 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
   handleDownload,
   handleCancelDownload,
   handleCancelP2PDownload,
+  closeP2PSession,
   setP2pEnabled,
   openPreview,
   navigate,
@@ -262,8 +264,17 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
                   </div>
                 </div>
               ) : p2pStatus === 'completed' ? (
-                <div className="text-center py-4 text-green-600 font-semibold">
-                  ✓ {t('download.receiveCompleteMark')}
+                <div className="flex flex-col items-center gap-3 py-2">
+                  <div className="text-center text-green-600 font-semibold">
+                    ✓ {t('download.receiveCompleteMark')}
+                  </div>
+                  <Button
+                    size="lg"
+                    className="w-full"
+                    onClick={() => { closeP2PSession?.(); navigate('/'); }}
+                  >
+                    {t('common.done')}
+                  </Button>
                 </div>
               ) : (
                 <Button

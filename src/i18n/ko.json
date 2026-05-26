@@ -214,6 +214,7 @@
     "receiverConnected": "수신자 연결됨",
     "transferring": "파일 전송 중...",
     "transferComplete": "전송 완료",
+    "waitingForNextRequest": "다음 요청 대기 중...",
     "uploadComplete": "업로드 완료",
     "keepPageOpen": "수신자가 연결될 때까지 이 페이지를 닫지 마세요.",
     "allFilesTransferred": "모든 파일이 성공적으로 전송되었습니다.",
@@ -293,7 +294,10 @@
     "individualDownload": "개별 다운로드",
     "creatingZip": "ZIP 생성 중...",
     "selectFilePrompt": "파일을 선택하세요",
-    "multiFileDownload": "{{count}}개 파일 다운로드"
+    "multiFileDownload": "{{count}}개 파일 다운로드",
+    "downloadAll": "전체 다운로드",
+    "bulkProgress": "{{done}} / {{total}} 파일 받는 중…",
+    "zipDownloadFailed": "ZIP 생성 실패"
   },
   "history": {
     "pageTitle": "업로드 기록",

@@ -214,6 +214,7 @@
     "receiverConnected": "受信者が接続しました",
     "transferring": "ファイル転送中...",
     "transferComplete": "転送完了",
+    "waitingForNextRequest": "次のリクエストを待っています...",
     "uploadComplete": "アップロード完了",
     "keepPageOpen": "受信者が接続するまでこのページを閉じないでください。",
     "allFilesTransferred": "すべてのファイルが正常に転送されました。",
@@ -293,7 +294,10 @@
     "individualDownload": "個別ダウンロード",
     "creatingZip": "ZIP作成中...",
     "selectFilePrompt": "ファイルを選択してください",
-    "multiFileDownload": "{{count}}件のファイルをダウンロード"
+    "multiFileDownload": "{{count}}件のファイルをダウンロード",
+    "downloadAll": "全てダウンロード",
+    "bulkProgress": "{{done}} / {{total}} 件受信中…",
+    "zipDownloadFailed": "ZIP作成失敗"
   },
   "history": {
     "pageTitle": "アップロード履歴",

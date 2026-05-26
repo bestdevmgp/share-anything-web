@@ -20,7 +20,7 @@ interface UseP2PUploaderProps {
 
 export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProps) => {
   const { t } = useTranslation();
-  const [status, setStatus] = useState<'waiting' | 'connected' | 'transferring' | 'completed'>('waiting');
+  const [status, setStatus] = useState<'waiting' | 'connected' | 'transferring' | 'waiting_for_next' | 'completed'>('waiting');
   const [fileProgresses, setFileProgresses] = useState<Map<string, FileProgress>>(new Map());
   const [currentFileName, setCurrentFileName] = useState<string>('');
   const [peerDeviceInfo, setPeerDeviceInfo] = useState<string | null>(null);
@@ -88,15 +88,9 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
         return newMap;
       });
 
-      setStatus('waiting');
+      // Session stays alive; receiver may request more files.
+      setStatus('waiting_for_next');
       setCurrentFileName('');
-
-      if (wsRef.current) {
-        sendSignalingMessage(wsRef.current, {
-          type: 'transfer_complete',
-          share_code: shareCode
-        });
-      }
 
       toast.success(t('p2p.transferComplete', { fileName: file.name }));
 
@@ -435,6 +429,12 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
           setStatus('waiting');
           setCurrentFileName('');
           setPeerDeviceInfo(null);
+          break;
+
+        case 'transfer_complete':
+          // Server forwarded the receiver's Done click — session is closing.
+          isCleaningUpRef.current = true;
+          setStatus('completed');
           break;
 
         case 'error':

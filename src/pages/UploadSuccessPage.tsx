@@ -103,9 +103,11 @@ const UploadSuccessPage: React.FC = () => {
   });
 
   const getOverallStatus = () => {
+    if (p2pStatus === 'completed') return 'completed';
     if (allFilesCompleted) return 'completed';
     if (anyFileTransferring) return 'transferring';
     if (p2pStatus === 'connected') return 'connected';
+    if (p2pStatus === 'waiting_for_next') return 'waiting_for_next';
     return 'waiting';
   };
 
@@ -143,6 +145,7 @@ const UploadSuccessPage: React.FC = () => {
               overallStatus === 'waiting' ? t('uploadSuccess.waitingForReceiver') :
               overallStatus === 'connected' ? t('uploadSuccess.receiverConnected') :
               overallStatus === 'transferring' ? t('uploadSuccess.transferring') :
+              overallStatus === 'waiting_for_next' ? t('uploadSuccess.waitingForNextRequest') :
               t('uploadSuccess.transferComplete')
             ) : t('uploadSuccess.uploadComplete')}
           </h1>
@@ -150,7 +153,8 @@ const UploadSuccessPage: React.FC = () => {
             {isP2PTransfer ? (
               overallStatus === 'waiting' ? t('uploadSuccess.keepPageOpen') :
               overallStatus === 'connected' ? t('uploadSuccess.connectedReadyToDownload', { device: peerDeviceInfo || '' }) :
-              allFilesCompleted ? t('uploadSuccess.allFilesTransferred') :
+              overallStatus === 'waiting_for_next' ? t('uploadSuccess.keepPageOpen') :
+              allFilesCompleted || overallStatus === 'completed' ? t('uploadSuccess.allFilesTransferred') :
               peerDeviceInfo ? t('uploadSuccess.connectedTo', { device: peerDeviceInfo }) :
               t('uploadSuccess.transferringPleaseWait')
             ) : t('uploadSuccess.shareCodeOrLink')}

@@ -62,14 +62,46 @@ const DownloadFilePage: React.FC = () => {
   const [p2pActiveFileId, setP2pActiveFileId] = useState<string | null>(null);
   const [p2pCompletedFileIds, setP2pCompletedFileIds] = useState<Set<string>>(new Set());
 
+  // Bulk P2P download state — sequentially downloads every file, each saved to disk on arrival.
+  const [bulkP2PDownloading, setBulkP2PDownloading] = useState(false);
+  const [bulkRemaining, setBulkRemaining] = useState(0);
+  const bulkQueueRef = useRef<string[]>([]);
+  const bulkTotalRef = useRef<number>(0);
+
   const handleP2PDownloadComplete = useCallback((blob: Blob, fileName: string) => {
+    if (bulkP2PDownloading) {
+      const completedId = p2pActiveFileId || '';
+      // Save THIS file to disk right away (no ZIP buffering).
+      downloadFile(blob, fileName);
+      setP2pCompletedFileIds(prev => new Set(prev).add(completedId));
+      setP2pActiveFileId(null);
+      setP2pEnabled(false);
+
+      bulkQueueRef.current = bulkQueueRef.current.filter(id => id !== completedId);
+      setBulkRemaining(bulkQueueRef.current.length);
+      const nextId = bulkQueueRef.current[0];
+      if (nextId) {
+        setTimeout(() => {
+          setP2pActiveFileId(nextId);
+          setP2pEnabled(true);
+        }, 0);
+      } else {
+        // Done — exit bulk mode.
+        setBulkP2PDownloading(false);
+        bulkTotalRef.current = 0;
+        toast.success(t('download.downloadComplete'));
+      }
+      return;
+    }
+
+    // Default (single-file) behavior
     downloadFile(blob, fileName);
     toast.success(t('download.downloadComplete'));
     setP2pCompletedFileIds(prev => new Set(prev).add(p2pActiveFileId || ''));
     setP2pActiveFileId(null);
     setP2pEnabled(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [p2pActiveFileId]);
+  }, [p2pActiveFileId, bulkP2PDownloading]);
 
   const singleFile = fileList?.files?.length === 1 ? fileList.files[0] : null;
   const singleFileThumbnail = useThumbnail(
@@ -79,7 +111,7 @@ const DownloadFilePage: React.FC = () => {
   );
   const p2pActiveFile = p2pActiveFileId ? fileList?.files?.find(f => f.id === p2pActiveFileId) : singleFile;
 
-  const { status: p2pStatus, progress: p2pProgress, timeRemaining: p2pTimeRemaining, peerDeviceInfo: p2pPeerDeviceInfo, reset: resetP2P, cancelDownload } = useP2PDownloader({
+  const { status: p2pStatus, progress: p2pProgress, timeRemaining: p2pTimeRemaining, peerDeviceInfo: p2pPeerDeviceInfo, reset: resetP2P, cancelDownload, close: closeP2PSession } = useP2PDownloader({
     shareCode: code || '',
     password: password || undefined,
     fileInfo: p2pActiveFile ? {
@@ -115,13 +147,41 @@ const DownloadFilePage: React.FC = () => {
     cancelDownload();
     setP2pActiveFileId(null);
     setP2pEnabled(false);
-  }, [cancelDownload]);
+    // If we were in bulk mode, abort it
+    if (bulkP2PDownloading) {
+      bulkQueueRef.current = [];
+      bulkTotalRef.current = 0;
+      setBulkRemaining(0);
+      setBulkP2PDownloading(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cancelDownload, bulkP2PDownloading]);
+
+  const startBulkP2PDownload = useCallback(() => {
+    if (!fileList) return;
+    const ids = fileList.files.map(f => f.id);
+    bulkQueueRef.current = [...ids];
+    bulkTotalRef.current = ids.length;
+    setBulkRemaining(ids.length);
+    setP2pCompletedFileIds(new Set());
+    setBulkP2PDownloading(true);
+    resetP2P();
+    setP2pActiveFileId(ids[0]);
+    setP2pEnabled(true);
+  }, [fileList, resetP2P]);
 
   useEffect(() => {
     if (p2pStatus === 'error' || p2pStatus === 'cancelled') {
       setP2pActiveFileId(null);
       setP2pEnabled(false);
+      if (bulkP2PDownloading) {
+        bulkQueueRef.current = [];
+        bulkTotalRef.current = 0;
+        setBulkRemaining(0);
+        setBulkP2PDownloading(false);
+      }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [p2pStatus]);
 
   useEffect(() => {
@@ -473,6 +533,7 @@ const DownloadFilePage: React.FC = () => {
           handleDownload={handleDownload}
           handleCancelDownload={handleCancelDownload}
           handleCancelP2PDownload={handleCancelP2PDownload}
+          closeP2PSession={closeP2PSession}
           setP2pEnabled={setP2pEnabled}
           openPreview={openPreview}
           navigate={navigate}
@@ -628,7 +689,7 @@ const DownloadFilePage: React.FC = () => {
                       ) : (
                         <Button
                           onClick={() => startP2PDownload(file.id)}
-                          disabled={p2pEnabled && !isActive}
+                          disabled={(p2pEnabled && !isActive) || bulkP2PDownloading}
                           size="sm"
                           className="flex-shrink-0"
                         >
@@ -641,7 +702,31 @@ const DownloadFilePage: React.FC = () => {
               })}
             </div>
 
-            <div className="mt-4 text-center">
+            <div className="mt-4 flex flex-col items-center gap-3">
+              {!bulkP2PDownloading && p2pCompletedFileIds.size < fileList.files.length && (
+                <Button
+                  variant="secondary"
+                  onClick={startBulkP2PDownload}
+                  disabled={p2pEnabled}
+                  className="w-full"
+                >
+                  {t('download.downloadAll') || '전체 다운로드'}
+                </Button>
+              )}
+              {bulkP2PDownloading && (
+                <p className="text-sm text-muted-foreground text-center">
+                  {t('download.bulkProgress', { done: bulkTotalRef.current - bulkRemaining, total: bulkTotalRef.current })
+                    || `${bulkTotalRef.current - bulkRemaining} / ${bulkTotalRef.current} 파일 받는 중…`}
+                </p>
+              )}
+              {p2pCompletedFileIds.size > 0 && !bulkP2PDownloading && (
+                <Button
+                  onClick={() => { closeP2PSession(); navigate('/'); }}
+                  className="w-full"
+                >
+                  {t('common.done')}
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 onClick={() => navigate('/')}

@@ -214,6 +214,7 @@
     "receiverConnected": "Receiver connected",
     "transferring": "Transferring files...",
     "transferComplete": "Transfer Complete",
+    "waitingForNextRequest": "Waiting for next request...",
     "uploadComplete": "Upload Complete",
     "keepPageOpen": "Do not close this page until the receiver connects.",
     "allFilesTransferred": "All files have been transferred successfully.",
@@ -293,7 +294,10 @@
     "individualDownload": "Individual Download",
     "creatingZip": "Creating ZIP...",
     "selectFilePrompt": "Select files",
-    "multiFileDownload": "Download {{count}} files"
+    "multiFileDownload": "Download {{count}} files",
+    "downloadAll": "Download all",
+    "bulkProgress": "Downloading {{done}} / {{total}} files…",
+    "zipDownloadFailed": "ZIP creation failed"
   },
   "history": {
     "pageTitle": "Upload History",

@@ -214,6 +214,7 @@
     "receiverConnected": "接收方已連線",
     "transferring": "檔案傳輸中...",
     "transferComplete": "傳輸完成",
+    "waitingForNextRequest": "等待下一個請求...",
     "uploadComplete": "上傳完成",
     "keepPageOpen": "在接收方連線前，請勿關閉此頁面。",
     "allFilesTransferred": "所有檔案已成功傳輸。",
@@ -293,7 +294,10 @@
     "individualDownload": "逐個下載",
     "creatingZip": "建立 ZIP 中...",
     "selectFilePrompt": "請選擇檔案",
-    "multiFileDownload": "下載 {{count}} 個檔案"
+    "multiFileDownload": "下載 {{count}} 個檔案",
+    "downloadAll": "全部下載",
+    "bulkProgress": "正在接收 {{done}} / {{total}} 個檔案…",
+    "zipDownloadFailed": "ZIP 建立失敗"
   },
   "history": {
     "pageTitle": "上傳紀錄",

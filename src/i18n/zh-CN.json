@@ -214,6 +214,7 @@
     "receiverConnected": "接收方已连接",
     "transferring": "文件传输中...",
     "transferComplete": "传输完成",
+    "waitingForNextRequest": "等待下一个请求...",
     "uploadComplete": "上传完成",
     "keepPageOpen": "在接收方连接之前，请勿关闭此页面。",
     "allFilesTransferred": "所有文件已成功传输。",
@@ -293,7 +294,10 @@
     "individualDownload": "逐个下载",
     "creatingZip": "正在创建 ZIP...",
     "selectFilePrompt": "请选择文件",
-    "multiFileDownload": "下载 {{count}} 个文件"
+    "multiFileDownload": "下载 {{count}} 个文件",
+    "downloadAll": "全部下载",
+    "bulkProgress": "正在接收 {{done}} / {{total}} 个文件…",
+    "zipDownloadFailed": "ZIP 创建失败"
   },
   "history": {
     "pageTitle": "上传记录",
