@@ -101,7 +101,7 @@ const SettingsPage: React.FC = () => {
   const [applyServiceName, setApplyServiceName] = useState('');
   const [applyServiceUrl, setApplyServiceUrl] = useState('');
   const [applyPurpose, setApplyPurpose] = useState('');
-  const [applyScopes, setApplyScopes] = useState<Array<'read' | 'upload' | 'delete'>>(['read', 'upload', 'delete']);
+  const [applyScopes, setApplyScopes] = useState<Array<'read' | 'upload' | 'delete' | 'p2p_transfer'>>(['read', 'upload', 'delete']);
   const [applyTerms, setApplyTerms] = useState(false);
   const [applySubmitting, setApplySubmitting] = useState(false);
 
@@ -114,13 +114,13 @@ const SettingsPage: React.FC = () => {
     serviceName: string;
     serviceUrl: string;
     purpose: string;
-    scopes: Array<'read' | 'upload' | 'delete'>;
+    scopes: Array<'read' | 'upload' | 'delete' | 'p2p_transfer'>;
     expiration: ExpirationOption;
     customDate: string;
   };
   const [editOriginal, setEditOriginal] = useState<EditOriginal | null>(null);
 
-  const toggleApplyScope = (s: 'read' | 'upload' | 'delete') => {
+  const toggleApplyScope = (s: 'read' | 'upload' | 'delete' | 'p2p_transfer') => {
     setApplyScopes((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
   };
 
@@ -140,8 +140,8 @@ const SettingsPage: React.FC = () => {
   };
 
   const handleEditRejected = (app: ApiKeyApplicationResponse) => {
-    const scopes = app.scopes.filter((s): s is 'read' | 'upload' | 'delete' =>
-      s === 'read' || s === 'upload' || s === 'delete'
+    const scopes = app.scopes.filter((s): s is 'read' | 'upload' | 'delete' | 'p2p_transfer' =>
+      s === 'read' || s === 'upload' || s === 'delete' || s === 'p2p_transfer'
     );
     let expiration: ExpirationOption = 'none';
     let customDate = '';
@@ -1677,7 +1677,7 @@ const SettingsPage: React.FC = () => {
                         {t('settings.apiKeys.modal.scopesLabel')}
                       </label>
                       <div className="space-y-2">
-                        {(['read', 'upload', 'delete'] as const).map((s) => (
+                        {(['read', 'upload', 'delete', 'p2p_transfer'] as const).map((s) => (
                           <label key={s} className="flex items-center gap-2 text-sm cursor-pointer">
                             <Checkbox checked={applyScopes.includes(s)} onCheckedChange={() => toggleApplyScope(s)} />
                             <span>{t(`settings.apiKeys.modal.scope.${s}`)}</span>

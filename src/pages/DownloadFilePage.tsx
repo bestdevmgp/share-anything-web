@@ -81,6 +81,7 @@ const DownloadFilePage: React.FC = () => {
 
   const { status: p2pStatus, progress: p2pProgress, timeRemaining: p2pTimeRemaining, peerDeviceInfo: p2pPeerDeviceInfo, reset: resetP2P, cancelDownload } = useP2PDownloader({
     shareCode: code || '',
+    password: password || undefined,
     fileInfo: p2pActiveFile ? {
       share_code: code || '',
       file_name: p2pActiveFile.file_name,

@@ -10,9 +10,10 @@ interface UseP2PDownloaderProps {
   fileInfo: FileInfo;
   enabled: boolean;
   onComplete: (blob: Blob) => void;
+  password?: string;
 }
 
-export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: UseP2PDownloaderProps) => {
+export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, password }: UseP2PDownloaderProps) => {
   const { t } = useTranslation();
   const [status, setStatus] = useState<'waiting' | 'connecting' | 'downloading' | 'processing' | 'completed' | 'error' | 'cancelled'>('waiting');
   const [progress, setProgress] = useState(0);
@@ -82,7 +83,8 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete }: U
             share_code: shareCode,
             peer_id: peerIdRef.current,
             file_name: fileInfo.file_name,
-            device_info: getDeviceInfo()
+            device_info: getDeviceInfo(),
+            ...(password ? { password } : {})
           });
         };
 

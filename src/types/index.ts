@@ -149,6 +149,7 @@ export interface SignalingMessage {
   message?: string;
   file_name?: string;
   device_info?: string;
+  password?: string;
 }
 
 export interface PresignedUploadFileInfo {
