@@ -5,7 +5,7 @@ export function savePostLoginRedirect(path: string): void {
   try {
     sessionStorage.setItem(STORAGE_KEY, path);
   } catch {
-    // sessionStorage unavailable — silently ignore
+    // sessionStorage unavailable - silently ignore
   }
 }
 

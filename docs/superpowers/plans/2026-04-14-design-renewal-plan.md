@@ -1,4 +1,4 @@
-# ShareAnything Design Renewal — Implementation Plan
+# ShareAnything Design Renewal - Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -160,7 +160,7 @@ cp ../share-anything-web-old/src/assets/lottie-404.json src/assets/lottie-404.js
 
 - [ ] **Step 2: Fix import paths for Next.js**
 
-All copied files use relative imports or `lib/utils` — update any path aliases that don't match the new project's `@/*` alias. The key changes:
+All copied files use relative imports or `lib/utils` - update any path aliases that don't match the new project's `@/*` alias. The key changes:
 
 - Replace `import { cn } from 'lib/utils'` → `import { cn } from '@/lib/utils'` in all files
 - Replace `import ... from '../context/...'` → `import ... from '@/context/...'` where needed
@@ -204,7 +204,7 @@ Apply these changes in: `AuthContext.tsx` (if it uses navigation). Note: most co
 npx tsc --noEmit 2>&1 | head -20
 ```
 
-Fix any remaining import errors. Some files may have compile errors from missing component imports — that's expected, as UI components haven't been created yet. Focus on ensuring type definitions, services, utils, and hooks compile.
+Fix any remaining import errors. Some files may have compile errors from missing component imports - that's expected, as UI components haven't been created yet. Focus on ensuring type definitions, services, utils, and hooks compile.
 
 - [ ] **Step 6: Commit**
 
@@ -527,7 +527,7 @@ export default function RootLayout({
 npm run dev
 ```
 
-Visit localhost:3000 — should show default Next.js page with dark background (#000) and Geist font.
+Visit localhost:3000 - should show default Next.js page with dark background (#000) and Geist font.
 
 - [ ] **Step 5: Commit**
 
@@ -691,7 +691,7 @@ git commit -m "feat: add InteractiveGridBg component with mouse spotlight"
 
 ---
 
-### Task 6: UI Component Library — Core primitives
+### Task 6: UI Component Library - Core primitives
 
 **Files:**
 - Create: `src/components/ui/button.tsx`
@@ -773,7 +773,7 @@ Copy the following components from the old project (`~/Desktop/Dev/share-anythin
 2. Update import path: `'lib/utils'` → `'@/lib/utils'`
 3. Update the color/style classes to use new design tokens:
    - Replace `bg-muted` shimmer colors with `bg-elevated` in Skeleton
-   - Replace `text-primary` colors — primary is now cyan `#00D4AA`
+   - Replace `text-primary` colors - primary is now cyan `#00D4AA`
    - Spinner: change color to `text-primary` (cyan)
    - Separator: `bg-border` (uses new border token)
 
@@ -786,7 +786,7 @@ git commit -m "feat: add core UI components (Button, Input, Badge, Label, Separa
 
 ---
 
-### Task 7: UI Component Library — Radix-based components
+### Task 7: UI Component Library - Radix-based components
 
 **Files:**
 - Create: `src/components/ui/card.tsx`
@@ -1055,7 +1055,7 @@ For each component (`FilePreviewModal`, `FileThumbnail`, `StyledQRCode`, `Turnst
 4. Replace `react-router-dom` usage with `next/link` and `next/navigation`
 5. Apply new design tokens (colors are handled by CSS variables, so most classes carry over)
 
-QuickAccess needs special attention — it will be integrated into the HomePage terminal hub, but the component itself should work standalone.
+QuickAccess needs special attention - it will be integrated into the HomePage terminal hub, but the component itself should work standalone.
 
 - [ ] **Step 4: Commit**
 
@@ -1107,7 +1107,7 @@ export default function Providers({ children }: { children: React.ReactNode }) {
 }
 ```
 
-Note: Context provider export names may differ from old project. Check each context file and adjust the import/component names. The old project wraps providers in `App.tsx` — replicate the same nesting order.
+Note: Context provider export names may differ from old project. Check each context file and adjust the import/component names. The old project wraps providers in `App.tsx` - replicate the same nesting order.
 
 - [ ] **Step 2: Update root layout**
 
@@ -1183,7 +1183,7 @@ git commit -m "feat: add global layout with Providers, Header, Footer, Interacti
 
 ## Phase 5: Pages
 
-### Task 12: HomePage — Terminal Hub
+### Task 12: HomePage - Terminal Hub
 
 **Files:**
 - Create: `src/app/page.tsx`
@@ -1571,7 +1571,7 @@ Create `.env.local`:
 NEXT_PUBLIC_API_URL=https://share-api.mingyu.dev
 ```
 
-Update `src/services/api.ts` to use `process.env.NEXT_PUBLIC_API_URL` (should already work if old project used `REACT_APP_API_URL` — find and replace).
+Update `src/services/api.ts` to use `process.env.NEXT_PUBLIC_API_URL` (should already work if old project used `REACT_APP_API_URL` - find and replace).
 
 - [ ] **Step 2: Configure next.config.ts**
 

@@ -431,7 +431,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
           break;
 
         case 'transfer_complete':
-          // Server forwarded the receiver's Done click — session is closing.
+          // Server forwarded the receiver's Done click - session is closing.
           isCleaningUpRef.current = true;
           setStatus('completed');
           break;

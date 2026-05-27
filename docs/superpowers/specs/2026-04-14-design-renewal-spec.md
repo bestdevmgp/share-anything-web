@@ -1,4 +1,4 @@
-# ShareAnything Design Renewal — Full Specification
+# ShareAnything Design Renewal - Full Specification
 
 ## Overview
 
@@ -32,22 +32,22 @@ ShareAnything 웹 프로젝트의 전면 디자인 리뉴얼. CRA → Next.js �
 - **Radix UI** (기존 컴포넌트 프리미티브 유지)
 
 ### New Dependencies
-- **motion** (v12, 구 framer-motion) — UI 애니메이션, page transitions, 마이크로인터랙션
-- **Geist Mono** font — `geist/font/mono` (Next.js native 지원)
-- **class-variance-authority** — 기존과 동일, variant 관리
-- **clsx + tailwind-merge** — 기존과 동일
+- **motion** (v12, 구 framer-motion) - UI 애니메이션, page transitions, 마이크로인터랙션
+- **Geist Mono** font - `geist/font/mono` (Next.js native 지원)
+- **class-variance-authority** - 기존과 동일, variant 관리
+- **clsx + tailwind-merge** - 기존과 동일
 
 ### Preserved Dependencies
-- `react-dropzone` — 파일 드래그앤드롭
-- `qrcode.react` / `qr-code-styling` — QR 코드 생성
-- `react-pdf` / `pdfjs-dist` — PDF 미리보기
-- `docx-preview` — DOCX 미리보기
-- `xlsx` — Excel 파싱
-- `jszip` / `pako` — ZIP/압축 처리
-- `axios` — HTTP 클라이언트
-- `lottie-react` — 404 애니메이션
-- `@marsidev/react-turnstile` — Cloudflare CAPTCHA
-- `@radix-ui/*` — UI 프리미티브 (11개)
+- `react-dropzone` - 파일 드래그앤드롭
+- `qrcode.react` / `qr-code-styling` - QR 코드 생성
+- `react-pdf` / `pdfjs-dist` - PDF 미리보기
+- `docx-preview` - DOCX 미리보기
+- `xlsx` - Excel 파싱
+- `jszip` / `pako` - ZIP/압축 처리
+- `axios` - HTTP 클라이언트
+- `lottie-react` - 404 애니메이션
+- `@marsidev/react-turnstile` - Cloudflare CAPTCHA
+- `@radix-ui/*` - UI 프리미티브 (11개)
 
 ### Removed Dependencies
 - `react-router-dom` → Next.js App Router로 대체
@@ -124,9 +124,9 @@ Geist Mono 적용 요소:
 
 | Level | Element | Properties |
 |-------|---------|------------|
-| L1 — Strong | Header, Modal | `backdrop-filter: blur(16px)`, `bg: rgba(255,255,255,0.06)`, `border: rgba(255,255,255,0.1)`, `box-shadow: 0 0 20px rgba(0,212,170,0.05)` |
-| L2 — Medium | Card, Panel, Terminal Box | `backdrop-filter: blur(12px)`, `bg: rgba(255,255,255,0.04)`, `border: rgba(255,255,255,0.07)` |
-| L3 — Solid | Dropdown, Popover, Toast | blur 없음, `bg: rgba(20,20,20,0.95)`, `border: rgba(255,255,255,0.08)` |
+| L1 - Strong | Header, Modal | `backdrop-filter: blur(16px)`, `bg: rgba(255,255,255,0.06)`, `border: rgba(255,255,255,0.1)`, `box-shadow: 0 0 20px rgba(0,212,170,0.05)` |
+| L2 - Medium | Card, Panel, Terminal Box | `backdrop-filter: blur(12px)`, `bg: rgba(255,255,255,0.04)`, `border: rgba(255,255,255,0.07)` |
+| L3 - Solid | Dropdown, Popover, Toast | blur 없음, `bg: rgba(20,20,20,0.95)`, `border: rgba(255,255,255,0.08)` |
 
 Light mode에서는 glass 효과를 톤다운:
 - L1: `bg: rgba(255,255,255,0.7)`, `blur(12px)`, border 살짝 진하게
@@ -249,7 +249,7 @@ SVG filter 기반 미세한 grain 텍스트처:
 
 ## 4. Page Specifications
 
-### 4.1 HomePage — Terminal Hub
+### 4.1 HomePage - Terminal Hub
 
 **핵심 변경**: 기존 QuickAccess + 2열 카드 → 중앙 터미널 허브 단일 인터페이스
 
@@ -587,12 +587,12 @@ app/
 
 ## 9. Design Principles
 
-1. **UI가 스스로 말한다** — 불필요한 설명 텍스트, 마케팅 카피 없음
-2. **터미널 힌트** — Geist Mono + `>_` 프롬프트로 터미널 감성, 과하지 않게
-3. **계층적 깊이** — Glass L1/L2/L3 + glow로 시각적 레이어 구분
-4. **시안 액센트** — 모든 인터랙티브 요소에 일관된 시안/틸 컬러
-5. **미니멀** — 꼭 필요한 요소만. 장식적 요소 최소화
-6. **기능 보존** — 기존 기능 하나도 빠지지 않음. API 형식 변경 없음
+1. **UI가 스스로 말한다** - 불필요한 설명 텍스트, 마케팅 카피 없음
+2. **터미널 힌트** - Geist Mono + `>_` 프롬프트로 터미널 감성, 과하지 않게
+3. **계층적 깊이** - Glass L1/L2/L3 + glow로 시각적 레이어 구분
+4. **시안 액센트** - 모든 인터랙티브 요소에 일관된 시안/틸 컬러
+5. **미니멀** - 꼭 필요한 요소만. 장식적 요소 최소화
+6. **기능 보존** - 기존 기능 하나도 빠지지 않음. API 형식 변경 없음
 
 ---
 

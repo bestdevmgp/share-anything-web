@@ -61,7 +61,7 @@ const DownloadFilePage: React.FC = () => {
   const [p2pActiveFileId, setP2pActiveFileId] = useState<string | null>(null);
   const [p2pCompletedFileIds, setP2pCompletedFileIds] = useState<Set<string>>(new Set());
 
-  // Bulk P2P download state — sequentially downloads every file, each saved to disk on arrival.
+  // Bulk P2P download state - sequentially downloads every file, each saved to disk on arrival.
   const [bulkP2PDownloading, setBulkP2PDownloading] = useState(false);
   const [bulkRemaining, setBulkRemaining] = useState(0);
   const bulkQueueRef = useRef<string[]>([]);
