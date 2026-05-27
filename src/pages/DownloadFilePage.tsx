@@ -86,7 +86,6 @@ const DownloadFilePage: React.FC = () => {
           setP2pEnabled(true);
         }, 300);
       } else {
-        // Done — exit bulk mode.
         setBulkP2PDownloading(false);
         bulkTotalRef.current = 0;
         toast.success(t('download.downloadComplete'));
@@ -649,16 +648,20 @@ const DownloadFilePage: React.FC = () => {
                     )}
                   >
                     <div className="flex items-center space-x-4">
-                      <div className="flex-shrink-0">
-                        <FileThumbnail source={null} fileName={file.file_name} size="md" />
-                      </div>
-
                       <div className="flex-1 min-w-0">
                         <h4 className="text-base font-semibold text-foreground truncate">
                           {file.file_name}
                         </h4>
                         {isDownloading ? (
                           <div className="mt-1.5">
+                            {/* Percent + time-remaining sit on a line ABOVE the bar so the bar
+                                can stretch the full width up to the X button. */}
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-primary text-xs font-medium">{p2pProgress}%</span>
+                              {p2pTimeRemaining && (
+                                <span className="text-xs text-muted-foreground">{p2pTimeRemaining}</span>
+                              )}
+                            </div>
                             <Progress value={p2pProgress} className="h-1.5 bg-secondary" />
                           </div>
                         ) : (
@@ -671,21 +674,13 @@ const DownloadFilePage: React.FC = () => {
                           ✓ {t('common.done')}
                         </span>
                       ) : isDownloading ? (
-                        <div className="flex-shrink-0 flex items-center gap-2">
-                          <div className="text-right">
-                            <span className="text-primary text-sm font-medium">{p2pProgress}%</span>
-                            {p2pTimeRemaining && (
-                              <p className="text-xs text-muted-foreground">{p2pTimeRemaining}</p>
-                            )}
-                          </div>
-                          <button
-                            onClick={handleCancelP2PDownload}
-                            className="p-1 can-hover:hover:bg-accent active:bg-accent rounded transition-colors"
-                            title={t('download.cancelDownload')}
-                          >
-                            <XMarkIcon className="w-5 h-5 text-muted-foreground" />
-                          </button>
-                        </div>
+                        <button
+                          onClick={handleCancelP2PDownload}
+                          className="flex-shrink-0 p-1 can-hover:hover:bg-accent active:bg-accent rounded transition-colors"
+                          title={t('download.cancelDownload')}
+                        >
+                          <XMarkIcon className="w-5 h-5 text-muted-foreground" />
+                        </button>
                       ) : (
                         <Button
                           onClick={() => startP2PDownload(file.id)}

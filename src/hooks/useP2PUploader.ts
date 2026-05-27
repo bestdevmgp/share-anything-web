@@ -294,7 +294,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
         setConnectionFailed(true);
         setStatus('waiting');
       }
-      // 전송 중 disconnected는 일시적일 수 있으므로 에러 미표시
     };
 
     return pc;
