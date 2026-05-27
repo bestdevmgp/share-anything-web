@@ -9,7 +9,6 @@ import { useTranslation } from '../i18n';
 import TurnstileWidget from '../components/TurnstileWidget';
 import { useP2PDownloader } from '../hooks/useP2PDownloader';
 import { createWebSocketConnection, generatePeerId, sendSignalingMessage } from '../utils/webrtc';
-import FileThumbnail from '../components/FileThumbnail';
 import FilePreviewModal from '../components/FilePreviewModal';
 import { useThumbnail } from '../hooks/useThumbnail';
 import { Button } from '../components/ui/button';
