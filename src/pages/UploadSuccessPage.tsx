@@ -12,7 +12,7 @@ import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog';
 import { Input } from '../components/ui/input';
-import { Progress } from '../components/ui/progress';
+
 import { Spinner } from '../components/ui/spinner';
 import { Tooltip, TooltipTrigger, TooltipContent } from '../components/ui/tooltip';
 import { cn } from 'lib/utils';
@@ -289,24 +289,26 @@ const UploadSuccessPage: React.FC = () => {
                       <div>
                         <div className="flex items-center gap-2">
                           <div className="flex-1">
-                            <div className="flex justify-between mb-2">
-                              <span className="text-sm font-medium text-muted-foreground">
+                            <div className="flex items-start justify-between gap-2">
+                              <span className="text-sm font-medium text-muted-foreground truncate">
                                 {isTransferring ? t('uploadSuccess.sending') : t('uploadSuccess.connecting')}
                               </span>
                               {isTransferring && (
-                                <div className="flex items-center gap-2">
-                                  {progress?.timeRemaining && (
-                                    <span className="text-xs text-muted-foreground">{progress.timeRemaining}</span>
-                                  )}
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                  <span className="text-xs text-muted-foreground">{progress?.timeRemaining || t('format.calculating')}</span>
                                   <span className="text-xs font-semibold text-primary">{progress?.progress || 0}%</span>
                                 </div>
                               )}
                             </div>
                             {isTransferring && (
-                              <Progress
-                                value={progress?.progress || 0}
-                                className="h-1.5 bg-secondary"
-                              />
+                              <div className="flex items-center h-4 mt-0.5">
+                                <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
+                                  <div
+                                    className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
+                                    style={{ width: `${progress?.progress || 0}%` }}
+                                  />
+                                </div>
+                              </div>
                             )}
                           </div>
                           <Button
@@ -390,12 +392,22 @@ const UploadSuccessPage: React.FC = () => {
                                 {file.name}
                               </h4>
                               {isTransferring ? (
-                                <div className="mt-1.5">
-                                  <Progress
-                                    value={progress?.progress || 0}
-                                    className="h-1.5 bg-muted"
-                                  />
-                                </div>
+                                <>
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
+                                      <span className="text-xs text-muted-foreground">{progress?.timeRemaining || t('format.calculating')}</span>
+                                      <span className="text-xs font-semibold text-primary">{progress?.progress || 0}%</span>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center h-4 mt-0.5">
+                                    <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
+                                      <div
+                                        className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
+                                        style={{ width: `${progress?.progress || 0}%` }}
+                                      />
+                                    </div>
+                                  </div>
+                                </>
                               ) : (
                                 <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
                               )}
@@ -405,21 +417,15 @@ const UploadSuccessPage: React.FC = () => {
                               {isCompleted ? (
                                 <span className="text-sm text-green-600 font-medium mr-4">{t('uploadSuccess.completed')}</span>
                               ) : isTransferring ? (
-                                <div className="flex items-center gap-2 mr-1">
-                                  {progress?.timeRemaining && (
-                                    <span className="text-xs text-muted-foreground">{progress.timeRemaining}</span>
-                                  )}
-                                  <span className="text-xs font-semibold text-primary">{progress?.progress || 0}%</span>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => cancelTransfer(file.name)}
-                                    className="h-8 w-8 can-hover:hover:bg-accent active:bg-accent"
-                                    title={t('uploadSuccess.cancelTransfer')}
-                                  >
-                                    <XMarkIcon className="w-5 h-5 text-muted-foreground" />
-                                  </Button>
-                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={(e) => { e.stopPropagation(); cancelTransfer(file.name); }}
+                                  className="h-8 w-8 can-hover:hover:bg-accent active:bg-accent"
+                                  title={t('uploadSuccess.cancelTransfer')}
+                                >
+                                  <XMarkIcon className="w-5 h-5 text-muted-foreground" />
+                                </Button>
                               ) : (
                                 <span className="text-sm text-muted-foreground/60 mr-4">{t('uploadSuccess.waiting')}</span>
                               )}

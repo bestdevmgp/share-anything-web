@@ -5,7 +5,7 @@ import { FileListResponse, FileListItem } from '../../types';
 import { formatFileSize, formatDateTime, isImageFile, isVideoFile, isPdfFile, isPptxFile, isHwpFile } from '../../utils/format';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
-import { Progress } from '../../components/ui/progress';
+
 import { Spinner } from '../../components/ui/spinner';
 import LargeFileIcon from '../../components/LargeFileIcon';
 import { cn } from 'lib/utils';
@@ -231,19 +231,17 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
                 <div>
                   <div className="flex items-center gap-2">
                     <div className="flex-1">
-                      <div className="flex justify-between mb-2">
-                        <span className="text-sm font-medium text-foreground">
+                      <div className="flex items-start justify-between gap-2">
+                        <span className="text-sm font-medium text-foreground truncate">
                           {p2pStatus === 'connecting' ? t('download.connectingP2P') : t('download.downloadingP2P')}
                         </span>
                         {(p2pStatus === 'downloading' || p2pStatus === 'processing') && (
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2 flex-shrink-0">
                             {p2pStatus === 'processing' ? (
-                              <span className="text-xs text-muted-foreground">{t('download.pleaseWait')}</span>
+                              <span className="text-xs text-muted-foreground">{t('upload.pleaseWait')}</span>
                             ) : (
                               <>
-                                {p2pTimeRemaining && (
-                                  <span className="text-xs text-muted-foreground">{p2pTimeRemaining}</span>
-                                )}
+                                <span className="text-xs text-muted-foreground">{p2pTimeRemaining || t('format.calculating')}</span>
                                 <span className="text-xs font-semibold text-primary">{p2pProgress}%</span>
                               </>
                             )}
@@ -251,7 +249,14 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
                         )}
                       </div>
                       {(p2pStatus === 'downloading' || p2pStatus === 'processing') && (
-                        <Progress value={p2pProgress} className="h-1.5 bg-secondary" />
+                        <div className="flex items-center h-4 mt-0.5">
+                          <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
+                            <div
+                              className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
+                              style={{ width: `${p2pProgress}%` }}
+                            />
+                          </div>
+                        </div>
                       )}
                     </div>
                     <button
@@ -290,24 +295,29 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
               <div>
                 <div className="flex items-center gap-2">
                   <div className="flex-1">
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium text-foreground">
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="text-sm font-medium text-foreground truncate">
                         {t('download.downloadingP2P')}
                       </span>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-shrink-0">
                         {downloadProgress === 100 ? (
-                          <span className="text-xs text-muted-foreground">{t('download.pleaseWait')}</span>
+                          <span className="text-xs text-muted-foreground">{t('upload.pleaseWait')}</span>
                         ) : (
                           <>
-                            {downloadTimeRemaining && (
-                              <span className="text-xs text-muted-foreground">{downloadTimeRemaining}</span>
-                            )}
+                            <span className="text-xs text-muted-foreground">{downloadTimeRemaining || t('format.calculating')}</span>
                             <span className="text-xs font-semibold text-primary">{downloadProgress}%</span>
                           </>
                         )}
                       </div>
                     </div>
-                    <Progress value={downloadProgress} className="h-1.5 bg-secondary" />
+                    <div className="flex items-center h-4 mt-0.5">
+                      <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
+                          style={{ width: `${downloadProgress}%` }}
+                        />
+                      </div>
+                    </div>
                   </div>
                   <button
                     onClick={handleCancelDownload}

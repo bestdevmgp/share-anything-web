@@ -13,7 +13,7 @@ import FilePreviewModal from '../components/FilePreviewModal';
 import { useThumbnail } from '../hooks/useThumbnail';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
-import { Progress } from '../components/ui/progress';
+
 import { Spinner } from '../components/ui/spinner';
 import { cn } from 'lib/utils';
 
@@ -654,9 +654,19 @@ const DownloadFilePage: React.FC = () => {
                         <div className="h-5 mt-0.5 flex items-center">
                           {isDownloading ? (
                             <div className="flex items-center gap-2 w-full min-w-0">
-                              <Progress value={p2pProgress} className="h-1.5 flex-1 bg-secondary" />
+                              <div className="flex items-center h-4 flex-1">
+                                <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
+                                  <div
+                                    className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
+                                    style={{ width: `${p2pProgress}%` }}
+                                  />
+                                </div>
+                              </div>
                               <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                {p2pProgress}% · {p2pTimeRemaining || t('format.calculating')}
+                                {p2pTimeRemaining || t('format.calculating')}
+                              </span>
+                              <span className="text-xs font-semibold text-primary whitespace-nowrap">
+                                {p2pProgress}%
                               </span>
                             </div>
                           ) : (

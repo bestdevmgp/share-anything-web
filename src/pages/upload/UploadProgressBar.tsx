@@ -55,28 +55,28 @@ const UploadProgressBar: React.FC<UploadProgressBarProps> = ({
           <div className="flex-1 min-h-10 md:min-h-[65px] md:flex md:items-center">
             <div className="flex items-center gap-2 w-full pl-1.5">
               <div className="flex-1">
-                <div className="flex justify-between mb-2">
-                  <span className="text-sm font-medium text-foreground">
+                <div className="flex items-start justify-between gap-2">
+                  <span className="text-sm font-medium text-foreground truncate">
                     {t('upload.uploading')}
                   </span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     {isCompleting ? (
                       <span className="text-xs text-muted-foreground">{t('upload.pleaseWait')}</span>
                     ) : (
                       <>
-                        {uploadTimeRemaining && (
-                          <span className="text-xs text-muted-foreground">{uploadTimeRemaining}</span>
-                        )}
+                        <span className="text-xs text-muted-foreground">{uploadTimeRemaining || t('format.calculating')}</span>
                         <span className="text-xs font-semibold text-primary">{uploadProgress}%</span>
                       </>
                     )}
                   </div>
                 </div>
-                <div className="bg-secondary rounded-full h-1.5 overflow-hidden">
-                  <div
-                    className="bg-primary h-full transition-all duration-300 ease-out rounded-full"
-                    style={{ width: `${uploadProgress}%` }}
-                  />
+                <div className="flex items-center h-4 mt-0.5">
+                  <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
+                    <div
+                      className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
                 </div>
               </div>
               <button

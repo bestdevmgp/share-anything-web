@@ -5,7 +5,7 @@ import { FileListResponse } from '../../types';
 import { formatFileSize } from '../../utils/format';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
-import { Progress } from '../../components/ui/progress';
+
 import { Checkbox } from '../../components/ui/checkbox';
 import FileThumbnail from '../../components/FileThumbnail';
 import { cn } from 'lib/utils';
@@ -121,24 +121,29 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
               <div>
                 <div className="flex items-center gap-2">
                   <div className="flex-1">
-                    <div className="flex justify-between mb-2">
-                      <span className="text-sm font-medium text-foreground">
+                    <div className="flex items-start justify-between gap-2">
+                      <span className="text-sm font-medium text-foreground truncate">
                         {downloadAsZip ? t('download.creatingZip') : t('download.downloadingP2P')}
                       </span>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-shrink-0">
                         {downloadProgress === 100 ? (
-                          <span className="text-xs text-muted-foreground">{t('download.pleaseWait')}</span>
+                          <span className="text-xs text-muted-foreground">{t('upload.pleaseWait')}</span>
                         ) : (
                           <>
-                            {downloadTimeRemaining && (
-                              <span className="text-xs text-muted-foreground">{downloadTimeRemaining}</span>
-                            )}
+                            <span className="text-xs text-muted-foreground">{downloadTimeRemaining || t('format.calculating')}</span>
                             <span className="text-xs font-semibold text-primary">{downloadProgress}%</span>
                           </>
                         )}
                       </div>
                     </div>
-                    <Progress value={downloadProgress} className="h-1.5 bg-secondary" />
+                    <div className="flex items-center h-4 mt-0.5">
+                      <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
+                        <div
+                          className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
+                          style={{ width: `${downloadProgress}%` }}
+                        />
+                      </div>
+                    </div>
                   </div>
                   <button
                     onClick={handleCancelDownload}
