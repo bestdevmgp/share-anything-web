@@ -5,7 +5,7 @@ import { FileListResponse } from '../types';
 import { downloadFile, isPptxFile, formatTimeRemaining, calculateTimeRemaining, getDeviceInfo, isImageFile, formatFileSize } from '../utils/format';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { toast } from '../context/ToastContext';
-import { useTranslation } from '../i18n';
+import { useTranslation, translateApiError } from '../i18n';
 import TurnstileWidget from '../components/TurnstileWidget';
 import { useP2PDownloader } from '../hooks/useP2PDownloader';
 import { createWebSocketConnection, generatePeerId, sendSignalingMessage } from '../utils/webrtc';
@@ -239,8 +239,8 @@ const DownloadFilePage: React.FC = () => {
         setErrorDescKey('download.blockedIPDesc');
       } else {
         setErrorTitleKey('download.unknownError');
-        if (err.response?.data?.message) {
-          setErrorDescFallback(err.response.data.message);
+        if (err.response?.data) {
+          setErrorDescFallback(translateApiError(err.response.data, t));
         } else {
           setErrorDescKey('download.tryAgainLater');
         }
@@ -429,7 +429,7 @@ const DownloadFilePage: React.FC = () => {
         toast.error(t('download.passwordIncorrect'));
         setPasswordVerified(false);
       } else {
-        toast.error(err.response?.data?.message || t('download.downloadFailed'));
+        toast.error(translateApiError(err.response?.data, t) || t('download.downloadFailed'));
       }
     } finally {
       setDownloading(false);
@@ -651,21 +651,18 @@ const DownloadFilePage: React.FC = () => {
                         <h4 className="text-base font-semibold text-foreground truncate">
                           {file.file_name}
                         </h4>
-                        {isDownloading ? (
-                          <div className="mt-1.5">
-                            {/* Percent + time-remaining sit on a line ABOVE the bar so the bar
-                                can stretch the full width up to the X button. */}
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-primary text-xs font-medium">{p2pProgress}%</span>
-                              {p2pTimeRemaining && (
-                                <span className="text-xs text-muted-foreground">{p2pTimeRemaining}</span>
-                              )}
+                        <div className="h-5 mt-0.5 flex items-center">
+                          {isDownloading ? (
+                            <div className="flex items-center gap-2 w-full min-w-0">
+                              <Progress value={p2pProgress} className="h-1.5 flex-1 bg-secondary" />
+                              <span className="text-xs text-muted-foreground whitespace-nowrap">
+                                {p2pProgress}% · {p2pTimeRemaining || t('format.calculating')}
+                              </span>
                             </div>
-                            <Progress value={p2pProgress} className="h-1.5 bg-secondary" />
-                          </div>
-                        ) : (
-                          <p className="text-sm text-muted-foreground">{formatFileSize(file.file_size)}</p>
-                        )}
+                          ) : (
+                            <span className="text-sm text-muted-foreground">{formatFileSize(file.file_size)}</span>
+                          )}
+                        </div>
                       </div>
 
                       {isCompleted ? (

@@ -21,7 +21,8 @@
     "switchBtn": "切换",
     "file": "文件",
     "countUnit": "{{count}}次",
-    "downloadCount": "下载 {{count}}次"
+    "downloadCount": "下载 {{count}}次",
+    "unknownError": "发生未知错误。"
   },
   "format": {
     "expired": "已过期",
@@ -614,5 +615,19 @@
     "personalTokenDescription": "发放令牌即可关联账户。可使用数据同步、更大文件上传、自定义过期时间、密码保护等附加功能。",
     "managePersonalTokens": "管理令牌",
     "loginToGetPersonalToken": "登录以获取令牌"
+  },
+  "apiError": {
+    "byCode.ip_blocked": "由于可疑活动，您的IP已被临时封锁。请稍后再试。",
+    "byCode.RATE_LIMIT_EXCEEDED": "请求过于频繁，请稍后再试。",
+    "byCode.too_many_requests": "请求过于频繁，请稍后再试。",
+    "byCode.UNAUTHORIZED": "需要登录。",
+    "byCode.FORBIDDEN": "无访问权限。",
+    "byCode.NOT_FOUND": "资源不存在。",
+    "byCode.GONE": "此资源已不可用。",
+    "byCode.CONFLICT": "该请求已被处理。",
+    "byCode.BAD_REQUEST": "无效请求。",
+    "byCode.INTERNAL_SERVER_ERROR": "服务器出现错误，请稍后再试。",
+    "byCode.DATABASE_ERROR": "数据库出现错误。",
+    "byCode.HTTP_ERROR": "外部请求失败。"
   }
 }

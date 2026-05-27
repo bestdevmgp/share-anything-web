@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from 'context/AuthContext';
 import { toast } from 'context/ToastContext';
-import { useTranslation } from 'i18n';
+import { useTranslation, translateApiError } from 'i18n';
 import { useLanguage } from 'context/LanguageContext';
 import { useTheme } from 'context/ThemeContext';
 import { userAPI, personalTokenAPI, sessionAPI, apiKeyAPI } from 'services/api';
@@ -525,9 +525,15 @@ const SettingsPage: React.FC = () => {
       setApiApplications(applications);
     } catch (err: any) {
       if (err?.response?.status === 429) {
-        toast.error(t('settings.apiKeys.toast.dailyLimit'));
+        const errField = err?.response?.data?.error;
+        const code = typeof errField === 'string' ? errField : errField?.code;
+        if (code === 'ip_blocked') {
+          toast.error(translateApiError(err?.response?.data, t));
+        } else {
+          toast.error(t('settings.apiKeys.toast.dailyLimit'));
+        }
       } else {
-        toast.error(err?.response?.data?.message || t('settings.updateFailed'));
+        toast.error(translateApiError(err?.response?.data, t) || t('settings.updateFailed'));
       }
     } finally {
       setApplySubmitting(false);

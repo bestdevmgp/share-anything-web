@@ -6,7 +6,7 @@ import { fileAPI, workerAPI } from '../services/api';
 import { ExpirationOption } from '../types';
 import { formatTimeRemaining, calculateTimeRemaining, getImageDimensions } from '../utils/format';
 import { toast } from '../context/ToastContext';
-import { useTranslation } from '../i18n';
+import { useTranslation, translateApiError } from '../i18n';
 import FilePreviewModal from '../components/FilePreviewModal';
 import TransferTypeToggle from './upload/TransferTypeToggle';
 import FileDropzone from './upload/FileDropzone';
@@ -406,15 +406,15 @@ const UploadPage: React.FC = () => {
         setTurnstileToken('');
         setTurnstileResetKey(k => k + 1);
       } else if (err.response?.status === 400) {
-        toast.error(err.response?.data?.message || t('upload.securityRequired'));
+        toast.error(translateApiError(err.response?.data, t) || t('upload.securityRequired'));
         setTurnstileToken('');
         setTurnstileResetKey(k => k + 1);
       } else if (err.response?.status === 403) {
-        toast.error(err.response?.data?.message || t('upload.securityFailed'));
+        toast.error(translateApiError(err.response?.data, t) || t('upload.securityFailed'));
         setTurnstileToken('');
         setTurnstileResetKey(k => k + 1);
       } else {
-        toast.error(err.response?.data?.message || t('upload.uploadFailed'));
+        toast.error(translateApiError(err.response?.data, t) || t('upload.uploadFailed'));
         setTurnstileToken('');
         setTurnstileResetKey(k => k + 1);
       }

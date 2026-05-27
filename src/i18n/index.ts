@@ -33,3 +33,32 @@ export function useTranslation() {
 
   return { t, language };
 }
+
+export function translateApiError(
+  err: unknown,
+  t: (key: string, params?: Record<string, string | number>) => string
+): string {
+  if (!err || typeof err !== 'object') return t('common.unknownError');
+  const e = err as { error?: unknown; message?: unknown };
+
+  let code: string | undefined;
+  let message: string | undefined;
+
+  if (typeof e.error === 'string') {
+    code = e.error;
+    if (typeof e.message === 'string') message = e.message;
+  } else if (e.error && typeof e.error === 'object') {
+    const nested = e.error as { code?: unknown; message?: unknown };
+    if (typeof nested.code === 'string') code = nested.code;
+    if (typeof nested.message === 'string') message = nested.message;
+  } else if (typeof e.message === 'string') {
+    message = e.message;
+  }
+
+  if (code) {
+    const key = `apiError.byCode.${code}`;
+    const byCode = t(key);
+    if (byCode && byCode !== key) return byCode;
+  }
+  return message || t('common.unknownError');
+}

@@ -21,7 +21,8 @@
     "switchBtn": "切替",
     "file": "ファイル",
     "countUnit": "{{count}}回",
-    "downloadCount": "ダウンロード {{count}}回"
+    "downloadCount": "ダウンロード {{count}}回",
+    "unknownError": "不明なエラーが発生しました。"
   },
   "format": {
     "expired": "期限切れ",
@@ -614,5 +615,19 @@
     "personalTokenDescription": "トークンを発行してアカウントを連携できます。データ同期、大容量アップロード、有効期限の設定、パスワード保護などの追加機能を利用できます。",
     "managePersonalTokens": "トークン管理",
     "loginToGetPersonalToken": "ログインしてトークンを発行"
+  },
+  "apiError": {
+    "byCode.ip_blocked": "不審な活動のため、IPが一時的にブロックされました。しばらくしてから再試行してください。",
+    "byCode.RATE_LIMIT_EXCEEDED": "リクエストが多すぎます。しばらくしてから再試行してください。",
+    "byCode.too_many_requests": "リクエストが多すぎます。しばらくしてから再試行してください。",
+    "byCode.UNAUTHORIZED": "ログインが必要です。",
+    "byCode.FORBIDDEN": "アクセス権限がありません。",
+    "byCode.NOT_FOUND": "リソースが見つかりません。",
+    "byCode.GONE": "このリソースは利用できなくなりました。",
+    "byCode.CONFLICT": "このリクエストはすでに処理されています。",
+    "byCode.BAD_REQUEST": "無効なリクエストです。",
+    "byCode.INTERNAL_SERVER_ERROR": "サーバーエラーが発生しました。しばらくしてから再試行してください。",
+    "byCode.DATABASE_ERROR": "データベースエラーが発生しました。",
+    "byCode.HTTP_ERROR": "外部リクエストに失敗しました。"
   }
 }

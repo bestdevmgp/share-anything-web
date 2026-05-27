@@ -21,7 +21,8 @@
     "switchBtn": "Switch",
     "file": "File",
     "countUnit": "{{count}}x",
-    "downloadCount": "{{count}} downloads"
+    "downloadCount": "{{count}} downloads",
+    "unknownError": "An unknown error occurred."
   },
   "format": {
     "expired": "Expired",
@@ -614,5 +615,19 @@
     "personalTokenDescription": "Issue a token to link your account. Unlock data sync, larger uploads, custom expiration, password protection, and more.",
     "managePersonalTokens": "Manage tokens",
     "loginToGetPersonalToken": "Sign in to get a token"
+  },
+  "apiError": {
+    "byCode.ip_blocked": "Your IP has been temporarily blocked due to suspicious activity. Please try again later.",
+    "byCode.RATE_LIMIT_EXCEEDED": "Too many requests. Please try again later.",
+    "byCode.too_many_requests": "Too many requests. Please try again later.",
+    "byCode.UNAUTHORIZED": "Authentication required.",
+    "byCode.FORBIDDEN": "Access denied.",
+    "byCode.NOT_FOUND": "Resource not found.",
+    "byCode.GONE": "This resource is no longer available.",
+    "byCode.CONFLICT": "This request has already been processed.",
+    "byCode.BAD_REQUEST": "Invalid request.",
+    "byCode.INTERNAL_SERVER_ERROR": "A server error occurred. Please try again later.",
+    "byCode.DATABASE_ERROR": "A database error occurred.",
+    "byCode.HTTP_ERROR": "An external request failed."
   }
 }

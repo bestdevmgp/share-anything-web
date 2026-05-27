@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { authAPI } from '../services/api';
 import { AuthResponse } from '../types';
 import { toast } from '../context/ToastContext';
-import { useTranslation } from '../i18n';
+import { useTranslation, translateApiError } from '../i18n';
 import { Card, CardContent } from '../components/ui/card';
 import { Spinner } from '../components/ui/spinner';
 import StatusIcon from '../components/StatusIcon';
@@ -111,7 +111,7 @@ const OAuthCallbackPage: React.FC = () => {
           setTimeout(() => navigate('/signin', { replace: true }), 3000);
         }
       } catch (err: any) {
-        const errorMessage = err.response?.data?.message || err.message || t('oauth.loginFailed');
+        const errorMessage = translateApiError(err.response?.data, t) || err.message || t('oauth.loginFailed');
         toast.error(errorMessage);
         setTimeout(() => navigate('/signin', { replace: true }), 3000);
       }

@@ -21,7 +21,8 @@
     "switchBtn": "切換",
     "file": "檔案",
     "countUnit": "{{count}}次",
-    "downloadCount": "下載 {{count}}次"
+    "downloadCount": "下載 {{count}}次",
+    "unknownError": "發生未知錯誤。"
   },
   "format": {
     "expired": "已過期",
@@ -614,5 +615,19 @@
     "personalTokenDescription": "發放令牌即可關聯帳戶。可使用資料同步、更大檔案上傳、自訂到期時間、密碼保護等附加功能。",
     "managePersonalTokens": "管理令牌",
     "loginToGetPersonalToken": "登入以取得令牌"
+  },
+  "apiError": {
+    "byCode.ip_blocked": "由於可疑活動，您的IP已被暫時封鎖。請稍後再試。",
+    "byCode.RATE_LIMIT_EXCEEDED": "請求過於頻繁，請稍後再試。",
+    "byCode.too_many_requests": "請求過於頻繁，請稍後再試。",
+    "byCode.UNAUTHORIZED": "需要登入。",
+    "byCode.FORBIDDEN": "無存取權限。",
+    "byCode.NOT_FOUND": "資源不存在。",
+    "byCode.GONE": "此資源已無法使用。",
+    "byCode.CONFLICT": "該請求已被處理。",
+    "byCode.BAD_REQUEST": "無效請求。",
+    "byCode.INTERNAL_SERVER_ERROR": "伺服器發生錯誤，請稍後再試。",
+    "byCode.DATABASE_ERROR": "資料庫發生錯誤。",
+    "byCode.HTTP_ERROR": "外部請求失敗。"
   }
 }
