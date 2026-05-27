@@ -84,7 +84,7 @@ const DownloadFilePage: React.FC = () => {
         setTimeout(() => {
           setP2pActiveFileId(nextId);
           setP2pEnabled(true);
-        }, 0);
+        }, 300);
       } else {
         // Done — exit bulk mode.
         setBulkP2PDownloading(false);
