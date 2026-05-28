@@ -101,7 +101,6 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                   />
                 </div>
 
-                {/* Thumbnail is just a generic file icon (no real preview source) - hide on mobile to give the filename more room. */}
                 <div className="flex-shrink-0 hidden sm:flex">
                   <FileThumbnail source={null} fileName={file.file_name} size="md" />
                 </div>

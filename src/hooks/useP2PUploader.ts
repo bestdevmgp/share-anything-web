@@ -64,8 +64,8 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
   const sendFile = useCallback((file: File, dataChannel: RTCDataChannel) => {
     const chunkSize = 65536; // 64KB per WebRTC message
     const sliceSize = chunkSize * 32; // 2MB per disk read
-    const BUFFER_HIGH = 1 * 1024 * 1024;
-    const BUFFER_LOW = 256 * 1024;
+    const BUFFER_HIGH = 4 * 1024 * 1024;
+    const BUFFER_LOW = 1 * 1024 * 1024;
     dataChannel.bufferedAmountLowThreshold = BUFFER_LOW;
     let offset = 0;
     transferStartTimeRef.current = Date.now();
@@ -105,15 +105,23 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       }, 2000);
     };
 
+    const sendEofAndFinish = () => {
+      try {
+        dataChannel.send('__EOF__');
+      } catch {
+      }
+      finishTransfer();
+    };
+
     const waitForBufferDrain = () => {
       if (dataChannel.bufferedAmount === 0) {
-        try {
-          dataChannel.send('__EOF__');
-        } catch {
-        }
-        finishTransfer();
+        sendEofAndFinish();
       } else {
-        setTimeout(waitForBufferDrain, 50);
+        dataChannel.bufferedAmountLowThreshold = 0;
+        dataChannel.onbufferedamountlow = () => {
+          dataChannel.onbufferedamountlow = null;
+          sendEofAndFinish();
+        };
       }
     };
 
@@ -431,7 +439,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
           break;
 
         case 'transfer_complete':
-          // Server forwarded the receiver's Done click - session is closing.
           isCleaningUpRef.current = true;
           setStatus('completed');
           break;

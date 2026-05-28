@@ -61,7 +61,6 @@ const DownloadFilePage: React.FC = () => {
   const [p2pActiveFileId, setP2pActiveFileId] = useState<string | null>(null);
   const [p2pCompletedFileIds, setP2pCompletedFileIds] = useState<Set<string>>(new Set());
 
-  // Bulk P2P download state - sequentially downloads every file, each saved to disk on arrival.
   const [bulkP2PDownloading, setBulkP2PDownloading] = useState(false);
   const [bulkRemaining, setBulkRemaining] = useState(0);
   const bulkQueueRef = useRef<string[]>([]);
@@ -70,7 +69,6 @@ const DownloadFilePage: React.FC = () => {
   const handleP2PDownloadComplete = useCallback((blob: Blob, fileName: string) => {
     if (bulkP2PDownloading) {
       const completedId = p2pActiveFileId || '';
-      // Save THIS file to disk right away (no ZIP buffering).
       downloadFile(blob, fileName);
       setP2pCompletedFileIds(prev => new Set(prev).add(completedId));
       setP2pActiveFileId(null);
@@ -92,7 +90,6 @@ const DownloadFilePage: React.FC = () => {
       return;
     }
 
-    // Default (single-file) behavior
     downloadFile(blob, fileName);
     toast.success(t('download.downloadComplete'));
     setP2pCompletedFileIds(prev => new Set(prev).add(p2pActiveFileId || ''));
@@ -648,31 +645,27 @@ const DownloadFilePage: React.FC = () => {
                   >
                     <div className="flex items-center space-x-4">
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-base font-semibold text-foreground truncate">
-                          {file.file_name}
-                        </h4>
-                        <div className="h-5 mt-0.5 flex items-center">
-                          {isDownloading ? (
-                            <div className="flex items-center gap-2 w-full min-w-0">
-                              <div className="flex items-center h-4 flex-1">
-                                <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
-                                  <div
-                                    className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
-                                    style={{ width: `${p2pProgress}%` }}
-                                  />
-                                </div>
-                              </div>
-                              <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                {p2pTimeRemaining || t('format.calculating')}
-                              </span>
-                              <span className="text-xs font-semibold text-primary whitespace-nowrap">
-                                {p2pProgress}%
-                              </span>
+                        <div className="flex items-start justify-between gap-2">
+                          <h4 className="text-base font-semibold text-foreground truncate">{file.file_name}</h4>
+                          {isDownloading && (
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              <span className="text-xs text-muted-foreground whitespace-nowrap">{p2pTimeRemaining || t('format.calculating')}</span>
+                              <span className="text-xs font-semibold text-primary whitespace-nowrap">{p2pProgress}%</span>
                             </div>
-                          ) : (
-                            <span className="text-sm text-muted-foreground">{formatFileSize(file.file_size)}</span>
                           )}
                         </div>
+                        {isDownloading ? (
+                          <div className="flex items-center h-4 mt-0.5">
+                            <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
+                              <div
+                                className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
+                                style={{ width: `${p2pProgress}%` }}
+                              />
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-xs sm:text-sm text-muted-foreground">{formatFileSize(file.file_size)}</p>
+                        )}
                       </div>
 
                       {isCompleted ? (

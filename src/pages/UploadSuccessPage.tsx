@@ -388,26 +388,24 @@ const UploadSuccessPage: React.FC = () => {
                             </div>
 
                             <div className="flex-1 min-w-0">
-                              <h4 className="text-sm font-medium text-foreground truncate">
-                                {file.name}
-                              </h4>
+                              <div className="flex items-start justify-between gap-2">
+                                <h4 className="text-sm font-medium text-foreground truncate">{file.name}</h4>
+                                {isTransferring && (
+                                  <div className="flex items-center gap-2 flex-shrink-0">
+                                    <span className="text-xs text-muted-foreground whitespace-nowrap">{progress?.timeRemaining || t('format.calculating')}</span>
+                                    <span className="text-xs font-semibold text-primary whitespace-nowrap">{progress?.progress || 0}%</span>
+                                  </div>
+                                )}
+                              </div>
                               {isTransferring ? (
-                                <>
-                                  <div className="flex items-start justify-between gap-2">
-                                    <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
-                                      <span className="text-xs text-muted-foreground">{progress?.timeRemaining || t('format.calculating')}</span>
-                                      <span className="text-xs font-semibold text-primary">{progress?.progress || 0}%</span>
-                                    </div>
+                                <div className="flex items-center h-4 mt-0.5">
+                                  <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
+                                    <div
+                                      className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
+                                      style={{ width: `${progress?.progress || 0}%` }}
+                                    />
                                   </div>
-                                  <div className="flex items-center h-4 mt-0.5">
-                                    <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
-                                      <div
-                                        className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
-                                        style={{ width: `${progress?.progress || 0}%` }}
-                                      />
-                                    </div>
-                                  </div>
-                                </>
+                                </div>
                               ) : (
                                 <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
                               )}
