@@ -290,7 +290,6 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
           ));
         } catch (err: any) {
           if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED' || err.message === 'Upload cancelled') {
-            // Per-file cancellation - don't propagate
             cancelledFileIdsRef.current.add(uploadId);
             return;
           }

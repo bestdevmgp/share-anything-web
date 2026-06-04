@@ -84,7 +84,6 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; is
     // Force reflow to register the explicit height
     void el.offsetHeight;
 
-    // Animate to 0
     el.style.transition = 'height 300ms cubic-bezier(0.4, 0, 0.2, 1), padding-bottom 300ms cubic-bezier(0.4, 0, 0.2, 1)';
     el.style.height = '0';
     el.style.paddingBottom = '0';

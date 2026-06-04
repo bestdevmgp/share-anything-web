@@ -2,8 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import StyledQRCode from '../components/StyledQRCode';
 import { FileUploadResponse } from '../types';
-import { copyToClipboard, formatDateTime, formatFileSize } from '../utils/format';
-import { CheckIcon, ClipboardDocumentIcon, ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { copyToClipboard, formatDateTime, formatFileSize, splitFilenameExt } from '../utils/format';
+import { CheckIcon, ClipboardDocumentIcon, ExclamationTriangleIcon, PauseIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useP2PUploader } from '../hooks/useP2PUploader';
 import FileThumbnail from '../components/FileThumbnail';
 import FilePreviewModal from '../components/FilePreviewModal';
@@ -120,7 +120,7 @@ const UploadSuccessPage: React.FC = () => {
           <div className="flex justify-center mb-5">
             <div className={cn(
               'w-16 h-16 rounded-full flex items-center justify-center',
-              !isP2PTransfer || allFilesCompleted || overallStatus === 'connected'
+              !isP2PTransfer || allFilesCompleted || overallStatus === 'connected' || overallStatus === 'waiting_for_next'
                 ? 'bg-green-100 dark:bg-green-500/15'
                 : 'bg-card border border-foreground/[0.09]'
             )}>
@@ -130,6 +130,8 @@ const UploadSuccessPage: React.FC = () => {
                     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
                     <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
                   </svg>
+                ) : overallStatus === 'waiting_for_next' ? (
+                  <PauseIcon className="w-9 h-9 text-green-600" strokeWidth={2.5} />
                 ) : (
                   <Spinner size="xl" />
                 )
@@ -153,7 +155,7 @@ const UploadSuccessPage: React.FC = () => {
             {isP2PTransfer ? (
               overallStatus === 'waiting' ? t('uploadSuccess.keepPageOpen') :
               overallStatus === 'connected' ? t('uploadSuccess.connectedReadyToDownload', { device: peerDeviceInfo || '' }) :
-              overallStatus === 'waiting_for_next' ? t('uploadSuccess.keepPageOpen') :
+              overallStatus === 'waiting_for_next' ? t('uploadSuccess.waitingForNextRequestDesc') :
               allFilesCompleted || overallStatus === 'completed' ? t('uploadSuccess.allFilesTransferred') :
               peerDeviceInfo ? t('uploadSuccess.connectedTo', { device: peerDeviceInfo }) :
               t('uploadSuccess.transferringPleaseWait')
@@ -362,6 +364,7 @@ const UploadSuccessPage: React.FC = () => {
                       const progress = fileProgresses.get(file.name);
                       const isTransferring = progress?.status === 'transferring';
                       const isCompleted = progress?.status === 'completed';
+                      const [nameBase, nameExt] = splitFilenameExt(file.name);
 
                       return (
                         <div
@@ -388,8 +391,11 @@ const UploadSuccessPage: React.FC = () => {
                             </div>
 
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-start justify-between gap-2">
-                                <h4 className="text-sm font-medium text-foreground truncate">{file.name}</h4>
+                              <div className="flex items-center justify-between gap-2">
+                                <h4 className="text-sm font-medium text-foreground flex items-baseline min-w-0 flex-1 leading-tight">
+                                  <span className="truncate">{nameBase}</span>
+                                  {nameExt && <span className="flex-shrink-0">{nameExt}</span>}
+                                </h4>
                                 {isTransferring && (
                                   <div className="flex items-center gap-2 flex-shrink-0">
                                     <span className="text-xs text-muted-foreground whitespace-nowrap">{progress?.timeRemaining || t('format.calculating')}</span>
@@ -398,7 +404,7 @@ const UploadSuccessPage: React.FC = () => {
                                 )}
                               </div>
                               {isTransferring ? (
-                                <div className="flex items-center h-4 mt-0.5">
+                                <div className="flex items-start h-4 mt-1">
                                   <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
                                     <div
                                       className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"

@@ -150,7 +150,12 @@
     "providerName.kakao": "Kakao",
     "providerName.apple": "Apple",
     "loginCompleteTitle": "Sign-in Complete",
-    "canCloseTab": "You can close this tab."
+    "canCloseTab": "You can close this tab.",
+    "confirmSignInTitle": "Sign in to ShareAnything?",
+    "confirmSignInDesc": "You will be signed in as {{email}}.",
+    "confirmSignInHint": "Cancel just closes this confirmation — you can sign in again without re-verifying.",
+    "confirmSignInButton": "Sign in",
+    "cancelSignIn": "Cancel"
   },
   "oauth": {
     "loggingIn": "Signing in...",
@@ -215,7 +220,8 @@
     "receiverConnected": "Receiver connected",
     "transferring": "Transferring files...",
     "transferComplete": "Transfer Complete",
-    "waitingForNextRequest": "Waiting for next request...",
+    "waitingForNextRequest": "Waiting for file selection",
+    "waitingForNextRequestDesc": "Keep this page open until the receiver picks the next file.",
     "uploadComplete": "Upload Complete",
     "keepPageOpen": "Do not close this page until the receiver connects.",
     "allFilesTransferred": "All files have been transferred successfully.",
@@ -267,6 +273,8 @@
     "passwordProtected": "This file is password protected.",
     "passwordPlaceholder": "Enter file password",
     "readyToReceive": "Ready to Receive",
+    "awaitingNextSelection": "Pick the next file",
+    "awaitingNextSelectionDesc": "Select another file to receive. You're still connected to the sender.",
     "downloading": "Receiving file...",
     "receiveCompleteTitle": "Transfer Complete",
     "readyToDownload": "Ready to Download",
@@ -350,7 +358,11 @@
     "deleteAll": "Delete All",
     "confirmDeleteAll": "Are you sure you want to delete all upload history? Deleted files can no longer be downloaded.",
     "deleteAllSuccess": "All files have been deleted",
-    "deleteAllFailed": "Failed to delete all files"
+    "deleteAllFailed": "Failed to delete all files",
+    "bundleFileCount": "{{count}} files",
+    "bundleHeader": "Share bundle",
+    "filesInBundle": "Files in this share",
+    "bundleSize": "Total size"
   },
   "quickAccess": {
     "title": "Send to a signed-in device",

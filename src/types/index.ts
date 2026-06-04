@@ -79,6 +79,17 @@ export interface UploadHistoryResponse {
   offset: number;
 }
 
+export interface UploadGroup {
+  shareCode: string;
+  files: UploadHistoryItem[];
+  totalSize: number;
+  downloadCount: number;
+  hasPassword: boolean;
+  isOneTime: boolean;
+  expiresAt: string;
+  createdAt: string;
+}
+
 export type ExpirationOption = 'five_minutes' | 'thirty_minutes' | 'one_hour' | 'three_hours' | 'six_hours' | 'twelve_hours' | 'twenty_four_hours';
 
 export interface UploadFormData {

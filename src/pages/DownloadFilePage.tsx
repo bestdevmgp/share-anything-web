@@ -2,8 +2,8 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fileAPI } from '../services/api';
 import { FileListResponse } from '../types';
-import { downloadFile, isPptxFile, formatTimeRemaining, calculateTimeRemaining, getDeviceInfo, isImageFile, formatFileSize } from '../utils/format';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { downloadFile, isPptxFile, formatTimeRemaining, calculateTimeRemaining, getDeviceInfo, isImageFile, formatFileSize, splitFilenameExt } from '../utils/format';
+import { PauseIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { toast } from '../context/ToastContext';
 import { useTranslation, translateApiError } from '../i18n';
 import TurnstileWidget from '../components/TurnstileWidget';
@@ -142,7 +142,6 @@ const DownloadFilePage: React.FC = () => {
     cancelDownload();
     setP2pActiveFileId(null);
     setP2pEnabled(false);
-    // If we were in bulk mode, abort it
     if (bulkP2PDownloading) {
       bulkQueueRef.current = [];
       bulkTotalRef.current = 0;
@@ -568,6 +567,7 @@ const DownloadFilePage: React.FC = () => {
   if (isP2PDownload && fileList.files.length > 1) {
     const allP2PCompleted = fileList.files.every(f => p2pCompletedFileIds.has(f.id));
     const anyP2PDownloading = p2pActiveFileId && (p2pStatus === 'downloading' || p2pStatus === 'connecting' || p2pStatus === 'processing');
+    const awaitingNextSelection = !anyP2PDownloading && !allP2PCompleted && p2pCompletedFileIds.size > 0;
 
     return (
       <div className="pt-12 pb-20 px-4">
@@ -584,6 +584,8 @@ const DownloadFilePage: React.FC = () => {
                   <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M5 13l4 4L19 7" className="download-checkmark-path" />
                   </svg>
+                ) : awaitingNextSelection ? (
+                  <PauseIcon className="w-9 h-9 text-green-600" strokeWidth={2.5} />
                 ) : (
                   <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
@@ -595,11 +597,13 @@ const DownloadFilePage: React.FC = () => {
             <h1 className="text-4xl font-bold text-foreground mb-3">
               {allP2PCompleted ? t('download.receiveCompleteTitle') :
                anyP2PDownloading ? t('download.downloading') :
+               awaitingNextSelection ? t('download.awaitingNextSelection') :
                t('download.readyToReceive')}
             </h1>
             <p className="text-muted-foreground">
               {allP2PCompleted ? t('download.receivedSuccessfully') :
                anyP2PDownloading ? (p2pPeerDeviceInfo ? t('download.receivingFrom', { device: p2pPeerDeviceInfo }) : t('download.receivingPleaseWait')) :
+               awaitingNextSelection ? t('download.awaitingNextSelectionDesc') :
                p2pPeerDeviceInfo ? t('download.connectedToDevice', { device: p2pPeerDeviceInfo }) : t('download.connectionSuccess')}
             </p>
           </div>
@@ -634,6 +638,7 @@ const DownloadFilePage: React.FC = () => {
                 const isActive = p2pActiveFileId === file.id;
                 const isDownloading = isActive && (p2pStatus === 'downloading' || p2pStatus === 'connecting');
                 const isCompleted = p2pCompletedFileIds.has(file.id);
+                const [nameBase, nameExt] = splitFilenameExt(file.file_name);
 
                 return (
                   <div
@@ -645,8 +650,11 @@ const DownloadFilePage: React.FC = () => {
                   >
                     <div className="flex items-center space-x-4">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <h4 className="text-base font-semibold text-foreground truncate">{file.file_name}</h4>
+                        <div className="flex items-center justify-between gap-2">
+                          <h4 className="text-base font-semibold text-foreground flex items-baseline min-w-0 flex-1 leading-tight">
+                            <span className="truncate">{nameBase}</span>
+                            {nameExt && <span className="flex-shrink-0">{nameExt}</span>}
+                          </h4>
                           {isDownloading && (
                             <div className="flex items-center gap-2 flex-shrink-0">
                               <span className="text-xs text-muted-foreground whitespace-nowrap">{p2pTimeRemaining || t('format.calculating')}</span>
@@ -655,7 +663,7 @@ const DownloadFilePage: React.FC = () => {
                           )}
                         </div>
                         {isDownloading ? (
-                          <div className="flex items-center h-4 mt-0.5">
+                          <div className="flex items-start h-4 mt-1">
                             <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
                               <div
                                 className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"

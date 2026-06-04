@@ -150,7 +150,12 @@
     "providerName.kakao": "카카오",
     "providerName.apple": "Apple",
     "loginCompleteTitle": "로그인 완료",
-    "canCloseTab": "이 탭을 닫아도 됩니다."
+    "canCloseTab": "이 탭을 닫아도 됩니다.",
+    "confirmSignInTitle": "로그인하시겠습니까?",
+    "confirmSignInDesc": "{{email}} 계정으로 ShareAnything에 로그인합니다.",
+    "confirmSignInHint": "취소하면 이 탭만 닫히고, 새로 인증할 필요 없이 다시 로그인할 수 있습니다.",
+    "confirmSignInButton": "로그인",
+    "cancelSignIn": "취소"
   },
   "oauth": {
     "loggingIn": "로그인 중...",
@@ -215,7 +220,8 @@
     "receiverConnected": "수신자 연결됨",
     "transferring": "파일 전송 중...",
     "transferComplete": "전송 완료",
-    "waitingForNextRequest": "다음 요청 대기 중...",
+    "waitingForNextRequest": "파일 선택 대기 중",
+    "waitingForNextRequestDesc": "수신자가 다음 파일을 선택할 때까지 이 페이지를 닫지 마세요.",
     "uploadComplete": "업로드 완료",
     "keepPageOpen": "수신자가 연결될 때까지 이 페이지를 닫지 마세요.",
     "allFilesTransferred": "모든 파일이 성공적으로 전송되었습니다.",
@@ -267,6 +273,8 @@
     "passwordProtected": "이 파일은 비밀번호로 보호되어 있습니다.",
     "passwordPlaceholder": "파일 비밀번호를 입력하세요",
     "readyToReceive": "수신 준비 완료",
+    "awaitingNextSelection": "다음 파일을 선택하세요",
+    "awaitingNextSelectionDesc": "받고 싶은 파일을 추가로 선택할 수 있어요. 발신자와의 연결은 유지되고 있습니다.",
     "downloading": "파일 수신 중...",
     "receiveCompleteTitle": "수신 완료",
     "readyToDownload": "다운로드 준비 완료",
@@ -350,7 +358,11 @@
     "deleteAll": "모두 삭제",
     "confirmDeleteAll": "모든 업로드 기록을 삭제하시겠습니까? 삭제된 파일은 더 이상 다운로드할 수 없습니다.",
     "deleteAllSuccess": "모든 파일이 삭제되었습니다",
-    "deleteAllFailed": "전체 삭제에 실패하였습니다"
+    "deleteAllFailed": "전체 삭제에 실패하였습니다",
+    "bundleFileCount": "{{count}}개 파일",
+    "bundleHeader": "공유 코드 묶음",
+    "filesInBundle": "포함된 파일",
+    "bundleSize": "총 용량"
   },
   "quickAccess": {
     "title": "로그인된 다른 기기로 전송",

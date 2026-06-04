@@ -1,7 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { userAPI, fileAPI } from '../services/api';
-import { UploadHistoryItem, DownloadLog } from '../types';
+import { UploadHistoryItem, UploadGroup, DownloadLog } from '../types';
 import { toast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import StyledQRCode from '../components/StyledQRCode';
@@ -248,12 +248,41 @@ const UploadHistoryPage: React.FC = () => {
     }
   }, [presignedUrls]);
 
-  const handleRowClick = (fileId: string) => {
-    if (expandedRow === fileId) {
+  const groupedUploads = useMemo<UploadGroup[]>(() => {
+    const map = new Map<string, UploadHistoryItem[]>();
+    for (const item of uploads) {
+      const list = map.get(item.share_code);
+      if (list) list.push(item);
+      else map.set(item.share_code, [item]);
+    }
+
+    const groups: UploadGroup[] = [];
+    map.forEach((files, shareCode) => {
+      const totalSize = files.reduce((s, f) => s + f.file_size, 0);
+      const downloadCount = files.reduce((s, f) => s + f.download_count, 0);
+      const hasPassword = files.some(f => f.has_password);
+      const isOneTime = !!files[0]?.is_one_time;
+      const expiresAt = files.reduce(
+        (min, f) => (new Date(f.expires_at) < new Date(min) ? f.expires_at : min),
+        files[0].expires_at
+      );
+      const createdAt = files.reduce(
+        (min, f) => (new Date(f.created_at) < new Date(min) ? f.created_at : min),
+        files[0].created_at
+      );
+      groups.push({ shareCode, files, totalSize, downloadCount, hasPassword, isOneTime, expiresAt, createdAt });
+    });
+
+    groups.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return groups;
+  }, [uploads]);
+
+  const handleRowClick = (shareCode: string) => {
+    if (expandedRow === shareCode) {
       setExpandedRow(null);
-      setClosingRow(fileId);
+      setClosingRow(shareCode);
       setTimeout(() => {
-        setClosingRow(prev => prev === fileId ? null : prev);
+        setClosingRow(prev => prev === shareCode ? null : prev);
       }, 250);
     } else {
       if (expandedRow) {
@@ -263,11 +292,13 @@ const UploadHistoryPage: React.FC = () => {
           setClosingRow(prev => prev === prevRow ? null : prev);
         }, 250);
       }
-      setExpandedRow(fileId);
-      fetchDownloadLogs(fileId);
-      const upload = uploads.find(u => u.id === fileId);
-      if (upload) {
-        refreshPresignedUrlIfNeeded(upload);
+      setExpandedRow(shareCode);
+      const group = groupedUploads.find(g => g.shareCode === shareCode);
+      if (group) {
+        group.files.forEach(file => {
+          fetchDownloadLogs(file.id);
+          refreshPresignedUrlIfNeeded(file);
+        });
       }
     }
   };
@@ -293,22 +324,39 @@ const UploadHistoryPage: React.FC = () => {
     });
   };
 
-  const handleDelete = async (fileId: string, e: React.MouseEvent) => {
+  const handleDeleteGroup = async (shareCode: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!window.confirm(t('history.confirmDelete'))) {
       return;
     }
 
+    const group = groupedUploads.find(g => g.shareCode === shareCode);
+    if (!group) return;
+
     try {
-      await userAPI.deleteFile(fileId);
-      toast.success(t('history.deleteSuccess'));
-      setUploads(uploads.filter(upload => upload.id !== fileId));
-      setTotal(total - 1);
-      if (expandedRow === fileId) {
+      const results = await Promise.allSettled(
+        group.files.map(file => userAPI.deleteFile(file.id))
+      );
+      const deletedIds = new Set<string>();
+      group.files.forEach((file, idx) => {
+        if (results[idx].status === 'fulfilled') deletedIds.add(file.id);
+      });
+
+      const anyFailed = results.some(r => r.status === 'rejected');
+      if (deletedIds.size > 0) {
+        setUploads(prev => prev.filter(u => !deletedIds.has(u.id)));
+        setTotal(prev => prev - deletedIds.size);
+      }
+      if (expandedRow === shareCode && deletedIds.size === group.files.length) {
         setExpandedRow(null);
       }
+      if (anyFailed) {
+        toast.error(t('history.deleteFailed'));
+      } else {
+        toast.success(t('history.deleteSuccess'));
+      }
     } catch (error: any) {
-      console.error('Failed to delete file:', error);
+      console.error('Failed to delete bundle:', error);
       toast.error(t('history.deleteFailed'));
     }
   };
@@ -486,7 +534,7 @@ const UploadHistoryPage: React.FC = () => {
       </div>
 
       <HistoryTable
-        uploads={uploads}
+        groups={groupedUploads}
         expandedRow={expandedRow}
         closingRow={closingRow}
         downloadLogs={downloadLogs}
@@ -498,7 +546,7 @@ const UploadHistoryPage: React.FC = () => {
         language={language}
         handleRowClick={handleRowClick}
         handleShowQRCode={handleShowQRCode}
-        handleDelete={handleDelete}
+        handleDeleteGroup={handleDeleteGroup}
         handleViewAllLogs={handleViewAllLogs}
         openPreviewModal={openPreviewModal}
         handlePreviewError={handlePreviewError}
@@ -527,7 +575,7 @@ const UploadHistoryPage: React.FC = () => {
       ) : (
         <>
           <HistoryMobileCards
-            uploads={uploads}
+            groups={groupedUploads}
             expandedRow={expandedRow}
             closingRow={closingRow}
             downloadLogs={downloadLogs}
@@ -537,7 +585,7 @@ const UploadHistoryPage: React.FC = () => {
             language={language}
             handleRowClick={handleRowClick}
             handleShowQRCode={handleShowQRCode}
-            handleDelete={handleDelete}
+            handleDeleteGroup={handleDeleteGroup}
             handleViewAllLogs={handleViewAllLogs}
             openPreviewModal={openPreviewModal}
             handlePreviewError={handlePreviewError}

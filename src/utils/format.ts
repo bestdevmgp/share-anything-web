@@ -95,6 +95,12 @@ export const downloadFile = (blob: Blob, filename: string) => {
   document.body.removeChild(a);
 };
 
+export const splitFilenameExt = (name: string): [string, string] => {
+  const dotIdx = name.lastIndexOf('.');
+  if (dotIdx <= 0 || dotIdx === name.length - 1) return [name, ''];
+  return [name.slice(0, dotIdx), name.slice(dotIdx)];
+};
+
 export const copyToClipboard = async (text: string): Promise<boolean> => {
   try {
     await navigator.clipboard.writeText(text);

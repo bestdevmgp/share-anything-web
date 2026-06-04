@@ -31,7 +31,6 @@ const iconSizeMap = {
   md: 'w-7 h-7',
 };
 
-// Cache rendered DOCX HTML to avoid re-rendering on every mount
 const docxHtmlCache = new Map<string, string>();
 
 function getDocxCacheKey(source: File | string): string {

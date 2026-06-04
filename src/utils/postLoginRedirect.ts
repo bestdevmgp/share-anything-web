@@ -4,9 +4,7 @@ export function savePostLoginRedirect(path: string): void {
   if (!path || !path.startsWith('/')) return;
   try {
     sessionStorage.setItem(STORAGE_KEY, path);
-  } catch {
-    // sessionStorage unavailable - silently ignore
-  }
+  } catch {}
 }
 
 export function consumePostLoginRedirect(): string | null {

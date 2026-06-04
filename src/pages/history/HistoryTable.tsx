@@ -1,5 +1,5 @@
 import React, { useRef, useLayoutEffect } from 'react';
-import { UploadHistoryItem, DownloadLog } from '../../types';
+import { UploadHistoryItem, UploadGroup, DownloadLog } from '../../types';
 import { isPdfFile, isVideoFile, formatFileSize, formatDateTime } from '../../utils/format';
 import { Language } from '../../context/LanguageContext';
 import FileThumbnail from '../../components/FileThumbnail';
@@ -28,7 +28,7 @@ interface VideoPreviewProps {
 }
 
 interface HistoryTableProps {
-  uploads: UploadHistoryItem[];
+  groups: UploadGroup[];
   expandedRow: string | null;
   closingRow: string | null;
   downloadLogs: { [key: string]: DownloadLog[] };
@@ -38,9 +38,9 @@ interface HistoryTableProps {
   tableScrollRef: React.RefObject<HTMLDivElement | null>;
   showTableScrollHint: boolean;
   language: Language;
-  handleRowClick: (fileId: string) => void;
+  handleRowClick: (shareCode: string) => void;
   handleShowQRCode: (shareCode: string, e: React.MouseEvent) => void;
-  handleDelete: (fileId: string, e: React.MouseEvent) => void;
+  handleDeleteGroup: (shareCode: string, e: React.MouseEvent) => void;
   handleViewAllLogs: (fileId: string, e: React.MouseEvent) => void;
   openPreviewModal: (upload: UploadHistoryItem) => void;
   handlePreviewError: (uploadId: string) => void;
@@ -54,8 +54,69 @@ interface HistoryTableProps {
   onUploadClick?: () => void;
 }
 
+const renderFilePreview = (
+  upload: UploadHistoryItem,
+  presignedUrls: Record<string, string>,
+  failedPreviews: Set<string>,
+  handlePreviewError: (uploadId: string) => void,
+  isExpired: (expiresAt: string) => boolean,
+  isImageFileByType: (fileType: string) => boolean,
+  PdfPreview: React.FC<PdfPreviewProps>,
+  VideoPreview: React.FC<VideoPreviewProps>,
+  t: (key: string, params?: Record<string, any>) => string,
+) => {
+  if (isExpired(upload.expires_at)) {
+    return (
+      <div className="flex items-center justify-center h-full bg-muted">
+        <p className="text-sm text-muted-foreground text-center px-4">{t('history.expiredFile')}</p>
+      </div>
+    );
+  }
+  if (isImageFileByType(upload.file_type)) {
+    return presignedUrls[upload.id] && !failedPreviews.has(upload.id) ? (
+      <img
+        src={presignedUrls[upload.id]}
+        alt={upload.file_name}
+        className="w-full h-full object-contain"
+        onError={() => handlePreviewError(upload.id)}
+      />
+    ) : (
+      <div className="flex flex-col items-center justify-center h-full bg-muted p-4 gap-4">
+        <FileThumbnail source={null} fileName={upload.file_name} size="md" />
+        <p className="text-sm text-muted-foreground text-center">{t('history.clickToPreview')}</p>
+      </div>
+    );
+  }
+  if (isVideoFile(upload.file_name)) {
+    return presignedUrls[upload.id] && !failedPreviews.has(upload.id) ? (
+      <VideoPreview source={presignedUrls[upload.id]} fileName={upload.file_name} />
+    ) : (
+      <div className="flex flex-col items-center justify-center h-full bg-muted p-4 gap-4">
+        <FileThumbnail source={null} fileName={upload.file_name} size="md" />
+        <p className="text-sm text-muted-foreground text-center">{t('history.clickToPreview')}</p>
+      </div>
+    );
+  }
+  if (isPdfFile(upload.file_name)) {
+    return presignedUrls[upload.id] && !failedPreviews.has(upload.id) ? (
+      <PdfPreview source={presignedUrls[upload.id]} fileName={upload.file_name} />
+    ) : (
+      <div className="flex flex-col items-center justify-center h-full bg-muted p-4 gap-4">
+        <FileThumbnail source={null} fileName={upload.file_name} size="md" />
+        <p className="text-sm text-muted-foreground text-center">{t('history.clickToPreview')}</p>
+      </div>
+    );
+  }
+  return (
+    <div className="flex flex-col items-center justify-center h-full bg-muted p-4 gap-4">
+      <FileThumbnail source={null} fileName={upload.file_name} size="md" />
+      <p className="text-sm text-muted-foreground text-center">{t('history.clickToPreview')}</p>
+    </div>
+  );
+};
+
 const HistoryTable: React.FC<HistoryTableProps> = ({
-  uploads,
+  groups,
   expandedRow,
   closingRow,
   downloadLogs,
@@ -67,7 +128,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
   language,
   handleRowClick,
   handleShowQRCode,
-  handleDelete,
+  handleDeleteGroup,
   handleViewAllLogs,
   openPreviewModal,
   handlePreviewError,
@@ -155,7 +216,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
             </TableRow>
           </TableHeader>
           <TableBody className="bg-card divide-y divide-border">
-            {uploads.length === 0 ? (
+            {groups.length === 0 ? (
               <TableRow className="can-hover:hover:bg-transparent">
                 <TableCell colSpan={7} className="p-12 text-center">
                   <p className="text-muted-foreground">{t('history.noFiles')}</p>
@@ -166,44 +227,75 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                   )}
                 </TableCell>
               </TableRow>
-            ) : uploads.map((upload) => (
-              <React.Fragment key={upload.id}>
+            ) : groups.map((group) => {
+              const isBundle = group.files.length > 1;
+              const firstFile = group.files[0];
+              const expired = isExpired(group.expiresAt);
+              return (
+              <React.Fragment key={group.shareCode}>
                 <TableRow
-                  onClick={() => handleRowClick(upload.id)}
+                  onClick={() => handleRowClick(group.shareCode)}
                   className={cn(
                     'cursor-pointer can-hover:hover:bg-muted active:bg-muted',
-                    expandedRow === upload.id ? 'bg-muted' : 'bg-card'
+                    expandedRow === group.shareCode ? 'bg-muted' : 'bg-card'
                   )}
                 >
                   <TableCell className="px-6 py-3 max-w-0">
                     <div className="flex items-center space-x-3 overflow-hidden">
-                      <FileThumbnail source={getThumbnailSource(upload)} fileName={upload.file_name} size="md" />
-                      <div className="min-w-0 flex-1 h-12 overflow-hidden flex flex-col justify-center">
-                        <div className="text-sm font-medium text-foreground truncate" title={upload.file_name}>
-                          {truncateFileName(upload.file_name)}
+                      {isBundle ? (
+                        <div className="w-12 h-12 flex-shrink-0 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <svg className="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
+                          </svg>
                         </div>
-                        {upload.description && (
-                          <div className="text-sm text-muted-foreground truncate">
-                            {upload.description}
-                          </div>
+                      ) : (
+                        <FileThumbnail source={getThumbnailSource(firstFile)} fileName={firstFile.file_name} size="md" />
+                      )}
+                      <div className="min-w-0 flex-1 h-12 overflow-hidden flex flex-col justify-center">
+                        {isBundle ? (
+                          <>
+                            <div className="flex items-center gap-2 min-w-0">
+                              <div className="text-sm font-semibold text-foreground font-mono tracking-wide">
+                                {group.shareCode}
+                              </div>
+                              <span className="inline-flex items-center text-xs px-2 py-[2px] rounded-full font-medium bg-primary/10 text-primary flex-shrink-0">
+                                {t('history.bundleFileCount', { count: group.files.length })}
+                              </span>
+                            </div>
+                            <div className="text-xs text-muted-foreground truncate mt-0.5">
+                              {group.files.slice(0, 3).map(f => f.file_name).join(', ')}
+                              {group.files.length > 3 && ` +${group.files.length - 3}`}
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="text-sm font-medium text-foreground truncate" title={firstFile.file_name}>
+                              {truncateFileName(firstFile.file_name)}
+                            </div>
+                            {firstFile.description && (
+                              <div className="text-sm text-muted-foreground truncate">
+                                {firstFile.description}
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                     </div>
                   </TableCell>
                   <TableCell className="px-6 py-3 whitespace-nowrap text-sm text-muted-foreground text-center">
-                    {formatFileSize(upload.file_size)}
+                    {formatFileSize(group.totalSize)}
                   </TableCell>
                   <TableCell className="px-6 py-3 whitespace-nowrap text-sm text-muted-foreground text-center">
-                    {formatDateTime(upload.created_at, language)}
+                    {formatDateTime(group.createdAt, language)}
                   </TableCell>
                   <TableCell className="px-6 py-3 whitespace-nowrap text-sm text-muted-foreground text-center">
-                    {formatDateTime(upload.expires_at, language)}
+                    {formatDateTime(group.expiresAt, language)}
                   </TableCell>
                   <TableCell className="px-6 py-3 whitespace-nowrap text-sm text-foreground text-center">
-                    {t('common.countUnit', { count: upload.download_count })}
+                    {t('common.countUnit', { count: group.downloadCount })}
                   </TableCell>
                   <TableCell className="px-6 py-3 whitespace-nowrap text-center">
-                    {isExpired(upload.expires_at) ? (
+                    {expired ? (
                       <span className="inline-flex items-center text-xs px-2 py-[3px] rounded-full font-medium bg-red-600 text-white">
                         {t('history.expired')}
                       </span>
@@ -215,13 +307,13 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                   </TableCell>
                   <TableCell className="px-6 py-3 whitespace-nowrap text-center text-sm font-medium">
                     <div className="flex justify-end gap-0.5">
-                      {!isExpired(upload.expires_at) && (
+                      {!expired && (
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button
                               variant="ghost"
                               size="icon"
-                              onClick={(e) => handleShowQRCode(upload.share_code, e)}
+                              onClick={(e) => handleShowQRCode(group.shareCode, e)}
                               className="text-muted-foreground [&_svg]:h-5 [&_svg]:w-5"
                             >
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -238,7 +330,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={(e) => handleDelete(upload.id, e)}
+                            onClick={(e) => handleDeleteGroup(group.shareCode, e)}
                             className="text-muted-foreground can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 active:text-red-600 dark:active:text-red-400 [&_svg]:h-5 [&_svg]:w-5"
                           >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -252,187 +344,192 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                   </TableCell>
                 </TableRow>
 
-                {(expandedRow === upload.id || closingRow === upload.id) && (
+                {(expandedRow === group.shareCode || closingRow === group.shareCode) && (
                   <TableRow className="can-hover:hover:bg-transparent border-0">
                     <TableCell colSpan={7} className="p-0 bg-background">
                       <div ref={(el) => {
-                        if (el) expandRefs.current.set(upload.id, el);
-                        else expandRefs.current.delete(upload.id);
+                        if (el) expandRefs.current.set(group.shareCode, el);
+                        else expandRefs.current.delete(group.shareCode);
                       }}>
-                        <div className="grid grid-cols-3 gap-4 px-6 py-6">
-                          <div className="h-0 min-h-full flex flex-col overflow-hidden">
-                            <h3 className="text-lg font-semibold text-foreground mb-4 flex-shrink-0">{t('history.preview')}</h3>
-                            <Card
-                              className="rounded-lg shadow-none overflow-hidden w-full flex-1 max-w-md cursor-pointer can-hover:hover:border-primary/50 active:border-primary/50 transition-colors"
-                              onClick={(e) => { e.stopPropagation(); openPreviewModal(upload); }}
-                            >
-                              {isExpired(upload.expires_at) ? (
-                                <div className="flex items-center justify-center h-full bg-muted">
-                                  <p className="text-sm text-muted-foreground text-center px-4">{t('history.expiredFile')}</p>
-                                </div>
-                              ) : isImageFileByType(upload.file_type) ? (
-                                presignedUrls[upload.id] && !failedPreviews.has(upload.id) ? (
-                                  <img
-                                    src={presignedUrls[upload.id]}
-                                    alt={upload.file_name}
-                                    className="w-full h-full object-contain"
-                                    onError={() => handlePreviewError(upload.id)}
-                                  />
-                                ) : (
-                                  <div className="flex flex-col items-center justify-center h-full bg-muted p-4 gap-4">
-                                    <FileThumbnail source={null} fileName={upload.file_name} size="md" />
-                                    <p className="text-sm text-muted-foreground text-center">{t('history.clickToPreview')}</p>
-                                  </div>
-                                )
-                              ) : isVideoFile(upload.file_name) ? (
-                                presignedUrls[upload.id] && !failedPreviews.has(upload.id) ? (
-                                  <VideoPreview source={presignedUrls[upload.id]} fileName={upload.file_name} />
-                                ) : (
-                                  <div className="flex flex-col items-center justify-center h-full bg-muted p-4 gap-4">
-                                    <FileThumbnail source={null} fileName={upload.file_name} size="md" />
-                                    <p className="text-sm text-muted-foreground text-center">{t('history.clickToPreview')}</p>
-                                  </div>
-                                )
-                              ) : isPdfFile(upload.file_name) ? (
-                                presignedUrls[upload.id] && !failedPreviews.has(upload.id) ? (
-                                  <PdfPreview source={presignedUrls[upload.id]} fileName={upload.file_name} />
-                                ) : (
-                                  <div className="flex flex-col items-center justify-center h-full bg-muted p-4 gap-4">
-                                    <FileThumbnail source={null} fileName={upload.file_name} size="md" />
-                                    <p className="text-sm text-muted-foreground text-center">{t('history.clickToPreview')}</p>
-                                  </div>
-                                )
-                              ) : (
-                                <div className="flex flex-col items-center justify-center h-full bg-muted p-4 gap-4">
-                                  <FileThumbnail source={null} fileName={upload.file_name} size="md" />
-                                  <p className="text-sm text-muted-foreground text-center">{t('history.clickToPreview')}</p>
-                                </div>
-                              )}
-                            </Card>
-                          </div>
-
-                          <div className="col-span-2 grid grid-cols-2 gap-4">
-                            <div className="flex flex-col">
-                              <h3 className="text-lg font-semibold text-foreground mb-4">{t('history.detailInfo')}</h3>
-                              <Card className="rounded-lg shadow-none">
-                                <CardContent className="p-4 grid grid-cols-2 gap-x-6 gap-y-3">
-                                <div className="col-span-2">
-                                  <span className="text-sm font-medium text-muted-foreground">{t('history.fileNameLabel')}</span>
-                                  <p className="text-sm text-foreground break-all">{upload.file_name}</p>
-                                </div>
-                                <div className="col-span-2">
-                                  <span className="text-sm font-medium text-muted-foreground">{t('history.descriptionLabel')}</span>
-                                  <p className="text-sm text-foreground break-words whitespace-pre-wrap">{upload.description || t('common.none')}</p>
-                                </div>
-                                <div>
-                                  <span className="text-sm font-medium text-muted-foreground">{t('history.fileTypeLabel')}</span>
-                                  <p className="text-sm text-foreground">{upload.file_type}</p>
-                                </div>
-                                <div>
-                                  <span className="text-sm font-medium text-muted-foreground">{t('history.fileSizeLabel')}</span>
-                                  <p className="text-sm text-foreground">{formatFileSize(upload.file_size)}</p>
-                                </div>
+                        <div className="px-6 py-6 space-y-6">
+                          {isBundle && (
+                            <Card className="rounded-lg shadow-none">
+                              <CardContent className="p-4 grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-3">
                                 <div>
                                   <span className="text-sm font-medium text-muted-foreground">{t('history.shareCodeLabel')}</span>
-                                  <p className="text-sm text-foreground font-mono">{upload.share_code}</p>
+                                  <p className="text-sm text-foreground font-mono">{group.shareCode}</p>
+                                </div>
+                                <div>
+                                  <span className="text-sm font-medium text-muted-foreground">{t('history.bundleSize')}</span>
+                                  <p className="text-sm text-foreground">{formatFileSize(group.totalSize)}</p>
                                 </div>
                                 <div>
                                   <span className="text-sm font-medium text-muted-foreground">{t('history.passwordLabel')}</span>
-                                  <p className="text-sm text-foreground">{upload.has_password ? t('common.exists') : t('common.none')}</p>
+                                  <p className="text-sm text-foreground">{group.hasPassword ? t('common.exists') : t('common.none')}</p>
                                 </div>
                                 <div>
                                   <span className="text-sm font-medium text-muted-foreground">{t('history.oneTimeShareLabel')}</span>
-                                  <p className="text-sm text-foreground">{upload.is_one_time ? t('common.yes') : t('common.no')}</p>
+                                  <p className="text-sm text-foreground">{group.isOneTime ? t('common.yes') : t('common.no')}</p>
                                 </div>
-                                <div>
-                                  <span className="text-sm font-medium text-muted-foreground">{t('history.downloadCountLabel')}</span>
-                                  <p className="text-sm text-foreground">{t('common.countUnit', { count: upload.download_count })}</p>
-                                </div>
-                                <div>
-                                  <span className="text-sm font-medium text-muted-foreground">{t('history.uploadDateLabel')}</span>
-                                  <p className="text-sm text-foreground">{formatDateTime(upload.created_at, language)}</p>
-                                </div>
-                                <div>
-                                  <span className="text-sm font-medium text-muted-foreground">{t('history.expirationDateLabel')}</span>
-                                  <p className="text-sm text-foreground">{formatDateTime(upload.expires_at, language)}</p>
-                                </div>
-                                </CardContent>
-                              </Card>
-                            </div>
+                              </CardContent>
+                            </Card>
+                          )}
 
-                            <div className="h-0 min-h-full flex flex-col overflow-hidden">
-                              <div className="flex items-center justify-between mb-4 flex-shrink-0">
-                                <h3 className="text-lg font-semibold text-foreground">{t('history.downloadHistory')}</h3>
-                                {downloadLogs[upload.id]?.length > 3 && (
-                                  <Button
-                                    variant="ghost"
-                                    onClick={(e) => handleViewAllLogs(upload.id, e)}
-                                    size="sm"
-                    className="text-muted-foreground"
-                                  >
-                                    {t('history.viewAll')}
-                                  </Button>
-                                )}
+                          {isBundle && (
+                            <h3 className="text-lg font-semibold text-foreground">{t('history.filesInBundle')}</h3>
+                          )}
+
+                          {group.files.map((upload) => (
+                            <div key={upload.id} className="grid grid-cols-3 gap-4">
+                              <div className="h-0 min-h-full flex flex-col overflow-hidden">
+                                <h3 className="text-lg font-semibold text-foreground mb-4 flex-shrink-0">{t('history.preview')}</h3>
+                                <Card
+                                  className="rounded-lg shadow-none overflow-hidden w-full flex-1 max-w-md cursor-pointer can-hover:hover:border-primary/50 active:border-primary/50 transition-colors"
+                                  onClick={(e) => { e.stopPropagation(); openPreviewModal(upload); }}
+                                >
+                                  {renderFilePreview(
+                                    upload,
+                                    presignedUrls,
+                                    failedPreviews,
+                                    handlePreviewError,
+                                    isExpired,
+                                    isImageFileByType,
+                                    PdfPreview,
+                                    VideoPreview,
+                                    t,
+                                  )}
+                                </Card>
                               </div>
-                              <Card className="rounded-lg shadow-none flex-1 flex flex-col min-h-0 overflow-hidden">
-                                <CardContent className="p-4 flex-1 flex flex-col min-h-0 overflow-hidden">
-                                {loadingLogs[upload.id] ? (
-                                  <div className="space-y-4 flex-1">
-                                    {[0, 1, 2].map((i) => (
-                                      <div key={i} className="border-b border-border pb-4 last:border-0 last:pb-0">
-                                        <div className="flex justify-between items-start gap-4">
-                                          <div className="min-w-0 flex-1">
-                                            <Skeleton className="h-4 w-24" />
-                                            <Skeleton className="h-3 w-32 mt-2" />
-                                            <Skeleton className="h-3 w-28 mt-1" />
-                                          </div>
-                                          <Skeleton className="h-3 w-32 flex-shrink-0" />
+
+                              <div className="col-span-2 grid grid-cols-2 gap-4">
+                                <div className="flex flex-col">
+                                  <h3 className="text-lg font-semibold text-foreground mb-4">{t('history.detailInfo')}</h3>
+                                  <Card className="rounded-lg shadow-none">
+                                    <CardContent className="p-4 grid grid-cols-2 gap-x-6 gap-y-3">
+                                    <div className="col-span-2">
+                                      <span className="text-sm font-medium text-muted-foreground">{t('history.fileNameLabel')}</span>
+                                      <p className="text-sm text-foreground break-all">{upload.file_name}</p>
+                                    </div>
+                                    <div className="col-span-2">
+                                      <span className="text-sm font-medium text-muted-foreground">{t('history.descriptionLabel')}</span>
+                                      <p className="text-sm text-foreground break-words whitespace-pre-wrap">{upload.description || t('common.none')}</p>
+                                    </div>
+                                    <div>
+                                      <span className="text-sm font-medium text-muted-foreground">{t('history.fileTypeLabel')}</span>
+                                      <p className="text-sm text-foreground">{upload.file_type}</p>
+                                    </div>
+                                    <div>
+                                      <span className="text-sm font-medium text-muted-foreground">{t('history.fileSizeLabel')}</span>
+                                      <p className="text-sm text-foreground">{formatFileSize(upload.file_size)}</p>
+                                    </div>
+                                    {!isBundle && (
+                                      <>
+                                        <div>
+                                          <span className="text-sm font-medium text-muted-foreground">{t('history.shareCodeLabel')}</span>
+                                          <p className="text-sm text-foreground font-mono">{upload.share_code}</p>
                                         </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                ) : downloadLogs[upload.id]?.length > 0 ? (
-                                  <div className="space-y-4 overflow-y-auto pr-2 flex-1">
-                                    {downloadLogs[upload.id].map((log) => (
-                                      <div
-                                        key={log.id}
-                                        className="text-sm border-b border-border pb-4 last:border-0 last:pb-0"
+                                        <div>
+                                          <span className="text-sm font-medium text-muted-foreground">{t('history.passwordLabel')}</span>
+                                          <p className="text-sm text-foreground">{upload.has_password ? t('common.exists') : t('common.none')}</p>
+                                        </div>
+                                        <div>
+                                          <span className="text-sm font-medium text-muted-foreground">{t('history.oneTimeShareLabel')}</span>
+                                          <p className="text-sm text-foreground">{upload.is_one_time ? t('common.yes') : t('common.no')}</p>
+                                        </div>
+                                      </>
+                                    )}
+                                    <div>
+                                      <span className="text-sm font-medium text-muted-foreground">{t('history.downloadCountLabel')}</span>
+                                      <p className="text-sm text-foreground">{t('common.countUnit', { count: upload.download_count })}</p>
+                                    </div>
+                                    <div>
+                                      <span className="text-sm font-medium text-muted-foreground">{t('history.uploadDateLabel')}</span>
+                                      <p className="text-sm text-foreground">{formatDateTime(upload.created_at, language)}</p>
+                                    </div>
+                                    <div>
+                                      <span className="text-sm font-medium text-muted-foreground">{t('history.expirationDateLabel')}</span>
+                                      <p className="text-sm text-foreground">{formatDateTime(upload.expires_at, language)}</p>
+                                    </div>
+                                    </CardContent>
+                                  </Card>
+                                </div>
+
+                                <div className="h-0 min-h-full flex flex-col overflow-hidden">
+                                  <div className="flex items-center justify-between mb-4 flex-shrink-0">
+                                    <h3 className="text-lg font-semibold text-foreground">{t('history.downloadHistory')}</h3>
+                                    {downloadLogs[upload.id]?.length > 3 && (
+                                      <Button
+                                        variant="ghost"
+                                        onClick={(e) => handleViewAllLogs(upload.id, e)}
+                                        size="sm"
+                                        className="text-muted-foreground"
                                       >
-                                        <div className="flex justify-between items-start gap-4">
-                                          <div className="min-w-0 flex-1">
-                                            <p className="font-medium text-foreground">
-                                              {log.downloader_name || t('common.anonymousUser')}
-                                            </p>
-                                            <p className="text-muted-foreground text-xs mt-2">
-                                              {log.device_platform}
-                                            </p>
-                                            <p className="text-muted-foreground text-xs">
-                                              {log.ip_address}
-                                            </p>
+                                        {t('history.viewAll')}
+                                      </Button>
+                                    )}
+                                  </div>
+                                  <Card className="rounded-lg shadow-none flex-1 flex flex-col min-h-0 overflow-hidden">
+                                    <CardContent className="p-4 flex-1 flex flex-col min-h-0 overflow-hidden">
+                                    {loadingLogs[upload.id] ? (
+                                      <div className="space-y-4 flex-1">
+                                        {[0, 1, 2].map((i) => (
+                                          <div key={i} className="border-b border-border pb-4 last:border-0 last:pb-0">
+                                            <div className="flex justify-between items-start gap-4">
+                                              <div className="min-w-0 flex-1">
+                                                <Skeleton className="h-4 w-24" />
+                                                <Skeleton className="h-3 w-32 mt-2" />
+                                                <Skeleton className="h-3 w-28 mt-1" />
+                                              </div>
+                                              <Skeleton className="h-3 w-32 flex-shrink-0" />
+                                            </div>
                                           </div>
-                                          <p className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">
-                                            {formatDateTime(log.downloaded_at, language)}
-                                          </p>
-                                        </div>
+                                        ))}
                                       </div>
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <div className="text-sm text-muted-foreground text-center py-4 flex-1 flex items-center justify-center">
-                                    {t('history.noDownloadLogs')}
-                                  </div>
-                                )}
-                                </CardContent>
-                              </Card>
+                                    ) : downloadLogs[upload.id]?.length > 0 ? (
+                                      <div className="space-y-4 overflow-y-auto pr-2 flex-1">
+                                        {downloadLogs[upload.id].map((log) => (
+                                          <div
+                                            key={log.id}
+                                            className="text-sm border-b border-border pb-4 last:border-0 last:pb-0"
+                                          >
+                                            <div className="flex justify-between items-start gap-4">
+                                              <div className="min-w-0 flex-1">
+                                                <p className="font-medium text-foreground">
+                                                  {log.downloader_name || t('common.anonymousUser')}
+                                                </p>
+                                                <p className="text-muted-foreground text-xs mt-2">
+                                                  {log.device_platform}
+                                                </p>
+                                                <p className="text-muted-foreground text-xs">
+                                                  {log.ip_address}
+                                                </p>
+                                              </div>
+                                              <p className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">
+                                                {formatDateTime(log.downloaded_at, language)}
+                                              </p>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <div className="text-sm text-muted-foreground text-center py-4 flex-1 flex items-center justify-center">
+                                        {t('history.noDownloadLogs')}
+                                      </div>
+                                    )}
+                                    </CardContent>
+                                  </Card>
+                                </div>
+                              </div>
                             </div>
-                          </div>
+                          ))}
                         </div>
                       </div>
                     </TableCell>
                   </TableRow>
                 )}
               </React.Fragment>
-            ))}
+              );
+            })}
           </TableBody>
         </table>
       </div>
