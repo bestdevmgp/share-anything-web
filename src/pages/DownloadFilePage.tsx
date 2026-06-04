@@ -585,7 +585,7 @@ const DownloadFilePage: React.FC = () => {
                     <path d="M5 13l4 4L19 7" className="download-checkmark-path" />
                   </svg>
                 ) : awaitingNextSelection ? (
-                  <PauseIcon className="w-9 h-9 text-green-600" strokeWidth={2.5} />
+                  <PauseIcon className="w-9 h-9 text-green-600" strokeWidth={3} />
                 ) : (
                   <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />

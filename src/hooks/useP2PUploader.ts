@@ -62,7 +62,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
   }, [t]);
 
   const sendFile = useCallback((file: File, dataChannel: RTCDataChannel) => {
-    const chunkSize = 65536; // 64KB per WebRTC message
+    const chunkSize = 16 * 1024;
     const sliceSize = chunkSize * 32; // 2MB per disk read
     const BUFFER_HIGH = 4 * 1024 * 1024;
     const BUFFER_LOW = 1 * 1024 * 1024;
