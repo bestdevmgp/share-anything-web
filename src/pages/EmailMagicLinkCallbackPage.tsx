@@ -30,10 +30,6 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
     user: User;
     existingProvider: string;
   } | null>(null);
-  const [pendingAuth, setPendingAuth] = useState<{
-    token: string;
-    user: User;
-  } | null>(null);
   const hasProcessed = useRef(false);
 
   useEffect(() => {
@@ -61,7 +57,19 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
           const hasExistingProvider = !!data.auth.existing_provider;
 
           const doDirectLogin = () => {
-            setPendingAuth({ token: data.auth!.token, user: data.auth!.user });
+            setIsLoggingIn(true);
+            localStorage.removeItem('emailAuthDeviceId');
+            localStorage.setItem('lastLoginProvider', 'email');
+            login(data.auth!.token, data.auth!.user);
+            toast.success(t('oauth.loginSuccess'));
+            const cliRedirect = localStorage.getItem('cli_signin_redirect');
+            if (cliRedirect) {
+              localStorage.removeItem('cli_signin_redirect');
+              navigate(cliRedirect, { replace: true });
+            } else {
+              const next = consumePostLoginRedirect();
+              navigate(next || '/', { replace: true });
+            }
           };
 
           try {
@@ -117,63 +125,6 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
     verifyToken();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const handleConfirmDirectSignIn = () => {
-    if (!pendingAuth) return;
-    setIsLoggingIn(true);
-    localStorage.removeItem('emailAuthDeviceId');
-    localStorage.setItem('lastLoginProvider', 'email');
-    login(pendingAuth.token, pendingAuth.user);
-    toast.success(t('oauth.loginSuccess'));
-    const cliRedirect = localStorage.getItem('cli_signin_redirect');
-    if (cliRedirect) {
-      localStorage.removeItem('cli_signin_redirect');
-      navigate(cliRedirect, { replace: true });
-    } else {
-      const next = consumePostLoginRedirect();
-      navigate(next || '/', { replace: true });
-    }
-  };
-
-  const handleCancelDirectSignIn = () => {
-    setPendingAuth(null);
-    navigate('/signin', { replace: true });
-  };
-
-  if (pendingAuth) {
-    return (
-      <div className="flex items-center justify-center px-4 py-20">
-        <div className="max-w-md w-full">
-          <Card className="rounded-3xl border-2 p-10">
-            <CardContent className="p-0 text-center">
-              <div className="flex justify-center mb-5">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                  <EnvelopeIcon className="w-9 h-9 text-primary" strokeWidth={2} />
-                </div>
-              </div>
-              <h2 className="text-2xl font-bold text-foreground mb-2">
-                {t('emailAuth.confirmSignInTitle')}
-              </h2>
-              <p className="text-muted-foreground text-sm mb-1">
-                {t('emailAuth.confirmSignInDesc', { email: pendingAuth.user.email })}
-              </p>
-              <p className="text-xs text-muted-foreground/70 mb-8">
-                {t('emailAuth.confirmSignInHint')}
-              </p>
-              <div className="flex flex-col gap-2">
-                <Button onClick={handleConfirmDirectSignIn} size="xl" className="w-full">
-                  {t('emailAuth.confirmSignInButton')}
-                </Button>
-                <Button onClick={handleCancelDirectSignIn} variant="ghost" size="xl" className="w-full">
-                  {t('emailAuth.cancelSignIn')}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
 
   if (canClose) {
     return (

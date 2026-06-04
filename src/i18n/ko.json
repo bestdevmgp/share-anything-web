@@ -150,12 +150,7 @@
     "providerName.kakao": "카카오",
     "providerName.apple": "Apple",
     "loginCompleteTitle": "로그인 완료",
-    "canCloseTab": "이 탭을 닫아도 됩니다.",
-    "confirmSignInTitle": "로그인하시겠습니까?",
-    "confirmSignInDesc": "{{email}} 계정으로 ShareAnything에 로그인합니다.",
-    "confirmSignInHint": "취소하면 이 탭만 닫히고, 새로 인증할 필요 없이 다시 로그인할 수 있습니다.",
-    "confirmSignInButton": "로그인",
-    "cancelSignIn": "취소"
+    "canCloseTab": "이 탭을 닫아도 됩니다."
   },
   "oauth": {
     "loggingIn": "로그인 중...",

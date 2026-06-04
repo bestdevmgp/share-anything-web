@@ -150,12 +150,7 @@
     "providerName.kakao": "Kakao",
     "providerName.apple": "Apple",
     "loginCompleteTitle": "Sign-in Complete",
-    "canCloseTab": "You can close this tab.",
-    "confirmSignInTitle": "Sign in to ShareAnything?",
-    "confirmSignInDesc": "You will be signed in as {{email}}.",
-    "confirmSignInHint": "Cancel just closes this confirmation — you can sign in again without re-verifying.",
-    "confirmSignInButton": "Sign in",
-    "cancelSignIn": "Cancel"
+    "canCloseTab": "You can close this tab."
   },
   "oauth": {
     "loggingIn": "Signing in...",

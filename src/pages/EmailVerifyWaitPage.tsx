@@ -52,11 +52,6 @@ const EmailVerifyWaitPage: React.FC = () => {
     user: User;
     existingProvider: string;
   } | null>(null);
-  const [pendingAuth, setPendingAuth] = useState<{
-    token: string;
-    user: User;
-    existingProvider?: string;
-  } | null>(null);
 
   const hasLoggedIn = useRef(false);
 
@@ -76,53 +71,44 @@ const EmailVerifyWaitPage: React.FC = () => {
     }
   }, [email, sessionId, navigate]);
 
-  const requestSignIn = useCallback((token: string, user: User, existingProvider?: string) => {
-    if (hasLoggedIn.current || pendingAuth) return;
+  const handleLoginSuccess = useCallback((token: string, user: User, existingProvider?: string) => {
+    if (hasLoggedIn.current) return;
     if (existingProvider) {
       setMergeInfo({ token, user, existingProvider });
       return;
     }
-    setPendingAuth({ token, user, existingProvider });
-  }, [pendingAuth]);
-
-  const handleLoginSuccess = useCallback((token: string, user: User) => {
-    if (hasLoggedIn.current) return;
     hasLoggedIn.current = true;
     localStorage.removeItem('emailAuthDeviceId');
     localStorage.setItem('lastLoginProvider', 'email');
     login(token, user);
     sessionStorage.removeItem(SESSION_STORAGE_KEY);
     toast.success(t('oauth.loginSuccess'));
-    navigate('/', { replace: true });
+    const cliRedirect = localStorage.getItem('cli_signin_redirect');
+    if (cliRedirect) {
+      localStorage.removeItem('cli_signin_redirect');
+      navigate(cliRedirect, { replace: true });
+    } else {
+      navigate('/', { replace: true });
+    }
   }, [login, navigate, t]);
 
-  const handleConfirmSignIn = () => {
-    if (!pendingAuth) return;
-    handleLoginSuccess(pendingAuth.token, pendingAuth.user);
-  };
-
-  const handleCancelSignIn = () => {
-    setPendingAuth(null);
-    setCode('');
-  };
-
   useEffect(() => {
-    if (!sessionId || hasLoggedIn.current || mergeInfo || pendingAuth) return;
+    if (!sessionId || hasLoggedIn.current || mergeInfo) return;
 
     const interval = setInterval(async () => {
       try {
         const data = await authAPI.checkEmailAuthStatus(sessionId);
         if (data.status === 'completed' && data.auth) {
-          requestSignIn(data.auth.token, data.auth.user, data.auth.existing_provider);
+          handleLoginSuccess(data.auth.token, data.auth.user, data.auth.existing_provider);
         }
       } catch {}
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [sessionId, mergeInfo, pendingAuth, requestSignIn]);
+  }, [sessionId, mergeInfo, handleLoginSuccess]);
 
   useEffect(() => {
-    if (hasLoggedIn.current || mergeInfo || pendingAuth) return;
+    if (hasLoggedIn.current || mergeInfo) return;
 
     let channel: BroadcastChannel;
     try {
@@ -130,7 +116,7 @@ const EmailVerifyWaitPage: React.FC = () => {
       channel.onmessage = (e) => {
         if (e.data?.type === 'email-auth-complete' && e.data.auth) {
           channel.postMessage({ type: 'auth-received' });
-          requestSignIn(e.data.auth.token, e.data.auth.user, e.data.auth.existing_provider);
+          handleLoginSuccess(e.data.auth.token, e.data.auth.user, e.data.auth.existing_provider);
         }
       };
     } catch {
@@ -138,7 +124,7 @@ const EmailVerifyWaitPage: React.FC = () => {
     }
 
     return () => channel.close();
-  }, [mergeInfo, pendingAuth, requestSignIn]);
+  }, [mergeInfo, handleLoginSuccess]);
 
   const handleVerifyCode = async () => {
     if (code.length !== 6) return;
@@ -146,7 +132,7 @@ const EmailVerifyWaitPage: React.FC = () => {
     setVerifying(true);
     try {
       const data = await authAPI.verifyEmailCode(sessionId, code);
-      requestSignIn(data.token, data.user, data.existing_provider);
+      handleLoginSuccess(data.token, data.user, data.existing_provider);
     } catch {
       setCodeError(t('emailAuth.verifyFailed'));
     } finally {
@@ -174,41 +160,6 @@ const EmailVerifyWaitPage: React.FC = () => {
     toast.success(t('oauth.loginSuccess'));
     navigate('/', { replace: true });
   };
-
-  if (pendingAuth) {
-    return (
-      <div className="flex items-center justify-center px-4 py-20">
-        <div className="max-w-md w-full">
-          <Card className="rounded-3xl border-2 p-10">
-            <CardContent className="p-0 text-center">
-              <div className="flex justify-center mb-5">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                  <EnvelopeIcon className="w-9 h-9 text-primary" strokeWidth={2} />
-                </div>
-              </div>
-              <h2 className="text-2xl font-bold text-foreground mb-2">
-                {t('emailAuth.confirmSignInTitle')}
-              </h2>
-              <p className="text-muted-foreground text-sm mb-1">
-                {t('emailAuth.confirmSignInDesc', { email: pendingAuth.user.email || email })}
-              </p>
-              <p className="text-xs text-muted-foreground/70 mb-8">
-                {t('emailAuth.confirmSignInHint')}
-              </p>
-              <div className="flex flex-col gap-2">
-                <Button onClick={handleConfirmSignIn} size="xl" className="w-full">
-                  {t('emailAuth.confirmSignInButton')}
-                </Button>
-                <Button onClick={handleCancelSignIn} variant="ghost" size="xl" className="w-full">
-                  {t('emailAuth.cancelSignIn')}
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
 
   if (mergeInfo) {
     const ProviderLogo = providerLogoMap[mergeInfo.existingProvider];
