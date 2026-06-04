@@ -99,7 +99,9 @@ const ApiTermsJa: React.FC = () => (
                 <a href="/terms-of-use" className="underline underline-offset-2 can-hover:hover:text-gray-900 dark:can-hover:hover:text-[#EDEDED] transition-colors">利用規約</a>に準じます。
             </p>
             <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>ファイルサイズや件数の制限は一般利用規約に従います。</li>
+                <li>通常アップロードにおける1ファイルあたりの最大サイズは<strong>3GB</strong>です。P2Pセキュア転送はこの制限の対象外です。超過時はHTTP <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">413 Payload Too Large</code>と<code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">file_too_large</code>エラーコードが返されます。</li>
+                <li>APIキーごとに、まだ有効期限が切れていない共有（削除されておらず、共有コードが有効なすべての共有）のファイルサイズ合計は<strong>8GB</strong>までです。超過時はHTTP <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">429 Too Many Requests</code>と<code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">storage_quota_exceeded</code>エラーコードが返されます。既存の共有を削除するか、有効期限切れを待つことで容量が再び確保されます。本上限はOpenAPI（APIキー、<code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">sak_</code>）でアップロードされたファイルにのみ適用され、個人トークン（<code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">sat_</code>）には適用されません。</li>
+                <li>1回のアップロードあたりのファイル数など、その他の制限は一般利用規約に従います。</li>
                 <li>有効期限が切れたファイルは自動的に削除されます。</li>
                 <li>ShareAnythingは必要に応じてサービス制限を変更する場合があります。</li>
             </ul>

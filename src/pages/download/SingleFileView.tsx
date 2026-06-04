@@ -269,7 +269,7 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
                   </div>
                 </div>
               ) : p2pStatus === 'completed' ? (
-                <div className="flex flex-col items-center gap-3 py-2">
+                <div className="flex flex-col items-center gap-3">
                   <div className="text-center text-green-600 font-semibold">
                     ✓ {t('download.receiveCompleteMark')}
                   </div>

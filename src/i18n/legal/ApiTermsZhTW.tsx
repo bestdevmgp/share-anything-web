@@ -99,7 +99,9 @@ const ApiTermsZhTW: React.FC = () => (
                 <a href="/terms-of-use" className="underline underline-offset-2 can-hover:hover:text-gray-900 dark:can-hover:hover:text-[#EDEDED] transition-colors">ShareAnything使用條款</a>。
             </p>
             <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>檔案大小及數量限制以一般使用條款為準。</li>
+                <li>一般上傳中單一檔案的最大容量為 <strong>3GB</strong>。P2P 安全傳輸不受此限制約束。超出時回傳 HTTP <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">413 Payload Too Large</code> 與錯誤代碼 <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">file_too_large</code>。</li>
+                <li>每個 API 金鑰下，所有尚未過期的分享（分享代碼仍有效且未被刪除的全部分享）的檔案大小總和上限為 <strong>8GB</strong>。超出配額時回傳 HTTP <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">429 Too Many Requests</code> 與錯誤代碼 <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">storage_quota_exceeded</code>。刪除既有分享或等待其過期即可收回配額。該上限僅適用於透過 OpenAPI（API 金鑰，<code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">sak_</code>）上傳的檔案，不適用於個人權杖（<code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">sat_</code>）上傳的檔案。</li>
+                <li>單次上傳檔案數量等其他限制以一般使用條款為準。</li>
                 <li>檔案有效期限到期後將自動刪除。</li>
                 <li>ShareAnything可在必要時提前通知後修改服務限制。</li>
             </ul>

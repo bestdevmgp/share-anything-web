@@ -131,7 +131,7 @@ const UploadSuccessPage: React.FC = () => {
                     <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
                   </svg>
                 ) : overallStatus === 'waiting_for_next' ? (
-                  <PauseIcon className="w-9 h-9 text-green-600" strokeWidth={3} />
+                  <PauseIcon className="w-9 h-9 text-green-600" strokeWidth={4} />
                 ) : (
                   <Spinner size="xl" />
                 )

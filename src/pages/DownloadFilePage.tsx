@@ -585,7 +585,7 @@ const DownloadFilePage: React.FC = () => {
                     <path d="M5 13l4 4L19 7" className="download-checkmark-path" />
                   </svg>
                 ) : awaitingNextSelection ? (
-                  <PauseIcon className="w-9 h-9 text-green-600" strokeWidth={3} />
+                  <PauseIcon className="w-9 h-9 text-green-600" strokeWidth={4} />
                 ) : (
                   <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
@@ -655,21 +655,17 @@ const DownloadFilePage: React.FC = () => {
                             <span className="truncate">{nameBase}</span>
                             {nameExt && <span className="flex-shrink-0">{nameExt}</span>}
                           </h4>
-                          {isDownloading && (
-                            <div className="flex items-center gap-2 flex-shrink-0">
-                              <span className="text-xs text-muted-foreground whitespace-nowrap">{p2pTimeRemaining || t('format.calculating')}</span>
-                              <span className="text-xs font-semibold text-primary whitespace-nowrap">{p2pProgress}%</span>
-                            </div>
-                          )}
                         </div>
                         {isDownloading ? (
-                          <div className="flex items-start h-4 mt-1">
-                            <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
+                          <div className="flex items-center gap-2 mt-2.5">
+                            <div className="flex-1 bg-secondary rounded-full h-1.5 overflow-hidden">
                               <div
                                 className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
                                 style={{ width: `${p2pProgress}%` }}
                               />
                             </div>
+                            <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">{p2pTimeRemaining || t('format.calculating')}</span>
+                            <span className="text-xs font-semibold text-primary whitespace-nowrap flex-shrink-0">{p2pProgress}%</span>
                           </div>
                         ) : (
                           <p className="text-xs sm:text-sm text-muted-foreground">{formatFileSize(file.file_size)}</p>
