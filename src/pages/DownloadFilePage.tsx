@@ -104,7 +104,7 @@ const DownloadFilePage: React.FC = () => {
   );
   const p2pActiveFile = p2pActiveFileId ? fileList?.files?.find(f => f.id === p2pActiveFileId) : singleFile;
 
-  const { status: p2pStatus, progress: p2pProgress, timeRemaining: p2pTimeRemaining, peerDeviceInfo: p2pPeerDeviceInfo, reset: resetP2P, cancelDownload, close: closeP2PSession } = useP2PDownloader({
+  const { status: p2pStatus, progress: p2pProgress, timeRemaining: p2pTimeRemaining, peerDeviceInfo: p2pPeerDeviceInfo, cancelDownload, close: closeP2PSession } = useP2PDownloader({
     shareCode: code || '',
     password: password || undefined,
     fileInfo: p2pActiveFile ? {
