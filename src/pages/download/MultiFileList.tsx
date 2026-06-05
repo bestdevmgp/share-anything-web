@@ -159,14 +159,15 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                   .filter(f => selectedFiles.has(f.id))
                   .reduce((sum, f) => sum + f.file_size, 0);
                 const ZIP_SIZE_LIMIT = 500 * 1024 * 1024;
-                const canDownloadAsZip = selectedFiles.size > 1 && selectedTotalSize < ZIP_SIZE_LIMIT;
+                const canZip = selectedFiles.size > 1 && selectedTotalSize < ZIP_SIZE_LIMIT;
+                const hasSelection = selectedFiles.size > 0;
 
-                return canDownloadAsZip ? (
+                return (
                   <div className="flex gap-3">
                     <Button
                       variant="secondary"
                       onClick={() => handleDownload(true)}
-                      disabled={selectedFiles.size === 0}
+                      disabled={!canZip}
                       size="lg"
                       className="flex-1"
                     >
@@ -174,27 +175,13 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                     </Button>
                     <Button
                       onClick={() => handleDownload(false)}
-                      disabled={selectedFiles.size === 0}
+                      disabled={!hasSelection}
                       size="lg"
                       className="flex-1"
                     >
                       {t('download.individualDownload')}
                     </Button>
                   </div>
-                ) : (
-                  <Button
-                    onClick={() => handleDownload(false)}
-                    disabled={selectedFiles.size === 0}
-                    size="lg"
-                    className="w-full"
-                  >
-                    {selectedFiles.size === 0
-                      ? t('download.selectFilePrompt')
-                      : selectedFiles.size === 1
-                      ? t('common.download')
-                      : t('download.multiFileDownload', { count: selectedFiles.size })
-                    }
-                  </Button>
                 );
               })()
             )}
