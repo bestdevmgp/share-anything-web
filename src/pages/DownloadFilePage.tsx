@@ -656,7 +656,7 @@ const DownloadFilePage: React.FC = () => {
                           </h4>
                         </div>
                         {isDownloading ? (
-                          <div className="flex items-center gap-2 mt-6">
+                          <div className="flex items-center gap-1.5 sm:gap-2 mt-6">
                             <div className="flex-1 bg-secondary rounded-full h-1.5 overflow-hidden">
                               <div
                                 className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
@@ -665,6 +665,14 @@ const DownloadFilePage: React.FC = () => {
                             </div>
                             <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">{p2pTimeRemaining || t('format.calculating')}</span>
                             <span className="text-xs font-semibold text-primary whitespace-nowrap flex-shrink-0">{p2pProgress}%</span>
+                            <button
+                              onClick={handleCancelP2PDownload}
+                              className="flex-shrink-0 p-0.5 -mr-1 can-hover:hover:bg-accent active:bg-accent rounded transition-colors"
+                              title={t('download.cancelDownload')}
+                              aria-label={t('download.cancelDownload')}
+                            >
+                              <XMarkIcon className="w-4 h-4 text-muted-foreground" />
+                            </button>
                           </div>
                         ) : (
                           <p className="text-xs sm:text-sm text-muted-foreground">{formatFileSize(file.file_size)}</p>
@@ -675,15 +683,7 @@ const DownloadFilePage: React.FC = () => {
                         <span className="flex-shrink-0 px-4 py-2 text-green-600 text-sm font-medium">
                           ✓ {t('common.done')}
                         </span>
-                      ) : isDownloading ? (
-                        <button
-                          onClick={handleCancelP2PDownload}
-                          className="flex-shrink-0 p-1 can-hover:hover:bg-accent active:bg-accent rounded transition-colors"
-                          title={t('download.cancelDownload')}
-                        >
-                          <XMarkIcon className="w-5 h-5 text-muted-foreground" />
-                        </button>
-                      ) : (
+                      ) : !isDownloading ? (
                         <Button
                           onClick={() => startP2PDownload(file.id)}
                           disabled={bulkP2PDownloading || Boolean(anyP2PDownloading)}
@@ -692,7 +692,7 @@ const DownloadFilePage: React.FC = () => {
                         >
                           {t('common.download')}
                         </Button>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 );
