@@ -33,10 +33,3 @@ export const providerLogoMap: Record<string, React.FC<{ className?: string }>> =
   kakao: KakaoLogo,
   apple: AppleLogo,
 };
-
-export const providerDisplayNames: Record<string, string> = {
-  google: 'Google',
-  naver: 'Naver',
-  kakao: 'Kakao',
-  apple: 'Apple',
-};

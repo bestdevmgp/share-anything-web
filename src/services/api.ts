@@ -738,5 +738,3 @@ export const apiKeyAPI = {
     return response.data;
   },
 };
-
-export default api;

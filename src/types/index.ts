@@ -92,13 +92,6 @@ export interface UploadGroup {
 
 export type ExpirationOption = 'five_minutes' | 'thirty_minutes' | 'one_hour' | 'three_hours' | 'six_hours' | 'twelve_hours' | 'twenty_four_hours';
 
-export interface UploadFormData {
-  files: File[];
-  description?: string;
-  password?: string;
-  expiration: ExpirationOption;
-}
-
 export interface FileListItem {
   id: string;
   file_name: string;
@@ -124,8 +117,6 @@ export interface BulkDownloadRequest {
   file_ids: string[];
   password?: string;
 }
-
-export type TransferType = 'server' | 'p2p';
 
 export interface P2PStatusResponse {
   share_code: string;

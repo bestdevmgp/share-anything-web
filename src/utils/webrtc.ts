@@ -57,11 +57,6 @@ export const getIceServers = async (): Promise<RTCIceServer[]> => {
   }
 };
 
-export const clearIceServerCache = (): void => {
-  cachedIceServers = null;
-  cacheExpiry = 0;
-};
-
 export const createPeerConnection = async (): Promise<RTCPeerConnection> => {
   const iceServers = await getIceServers();
 

@@ -11,24 +11,6 @@ export const formatFileSize = (bytes: number): string => {
   return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
 };
 
-export const formatDate = (dateString: string, language: Language = 'ko'): string => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diff = date.getTime() - now.getTime();
-  const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-
-  if (days < 0) {
-    return translate(language, 'format.expired');
-  } else if (days === 0) {
-    const hours = Math.ceil(diff / (1000 * 60 * 60));
-    return translate(language, 'format.expiresInHours', { hours });
-  } else if (days === 1) {
-    return translate(language, 'format.expiresTomorrow');
-  } else {
-    return translate(language, 'format.expiresInDays', { days });
-  }
-};
-
 export const formatDateTime = (dateString: string, language: Language = 'ko'): string => {
   const date = new Date(dateString);
 
@@ -69,19 +51,6 @@ export const formatDateOnly = (dateString: string, language: Language = 'ko'): s
   const day = date.getDate();
 
   return translate(language, 'format.dateOnly', { year, month, day });
-};
-
-export const getExpirationLabel = (expiration: string, language: Language = 'ko'): string => {
-  const labels: Record<string, string> = {
-    'five_minutes': translate(language, 'format.5min'),
-    'thirty_minutes': translate(language, 'format.30min'),
-    'one_hour': translate(language, 'format.1hour'),
-    'three_hours': translate(language, 'format.3hours'),
-    'six_hours': translate(language, 'format.6hours'),
-    'twelve_hours': translate(language, 'format.12hours'),
-    'twenty_four_hours': translate(language, 'format.24hours'),
-  };
-  return labels[expiration] || translate(language, 'format.24hours');
 };
 
 export const downloadFile = (blob: Blob, filename: string) => {
