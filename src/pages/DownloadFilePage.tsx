@@ -686,7 +686,7 @@ const DownloadFilePage: React.FC = () => {
                       ) : (
                         <Button
                           onClick={() => startP2PDownload(file.id)}
-                          disabled={(p2pEnabled && !isActive) || bulkP2PDownloading}
+                          disabled={bulkP2PDownloading || Boolean(anyP2PDownloading)}
                           size="sm"
                           className="flex-shrink-0"
                         >
