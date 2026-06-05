@@ -372,7 +372,7 @@ const DownloadFilePage: React.FC = () => {
           abortController.signal
         );
 
-        downloadFile(blob, `${code}.zip`);
+        downloadFile(blob, `share-${code}.zip`);
         toast.success(t('download.zipDownloadComplete'));
         return;
       }
