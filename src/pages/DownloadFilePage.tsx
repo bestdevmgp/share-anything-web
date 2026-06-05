@@ -656,7 +656,7 @@ const DownloadFilePage: React.FC = () => {
                           </h4>
                         </div>
                         {isDownloading ? (
-                          <div className="flex items-center gap-2 mt-4">
+                          <div className="flex items-center gap-2 mt-6">
                             <div className="flex-1 bg-secondary rounded-full h-1.5 overflow-hidden">
                               <div
                                 className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
