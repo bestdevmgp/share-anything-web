@@ -94,12 +94,22 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
 
       toast.success(t('p2p.transferComplete', { fileName: file.name }));
 
+      // Capture the just-finished pc/dc. CLI receivers often reconnect within
+      // ~50–200 ms for the next file, which triggers `setupPeerConnection` and
+      // swaps `pcRef.current` to a fresh PC well before this 2-second timer
+      // fires. Closing whatever happens to be in the ref at firing time would
+      // kill the NEXT transfer mid-ICE-negotiation — that's the "second file:
+      // ICE connection failed" race users were seeing.
+      const pcToClose = pcRef.current;
+      const dcToClose = dataChannelRef.current;
       setTimeout(() => {
-        if (pcRef.current) {
-          pcRef.current.close();
+        if (pcToClose) {
+          try { pcToClose.close(); } catch { /* already closed */ }
+        }
+        if (pcRef.current === pcToClose) {
           pcRef.current = null;
         }
-        if (dataChannelRef.current) {
+        if (dataChannelRef.current === dcToClose) {
           dataChannelRef.current = null;
         }
       }, 2000);
@@ -113,16 +123,45 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       finishTransfer();
     };
 
+    // `onbufferedamountlow` is supposed to wake us when the channel drains, but the
+    // callback is *single-shot* and on some browsers / TURN paths it occasionally
+    // doesn't fire when expected (e.g. when bytes are still in-flight on the TURN
+    // relay). A short polling timer as a backstop guarantees the send loop resumes
+    // and the progress UI stays live while we wait.
+    const armDrainWait = (threshold: number, onDrain: () => void) => {
+      let done = false;
+      let timer: ReturnType<typeof setInterval> | null = null;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        dataChannel.onbufferedamountlow = null;
+        if (timer) clearInterval(timer);
+        onDrain();
+      };
+      dataChannel.onbufferedamountlow = finish;
+      timer = setInterval(() => {
+        if (cancelledRef.current) {
+          done = true;
+          dataChannel.onbufferedamountlow = null;
+          if (timer) clearInterval(timer);
+          return;
+        }
+        // Refresh the progress UI even while we're stalled on the buffer; the
+        // wire-position calculation moves forward as bytes leave the channel.
+        flushProgress();
+        if (dataChannel.bufferedAmount <= threshold) finish();
+      }, 200);
+    };
+
+    let flushProgress = () => {};
+
     const waitForBufferDrain = () => {
       if (dataChannel.bufferedAmount === 0) {
         sendEofAndFinish();
-      } else {
-        dataChannel.bufferedAmountLowThreshold = 0;
-        dataChannel.onbufferedamountlow = () => {
-          dataChannel.onbufferedamountlow = null;
-          sendEofAndFinish();
-        };
+        return;
       }
+      dataChannel.bufferedAmountLowThreshold = 0;
+      armDrainWait(0, sendEofAndFinish);
     };
 
     const readNextSlice = () => {
@@ -142,13 +181,19 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
         const updateProgress = () => {
           const now = Date.now();
           if (now - lastTimeUpdateRef.current >= 1000) {
-            const progressPercent = Math.min((offset / file.size) * 100, 100);
+            // Report bytes that have actually left the local DC buffer (≈ bytes on
+            // the wire) instead of bytes we've pushed in. On TURN relays push
+            // races way ahead of wire and the bar would otherwise jump to 100%
+            // while the receiver sits at 30% — and the *sender* would appear
+            // frozen at a fixed % while the buffer drains.
+            const onWire = Math.max(0, offset - dataChannel.bufferedAmount);
+            const progressPercent = Math.min((onWire / file.size) * 100, 100);
             const elapsedMs = now - transferStartTimeRef.current;
             let timeRemainingStr = '';
 
-            if (elapsedMs >= 2000 && offset >= file.size * 0.02) {
-              const bytesPerMs = offset / elapsedMs;
-              const remainingBytes = file.size - offset;
+            if (elapsedMs >= 2000 && onWire >= file.size * 0.02) {
+              const bytesPerMs = onWire / elapsedMs;
+              const remainingBytes = file.size - onWire;
               const remainingSeconds = remainingBytes / bytesPerMs / 1000;
               timeRemainingStr = formatTime(remainingSeconds);
             }
@@ -169,6 +214,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
             lastTimeUpdateRef.current = now;
           }
         };
+        flushProgress = updateProgress;
 
         const sendChunks = () => {
           while (bufferOffset < buffer.byteLength) {
@@ -176,10 +222,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
 
             if (dataChannel.bufferedAmount > BUFFER_HIGH) {
               updateProgress();
-              dataChannel.onbufferedamountlow = () => {
-                dataChannel.onbufferedamountlow = null;
-                sendChunks();
-              };
+              armDrainWait(BUFFER_LOW, sendChunks);
               return;
             }
 
