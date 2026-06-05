@@ -145,6 +145,11 @@ export type SignalingMessageType =
   | 'uploader_offline'
   | 'downloader_offline'
   | 'uploader_cancelled'
+  // Receiver-to-uploader request to send the next file on the already-open
+  // PC+DC instead of running a fresh ICE handshake per file (5–15s saved on
+  // TURN). The corresponding uploader handler streams the requested file on
+  // the same DataChannel.
+  | 'file_request'
   | 'ping'
   | 'pong';
 

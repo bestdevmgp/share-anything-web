@@ -67,21 +67,19 @@ const DownloadFilePage: React.FC = () => {
   const bulkTotalRef = useRef<number>(0);
 
   const handleP2PDownloadComplete = useCallback((blob: Blob, fileName: string) => {
-    if (bulkP2PDownloading) {
-      const completedId = p2pActiveFileId || '';
-      downloadFile(blob, fileName);
-      setP2pCompletedFileIds(prev => new Set(prev).add(completedId));
-      setP2pActiveFileId(null);
-      setP2pEnabled(false);
+    const completedId = p2pActiveFileId || '';
+    downloadFile(blob, fileName);
+    setP2pCompletedFileIds(prev => new Set(prev).add(completedId));
 
+    if (bulkP2PDownloading) {
       bulkQueueRef.current = bulkQueueRef.current.filter(id => id !== completedId);
       setBulkRemaining(bulkQueueRef.current.length);
       const nextId = bulkQueueRef.current[0];
       if (nextId) {
-        setTimeout(() => {
-          setP2pActiveFileId(nextId);
-          setP2pEnabled(true);
-        }, 300);
+        // Reuse the open WS+PC+DC: just swap the active fileId. The hook's
+        // `fileInfo` effect will fire a `file_request` on the existing
+        // channel — no new ICE handshake, ≈one signaling RTT per file.
+        setP2pActiveFileId(nextId);
       } else {
         setBulkP2PDownloading(false);
         bulkTotalRef.current = 0;
@@ -90,11 +88,11 @@ const DownloadFilePage: React.FC = () => {
       return;
     }
 
-    downloadFile(blob, fileName);
+    // Single-pick mode. Leave session open so a follow-up click on another
+    // file in the list is fast (same WS+PC). The session ends when the user
+    // explicitly leaves the page or hits the cancel button on the active
+    // download.
     toast.success(t('download.downloadComplete'));
-    setP2pCompletedFileIds(prev => new Set(prev).add(p2pActiveFileId || ''));
-    setP2pActiveFileId(null);
-    setP2pEnabled(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [p2pActiveFileId, bulkP2PDownloading]);
 
@@ -133,10 +131,12 @@ const DownloadFilePage: React.FC = () => {
   });
 
   const startP2PDownload = useCallback((fileId: string) => {
-    resetP2P();
+    // Don't reset the hook here — that would tear down the existing PC+WS.
+    // Switching `p2pActiveFileId` while the session is alive triggers the
+    // hook's `file_request` flow, which reuses the open DataChannel.
     setP2pActiveFileId(fileId);
     setP2pEnabled(true);
-  }, [resetP2P]);
+  }, []);
 
   const handleCancelP2PDownload = useCallback(() => {
     cancelDownload();
@@ -159,10 +159,9 @@ const DownloadFilePage: React.FC = () => {
     setBulkRemaining(ids.length);
     setP2pCompletedFileIds(new Set());
     setBulkP2PDownloading(true);
-    resetP2P();
     setP2pActiveFileId(ids[0]);
     setP2pEnabled(true);
-  }, [fileList, resetP2P]);
+  }, [fileList]);
 
   useEffect(() => {
     if (p2pStatus === 'error' || p2pStatus === 'cancelled') {
@@ -657,7 +656,7 @@ const DownloadFilePage: React.FC = () => {
                           </h4>
                         </div>
                         {isDownloading ? (
-                          <div className="flex items-center gap-2 mt-2.5">
+                          <div className="flex items-center gap-2 mt-4">
                             <div className="flex-1 bg-secondary rounded-full h-1.5 overflow-hidden">
                               <div
                                 className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"

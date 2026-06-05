@@ -34,6 +34,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
   const isTransferringRef = useRef<boolean>(false);
   const transferStartTimeRef = useRef<number>(0);
   const lastTimeUpdateRef = useRef<number>(0);
+  const lastProgressTickRef = useRef<number>(0);
   const filesRef = useRef<File[]>(files);
   const cancelledRef = useRef<boolean>(false);
   const isCleaningUpRef = useRef<boolean>(false);
@@ -88,31 +89,15 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
         return newMap;
       });
 
-      // Session stays alive; receiver may request more files.
+      // Session stays alive. The receiver will issue `file_request` for the
+      // next file (handled in the WS message switch below) or
+      // `transfer_complete` when finished — both reuse the OPEN PC+DC, so
+      // we deliberately do NOT close anything here. Per-file teardown +
+      // fresh ICE handshake was the old flow and cost 5–15s on TURN.
       setStatus('waiting_for_next');
       setCurrentFileName('');
 
       toast.success(t('p2p.transferComplete', { fileName: file.name }));
-
-      // Capture the just-finished pc/dc. CLI receivers often reconnect within
-      // ~50–200 ms for the next file, which triggers `setupPeerConnection` and
-      // swaps `pcRef.current` to a fresh PC well before this 2-second timer
-      // fires. Closing whatever happens to be in the ref at firing time would
-      // kill the NEXT transfer mid-ICE-negotiation — that's the "second file:
-      // ICE connection failed" race users were seeing.
-      const pcToClose = pcRef.current;
-      const dcToClose = dataChannelRef.current;
-      setTimeout(() => {
-        if (pcToClose) {
-          try { pcToClose.close(); } catch { /* already closed */ }
-        }
-        if (pcRef.current === pcToClose) {
-          pcRef.current = null;
-        }
-        if (dataChannelRef.current === dcToClose) {
-          dataChannelRef.current = null;
-        }
-      }, 2000);
     };
 
     const sendEofAndFinish = () => {
@@ -180,39 +165,47 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
 
         const updateProgress = () => {
           const now = Date.now();
-          if (now - lastTimeUpdateRef.current >= 1000) {
-            // Report bytes that have actually left the local DC buffer (≈ bytes on
-            // the wire) instead of bytes we've pushed in. On TURN relays push
-            // races way ahead of wire and the bar would otherwise jump to 100%
-            // while the receiver sits at 30% — and the *sender* would appear
-            // frozen at a fixed % while the buffer drains.
-            const onWire = Math.max(0, offset - dataChannel.bufferedAmount);
-            const progressPercent = Math.min((onWire / file.size) * 100, 100);
-            const elapsedMs = now - transferStartTimeRef.current;
-            let timeRemainingStr = '';
+          // The receiver pushes per-chunk progress to its UI (every few tens of
+          // milliseconds), so a 1-second sender tick lags far behind and
+          // produces the visible "sender suddenly jumps then sits frozen"
+          // effect. Refresh the bar every 200 ms but keep ETA recomputation on
+          // a 1-second cadence (short-window estimates jitter wildly).
+          if (now - lastProgressTickRef.current < 200) return;
+          lastProgressTickRef.current = now;
 
+          // Report bytes that have actually left the local DC buffer (≈ bytes on
+          // the wire) instead of bytes we've pushed in. On TURN relays push
+          // races way ahead of wire and the bar would otherwise jump to 100%
+          // while the receiver sits at 30% — and the *sender* would appear
+          // frozen at a fixed % while the buffer drains.
+          const onWire = Math.max(0, offset - dataChannel.bufferedAmount);
+          const progressPercent = Math.min((onWire / file.size) * 100, 100);
+          const elapsedMs = now - transferStartTimeRef.current;
+          let recomputedTimeRemaining: string | undefined;
+
+          if (now - lastTimeUpdateRef.current >= 1000) {
             if (elapsedMs >= 2000 && onWire >= file.size * 0.02) {
               const bytesPerMs = onWire / elapsedMs;
               const remainingBytes = file.size - onWire;
               const remainingSeconds = remainingBytes / bytesPerMs / 1000;
-              timeRemainingStr = formatTime(remainingSeconds);
+              recomputedTimeRemaining = formatTime(remainingSeconds);
             }
-
-            setFileProgresses(prev => {
-              const newMap = new Map(prev);
-              const fileProgress = newMap.get(file.name);
-              if (fileProgress) {
-                newMap.set(file.name, {
-                  ...fileProgress,
-                  progress: Math.round(progressPercent),
-                  status: 'transferring',
-                  timeRemaining: timeRemainingStr || fileProgress.timeRemaining
-                });
-              }
-              return newMap;
-            });
             lastTimeUpdateRef.current = now;
           }
+
+          setFileProgresses(prev => {
+            const newMap = new Map(prev);
+            const fileProgress = newMap.get(file.name);
+            if (fileProgress) {
+              newMap.set(file.name, {
+                ...fileProgress,
+                progress: Math.round(progressPercent),
+                status: 'transferring',
+                timeRemaining: recomputedTimeRemaining ?? fileProgress.timeRemaining
+              });
+            }
+            return newMap;
+          });
         };
         flushProgress = updateProgress;
 
@@ -245,6 +238,50 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     readNextSlice();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shareCode, formatTime]);
+
+  // Stream a file on the ALREADY-open DataChannel. Used for every file after
+  // the first one — the PC + DC + ICE state are reused from the initial
+  // PeerMatched setup, so all that's required per file is metadata + chunks
+  // + EOF on the existing channel.
+  const sendOnExistingChannel = useCallback((requestedFileName: string) => {
+    const file = filesRef.current.find(f => f.name === requestedFileName);
+    if (!file) {
+      console.error('[useP2PUploader] Requested file not found:', requestedFileName);
+      toast.error(t('p2p.fileNotFound'));
+      return;
+    }
+    const dc = dataChannelRef.current;
+    if (!dc || dc.readyState !== 'open') {
+      console.error('[useP2PUploader] DataChannel not open for next file');
+      return;
+    }
+
+    setCurrentFileName(requestedFileName);
+    isTransferringRef.current = true;
+    setFileProgresses(prev => {
+      const newMap = new Map(prev);
+      const fileProgress = newMap.get(requestedFileName);
+      if (fileProgress) {
+        newMap.set(requestedFileName, {
+          ...fileProgress,
+          progress: 0,
+          status: 'transferring',
+          timeRemaining: ''
+        });
+      }
+      return newMap;
+    });
+    setStatus('transferring');
+
+    const metadata = JSON.stringify({
+      type: 'file_metadata',
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type
+    });
+    dc.send(metadata);
+    sendFile(file, dc);
+  }, [sendFile, t]);
 
   const setupPeerConnection = useCallback(async (requestedFileName: string) => {
     const file = filesRef.current.find(f => f.name === requestedFileName);
@@ -400,32 +437,36 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
             setPeerDeviceInfo(message.device_info);
           }
 
+          // Only set up PC/DC + ICE on the FIRST PeerMatched. Subsequent files
+          // arrive via `file_request` over the existing channel. If a stale or
+          // duplicate PeerMatched arrives (e.g. legacy receiver that creates a
+          // fresh WS per file) we ignore it — the existing PC keeps serving.
+          if (pcRef.current) {
+            break;
+          }
+
+          {
+            const fileName = message.file_name || (files.length === 1 ? files[0]?.name : undefined);
+            if (fileName) {
+              const pc = await setupPeerConnection(fileName);
+              if (pc) {
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+
+                sendSignalingMessage(ws, {
+                  type: 'offer',
+                  share_code: shareCode,
+                  sdp: offer.sdp,
+                  peer_id: peerIdRef.current
+                });
+              }
+            }
+          }
+          break;
+
+        case 'file_request':
           if (message.file_name) {
-            const pc = await setupPeerConnection(message.file_name);
-            if (pc) {
-              const offer = await pc.createOffer();
-              await pc.setLocalDescription(offer);
-
-              sendSignalingMessage(ws, {
-                type: 'offer',
-                share_code: shareCode,
-                sdp: offer.sdp,
-                peer_id: peerIdRef.current
-              });
-            }
-          } else if (files.length === 1) {
-            const pc = await setupPeerConnection(files[0].name);
-            if (pc) {
-              const offer = await pc.createOffer();
-              await pc.setLocalDescription(offer);
-
-              sendSignalingMessage(ws, {
-                type: 'offer',
-                share_code: shareCode,
-                sdp: offer.sdp,
-                peer_id: peerIdRef.current
-              });
-            }
+            sendOnExistingChannel(message.file_name);
           }
           break;
 
