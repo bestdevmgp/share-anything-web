@@ -22,7 +22,6 @@ export interface SingleFileViewProps {
   downloading: boolean;
   downloadProgress: number;
   downloadTimeRemaining: string;
-  downloadAsZip: boolean;
   loadingPreview: boolean;
   singleFilePreviewUrl: string | null;
   singleFileThumbnail: { url: string | null; loading: boolean };
@@ -48,7 +47,6 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
   downloading,
   downloadProgress,
   downloadTimeRemaining,
-  downloadAsZip,
   loadingPreview,
   singleFilePreviewUrl,
   singleFileThumbnail,

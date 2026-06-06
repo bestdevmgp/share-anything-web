@@ -497,7 +497,6 @@ const DownloadFilePage: React.FC = () => {
         setPassword={setPassword}
         setShowPassword={setShowPassword}
         handlePasswordSubmit={handlePasswordSubmit}
-        loading={loading}
         t={t}
       />
     );
@@ -519,7 +518,6 @@ const DownloadFilePage: React.FC = () => {
           downloading={downloading}
           downloadProgress={downloadProgress}
           downloadTimeRemaining={downloadTimeRemaining}
-          downloadAsZip={downloadAsZip}
           loadingPreview={loadingPreview}
           singleFilePreviewUrl={singleFilePreviewUrl}
           singleFileThumbnail={singleFileThumbnail}
@@ -656,23 +654,25 @@ const DownloadFilePage: React.FC = () => {
                           </h4>
                         </div>
                         {isDownloading ? (
-                          <div className="flex items-center gap-1.5 sm:gap-2 mt-6">
-                            <div className="flex-1 bg-secondary rounded-full h-1.5 overflow-hidden">
-                              <div
-                                className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
-                                style={{ width: `${p2pProgress}%` }}
-                              />
+                          <div className="h-5 flex items-end">
+                            <div className="w-full flex items-center gap-1.5 sm:gap-2">
+                              <div className="flex-1 bg-secondary rounded-full h-1.5 overflow-hidden">
+                                <div
+                                  className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
+                                  style={{ width: `${p2pProgress}%` }}
+                                />
+                              </div>
+                              <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0 leading-none">{p2pTimeRemaining || t('format.calculating')}</span>
+                              <span className="text-xs font-semibold text-primary whitespace-nowrap flex-shrink-0 leading-none">{p2pProgress}%</span>
+                              <button
+                                onClick={handleCancelP2PDownload}
+                                className="flex-shrink-0 p-0.5 -mr-1 can-hover:hover:bg-accent active:bg-accent rounded transition-colors"
+                                title={t('download.cancelDownload')}
+                                aria-label={t('download.cancelDownload')}
+                              >
+                                <XMarkIcon className="w-4 h-4 text-muted-foreground" />
+                              </button>
                             </div>
-                            <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">{p2pTimeRemaining || t('format.calculating')}</span>
-                            <span className="text-xs font-semibold text-primary whitespace-nowrap flex-shrink-0">{p2pProgress}%</span>
-                            <button
-                              onClick={handleCancelP2PDownload}
-                              className="flex-shrink-0 p-0.5 -mr-1 can-hover:hover:bg-accent active:bg-accent rounded transition-colors"
-                              title={t('download.cancelDownload')}
-                              aria-label={t('download.cancelDownload')}
-                            >
-                              <XMarkIcon className="w-4 h-4 text-muted-foreground" />
-                            </button>
                           </div>
                         ) : (
                           <p className="text-xs sm:text-sm text-muted-foreground">{formatFileSize(file.file_size)}</p>

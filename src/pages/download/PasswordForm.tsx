@@ -10,7 +10,6 @@ export interface PasswordFormProps {
   setPassword: (value: string) => void;
   setShowPassword: (value: boolean) => void;
   handlePasswordSubmit: (e: React.FormEvent) => void;
-  loading: boolean;
   t: (key: string, params?: Record<string, string | number>) => string;
 }
 
@@ -20,7 +19,6 @@ const PasswordForm: React.FC<PasswordFormProps> = ({
   setPassword,
   setShowPassword,
   handlePasswordSubmit,
-  loading,
   t,
 }) => {
   return (
