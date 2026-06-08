@@ -56,7 +56,7 @@ const CliPage: React.FC = () => {
       <div className="absolute top-0 right-0 bottom-0 w-16 pointer-events-none rounded-r-lg bg-gradient-to-r from-transparent to-[#ebebeb] dark:to-zinc-900 to-40%" />
       <CopyButton
         value={code}
-        className="absolute top-2 right-2 p-1.5 bg-[#ebebeb] dark:bg-zinc-900 can-hover:hover:bg-zinc-300 dark:can-hover:hover:bg-zinc-700"
+        className="absolute top-2 right-2 p-1.5 bg-[#ebebeb] dark:bg-zinc-900 can-hover:hover:bg-zinc-200 dark:can-hover:hover:bg-zinc-800 active:bg-zinc-200 dark:active:bg-zinc-800"
         iconClassName="w-4 h-4"
         iconIdleClass="text-zinc-400"
         iconCopiedClass="text-green-500 dark:text-green-400"

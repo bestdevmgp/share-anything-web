@@ -42,7 +42,7 @@ const CopyButton = forwardRef<HTMLButtonElement, CopyButtonProps>(
         onClick={handleClick}
         className={cn(
           'inline-flex items-center justify-center rounded-md transition-colors',
-          'can-hover:hover:bg-accent active:bg-accent',
+          'can-hover:hover:bg-accent/50 active:bg-accent/50',
           className,
         )}
         {...rest}
