@@ -106,6 +106,11 @@ const CliPage: React.FC = () => {
           <hr className="border-black/[0.11] dark:border-border" />
 
           <div>
+            <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryTui')}</p>
+            <CodeBlock code="share" index={18} />
+            <p className="text-xs text-muted-foreground mt-1.5">{t('cli.binaryTuiHint')}</p>
+          </div>
+          <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.binaryUpload')}</p>
             <CodeBlock code="share upload myfile.txt" index={5} />
             <p className="text-xs text-muted-foreground mt-1.5">{t('cli.binaryUploadHint')}</p>
