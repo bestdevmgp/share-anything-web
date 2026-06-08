@@ -645,16 +645,16 @@ const DownloadFilePage: React.FC = () => {
                       isActive ? 'bg-muted border-primary' : 'bg-muted border-foreground/[0.09]'
                     )}
                   >
-                    <div className="flex items-center space-x-4">
-                      <div className="flex-1 min-w-0">
+                    <div className="flex items-center space-x-4 h-10">
+                      <div className="flex-1 min-w-0 h-full">
                         <div className="flex items-center justify-between gap-2">
                           <h4 className="text-base font-semibold text-foreground flex items-baseline min-w-0 flex-1 leading-tight">
                             <span className="truncate">{nameBase}</span>
                             {nameExt && <span className="flex-shrink-0">{nameExt}</span>}
                           </h4>
                         </div>
-                        {isDownloading ? (
-                          <div className="h-5 flex items-end">
+                        <div className={cn("h-5 flex", isDownloading ? "items-end" : "items-start")}>
+                          {isDownloading ? (
                             <div className="w-full flex items-center gap-1.5 sm:gap-2">
                               <div className="flex-1 bg-secondary rounded-full h-1.5 overflow-hidden">
                                 <div
@@ -673,10 +673,10 @@ const DownloadFilePage: React.FC = () => {
                                 <XMarkIcon className="w-4 h-4 text-muted-foreground" />
                               </button>
                             </div>
-                          </div>
-                        ) : (
-                          <p className="text-xs sm:text-sm text-muted-foreground">{formatFileSize(file.file_size)}</p>
-                        )}
+                          ) : (
+                            <p className="text-xs sm:text-sm text-muted-foreground leading-tight">{formatFileSize(file.file_size)}</p>
+                          )}
+                        </div>
                       </div>
 
                       {isCompleted ? (

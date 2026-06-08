@@ -360,22 +360,31 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       }
     };
 
+    let turnFallbackToastShown = false;
     pc.oniceconnectionstatechange = async () => {
       if (pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed') {
         clearTimeout(connectionTimeout);
         setStatus('connected');
 
-        try {
-          const stats = await pc.getStats();
-          stats.forEach((report) => {
-            if (report.type === 'candidate-pair' && report.state === 'succeeded') {
-              const localCandidate = stats.get(report.localCandidateId);
-              if (localCandidate?.candidateType === 'relay') {
-                toast.info(t('p2p.turnFallback'));
+        if (!turnFallbackToastShown) {
+          try {
+            const stats = await pc.getStats();
+            let isRelay = false;
+            stats.forEach((report) => {
+              if (isRelay) return;
+              if (report.type === 'candidate-pair' && report.state === 'succeeded') {
+                const localCandidate = stats.get(report.localCandidateId);
+                if (localCandidate?.candidateType === 'relay') {
+                  isRelay = true;
+                }
               }
+            });
+            if (isRelay) {
+              turnFallbackToastShown = true;
+              toast.info(t('p2p.turnFallback'));
             }
-          });
-        } catch {
+          } catch {
+          }
         }
       } else if (pc.iceConnectionState === 'failed') {
         clearTimeout(connectionTimeout);

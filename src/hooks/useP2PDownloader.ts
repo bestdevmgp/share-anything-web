@@ -32,7 +32,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
   const [timeRemaining, setTimeRemaining] = useState<string>('');
   const [peerDeviceInfo, setPeerDeviceInfo] = useState<string | null>(null);
 
-  // Session-scoped refs — live for the whole enabled window.
   const wsRef = useRef<WebSocket | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
@@ -43,7 +42,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
   const keepaliveIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pendingErrorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Per-file refs — reset whenever a new file starts.
   const receivedBlobsRef = useRef<Blob[]>([]);
   const pendingChunksRef = useRef<ArrayBuffer[]>([]);
   const pendingSizeRef = useRef<number>(0);
@@ -52,12 +50,9 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
   const lastTimeUpdateRef = useRef<number>(0);
   const currentFileNameRef = useRef<string>('');
   const completedFileRef = useRef<boolean>(false);
-  const metadataReceivedRef = useRef<boolean>(false);
   const actualFileSizeRef = useRef<number>(0);
   const actualFileTypeRef = useRef<string>('');
 
-  // Always-fresh ref to the caller's onComplete so the long-lived DC handler
-  // sees the latest closure without re-subscribing.
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
   const shareCodeRef = useRef(shareCode);
@@ -83,7 +78,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
     lastTimeUpdateRef.current = 0;
     currentFileNameRef.current = info.file_name;
     completedFileRef.current = false;
-    metadataReceivedRef.current = false;
     actualFileSizeRef.current = info.file_size;
     actualFileTypeRef.current = info.file_type;
   }, []);
@@ -118,15 +112,15 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
       pendingErrorTimerRef.current = null;
     }
     if (dataChannelRef.current) {
-      try { dataChannelRef.current.close(); } catch { /* already closed */ }
+      try { dataChannelRef.current.close(); } catch {}
       dataChannelRef.current = null;
     }
     if (pcRef.current) {
-      try { pcRef.current.close(); } catch { /* already closed */ }
+      try { pcRef.current.close(); } catch {}
       pcRef.current = null;
     }
     if (wsRef.current) {
-      try { wsRef.current.close(); } catch { /* already closed */ }
+      try { wsRef.current.close(); } catch {}
       wsRef.current = null;
     }
     sessionActiveRef.current = false;
@@ -232,17 +226,15 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
                 return;
               }
 
-              // metadata for the file currently being assembled
               try {
                 const metadata = JSON.parse(event.data);
                 if (metadata.type === 'file_metadata') {
                   actualFileSizeRef.current = metadata.fileSize;
                   actualFileTypeRef.current = metadata.fileType;
-                  metadataReceivedRef.current = true;
                   downloadStartTimeRef.current = Date.now();
                   return;
                 }
-              } catch { /* not JSON metadata, ignore */ }
+              } catch {}
               return;
             }
 
@@ -301,6 +293,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
           }
         };
 
+        let turnFallbackToastShown = false;
         pc.oniceconnectionstatechange = async () => {
           const s = pc.iceConnectionState;
           if (s === 'connected' || s === 'completed') {
@@ -308,17 +301,25 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
             iceConnectedRef.current = true;
             if (status !== 'downloading') setStatus('downloading');
 
-            try {
-              const stats = await pc.getStats();
-              stats.forEach((report) => {
-                if (report.type === 'candidate-pair' && report.state === 'succeeded') {
-                  const localCandidate = stats.get(report.localCandidateId);
-                  if (localCandidate?.candidateType === 'relay') {
-                    toast.info(t('p2p.turnFallback'));
+            if (!turnFallbackToastShown) {
+              try {
+                const stats = await pc.getStats();
+                let isRelay = false;
+                stats.forEach((report) => {
+                  if (isRelay) return;
+                  if (report.type === 'candidate-pair' && report.state === 'succeeded') {
+                    const localCandidate = stats.get(report.localCandidateId);
+                    if (localCandidate?.candidateType === 'relay') {
+                      isRelay = true;
+                    }
                   }
+                });
+                if (isRelay) {
+                  turnFallbackToastShown = true;
+                  toast.info(t('p2p.turnFallback'));
                 }
-              });
-            } catch { /* stats not available */ }
+              } catch {}
+            }
           } else if (s === 'failed') {
             clearTimeout(connectionTimeout);
             if (!completedFileRef.current && receivedSizeRef.current > 0 && receivedSizeRef.current >= actualFileSizeRef.current * 0.95) {
@@ -381,7 +382,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
             try {
               const candidate = JSON.parse(message.candidate);
               await pc.addIceCandidate(new RTCIceCandidate(candidate));
-            } catch { /* late / duplicate candidate */ }
+            } catch {}
           }
           break;
 
