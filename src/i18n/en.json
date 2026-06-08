@@ -581,7 +581,7 @@
     "installCurl": "Install via script",
     "installNpm": "Install via npm",
     "binaryTui": "Use the TUI",
-    "binaryTuiHint": "Access every CLI feature through the TUI — no commands required.",
+    "binaryTuiHint": "Access every CLI feature through the TUI without typing any commands.",
     "binaryUpload": "Upload a file",
     "binaryUploadHint": "To upload multiple files, separate them with spaces. e.g. share upload a.txt b.png",
     "binaryUploadPathHint": "You can use file paths instead of just names. e.g. share upload ./docs/a.txt",
