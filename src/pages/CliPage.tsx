@@ -1,24 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'i18n';
 import { useAuth } from 'context/AuthContext';
-import { ClipboardDocumentIcon, CheckIcon, CommandLineIcon } from '@heroicons/react/24/outline';
+import { CommandLineIcon } from '@heroicons/react/24/outline';
+import CopyButton from '../components/CopyButton';
 
 const CliPage: React.FC = () => {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
-  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   useEffect(() => {
     document.title = t('cli.pageTitle');
     return () => { document.title = 'ShareAnything'; };
   }, [t]);
-
-  const copyToClipboard = (text: string, index: number) => {
-    navigator.clipboard.writeText(text);
-    setCopiedIndex(index);
-    setTimeout(() => setCopiedIndex(null), 2000);
-  };
 
   const highlightCode = (code: string) => {
     return code.split('\n').map((line, lineIdx) => {
@@ -60,16 +54,13 @@ const CliPage: React.FC = () => {
         <code>{highlightCode(code)}</code>
       </pre>
       <div className="absolute top-0 right-0 bottom-0 w-16 pointer-events-none rounded-r-lg bg-gradient-to-r from-transparent to-[#ebebeb] dark:to-zinc-900 to-40%" />
-      <button
-        onClick={() => copyToClipboard(code, index)}
-        className="absolute top-2 right-2 p-1.5 rounded-md bg-[#ebebeb] dark:bg-zinc-900 can-hover:hover:bg-zinc-300 dark:can-hover:hover:bg-zinc-700 transition-colors"
-      >
-        {copiedIndex === index ? (
-          <CheckIcon className="w-4 h-4 text-green-500 dark:text-green-400" />
-        ) : (
-          <ClipboardDocumentIcon className="w-4 h-4 text-zinc-400" />
-        )}
-      </button>
+      <CopyButton
+        value={code}
+        className="absolute top-2 right-2 p-1.5 bg-[#ebebeb] dark:bg-zinc-900 can-hover:hover:bg-zinc-300 dark:can-hover:hover:bg-zinc-700"
+        iconClassName="w-4 h-4"
+        iconIdleClass="text-zinc-400"
+        iconCopiedClass="text-green-500 dark:text-green-400"
+      />
     </div>
   );
 

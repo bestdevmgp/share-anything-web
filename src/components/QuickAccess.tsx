@@ -4,7 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { quickAccessAPI } from '../services/api';
 import { QuickAccessFile } from '../types';
 import { formatFileSize } from '../utils/format';
-import { PlusIcon, TrashIcon, ArrowDownTrayIcon, ArrowUpTrayIcon, XMarkIcon, ClipboardDocumentIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, TrashIcon, ArrowDownTrayIcon, ArrowUpTrayIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import CopyButton from './CopyButton';
 import { toast } from '../context/ToastContext';
 import { useTranslation } from '../i18n';
 import { useNavigate } from 'react-router-dom';
@@ -164,7 +165,6 @@ const QuickAccess: React.FC = () => {
 
   const [sharingFileId, setSharingFileId] = useState<string | null>(null);
   const [sharedCode, setSharedCode] = useState<{ fileId: string; code: string; url: string } | null>(null);
-  const [copiedSharedLink, setCopiedSharedLink] = useState(false);
 
   const handleShare = async (file: QuickAccessFile) => {
     try {
@@ -173,22 +173,12 @@ const QuickAccess: React.FC = () => {
       const shareUrl = `${window.location.origin}/download/${response.share_code}`;
       await navigator.clipboard.writeText(shareUrl);
       setSharedCode({ fileId: file.id, code: response.share_code, url: shareUrl });
-      setCopiedSharedLink(true);
-      setTimeout(() => setCopiedSharedLink(false), 2000);
       toast.success(t('quickAccess.shareSuccess'));
     } catch {
       toast.error(t('quickAccess.shareFailed'));
     } finally {
       setSharingFileId(null);
     }
-  };
-
-  const handleCopySharedLink = async () => {
-    if (!sharedCode) return;
-    await navigator.clipboard.writeText(sharedCode.url);
-    setCopiedSharedLink(true);
-    setTimeout(() => setCopiedSharedLink(false), 2000);
-    toast.success(t('quickAccess.shareSuccess'));
   };
 
   const handlePreviewClick = async (file: QuickAccessFile) => {
@@ -423,16 +413,16 @@ const QuickAccess: React.FC = () => {
                               <span className="font-mono text-[1.125rem] font-bold text-foreground tracking-[0.06em] leading-none">
                                 {sharedCode?.code.slice(0, 3)}<span className="inline-block w-1" />{sharedCode?.code.slice(3)}
                               </span>
-                              <button
-                                onClick={(e) => { e.stopPropagation(); handleCopySharedLink(); }}
-                                className="p-1.5 rounded-md transition-colors can-hover:hover:bg-foreground/10 active:bg-foreground/10"
-                              >
-                                {copiedSharedLink ? (
-                                  <CheckIcon className="w-4 h-4 text-green-600 dark:text-green-400" />
-                                ) : (
-                                  <ClipboardDocumentIcon className="w-4 h-4 text-muted-foreground" />
-                                )}
-                            </button>
+                              <CopyButton
+                                key={sharedCode?.code}
+                                value={sharedCode?.url ?? ''}
+                                defaultCopied
+                                stopPropagation
+                                onCopied={() => toast.success(t('quickAccess.shareSuccess'))}
+                                className="p-1.5 can-hover:hover:bg-foreground/10 active:bg-foreground/10"
+                                iconClassName="w-4 h-4"
+                                iconCopiedClass="text-green-600 dark:text-green-400"
+                              />
                           </span>
                         </span>
                           <span

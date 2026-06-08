@@ -18,13 +18,14 @@ import { Label } from 'components/ui/label';
 import { Separator } from 'components/ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from 'components/ui/popover';
 import { Spinner } from 'components/ui/spinner';
+import CopyButton from 'components/CopyButton';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from 'components/ui/dialog';
-import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, ClipboardDocumentIcon, KeyIcon, ExclamationTriangleIcon, EnvelopeIcon, CommandLineIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, KeyIcon, ExclamationTriangleIcon, EnvelopeIcon, CommandLineIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { providerLogoMap } from 'utils/providerLogos';
 
 type Tab = 'notifications' | 'general' | 'account' | 'sessions' | 'personal-tokens' | 'api-keys';
@@ -91,7 +92,6 @@ const SettingsPage: React.FC = () => {
   const [newTokenName, setNewTokenName] = useState('');
   const [createdToken, setCreatedToken] = useState<string | null>(null);
   const [creatingToken, setCreatingToken] = useState(false);
-  const [copiedToken, setCopiedToken] = useState(false);
 
   const [apiApplications, setApiApplications] = useState<ApiKeyApplicationResponse[]>([]);
   const [apiApplicationsLoading, setApiApplicationsLoading] = useState(false);
@@ -579,14 +579,6 @@ const SettingsPage: React.FC = () => {
     } catch {
       toast.error(t('settings.accountDeleteFailed'));
       setDeletingAccount(false);
-    }
-  };
-
-  const handleCopyToken = () => {
-    if (createdToken) {
-      navigator.clipboard.writeText(createdToken);
-      setCopiedToken(true);
-      setTimeout(() => setCopiedToken(false), 2000);
     }
   };
 
@@ -1317,17 +1309,11 @@ const SettingsPage: React.FC = () => {
                         {createdToken}
                       </div>
                       <div className="absolute top-px right-px bottom-px w-12 pointer-events-none rounded-r-md bg-gradient-to-r from-transparent to-muted to-40%" />
-                      <button
-                        type="button"
-                        onClick={handleCopyToken}
-                        className="absolute top-1 right-1 w-7 h-7 flex items-center justify-center rounded-md text-muted-foreground can-hover:hover:text-foreground can-hover:hover:bg-accent transition-colors"
-                      >
-                        {copiedToken ? (
-                          <CheckIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                        ) : (
-                          <ClipboardDocumentIcon className="w-4 h-4" />
-                        )}
-                      </button>
+                      <CopyButton
+                        value={createdToken}
+                        className="absolute top-1 right-1 w-7 h-7 text-muted-foreground can-hover:hover:text-foreground"
+                        iconClassName="w-4 h-4"
+                      />
                     </div>
                     <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
                       {t('settings.personalTokenOnceWarning')}

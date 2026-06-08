@@ -9,7 +9,8 @@ import { Button } from '../components/ui/button';
 import { Spinner } from '../components/ui/spinner';
 import { Tooltip, TooltipTrigger, TooltipContent } from '../components/ui/tooltip';
 import StatusIcon from '../components/StatusIcon';
-import { DevicePhoneMobileIcon, ClipboardDocumentIcon, CheckIcon, EnvelopeIcon, LinkIcon } from '@heroicons/react/24/outline';
+import { DevicePhoneMobileIcon, EnvelopeIcon, LinkIcon } from '@heroicons/react/24/outline';
+import CopyButton from '../components/CopyButton';
 import { providerLogoMap } from '../utils/providerLogos';
 import { consumePostLoginRedirect } from '../utils/postLoginRedirect';
 import type { User } from '../types';
@@ -22,7 +23,6 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
   const { login } = useAuth();
   const [verificationCode, setVerificationCode] = useState<string | null>(null);
   const [error, setError] = useState('');
-  const [copied, setCopied] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [canClose, setCanClose] = useState(false);
   const [mergeInfo, setMergeInfo] = useState<{
@@ -244,22 +244,12 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
                 </p>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => {
-                        navigator.clipboard.writeText(verificationCode || '');
-                        setCopied(true);
-                        setTimeout(() => setCopied(false), 2000);
-                      }}
-                      className="absolute right-2 top-1/2 -translate-y-1/2"
-                    >
-                      {copied ? (
-                        <CheckIcon className="w-5 h-5 text-green-600" />
-                      ) : (
-                        <ClipboardDocumentIcon className="w-5 h-5 text-muted-foreground" />
-                      )}
-                    </Button>
+                    <CopyButton
+                      value={verificationCode || ''}
+                      aria-label={t('uploadSuccess.copyCode')}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9"
+                      iconCopiedClass="text-green-600 dark:text-green-600"
+                    />
                   </TooltipTrigger>
                   <TooltipContent>{t('uploadSuccess.copyCode')}</TooltipContent>
                 </Tooltip>

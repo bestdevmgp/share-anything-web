@@ -2,8 +2,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import StyledQRCode from '../components/StyledQRCode';
 import { FileUploadResponse } from '../types';
-import { copyToClipboard, formatDateTime, formatFileSize, splitFilenameExt } from '../utils/format';
-import { CheckIcon, ClipboardDocumentIcon, ExclamationTriangleIcon, PauseIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { formatDateTime, formatFileSize, splitFilenameExt } from '../utils/format';
+import { CheckIcon, ExclamationTriangleIcon, PauseIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import CopyButton from '../components/CopyButton';
 import { useP2PUploader } from '../hooks/useP2PUploader';
 import FileThumbnail from '../components/FileThumbnail';
 import FilePreviewModal from '../components/FilePreviewModal';
@@ -34,7 +35,6 @@ const UploadSuccessPage: React.FC = () => {
     return uploadedFiles || (uploadedFile ? [uploadedFile] : []);
   }, [uploadedFiles, uploadedFile]);
 
-  const [copiedField, setCopiedField] = useState<'code' | 'link' | null>(null);
   const [previewFile, setPreviewFile] = useState<File | null>(null);
 
   const isP2PTransfer = uploadResult?.files?.[0]?.transfer_type === 'p2p';
@@ -83,14 +83,6 @@ const UploadSuccessPage: React.FC = () => {
   const displayCode = groupShareCode.length === 6
     ? `${groupShareCode.slice(0, 3)} ${groupShareCode.slice(3)}`
     : groupShareCode;
-
-  const handleCopy = async (text: string, field: 'code' | 'link') => {
-    const success = await copyToClipboard(text);
-    if (success) {
-      setCopiedField(field);
-      setTimeout(() => setCopiedField(null), 2000);
-    }
-  };
 
   const allFilesCompleted = isP2PTransfer && files.every(file => {
     const progress = fileProgresses.get(file.name);
@@ -186,18 +178,13 @@ const UploadSuccessPage: React.FC = () => {
               </p>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleCopy(groupShareCode, 'code')}
-                    className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2"
-                  >
-                    {copiedField === 'code' ? (
-                      <CheckIcon className="w-5 h-5 md:w-6 md:h-6 text-green-600" />
-                    ) : (
-                      <ClipboardDocumentIcon className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
-                    )}
-                  </Button>
+                  <CopyButton
+                    value={groupShareCode}
+                    aria-label={t('uploadSuccess.copyCode')}
+                    className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 h-9 w-9"
+                    iconClassName="w-5 h-5 md:w-6 md:h-6"
+                    iconCopiedClass="text-green-600 dark:text-green-600"
+                  />
                 </TooltipTrigger>
                 <TooltipContent>{t('uploadSuccess.copyCode')}</TooltipContent>
               </Tooltip>
@@ -222,18 +209,12 @@ const UploadSuccessPage: React.FC = () => {
               />
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleCopy(downloadUrl, 'link')}
-                    className="absolute right-[1.5px] top-1/2 -translate-y-1/2"
-                  >
-                    {copiedField === 'link' ? (
-                      <CheckIcon className="w-5 h-5 text-green-600" />
-                    ) : (
-                      <ClipboardDocumentIcon className="w-5 h-5 text-muted-foreground" />
-                    )}
-                  </Button>
+                  <CopyButton
+                    value={downloadUrl}
+                    aria-label={t('uploadSuccess.copyLink')}
+                    className="absolute right-[1.5px] top-1/2 -translate-y-1/2 h-9 w-9"
+                    iconCopiedClass="text-green-600 dark:text-green-600"
+                  />
                 </TooltipTrigger>
                 <TooltipContent>{t('uploadSuccess.copyLink')}</TooltipContent>
               </Tooltip>

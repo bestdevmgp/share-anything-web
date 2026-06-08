@@ -5,7 +5,7 @@ import { UploadHistoryItem, UploadGroup, DownloadLog } from '../types';
 import { toast } from '../context/ToastContext';
 import { useAuth } from '../context/AuthContext';
 import StyledQRCode from '../components/StyledQRCode';
-import { CheckIcon, ClipboardDocumentIcon } from '@heroicons/react/24/outline';
+import CopyButton from '../components/CopyButton';
 import FileThumbnail from '../components/FileThumbnail';
 import { isPdfFile, isPptxFile, isVideoFile, formatDateTime } from '../utils/format';
 import { useThumbnail } from '../hooks/useThumbnail';
@@ -105,7 +105,6 @@ const UploadHistoryPage: React.FC = () => {
   const [previewModalFile, setPreviewModalFile] = useState<{ fileName: string; fileSize: number; source: string; presignedUrl?: string } | null>(null);
   const [showQRModal, setShowQRModal] = useState(false);
   const [selectedShareCode, setSelectedShareCode] = useState<string | null>(null);
-  const [copiedLink, setCopiedLink] = useState(false);
   const [showScrollHint, setShowScrollHint] = useState(false);
   const [showTableScrollHint, setShowTableScrollHint] = useState(false);
   const { t, language } = useTranslation();
@@ -391,20 +390,6 @@ const UploadHistoryPage: React.FC = () => {
     e.stopPropagation();
     setSelectedShareCode(shareCode);
     setShowQRModal(true);
-    setCopiedLink(false);
-  };
-
-  const handleCopyLink = async () => {
-    if (!selectedShareCode) return;
-
-    const url = `${window.location.origin}/download/${selectedShareCode}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopiedLink(true);
-      setTimeout(() => setCopiedLink(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
   };
 
   const isExpired = (expiresAt: string) => {
@@ -708,18 +693,12 @@ const UploadHistoryPage: React.FC = () => {
               />
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleCopyLink}
-                    className="absolute right-[1.5px] top-1/2 -translate-y-1/2"
-                  >
-                    {copiedLink ? (
-                      <CheckIcon className="w-5 h-5 text-green-600" />
-                    ) : (
-                      <ClipboardDocumentIcon className="w-5 h-5 text-muted-foreground" />
-                    )}
-                  </Button>
+                  <CopyButton
+                    value={selectedShareCode ? `${window.location.origin}/download/${selectedShareCode}` : ''}
+                    aria-label={t('history.copyLink')}
+                    className="absolute right-[1.5px] top-1/2 -translate-y-1/2 h-9 w-9"
+                    iconCopiedClass="text-green-600 dark:text-green-600"
+                  />
                 </TooltipTrigger>
                 <TooltipContent>{t('history.copyLink')}</TooltipContent>
               </Tooltip>

@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ClipboardDocumentIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { apiKeyAPI, ApiKeyRevealResponse } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from '../i18n';
@@ -8,7 +7,8 @@ import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
 import { Spinner } from '../components/ui/spinner';
 import StatusIcon from '../components/StatusIcon';
-import { copyToClipboard, formatDateTime } from '../utils/format';
+import CopyButton from '../components/CopyButton';
+import { formatDateTime } from '../utils/format';
 import { toast } from '../context/ToastContext';
 import { savePostLoginRedirect } from '../utils/postLoginRedirect';
 
@@ -33,7 +33,6 @@ const ApiKeyRevealPage: React.FC = () => {
   const [data, setData] = useState<ApiKeyRevealResponse | null>(null);
   const [errorKind, setErrorKind] = useState<ErrorKind | null>(null);
   const [loading, setLoading] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     document.title = errorKind ? t('apiKeyReveal.errorTitle') : t('apiKeyReveal.pageTitle');
@@ -69,16 +68,6 @@ const ApiKeyRevealPage: React.FC = () => {
     if (data || errorKind) return;
     fetchReveal();
   }, [authLoading, isAuthenticated, data, errorKind, fetchReveal, navigate, token]);
-
-  const handleCopy = async () => {
-    if (!data) return;
-    const ok = await copyToClipboard(data.api_key);
-    if (ok) {
-      setCopied(true);
-      toast.success(t('apiKeyReveal.copied'));
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
 
   const handleConfirm = () => {
     navigate('/settings?tab=api-keys', { replace: true });
@@ -137,18 +126,13 @@ const ApiKeyRevealPage: React.FC = () => {
                 {data.api_key}
               </div>
               <div className="absolute top-px right-px bottom-px w-12 pointer-events-none rounded-r-md bg-gradient-to-r from-transparent to-muted to-40%" />
-              <button
-                type="button"
-                onClick={handleCopy}
+              <CopyButton
+                value={data.api_key}
                 aria-label={t('apiKeyReveal.copy')}
-                className="absolute top-1 right-1 w-7 h-7 flex items-center justify-center rounded-md text-muted-foreground can-hover:hover:text-foreground can-hover:hover:bg-accent transition-colors"
-              >
-                {copied ? (
-                  <CheckIcon className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                ) : (
-                  <ClipboardDocumentIcon className="w-4 h-4" />
-                )}
-              </button>
+                className="absolute top-1 right-1 w-7 h-7 text-muted-foreground can-hover:hover:text-foreground"
+                iconClassName="w-4 h-4"
+                onCopied={() => toast.success(t('apiKeyReveal.copied'))}
+              />
             </div>
             <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
               {t('apiKeyReveal.keyCopyWarning')}
