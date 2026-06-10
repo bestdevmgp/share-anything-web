@@ -171,7 +171,6 @@ export interface PresignedUploadRequest {
   password?: string;
   expiration?: ExpirationOption;
   is_one_time?: boolean;
-  turnstile_token: string;
 }
 
 export interface PresignedUploadUrl {
@@ -214,7 +213,6 @@ export interface InitMultipartUploadRequest {
   password?: string;
   expiration?: ExpirationOption;
   is_one_time?: boolean;
-  turnstile_token: string;
   chunk_size: number;
 }
 
@@ -336,4 +334,18 @@ export interface TrustedDevice {
   ip_address: string;
   location?: string;
   trusted_at: string;
+}
+
+export interface SessionTokenResponse {
+  session_token: string;
+  expires_at: string; // ISO8601
+}
+
+export interface UserSettings {
+  notify_upload: boolean;
+  notify_download: boolean;
+  notify_download_alert: boolean;
+  notify_security: boolean;
+  notify_language: string;
+  default_expiration: ExpirationOption;
 }
