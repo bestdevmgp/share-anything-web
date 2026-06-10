@@ -4,8 +4,9 @@ import { useAuth } from '../context/AuthContext';
 import { quickAccessAPI } from '../services/api';
 import { QuickAccessFile } from '../types';
 import { formatFileSize } from '../utils/format';
-import { PlusIcon, TrashIcon, ArrowDownTrayIcon, ArrowUpTrayIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, TrashIcon, ArrowDownTrayIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 import CopyButton from './CopyButton';
+import UploadProgressRow from './UploadProgressRow';
 import { toast } from '../context/ToastContext';
 import { useTranslation } from '../i18n';
 import { useNavigate } from 'react-router-dom';
@@ -302,54 +303,15 @@ const QuickAccess: React.FC = () => {
               className="flex-1 overflow-y-auto px-4 pb-1 md:px-5 md:pb-1 mb-3 md:mb-4 space-y-2"
             >
               {uploadingFiles.map((uf) => (
-                <div
+                <UploadProgressRow
                   key={uf.id}
-                  className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/[0.09]"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="flex-shrink-0 mr-3">
-                    <FileThumbnail source={null} fileName={uf.fileName} size="sm" />
-                  </div>
-                  <div className="flex-1 min-w-0 mr-3">
-                    <p className="text-sm font-medium text-foreground truncate">
-                      {uf.fileName}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">
-                        {formatFileSize(uf.fileSize)}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        {uf.completed ? (
-                          <span className="text-xs text-muted-foreground">{t('upload.pleaseWait')}</span>
-                        ) : (
-                          <>
-                            {uf.timeRemaining && <span className="text-xs text-muted-foreground">{uf.timeRemaining}</span>}
-                            <span className="text-xs font-semibold text-primary">{uf.progress}%</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center h-4 mt-0.5">
-                      <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
-                        <div
-                          className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
-                          style={{ width: `${uf.progress}%` }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  {!uf.completed && (
-                    <div className="flex-shrink-0">
-                      <button
-                        onClick={() => handleCancelUpload(uf.id)}
-                        className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
-                        title={t('common.cancel')}
-                      >
-                        <XMarkIcon className="w-5 h-5" />
-                      </button>
-                    </div>
-                  )}
-                </div>
+                  fileName={uf.fileName}
+                  fileSize={uf.fileSize}
+                  progress={uf.progress}
+                  timeRemaining={uf.timeRemaining}
+                  statusText={uf.completed ? t('upload.pleaseWait') : undefined}
+                  onCancel={uf.completed ? undefined : () => handleCancelUpload(uf.id)}
+                />
               ))}
               {files.map((file) => (
                 <div

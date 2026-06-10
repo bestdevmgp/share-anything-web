@@ -26,6 +26,8 @@ import type {
   EmailAuthVerifyCodeResponse,
   Session,
   TrustedDevice,
+  SessionTokenResponse,
+  UserSettings,
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
@@ -100,6 +102,12 @@ export const workerAPI = {
   }
 };
 
+let currentSessionToken: string | null = null;
+
+export const setSessionToken = (token: string | null): void => {
+  currentSessionToken = token;
+};
+
 const api = axios.create({
   baseURL: API_BASE_URL,
 });
@@ -108,6 +116,10 @@ api.interceptors.request.use((config) => {
   const token = localStorage.getItem('auth_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  if (currentSessionToken) {
+    config.headers['X-Session-Token'] = currentSessionToken;
   }
 
   config.headers['X-Device-Id'] = ensureDeviceId();
@@ -121,9 +133,33 @@ api.interceptors.request.use((config) => {
 
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
+    const original = error.config;
+    const status = error.response?.status;
+    const code = (error.response?.data as any)?.code;
+
+    // Session token expired/missing: try one refresh + retry
     if (
-      error.response?.status === 401 &&
+      status === 401 &&
+      (code === 'SESSION_TOKEN_EXPIRED' || code === 'SESSION_TOKEN_REQUIRED') &&
+      original &&
+      !original._retriedAfterSessionRefresh
+    ) {
+      original._retriedAfterSessionRefresh = true;
+      // Ask SessionTokenProvider to refresh — it listens for this event
+      window.dispatchEvent(new Event('session-token:force-refresh'));
+      // Wait briefly for the new token to land in currentSessionToken
+      await new Promise((r) => setTimeout(r, 1500));
+      // Re-attach header from the freshly-set module state
+      if (currentSessionToken) {
+        original.headers['X-Session-Token'] = currentSessionToken;
+      }
+      return api(original);
+    }
+
+    // Existing user-JWT 401 handling
+    if (
+      status === 401 &&
       error.config?.headers?.Authorization
     ) {
       const url = error.config?.url || '';
@@ -221,7 +257,14 @@ export const authAPI = {
     } catch {
     }
     return true;
-  }
+  },
+
+  exchangeSessionToken: async (turnstileToken: string): Promise<SessionTokenResponse> => {
+    const response = await api.post<SessionTokenResponse>('/auth/session-token', {
+      turnstile_token: turnstileToken,
+    });
+    return response.data;
+  },
 };
 
 export const fileAPI = {
@@ -231,7 +274,6 @@ export const fileAPI = {
     password?: string,
     expiration?: ExpirationOption,
     isOneTime?: boolean,
-    turnstileToken?: string,
     transferType?: 'server' | 'p2p',
     onUploadProgress?: (progressEvent: { loaded: number; total: number; percentage: number }) => void,
     signal?: AbortSignal
@@ -258,10 +300,6 @@ export const fileAPI = {
       formData.append('is_one_time', String(isOneTime));
     }
 
-    if (turnstileToken) {
-      formData.append('turnstile_token', turnstileToken);
-    }
-
     if (transferType) {
       formData.append('transfer_type', transferType);
     }
@@ -285,27 +323,19 @@ export const fileAPI = {
 
   createP2PSession: async (
     files: { name: string; size: number; type: string }[],
-    turnstileToken: string,
     password?: string
   ): Promise<FileUploadResponse> => {
     const body: Record<string, unknown> = {
       files,
-      turnstile_token: turnstileToken
     };
     if (password) body.password = password;
     const response = await api.post<FileUploadResponse>('/file/p2p/create', body);
     return response.data;
   },
 
-  getFileInfo: async (code: string, turnstileToken?: string): Promise<FileInfo> => {
-    const headers: Record<string, string> = {};
-    if (turnstileToken) {
-      headers['X-Turnstile-Token'] = turnstileToken;
-    }
-
+  getFileInfo: async (code: string): Promise<FileInfo> => {
     const response = await api.get<FileInfo>('/file/info', {
       params: { code },
-      headers
     });
     return response.data;
   },
@@ -329,11 +359,8 @@ export const fileAPI = {
     await api.post('/file/verify-password', { code, password });
   },
 
-  getFileList: async (code: string, turnstileToken?: string, password?: string): Promise<FileListResponse> => {
+  getFileList: async (code: string, password?: string): Promise<FileListResponse> => {
     const headers: Record<string, string> = {};
-    if (turnstileToken) {
-      headers['X-Turnstile-Token'] = turnstileToken;
-    }
     if (password) {
       headers['X-File-Password'] = password;
     }
@@ -550,13 +577,13 @@ export const userAPI = {
     await api.delete('/user/uploads');
   },
 
-  getNotificationSettings: async (): Promise<{ notify_upload: boolean; notify_download: boolean; notify_download_alert: boolean; notify_security: boolean; notify_language: string }> => {
-    const response = await api.get<{ notify_upload: boolean; notify_download: boolean; notify_download_alert: boolean; notify_security: boolean; notify_language: string }>('/user/settings');
+  getNotificationSettings: async (): Promise<UserSettings> => {
+    const response = await api.get<UserSettings>('/user/settings');
     return response.data;
   },
 
-  updateNotificationSettings: async (settings: { notify_upload: boolean; notify_download: boolean; notify_download_alert: boolean; notify_security: boolean; notify_language: string }): Promise<{ notify_upload: boolean; notify_download: boolean; notify_download_alert: boolean; notify_security: boolean; notify_language: string }> => {
-    const response = await api.put<{ notify_upload: boolean; notify_download: boolean; notify_download_alert: boolean; notify_security: boolean; notify_language: string }>('/user/settings', settings);
+  updateNotificationSettings: async (settings: UserSettings): Promise<UserSettings> => {
+    const response = await api.put<UserSettings>('/user/settings', settings);
     return response.data;
   },
 

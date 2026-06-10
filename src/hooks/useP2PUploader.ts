@@ -5,7 +5,7 @@ import { toast } from '../context/ToastContext';
 import { getDeviceInfo } from '../utils/format';
 import { useTranslation } from '../i18n';
 
-interface FileProgress {
+export interface FileProgress {
   fileName: string;
   progress: number;
   status: 'waiting' | 'transferring' | 'completed' | 'cancelled';

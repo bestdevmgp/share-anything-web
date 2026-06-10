@@ -3,7 +3,6 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import { Button } from '../../components/ui/button';
 import { Spinner } from '../../components/ui/spinner';
 import { useTranslation } from '../../i18n';
-import TurnstileWidget from '../../components/TurnstileWidget';
 
 export interface UploadProgressBarProps {
   isUploading: boolean;
@@ -12,11 +11,6 @@ export interface UploadProgressBarProps {
   isCompleting: boolean;
   uploadTimeRemaining: string;
   files: File[];
-  turnstileToken: string;
-  turnstileResetKey: number;
-  onTurnstileVerify: (token: string) => void;
-  onTurnstileError: () => void;
-  onTurnstileExpire: () => void;
   onUpload: () => void;
   onCancelUpload: () => void;
 }
@@ -28,11 +22,6 @@ const UploadProgressBar: React.FC<UploadProgressBarProps> = ({
   isCompleting,
   uploadTimeRemaining,
   files,
-  turnstileToken,
-  turnstileResetKey,
-  onTurnstileVerify,
-  onTurnstileError,
-  onTurnstileExpire,
   onUpload,
   onCancelUpload,
 }) => {
@@ -40,17 +29,7 @@ const UploadProgressBar: React.FC<UploadProgressBarProps> = ({
 
   return (
     <div className="mt-7">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-[22px] md:gap-4">
-        {}
-        <div className={isUploading && transferType !== 'p2p' ? 'md:hidden' : ''}>
-          <TurnstileWidget
-            key={turnstileResetKey}
-            onVerify={onTurnstileVerify}
-            onError={onTurnstileError}
-            onExpire={onTurnstileExpire}
-          />
-        </div>
-
+      <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-[22px] md:gap-4">
         {isUploading && transferType !== 'p2p' ? (
           <div className="flex-1 min-h-10 md:min-h-[65px] md:flex md:items-center">
             <div className="flex items-center gap-2 w-full pl-1.5">
@@ -92,7 +71,7 @@ const UploadProgressBar: React.FC<UploadProgressBarProps> = ({
           <div className="flex justify-center md:justify-end">
             <Button
               onClick={onUpload}
-              disabled={files.length === 0 || !turnstileToken || (isUploading && transferType === 'p2p')}
+              disabled={files.length === 0 || (isUploading && transferType === 'p2p')}
               size="lg"
               className="w-full md:w-auto min-w-[120px]"
             >

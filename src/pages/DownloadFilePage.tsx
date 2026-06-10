@@ -6,7 +6,6 @@ import { downloadFile, isPptxFile, formatTimeRemaining, calculateTimeRemaining, 
 import { PauseIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { toast } from '../context/ToastContext';
 import { useTranslation, translateApiError } from '../i18n';
-import TurnstileWidget from '../components/TurnstileWidget';
 import { useP2PDownloader } from '../hooks/useP2PDownloader';
 import { createWebSocketConnection, generatePeerId, sendSignalingMessage } from '../utils/webrtc';
 import FilePreviewModal from '../components/FilePreviewModal';
@@ -52,9 +51,6 @@ const DownloadFilePage: React.FC = () => {
   const [previewFile, setPreviewFile] = useState<{ fileName: string; fileSize: number; source: string; presignedUrl?: string } | null>(null);
   const [singleFilePreviewUrl, setSingleFilePreviewUrl] = useState<string | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
-
-  const [, setTurnstileToken] = useState<string>('');
-  const [turnstileVerified, setTurnstileVerified] = useState(false);
 
   const [isP2PDownload, setIsP2PDownload] = useState(false);
   const [p2pEnabled, setP2pEnabled] = useState(false);
@@ -196,7 +192,7 @@ const DownloadFilePage: React.FC = () => {
     };
   }, [isP2PDownload, fileList, passwordVerified, code]);
 
-  const loadFileList = useCallback(async (token: string) => {
+  const loadFileList = useCallback(async () => {
     if (!code) {
       navigate('/');
       return;
@@ -204,7 +200,7 @@ const DownloadFilePage: React.FC = () => {
 
     try {
       setLoading(true);
-      const list = await fileAPI.getFileList(code, token);
+      const list = await fileAPI.getFileList(code);
       setFileList(list);
 
       if (list.transfer_type === 'p2p') {
@@ -246,11 +242,10 @@ const DownloadFilePage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code, navigate]);
 
-  const handleTurnstileVerify = useCallback(async (token: string) => {
-    setTurnstileToken(token);
-    await loadFileList(token);
-    setTurnstileVerified(true);
-  }, [loadFileList]);
+  useEffect(() => {
+    loadFileList();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!fileList) return;
@@ -440,28 +435,6 @@ const DownloadFilePage: React.FC = () => {
     }
   };
 
-
-  if (!turnstileVerified) {
-    return (
-      <div className="flex items-center justify-center pt-32 pb-20">
-        <div className="text-center">
-          <Spinner size="lg" className="mx-auto" />
-          <p className="mt-4 mb-[42px] text-muted-foreground">
-            {loading ? t('download.loadingFileInfo') : t('download.verifyingRequest')}
-          </p>
-          <TurnstileWidget
-            onVerify={handleTurnstileVerify}
-            onError={() => {
-              toast.error(t('download.securityFailed'));
-            }}
-            onExpire={() => {
-              toast.error(t('download.securityExpired'));
-            }}
-          />
-        </div>
-      </div>
-    );
-  }
 
   if (loading) {
     return (

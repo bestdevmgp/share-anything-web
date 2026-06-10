@@ -9,7 +9,7 @@ import { userAPI, personalTokenAPI, sessionAPI, apiKeyAPI } from 'services/api';
 import type { ApiKeyApplicationResponse, ApiKeyItem } from 'services/api';
 import { formatDateOnly, formatDateTime } from 'utils/format';
 import { ensureDeviceId } from 'utils/deviceId';
-import type { Session, TrustedDevice } from 'types';
+import type { Session, TrustedDevice, ExpirationOption as FileExpirationOption } from 'types';
 import { Button } from 'components/ui/button';
 import { Checkbox } from 'components/ui/checkbox';
 import { Input } from 'components/ui/input';
@@ -76,6 +76,7 @@ const SettingsPage: React.FC = () => {
   const [notifyDownloadAlert, setNotifyDownloadAlert] = useState(true);
   const [notifySecurity, setNotifySecurity] = useState(true);
   const [notifyLanguage, setNotifyLanguage] = useState('ko');
+  const [defaultExpiration, setDefaultExpiration] = useState<FileExpirationOption>('thirty_minutes');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -259,6 +260,7 @@ const SettingsPage: React.FC = () => {
         setNotifyDownloadAlert(settings.notify_download_alert);
         setNotifySecurity(settings.notify_security);
         setNotifyLanguage(settings.notify_language);
+        setDefaultExpiration(settings.default_expiration);
       } catch {
         toast.error(t('settings.fetchFailed'));
       } finally {
@@ -403,6 +405,7 @@ const SettingsPage: React.FC = () => {
         notify_download_alert: field === 'downloadAlert' ? value : notifyDownloadAlert,
         notify_security: field === 'security' ? value : notifySecurity,
         notify_language: notifyLanguage,
+        default_expiration: defaultExpiration,
       });
       toast.success(t('settings.updateSuccess'));
     } catch {
@@ -426,6 +429,7 @@ const SettingsPage: React.FC = () => {
         notify_download_alert: notifyDownloadAlert,
         notify_security: notifySecurity,
         notify_language: newLang,
+        default_expiration: defaultExpiration,
       });
       toast.success(t('settings.updateSuccess'));
     } catch {
@@ -837,6 +841,48 @@ const SettingsPage: React.FC = () => {
                       ))}
                     </PopoverContent>
                   </Popover>
+                </div>
+
+                <Separator />
+
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="min-w-0">
+                    <Label className="text-sm font-medium">{t('settings.defaultExpirationLabel')}</Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {t('settings.defaultExpirationDescription')}
+                    </p>
+                  </div>
+                  <select
+                    value={defaultExpiration}
+                    onChange={async (e) => {
+                      const next = e.target.value as FileExpirationOption;
+                      const prev = defaultExpiration;
+                      setDefaultExpiration(next);
+                      try {
+                        await userAPI.updateNotificationSettings({
+                          notify_upload: notifyUpload,
+                          notify_download: notifyDownload,
+                          notify_download_alert: notifyDownloadAlert,
+                          notify_security: notifySecurity,
+                          notify_language: notifyLanguage,
+                          default_expiration: next,
+                        });
+                        toast.success(t('settings.defaultExpirationSaved'));
+                      } catch {
+                        setDefaultExpiration(prev);
+                        toast.error(t('settings.updateFailed'));
+                      }
+                    }}
+                    className="flex-shrink-0 rounded-lg border border-foreground/[0.09] bg-card text-foreground px-3 py-2 text-sm"
+                  >
+                    <option value="five_minutes">{t('format.5min')}</option>
+                    <option value="thirty_minutes">{t('format.30min')}</option>
+                    <option value="one_hour">{t('format.1hour')}</option>
+                    <option value="three_hours">{t('format.3hours')}</option>
+                    <option value="six_hours">{t('format.6hours')}</option>
+                    <option value="twelve_hours">{t('format.12hours')}</option>
+                    <option value="twenty_four_hours">{t('format.24hours')}</option>
+                  </select>
                 </div>
               </div>
             </div>

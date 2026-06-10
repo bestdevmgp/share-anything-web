@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider } from './context/LanguageContext';
+import { SessionTokenProvider } from './context/SessionTokenContext';
 import { QuickAccessUploadProvider } from './context/QuickAccessUploadContext';
 import ToastContainer from './components/Toast';
 import { TooltipProvider } from './components/ui/tooltip';
@@ -68,17 +69,19 @@ const App: React.FC = () => {
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <AuthProvider>
-          <ToastProvider>
-            <QuickAccessUploadProvider>
-              <TooltipProvider>
-                <Router>
-                  <AppContent />
-                </Router>
-              </TooltipProvider>
-            </QuickAccessUploadProvider>
-          </ToastProvider>
-        </AuthProvider>
+        <SessionTokenProvider>
+          <AuthProvider>
+            <ToastProvider>
+              <QuickAccessUploadProvider>
+                <TooltipProvider>
+                  <Router>
+                    <AppContent />
+                  </Router>
+                </TooltipProvider>
+              </QuickAccessUploadProvider>
+            </ToastProvider>
+          </AuthProvider>
+        </SessionTokenProvider>
       </LanguageProvider>
     </ThemeProvider>
   );
