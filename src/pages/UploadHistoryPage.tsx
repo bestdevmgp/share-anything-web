@@ -35,6 +35,8 @@ import { Tooltip, TooltipTrigger, TooltipContent } from '../components/ui/toolti
 import HistoryTable from './history/HistoryTable';
 import HistoryMobileCards from './history/HistoryMobileCards';
 import HistoryPagination from './history/HistoryPagination';
+import { groupUploads, localOnlyGroups } from '../utils/shareMerge';
+import { listSessions, removeSession, clearSessions } from '../utils/recentSessions';
 
 const PRESIGNED_URL_MAX_AGE_MS = 50 * 60 * 1000; // 50 minutes
 
@@ -107,9 +109,20 @@ const UploadHistoryPage: React.FC = () => {
   const [selectedShareCode, setSelectedShareCode] = useState<string | null>(null);
   const [showScrollHint, setShowScrollHint] = useState(false);
   const [showTableScrollHint, setShowTableScrollHint] = useState(false);
+  const [pendingDeleted, setPendingDeleted] = useState<Set<string>>(new Set());
   const { t, language } = useTranslation();
   const logsScrollRef = useRef<HTMLDivElement>(null);
   const tableScrollRef = useRef<HTMLDivElement>(null);
+
+  const groupedUploads = useMemo<UploadGroup[]>(() => {
+    const serverGroups = groupUploads(uploads);
+    const serverCodes = new Set(serverGroups.map((g) => g.shareCode));
+    const localGroups = offset === 0 ? localOnlyGroups(listSessions(), serverCodes) : [];
+    const merged = [...serverGroups, ...localGroups];
+    return merged
+      .filter((g) => !pendingDeleted.has(g.shareCode))
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [uploads, pendingDeleted, offset]);
 
   useEffect(() => {
     if (showAllLogsModal && selectedFileForLogs) {
@@ -134,7 +147,7 @@ const UploadHistoryPage: React.FC = () => {
   }, [showAllLogsModal, selectedFileForLogs]);
 
   useEffect(() => {
-    if (loading || uploads.length === 0) return;
+    if (loading || groupedUploads.length === 0) return;
     const timer = setTimeout(() => {
       const container = tableScrollRef.current;
       if (container && container.scrollWidth > container.clientWidth) {
@@ -151,7 +164,7 @@ const UploadHistoryPage: React.FC = () => {
       }
     }, 150);
     return () => clearTimeout(timer);
-  }, [loading, uploads]);
+  }, [loading, groupedUploads]);
 
   useEffect(() => {
     if (authLoading) {
@@ -208,6 +221,7 @@ const UploadHistoryPage: React.FC = () => {
   };
 
   const fetchDownloadLogs = async (fileId: string) => {
+    if (fileId.startsWith('local:')) return;
     if (downloadLogs[fileId]) {
       return;
     }
@@ -225,6 +239,7 @@ const UploadHistoryPage: React.FC = () => {
   };
 
   const refreshPresignedUrlIfNeeded = useCallback(async (upload: UploadHistoryItem) => {
+    if (upload.id.startsWith('local:')) return;
     if (isExpired(upload.expires_at)) return;
     if (!(upload.file_type.startsWith('image/') || isPdfFile(upload.file_name))) return;
 
@@ -246,35 +261,6 @@ const UploadHistoryPage: React.FC = () => {
       } catch {}
     }
   }, [presignedUrls]);
-
-  const groupedUploads = useMemo<UploadGroup[]>(() => {
-    const map = new Map<string, UploadHistoryItem[]>();
-    for (const item of uploads) {
-      const list = map.get(item.share_code);
-      if (list) list.push(item);
-      else map.set(item.share_code, [item]);
-    }
-
-    const groups: UploadGroup[] = [];
-    map.forEach((files, shareCode) => {
-      const totalSize = files.reduce((s, f) => s + f.file_size, 0);
-      const downloadCount = files.reduce((s, f) => s + f.download_count, 0);
-      const hasPassword = files.some(f => f.has_password);
-      const isOneTime = !!files[0]?.is_one_time;
-      const expiresAt = files.reduce(
-        (min, f) => (new Date(f.expires_at) < new Date(min) ? f.expires_at : min),
-        files[0].expires_at
-      );
-      const createdAt = files.reduce(
-        (min, f) => (new Date(f.created_at) < new Date(min) ? f.created_at : min),
-        files[0].created_at
-      );
-      groups.push({ shareCode, files, totalSize, downloadCount, hasPassword, isOneTime, expiresAt, createdAt });
-    });
-
-    groups.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    return groups;
-  }, [uploads]);
 
   const handleRowClick = (shareCode: string) => {
     if (expandedRow === shareCode) {
@@ -303,6 +289,7 @@ const UploadHistoryPage: React.FC = () => {
   };
 
   const openPreviewModal = async (upload: UploadHistoryItem) => {
+    if (upload.id.startsWith('local:')) return;
     if (isExpired(upload.expires_at)) return;
     let url = presignedUrls[upload.id];
     const isStale = Date.now() - presignedUrlsFetchedAt.current > PRESIGNED_URL_MAX_AGE_MS;
@@ -323,41 +310,40 @@ const UploadHistoryPage: React.FC = () => {
     });
   };
 
-  const handleDeleteGroup = async (shareCode: string, e: React.MouseEvent) => {
+  const handleDeleteGroup = (shareCode: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!window.confirm(t('history.confirmDelete'))) {
-      return;
-    }
+    setPendingDeleted((prev) => new Set(prev).add(shareCode));
+    if (expandedRow === shareCode) setExpandedRow(null);
 
-    const group = groupedUploads.find(g => g.shareCode === shareCode);
-    if (!group) return;
-
-    try {
-      const results = await Promise.allSettled(
-        group.files.map(file => userAPI.deleteFile(file.id))
-      );
-      const deletedIds = new Set<string>();
-      group.files.forEach((file, idx) => {
-        if (results[idx].status === 'fulfilled') deletedIds.add(file.id);
+    const restore = () =>
+      setPendingDeleted((prev) => {
+        const next = new Set(prev);
+        next.delete(shareCode);
+        return next;
       });
 
-      const anyFailed = results.some(r => r.status === 'rejected');
-      if (deletedIds.size > 0) {
-        setUploads(prev => prev.filter(u => !deletedIds.has(u.id)));
-        setTotal(prev => prev - deletedIds.size);
+    const commit = async () => {
+      try {
+        await fileAPI.revokeShare(shareCode);
+      } catch (err: any) {
+        const status = err?.response?.status;
+        if (status && status !== 404) {
+          toast.error(t('history.deleteFailed'));
+          restore();
+          return;
+        }
       }
-      if (expandedRow === shareCode && deletedIds.size === group.files.length) {
-        setExpandedRow(null);
-      }
-      if (anyFailed) {
-        toast.error(t('history.deleteFailed'));
-      } else {
-        toast.success(t('history.deleteSuccess'));
-      }
-    } catch (error: any) {
-      console.error('Failed to delete bundle:', error);
-      toast.error(t('history.deleteFailed'));
-    }
+      removeSession(shareCode);
+      setUploads((prev) => prev.filter((u) => u.share_code !== shareCode));
+      restore();
+    };
+
+    toast.action(t('common.deleted'), {
+      actionLabel: t('common.undo'),
+      duration: 5000,
+      onAction: restore,
+      onAutoClose: commit,
+    });
   };
 
   const handleDeleteAll = async () => {
@@ -367,6 +353,7 @@ const UploadHistoryPage: React.FC = () => {
 
     try {
       await userAPI.deleteAllFiles();
+      clearSessions();
       toast.success(t('history.deleteAllSuccess'));
       setUploads([]);
       setTotal(0);
@@ -505,8 +492,8 @@ const UploadHistoryPage: React.FC = () => {
       <div className="mb-5">
         <h1 className="text-3xl font-bold text-foreground">{t('history.pageTitle')}</h1>
         <div className="flex items-center justify-between mt-1">
-          <p className="text-muted-foreground min-h-9 flex items-center">{t('history.validFileCount', { count: uploads.filter(u => !isExpired(u.expires_at)).length })}</p>
-          {uploads.length > 0 && (
+          <p className="text-muted-foreground min-h-9 flex items-center">{t('history.validFileCount', { count: groupedUploads.filter(g => !isExpired(g.expiresAt)).reduce((sum, g) => sum + g.files.length, 0) })}</p>
+          {groupedUploads.length > 0 && (
             <Button
               variant="ghost"
               onClick={handleDeleteAll}
@@ -545,7 +532,7 @@ const UploadHistoryPage: React.FC = () => {
         onUploadClick={() => navigate('/upload')}
       />
 
-      {uploads.length === 0 ? (
+      {groupedUploads.length === 0 ? (
         <Card className="md:hidden rounded-xl border-2 border-border shadow-none">
           <CardContent className="p-12 text-center">
             <p className="text-muted-foreground">{t('history.noFiles')}</p>

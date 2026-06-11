@@ -60,11 +60,29 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; is
   const wrapperRef = useRef<HTMLDivElement>(null);
   const exitTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const mountTimeRef = useRef(Date.now());
+  const undoneRef = useRef(false);
+  const committedRef = useRef(false);
+  const DURATION = toast.duration ?? 2700;
+
+  const finalizeRemove = useCallback(() => {
+    if (!undoneRef.current && !committedRef.current && toast.onAutoClose) {
+      committedRef.current = true;
+      toast.onAutoClose();
+    }
+    onRemove(toast.id);
+  }, [onRemove, toast]);
 
   const dismiss = () => {
     if (!isLeaving && !isSwipeDismissing) {
       setIsLeaving(true);
     }
+  };
+
+  const handleAction = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    undoneRef.current = true;
+    toast.onAction?.();
+    dismiss();
   };
 
   useEffect(() => {
@@ -75,7 +93,7 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; is
 
   const collapseAndRemove = useCallback(() => {
     const el = wrapperRef.current;
-    if (!el) { onRemove(toast.id); return; }
+    if (!el) { finalizeRemove(); return; }
 
     // Set explicit height so transition has a start value
     el.style.height = el.offsetHeight + 'px';
@@ -88,8 +106,8 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; is
     el.style.height = '0';
     el.style.paddingBottom = '0';
 
-    setTimeout(() => onRemove(toast.id), 300);
-  }, [onRemove, toast.id]);
+    setTimeout(() => finalizeRemove(), 300);
+  }, [finalizeRemove]);
 
   useEffect(() => {
     const enterTimer = setTimeout(() => setIsVisible(true), 10);
@@ -98,19 +116,19 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; is
       if (!isSwipeDismissing) {
         setIsLeaving(true);
       }
-    }, 2700);
+    }, DURATION);
 
     return () => {
       clearTimeout(enterTimer);
       if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
     };
-  }, [isSwipeDismissing]);
+  }, [isSwipeDismissing, DURATION]);
 
   // When this toast reaches the top, ensure it stays visible for a minimum duration
   useEffect(() => {
     if (isFirst && !isLeaving && !isSwipeDismissing) {
       const elapsed = Date.now() - mountTimeRef.current;
-      const remaining = 2700 - elapsed;
+      const remaining = DURATION - elapsed;
 
       if (remaining < MIN_TOP_DISPLAY) {
         if (exitTimerRef.current) clearTimeout(exitTimerRef.current);
@@ -119,7 +137,7 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; is
         }, MIN_TOP_DISPLAY);
       }
     }
-  }, [isFirst, isLeaving, isSwipeDismissing]);
+  }, [isFirst, isLeaving, isSwipeDismissing, DURATION]);
 
   useEffect(() => {
     if (isLeaving) {
@@ -228,6 +246,15 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; is
           <span className="text-foreground text-sm font-medium">
             {toast.message}
           </span>
+          {toast.actionLabel && (
+            <button
+              type="button"
+              onClick={handleAction}
+              className="ml-1 flex-shrink-0 rounded-full bg-foreground text-background text-xs font-semibold px-3 py-1 can-hover:hover:opacity-90 active:opacity-90"
+            >
+              {toast.actionLabel}
+            </button>
+          )}
         </div>
       </div>
     </div>

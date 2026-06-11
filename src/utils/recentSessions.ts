@@ -39,6 +39,10 @@ export const pushSession = (s: RecentSession): void => {
   writeAll(next);
 };
 
+export const removeSession = (code: string): void => {
+  writeAll(readAll().filter((s) => s.code !== code));
+};
+
 export const clearSessions = (): void => {
   try {
     localStorage.removeItem(KEY);

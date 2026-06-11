@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../i18n';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from '../../context/ToastContext';
-import { listSessions, RecentSession } from '../../utils/recentSessions';
+import { useShareList } from '../../hooks/useShareList';
 import { formatFileSize } from '../../utils/format';
 import FileThumbnail from '../FileThumbnail';
 import CopyButton from '../CopyButton';
@@ -27,12 +27,8 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [items, setItems] = useState<RecentSession[]>([]);
+  const { items, requestDelete } = useShareList(refreshKey);
   const [expanded, setExpanded] = useState<string | null>(null);
-
-  useEffect(() => {
-    setItems(listSessions());
-  }, [refreshKey]);
 
   if (items.length === 0) return null;
 
@@ -129,6 +125,14 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                     iconCopiedClass="text-green-600 dark:text-green-400"
                     title={t('common.copy')}
                   />
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); requestDelete(s.code); }}
+                    className="p-1.5 rounded-lg text-muted-foreground/50 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 active:text-red-600 dark:active:text-red-400"
+                    title={t('common.delete')}
+                  >
+                    <TrashIcon className="w-5 h-5" />
+                  </button>
                   {isBundle && (
                     <ChevronDownIcon
                       className={cn(

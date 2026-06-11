@@ -547,6 +547,10 @@ export const fileAPI = {
     const response = await api.post<FileUploadResponse>('/file/multipart/complete', request);
     return response.data;
   },
+
+  revokeShare: async (code: string): Promise<void> => {
+    await api.delete(`/shares/${code}`);
+  },
 };
 
 export const turnAPI = {

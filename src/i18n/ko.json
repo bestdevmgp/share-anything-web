@@ -11,6 +11,8 @@
     "upload": "업로드",
     "download": "다운로드",
     "copy": "복사",
+    "undo": "실행 취소",
+    "deleted": "삭제되었습니다",
     "optional": "선택",
     "yes": "예",
     "no": "아니요",

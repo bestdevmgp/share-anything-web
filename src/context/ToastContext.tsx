@@ -2,7 +2,14 @@ import React, { createContext, useContext, useState, useCallback, useRef } from 
 
 export type ToastType = 'success' | 'error' | 'warning' | 'info';
 
-export interface Toast {
+export interface ToastOptions {
+  actionLabel?: string;
+  onAction?: () => void;
+  onAutoClose?: () => void;
+  duration?: number;
+}
+
+export interface Toast extends ToastOptions {
   id: string;
   type: ToastType;
   message: string;
@@ -13,7 +20,7 @@ const MAX_TOASTS = 3;
 
 interface ToastContextType {
   toasts: Toast[];
-  addToast: (type: ToastType, message: string) => void;
+  addToast: (type: ToastType, message: string, options?: ToastOptions) => void;
   removeToast: (id: string) => void;
 }
 
@@ -27,9 +34,9 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   }, []);
 
-  const addToast = useCallback((type: ToastType, message: string) => {
+  const addToast = useCallback((type: ToastType, message: string, options?: ToastOptions) => {
     const id = `toast-${++toastIdRef.current}`;
-    const newToast: Toast = { id, type, message };
+    const newToast: Toast = { id, type, message, ...options };
 
     setToasts((prev) => {
       const visible = prev.filter((t) => !t.forceDismiss);
@@ -64,14 +71,18 @@ let toastFunctions: {
   error: (message: string) => void;
   warning: (message: string) => void;
   info: (message: string) => void;
+  action: (message: string, options: ToastOptions & { type?: ToastType }) => void;
 } | null = null;
 
-export const setToastFunctions = (addToast: (type: ToastType, message: string) => void) => {
+export const setToastFunctions = (
+  addToast: (type: ToastType, message: string, options?: ToastOptions) => void
+) => {
   toastFunctions = {
-    success: (message: string) => addToast('success', message),
-    error: (message: string) => addToast('error', message),
-    warning: (message: string) => addToast('warning', message),
-    info: (message: string) => addToast('info', message),
+    success: (message) => addToast('success', message),
+    error: (message) => addToast('error', message),
+    warning: (message) => addToast('warning', message),
+    info: (message) => addToast('info', message),
+    action: (message, { type = 'success', ...options }) => addToast(type, message, options),
   };
 };
 
@@ -80,4 +91,6 @@ export const toast = {
   error: (message: string) => toastFunctions?.error(message),
   warning: (message: string) => toastFunctions?.warning(message),
   info: (message: string) => toastFunctions?.info(message),
+  action: (message: string, options: ToastOptions & { type?: ToastType }) =>
+    toastFunctions?.action(message, options),
 };

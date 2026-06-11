@@ -11,6 +11,8 @@
     "upload": "上傳",
     "download": "下載",
     "copy": "複製",
+    "undo": "復原",
+    "deleted": "已刪除",
     "optional": "選填",
     "yes": "是",
     "no": "否",

@@ -11,6 +11,8 @@
     "upload": "Upload",
     "download": "Download",
     "copy": "Copy",
+    "undo": "Undo",
+    "deleted": "Deleted",
     "optional": "Optional",
     "yes": "Yes",
     "no": "No",

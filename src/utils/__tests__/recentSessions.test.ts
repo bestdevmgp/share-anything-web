@@ -1,4 +1,4 @@
-import { pushSession, listSessions, clearSessions, RecentSession } from '../recentSessions';
+import { pushSession, listSessions, removeSession, clearSessions, RecentSession } from '../recentSessions';
 
 beforeEach(() => {
   localStorage.clear();
@@ -72,5 +72,14 @@ describe('recentSessions', () => {
     pushSession(mkSession());
     clearSessions();
     expect(listSessions()).toEqual([]);
+  });
+
+  test('removeSession removes only the matching code', () => {
+    clearSessions();
+    const base = { fileNames: ['a'], totalSize: 1, expiresAt: new Date(Date.now() + 3600_000).toISOString(), createdAt: new Date().toISOString() };
+    pushSession({ ...base, code: '111111' });
+    pushSession({ ...base, code: '222222' });
+    removeSession('111111');
+    expect(listSessions().map((s) => s.code)).toEqual(['222222']);
   });
 });
