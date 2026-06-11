@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
 import { useTranslation } from '../../i18n';
 import { useMultipartUpload, UploadProgressEvent } from '../../hooks/useMultipartUpload';
 import { useP2PUploader } from '../../hooks/useP2PUploader';
@@ -14,6 +13,7 @@ import UploadSuccess from './UploadSuccess';
 import P2PWaiting from './P2PWaiting';
 import P2PTransferring from './P2PTransferring';
 import P2PCompleted from './P2PCompleted';
+import RecentShares from './RecentShares';
 import { fileAPI } from '../../services/api';
 import { toast } from '../../context/ToastContext';
 import { Spinner } from '../ui/spinner';
@@ -22,7 +22,6 @@ import { cn } from '../../lib/utils';
 
 const UnifiedFileBox: React.FC = () => {
   const { t } = useTranslation();
-  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [state, dispatch] = useUnifiedFileBoxState();
   const [items, setItems] = useState<UploadingItem[]>([]);
@@ -30,8 +29,11 @@ const UnifiedFileBox: React.FC = () => {
   const handleRef = useRef<{ abort: () => void } | null>(null);
   const [downloadPrefill, setDownloadPrefill] = useState<string | null>(null);
 
+  // Always 'public': the box issues a share code. Authenticated uploads are still
+  // recorded in /history by the backend, but must NOT land in Quick Access
+  // (that list is reserved for QuickAccess's own dropzone).
   const uploader = useMultipartUpload({
-    mode: isAuthenticated ? 'quick-access' : 'public',
+    mode: 'public',
     onProgress: (events: UploadProgressEvent[]) => {
       setItems((prev) =>
         prev.map((it, i) => {
@@ -205,32 +207,29 @@ const UnifiedFileBox: React.FC = () => {
     state.state === 'p2pWaiting' ||
     state.state === 'p2pTransferring';
 
+  const showRecent =
+    state.state === 'idleUpload' || state.state === 'idleDownload';
+
   return (
-    <div className="bg-card rounded-2xl flex flex-col">
-      <div className="border-t-[3px] border-x-[3px] border-foreground/[0.09] rounded-t-2xl">
-        <ModeHeader
-          mode={state.mode}
-          disabled={tabsDisabled}
-          onSwitchMode={(m) => dispatch({ type: 'switchMode', mode: m })}
-          onDrillDownToUpload={onDrillDown}
-        />
-      </div>
+    <div className="bg-card rounded-2xl flex flex-col border-[3px] border-foreground/[0.09] overflow-hidden">
+      <ModeHeader
+        mode={state.mode}
+        disabled={tabsDisabled}
+        onSwitchMode={(m) => dispatch({ type: 'switchMode', mode: m })}
+        onDrillDownToUpload={onDrillDown}
+      />
       <div
         className={cn(
-          'border-t-[3px] border-x-[3px] border-b-[3px] rounded-b-2xl',
-          // border-box: min-h includes the 6px border, so it is 6px larger than the
-          // inner views' min-h (420/412) to keep every tab at the same outer height.
-          'min-h-[426px] md:min-h-[418px] flex flex-col',
-          'border-foreground/[0.09]'
+          'border-t border-foreground/[0.09]',
+          // Mobile stacks the two upload zones vertically (~416px content) so the
+          // panel floor is taller there to keep both tabs the same height.
+          // Desktop lays them side by side and fits in 412px.
+          'min-h-[420px] md:min-h-[412px] flex flex-col'
         )}
         role="tabpanel"
       >
         {state.mode === 'upload' && state.state === 'idleUpload' && (
-          <IdleUpload
-            onNormal={onNormal}
-            onSecure={onSecure}
-            recentRefreshKey={recentRefreshKey}
-          />
+          <IdleUpload onNormal={onNormal} onSecure={onSecure} />
         )}
         {state.mode === 'upload' && state.state === 'uploading' && (
           <Uploading items={items} onCancel={onCancelItem} />
@@ -284,6 +283,11 @@ const UnifiedFileBox: React.FC = () => {
           />
         )}
       </div>
+      {showRecent && (
+        <div className="border-t border-foreground/[0.09]">
+          <RecentShares refreshKey={recentRefreshKey} />
+        </div>
+      )}
     </div>
   );
 };
