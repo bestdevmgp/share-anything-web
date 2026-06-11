@@ -24,7 +24,7 @@ const UploadSuccess: React.FC<Props> = ({ result, failedNames, onConfirm, onRetr
       : result.code;
 
   return (
-    <div className="flex-1 flex flex-col px-6 md:px-8 py-8">
+    <div className="flex-1 flex flex-col px-6 md:px-8 py-8 animate-in fade-in-0 slide-in-from-bottom-1 duration-300">
       <style>{`
         .upload-checkmark-path {
           stroke-dasharray: 20;
@@ -36,7 +36,7 @@ const UploadSuccess: React.FC<Props> = ({ result, failedNames, onConfirm, onRetr
         }
       `}</style>
 
-      <div className="flex-1 flex flex-col md:flex-row items-center md:items-stretch justify-center gap-8 md:gap-10">
+      <div className="flex-1 flex flex-col md:flex-row items-center md:items-stretch justify-center gap-6 md:gap-10">
         {/* Left: animated check, heading, share code */}
         <div className="flex flex-col items-center justify-center text-center md:flex-1">
           <div className="w-16 h-16 rounded-full flex items-center justify-center bg-green-100 dark:bg-green-500/15 mb-4">
@@ -59,9 +59,9 @@ const UploadSuccess: React.FC<Props> = ({ result, failedNames, onConfirm, onRetr
           <label className="block text-sm font-medium text-muted-foreground mb-2">
             {t('uploadSuccess.shareCode')}
           </label>
-          <div className="relative bg-muted rounded-xl px-6 py-4 border border-foreground/[0.09] w-full max-w-[260px]">
+          <div className="relative bg-muted rounded-xl px-3 py-4 border border-foreground/[0.09] w-full max-w-[260px]">
             <p
-              className="text-[1.75rem] font-bold text-center text-foreground break-all leading-none"
+              className="text-2xl sm:text-[1.75rem] font-bold text-center text-foreground leading-none px-8"
               style={{ letterSpacing: '0.1em' }}
             >
               {displayCode}

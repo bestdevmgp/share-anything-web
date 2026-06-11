@@ -14,6 +14,7 @@ import P2PWaiting from './P2PWaiting';
 import P2PTransferring from './P2PTransferring';
 import P2PCompleted from './P2PCompleted';
 import RecentShares from './RecentShares';
+import AnimatedHeight from './AnimatedHeight';
 import { fileAPI } from '../../services/api';
 import { toast } from '../../context/ToastContext';
 import { Spinner } from '../ui/spinner';
@@ -218,6 +219,7 @@ const UnifiedFileBox: React.FC = () => {
         onSwitchMode={(m) => dispatch({ type: 'switchMode', mode: m })}
         onDrillDownToUpload={onDrillDown}
       />
+      <AnimatedHeight>
       <div
         className={cn(
           'border-t border-foreground/[0.09]',
@@ -288,6 +290,7 @@ const UnifiedFileBox: React.FC = () => {
           <RecentShares refreshKey={recentRefreshKey} />
         </div>
       )}
+      </AnimatedHeight>
     </div>
   );
 };
