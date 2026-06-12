@@ -8,6 +8,8 @@ export interface MergedShare {
   createdAt: string;
   expiresAt: string;
   source: 'local' | 'server' | 'both';
+  firstFileId?: string;
+  hasPassword?: boolean;
 }
 
 export const groupUploads = (items: UploadHistoryItem[]): UploadGroup[] => {
@@ -50,6 +52,8 @@ export const mergeShares = (
       createdAt: g.createdAt,
       expiresAt: g.expiresAt,
       source: 'server',
+      firstFileId: g.files[0]?.id,
+      hasPassword: g.hasPassword,
     });
   }
   for (const s of local) {

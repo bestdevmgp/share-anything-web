@@ -233,7 +233,10 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; is
         onTouchEnd={handleTouchEnd}
       >
         <div
-          className="rounded-3xl pl-2.5 pr-4 py-2 flex items-center gap-2.5 w-fit max-w-full sm:max-w-[520px]"
+          className={cn(
+            'rounded-3xl pl-2.5 py-2 flex items-center gap-2.5 w-fit max-w-full sm:max-w-[520px]',
+            toast.actionLabel ? 'pr-1' : 'pr-4'
+          )}
           style={{
             background: 'var(--share-bubble-bg)',
             backdropFilter: 'blur(20px) saturate(180%)',
@@ -250,7 +253,7 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; is
             <button
               type="button"
               onClick={handleAction}
-              className="ml-1 flex-shrink-0 rounded-full bg-foreground text-background text-xs font-semibold px-3 py-1 can-hover:hover:opacity-90 active:opacity-90"
+              className="self-stretch -my-1 flex-shrink-0 flex items-center rounded-full bg-foreground text-background text-xs font-semibold px-4 can-hover:hover:opacity-90 active:opacity-90"
             >
               {toast.actionLabel}
             </button>

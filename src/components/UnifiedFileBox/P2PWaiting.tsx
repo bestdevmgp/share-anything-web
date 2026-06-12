@@ -1,10 +1,11 @@
 import React from 'react';
-import { LockClosedIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../i18n';
-import { Spinner } from '../ui/spinner';
 import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Spinner } from '../ui/spinner';
 import CopyButton from '../CopyButton';
-import { toast } from '../../context/ToastContext';
+import StyledQRCode from '../StyledQRCode';
+import { Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
 
 interface Props {
   shareCode: string;
@@ -15,57 +16,95 @@ interface Props {
 const P2PWaiting: React.FC<Props> = ({ shareCode, fileCount, onCancel }) => {
   const { t } = useTranslation();
   const url = `${window.location.origin}/download/${shareCode}`;
+  const displayCode =
+    shareCode.length === 6 ? `${shareCode.slice(0, 3)} ${shareCode.slice(3)}` : shareCode;
 
   return (
     <div
-      className="flex-1 flex flex-col items-center justify-center px-6 py-6 text-center"
+      className="flex-1 flex flex-col px-6 md:px-8 py-8"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="relative mb-3">
-        <LockClosedIcon className="w-12 h-12 md:w-14 md:h-14 text-primary" strokeWidth={2.5} />
-        <span className="absolute -bottom-1 -right-1">
-          <Spinner size="sm" className="text-primary" />
-        </span>
+      <div className="flex-1 flex flex-col md:flex-row items-center md:items-stretch justify-center gap-6 md:gap-10">
+        {/* Left: waiting status + share code */}
+        <div className="flex flex-col items-center justify-center text-center md:flex-1">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center bg-card border border-foreground/[0.09] mb-4">
+            <Spinner size="xl" />
+          </div>
+          <h2 className="text-2xl font-bold text-foreground mb-1.5">
+            {t('uploadSuccess.waitingForReceiver')}
+          </h2>
+          <p className="text-sm text-muted-foreground mb-5">
+            {t('uploadSuccess.keepPageOpen')}
+          </p>
+
+          <label className="block text-sm font-medium text-muted-foreground mb-2">
+            {t('uploadSuccess.shareCode')}
+          </label>
+          <div className="flex items-center gap-1 bg-muted rounded-xl pl-3 pr-2 py-5 border border-foreground/[0.09] w-full max-w-[340px]">
+            <span className="w-9 flex-shrink-0" aria-hidden="true" />
+            <p
+              className="flex-1 text-[2.125rem] font-bold text-center text-foreground leading-none whitespace-nowrap"
+              style={{ letterSpacing: '0.1em' }}
+            >
+              {displayCode}
+            </p>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <CopyButton
+                  value={shareCode}
+                  aria-label={t('uploadSuccess.copyCode')}
+                  className="flex-shrink-0 h-9 w-9"
+                  iconClassName="w-5 h-5"
+                  iconCopiedClass="text-green-600 dark:text-green-600"
+                />
+              </TooltipTrigger>
+              <TooltipContent>{t('uploadSuccess.copyCode')}</TooltipContent>
+            </Tooltip>
+          </div>
+          <p className="text-xs text-muted-foreground mt-3">
+            {t('unifiedBox.p2pFileCount', { count: fileCount })}
+          </p>
+        </div>
+
+        {/* Right: share link + QR */}
+        <div className="flex flex-col items-center justify-center gap-5 md:flex-1">
+          <div className="w-full max-w-[420px]">
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
+              {t('uploadSuccess.shareLink')}
+            </label>
+            <div className="relative">
+              <Input
+                type="text"
+                value={url}
+                readOnly
+                className="w-full pr-12 bg-muted border-foreground/[0.09] rounded-lg text-sm text-foreground"
+              />
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <CopyButton
+                    value={url}
+                    aria-label={t('uploadSuccess.copyLink')}
+                    className="absolute right-[1.5px] top-1/2 -translate-y-1/2 h-9 w-9"
+                    iconCopiedClass="text-green-600 dark:text-green-600"
+                  />
+                </TooltipTrigger>
+                <TooltipContent>{t('uploadSuccess.copyLink')}</TooltipContent>
+              </Tooltip>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center">
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
+              {t('uploadSuccess.qrDownload')}
+            </label>
+            <div className="p-3 border-2 border-border rounded-2xl">
+              <StyledQRCode value={url} size={120} />
+            </div>
+          </div>
+        </div>
       </div>
-      <p className="text-foreground font-semibold mb-1">{t('unifiedBox.p2pWaitingTitle')}</p>
-      <p className="text-xs text-muted-foreground mb-4">
-        {t('unifiedBox.p2pWaitingSubtitle')}
-      </p>
-      <div
-        className="inline-flex items-center rounded-[10px] pl-3 pr-1.5 py-[7px] mb-3"
-        style={{
-          background: 'var(--share-bubble-bg)',
-          backdropFilter: 'blur(20px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-          boxShadow: 'var(--share-bubble-shadow)',
-          border: '1px solid var(--share-bubble-border)',
-        }}
-      >
-        <span
-          className="text-[1.125rem] font-bold text-foreground tracking-[0.06em] leading-none"
-          style={{
-            fontFamily:
-              "'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace",
-          }}
-        >
-          {shareCode.slice(0, 3)}
-          <span className="inline-block w-1" />
-          {shareCode.slice(3)}
-        </span>
-        <CopyButton
-          value={url}
-          defaultCopied={false}
-          stopPropagation
-          onCopied={() => toast.success(t('quickAccess.shareSuccess'))}
-          className="ml-2 p-1.5 can-hover:hover:bg-foreground/10"
-          iconClassName="w-4 h-4"
-          iconCopiedClass="text-green-600 dark:text-green-400"
-        />
-      </div>
-      <p className="text-xs text-muted-foreground mb-4">
-        {t('unifiedBox.p2pFileCount', { count: fileCount })}
-      </p>
-      <Button variant="outline" size="sm" onClick={onCancel}>
+
+      <Button variant="outline" onClick={onCancel} size="lg" className="w-full mt-6">
         {t('unifiedBox.p2pCancelButton')}
       </Button>
     </div>

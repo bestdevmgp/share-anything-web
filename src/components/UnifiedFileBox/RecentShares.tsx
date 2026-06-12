@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronDownIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../i18n';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from '../../context/ToastContext';
 import { useShareList } from '../../hooks/useShareList';
+import { useSharePreviews } from './useSharePreviews';
+import { fetchShareFileList, getCachedFileList } from './shareFileList';
+import { FileListItem } from '../../types';
 import { formatFileSize } from '../../utils/format';
 import FileThumbnail from '../FileThumbnail';
 import CopyButton from '../CopyButton';
@@ -28,7 +31,27 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { items, requestDelete } = useShareList(refreshKey);
+  const previews = useSharePreviews(items);
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [bundleFiles, setBundleFiles] = useState<Record<string, FileListItem[]>>({});
+
+  useEffect(() => {
+    if (!expanded || bundleFiles[expanded]) return;
+    const cached = getCachedFileList(expanded);
+    if (cached) {
+      setBundleFiles((p) => ({ ...p, [expanded]: cached.files }));
+      return;
+    }
+    let cancelled = false;
+    fetchShareFileList(expanded)
+      .then((res) => {
+        if (!cancelled) setBundleFiles((p) => ({ ...p, [expanded]: res.files }));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [expanded, bundleFiles]);
 
   if (items.length === 0) return null;
 
@@ -84,11 +107,11 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                     <div className="relative w-11 h-11">
                       <div className="absolute -right-1 -top-1 w-11 h-11 rounded bg-card border border-foreground/[0.12]" />
                       <div className="relative">
-                        <FileThumbnail source={null} fileName={s.fileNames[0] || 'file'} size="sm" />
+                        <FileThumbnail source={previews[s.code] ?? null} fileName={s.fileNames[0] || 'file'} size="sm" />
                       </div>
                     </div>
                   ) : (
-                    <FileThumbnail source={null} fileName={s.fileNames[0] || 'file'} size="sm" />
+                    <FileThumbnail source={previews[s.code] ?? null} fileName={s.fileNames[0] || 'file'} size="sm" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0 mr-3">
@@ -147,10 +170,18 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
               {isBundle && isOpen && (
                 <div className="px-3 pb-3">
                   <div className="border-t border-foreground/[0.08] pt-2.5 space-y-2">
-                    {s.fileNames.map((name, i) => (
-                      <div key={`${name}-${i}`} className="flex items-center gap-3 min-w-0">
-                        <FileThumbnail source={null} fileName={name} size="sm" />
-                        <span className="text-sm text-foreground/80 truncate">{name}</span>
+                    {(bundleFiles[s.code]
+                      ? bundleFiles[s.code].map((f) => ({ name: f.file_name, size: f.file_size }))
+                      : s.fileNames.map((name) => ({ name, size: undefined as number | undefined }))
+                    ).map((f, i) => (
+                      <div key={`${f.name}-${i}`} className="flex items-center gap-3 min-w-0">
+                        <FileThumbnail source={null} fileName={f.name} size="sm" />
+                        <span className="flex-1 min-w-0 text-sm text-foreground/80 truncate">{f.name}</span>
+                        {f.size != null && (
+                          <span className="flex-shrink-0 text-xs text-muted-foreground">
+                            {formatFileSize(f.size)}
+                          </span>
+                        )}
                       </div>
                     ))}
                   </div>

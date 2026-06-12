@@ -62,7 +62,7 @@ const UploadSuccess: React.FC<Props> = ({ result, failedNames, onConfirm, onRetr
           <div className="flex items-center gap-1 bg-muted rounded-xl pl-3 pr-2 py-5 border border-foreground/[0.09] w-full max-w-[340px]">
             <span className="w-9 flex-shrink-0" aria-hidden="true" />
             <p
-              className="flex-1 text-3xl font-bold text-center text-foreground leading-none whitespace-nowrap"
+              className="flex-1 text-[2.125rem] font-bold text-center text-foreground leading-none whitespace-nowrap"
               style={{ letterSpacing: '0.1em' }}
             >
               {displayCode}
@@ -89,7 +89,7 @@ const UploadSuccess: React.FC<Props> = ({ result, failedNames, onConfirm, onRetr
 
         {/* Right: share link + QR */}
         <div className="flex flex-col items-center justify-center gap-5 md:flex-1">
-          <div className="w-full max-w-[340px]">
+          <div className="w-full max-w-[420px]">
             <label className="block text-sm font-medium text-muted-foreground mb-2">
               {t('uploadSuccess.shareLink')}
             </label>
@@ -98,7 +98,7 @@ const UploadSuccess: React.FC<Props> = ({ result, failedNames, onConfirm, onRetr
                 type="text"
                 value={url}
                 readOnly
-                className="w-full h-12 pr-12 bg-muted border-foreground/[0.09] rounded-lg text-sm text-foreground"
+                className="w-full pr-12 bg-muted border-foreground/[0.09] rounded-lg text-sm text-foreground"
               />
               <Tooltip>
                 <TooltipTrigger asChild>

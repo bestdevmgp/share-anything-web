@@ -19,7 +19,7 @@ const P2PTransferring: React.FC<Props> = ({ files, fileProgresses, peerDeviceInf
       <div className="px-4 pt-3 pb-2 flex items-center justify-between flex-shrink-0">
         <div className="min-w-0">
           <p className="text-sm font-semibold text-foreground">
-            {t('unifiedBox.p2pTransferringTitle')}
+            {t('uploadSuccess.transferring')}
           </p>
           {peerDeviceInfo && (
             <p className="text-xs text-muted-foreground truncate">
@@ -42,8 +42,8 @@ const P2PTransferring: React.FC<Props> = ({ files, fileProgresses, peerDeviceInf
           const status = progress?.status ?? 'waiting';
           const timeRemaining = progress?.timeRemaining;
           let statusText: string | undefined;
-          if (status === 'completed') statusText = t('unifiedBox.p2pCompleted');
-          else if (status !== 'transferring') statusText = t('unifiedBox.p2pWaiting');
+          if (status === 'completed') statusText = t('uploadSuccess.completed');
+          else if (status !== 'transferring') statusText = t('uploadSuccess.waiting');
           return (
             <UploadProgressRow
               key={file.name}
