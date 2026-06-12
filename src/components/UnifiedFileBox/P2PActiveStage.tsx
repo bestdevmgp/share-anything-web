@@ -16,6 +16,7 @@ interface Props {
   peerDeviceInfo: string | null;
   completed: boolean;
   onCancel: () => void;
+  onCancelFile: (fileName: string) => void;
   onNew: () => void;
 }
 
@@ -26,6 +27,7 @@ const P2PActiveStage: React.FC<Props> = ({
   peerDeviceInfo,
   completed,
   onCancel,
+  onCancelFile,
   onNew,
 }) => {
   const { t } = useTranslation();
@@ -45,7 +47,7 @@ const P2PActiveStage: React.FC<Props> = ({
           ? 'connected'
           : status === 'waiting_for_next'
             ? 'waiting_for_next'
-            : 'transferring';
+            : 'connected';
 
   const isDone = overall === 'completed';
   const greenCircle =
@@ -142,6 +144,7 @@ const P2PActiveStage: React.FC<Props> = ({
               let statusText: string | undefined;
               if (st === 'completed') statusText = t('uploadSuccess.completed');
               else if (st !== 'transferring') statusText = t('uploadSuccess.waiting');
+              const showCancel = !isDone && st !== 'completed' && st !== 'cancelled';
               return (
                 <UploadProgressRow
                   key={file.name}
@@ -150,6 +153,7 @@ const P2PActiveStage: React.FC<Props> = ({
                   progress={pct}
                   timeRemaining={progress?.timeRemaining}
                   statusText={statusText}
+                  onCancel={showCancel ? () => onCancelFile(file.name) : undefined}
                 />
               );
             })}

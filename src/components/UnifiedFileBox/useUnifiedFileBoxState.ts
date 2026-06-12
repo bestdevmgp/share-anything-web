@@ -136,6 +136,15 @@ export const reducer = (s: State, a: Action): State => {
         }
         return s;
       }
+      // Receiver disconnected / a file was cancelled → the session is still
+      // alive, so fall back to the "waiting for a receiver" screen rather than
+      // leaving the active stage spinning.
+      if (a.status === 'waiting') {
+        if (s.state === 'p2pConnected' || s.state === 'p2pTransferring') {
+          return { ...s, state: 'p2pWaiting' };
+        }
+        return s;
+      }
       return s;
     case 'p2pFailed':
       return {
