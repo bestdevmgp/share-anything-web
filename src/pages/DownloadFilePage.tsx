@@ -227,15 +227,17 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       sock.onopen = () => {
         if (closed) return;
         announce(sock);
+        // Quick second announce in case the first raced socket-delivery; the
+        // sender is already registered, so this only ever needs to be fast.
         reannounceTimer = setTimeout(() => {
           if (!closed && sock.readyState === WebSocket.OPEN) announce(sock);
-        }, 1500);
+        }, 400);
       };
 
       sock.onclose = () => {
         if (closed) return;
         if (reconnectTimer) clearTimeout(reconnectTimer);
-        reconnectTimer = setTimeout(connect, 1500);
+        reconnectTimer = setTimeout(connect, 800);
       };
     };
 
