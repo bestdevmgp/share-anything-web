@@ -3,7 +3,7 @@ import { ClipboardDocumentIcon, CheckIcon } from '@heroicons/react/24/outline';
 import { copyToClipboard } from '../utils/format';
 import { cn } from 'lib/utils';
 
-export interface CopyButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onClick'> {
+export interface CopyButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   value: string;
   iconClassName?: string;
   iconIdleClass?: string;
@@ -15,7 +15,7 @@ export interface CopyButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLBut
 
 const CopyButton = forwardRef<HTMLButtonElement, CopyButtonProps>(
   (
-    { value, className, iconClassName, iconIdleClass, iconCopiedClass, onCopied, stopPropagation, defaultCopied = false, ...rest },
+    { value, className, iconClassName, iconIdleClass, iconCopiedClass, onCopied, stopPropagation, defaultCopied = false, onClick, ...rest },
     ref,
   ) => {
     const [copied, setCopied] = useState(defaultCopied);
@@ -26,7 +26,11 @@ const CopyButton = forwardRef<HTMLButtonElement, CopyButtonProps>(
       return () => clearTimeout(t);
     }, [defaultCopied]);
 
+    // Wrappers like Radix TooltipTrigger (asChild) inject their own onClick via
+    // Slot; compose it instead of spreading after ours, or it silently replaces
+    // the copy handler.
     const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+      onClick?.(e);
       if (stopPropagation) e.stopPropagation();
       const ok = await copyToClipboard(value);
       if (!ok) return;
@@ -39,13 +43,13 @@ const CopyButton = forwardRef<HTMLButtonElement, CopyButtonProps>(
       <button
         ref={ref}
         type="button"
+        {...rest}
         onClick={handleClick}
         className={cn(
           'inline-flex items-center justify-center rounded-md transition-colors',
           'can-hover:hover:bg-accent/50 active:bg-accent/50',
           className,
         )}
-        {...rest}
       >
         <span className={cn('relative inline-block w-5 h-5', iconClassName)} aria-hidden>
           <ClipboardDocumentIcon
