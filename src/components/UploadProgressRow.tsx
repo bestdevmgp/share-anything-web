@@ -13,6 +13,8 @@ interface Props {
   statusText?: string;
   /** Show cancel button. Omit to hide. */
   onCancel?: () => void;
+  /** Hide the type icon (receiver can't know a P2P file's preview pre-download). */
+  hideThumbnail?: boolean;
 }
 
 const UploadProgressRow: React.FC<Props> = ({
@@ -22,6 +24,7 @@ const UploadProgressRow: React.FC<Props> = ({
   timeRemaining,
   statusText,
   onCancel,
+  hideThumbnail,
 }) => {
   const { t } = useTranslation();
   return (
@@ -29,9 +32,11 @@ const UploadProgressRow: React.FC<Props> = ({
       className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/[0.09]"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="flex-shrink-0 mr-3">
-        <FileThumbnail source={null} fileName={fileName} size="sm" />
-      </div>
+      {!hideThumbnail && (
+        <div className="flex-shrink-0 mr-3">
+          <FileThumbnail source={null} fileName={fileName} size="sm" />
+        </div>
+      )}
       <div className="flex-1 min-w-0 mr-3">
         <p className="text-sm font-medium text-foreground truncate">{fileName}</p>
         <div className="flex items-center justify-between">

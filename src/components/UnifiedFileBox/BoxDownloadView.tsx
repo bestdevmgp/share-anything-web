@@ -225,15 +225,14 @@ const BoxDownloadView: React.FC<Props> = ({
                 // Before any transfer (ready state), keep rows compact like
                 // Quick Access — the 0% progress bar only appears once a
                 // download is actually running.
+                // The receiver can't know a P2P file's preview before download,
+                // so these rows carry no thumbnail.
                 if (!active && !allDone) {
                   return (
                     <div
                       key={file.id}
                       className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/[0.09]"
                     >
-                      <div className="flex-shrink-0 mr-3">
-                        <FileThumbnail source={null} fileName={file.file_name} size="sm" />
-                      </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-foreground truncate">{file.file_name}</p>
                         <p className="text-xs text-muted-foreground">{formatFileSize(file.file_size)}</p>
@@ -253,6 +252,7 @@ const BoxDownloadView: React.FC<Props> = ({
                     progress={pct}
                     timeRemaining={isActive ? p2pTimeRemaining : undefined}
                     statusText={statusText}
+                    hideThumbnail
                   />
                 );
               })}
