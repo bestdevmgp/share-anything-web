@@ -162,13 +162,12 @@ const IdleDownload: React.FC<Props> = ({ shortcutEnabled, prefill, onPrefillCons
               onFocus={(e) => e.target.select()}
               onClick={(e) => e.stopPropagation()}
               className={cn(
-                'w-10 h-12 md:w-12 md:h-14 rounded-lg border bg-card',
+                'w-10 h-12 md:w-12 md:h-14 rounded-lg border bg-card font-mono',
                 'text-center text-xl md:text-2xl font-semibold text-foreground',
                 'focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/30',
                 'transition-colors',
                 digits[i] ? 'border-foreground/30' : 'border-foreground/[0.09]'
               )}
-              style={{ fontFamily: "'Geist Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" }}
               aria-label={`${t('unifiedBox.downloadHint')} (${i + 1}/${LENGTH})`}
             />
             {i === 2 && <span className="w-3 md:w-4" aria-hidden />}
