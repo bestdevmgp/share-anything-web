@@ -11,16 +11,14 @@ import IdleDownload from './IdleDownload';
 import Uploading, { UploadingItem } from './Uploading';
 import UploadSuccess from './UploadSuccess';
 import P2PWaiting from './P2PWaiting';
-import P2PConnected from './P2PConnected';
-import P2PTransferring from './P2PTransferring';
-import P2PCompleted from './P2PCompleted';
+import P2PActiveStage from './P2PActiveStage';
+import DownloadFilePage from '../../pages/DownloadFilePage';
 import RecentShares from './RecentShares';
 import RecentDownloads from './RecentDownloads';
 import AnimatedHeight from './AnimatedHeight';
 import { fileAPI } from '../../services/api';
 import { toast } from '../../context/ToastContext';
 import { Spinner } from '../ui/spinner';
-import { LockClosedIcon } from '@heroicons/react/24/outline';
 import { cn } from '../../lib/utils';
 
 const UnifiedFileBox: React.FC = () => {
@@ -74,6 +72,24 @@ const UnifiedFileBox: React.FC = () => {
     if (!p2pEnabled) return;
     dispatch({ type: 'p2pStatusChange', status: p2p.status });
   }, [p2p.status, p2pEnabled, dispatch]);
+
+  // Warn before leaving while a transfer is in progress: an upload or an open
+  // P2P session is lost on refresh/close (the file blob can't be restored).
+  useEffect(() => {
+    const activeTransfer =
+      state.state === 'uploading' ||
+      state.state === 'p2pCreating' ||
+      state.state === 'p2pWaiting' ||
+      state.state === 'p2pConnected' ||
+      state.state === 'p2pTransferring';
+    if (!activeTransfer) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [state.state]);
 
   useEffect(() => {
     if (p2pEnabled && p2p.connectionFailed) {
@@ -197,7 +213,8 @@ const UnifiedFileBox: React.FC = () => {
         state.state === 'p2pCreating' ||
         state.state === 'p2pWaiting' ||
         state.state === 'p2pConnected' ||
-        state.state === 'p2pTransferring'
+        state.state === 'p2pTransferring' ||
+        state.state === 'downloadActive'
       ) {
         return;
       }
@@ -235,10 +252,9 @@ const UnifiedFileBox: React.FC = () => {
       <div
         className={cn(
           'border-t border-foreground/[0.09]',
-          // Mobile stacks the two upload zones vertically (~416px content) so the
-          // panel floor is taller there to keep both tabs the same height.
-          // Desktop lays them side by side and fits in 412px.
-          'min-h-[420px] md:min-h-[412px] flex flex-col'
+          // Mobile stacks the two upload zones vertically so the panel floor is
+          // taller there to give each zone room; desktop lays them side by side.
+          'min-h-[500px] md:min-h-[412px] flex flex-col'
         )}
         role="tabpanel"
       >
@@ -260,10 +276,9 @@ const UnifiedFileBox: React.FC = () => {
         )}
         {state.mode === 'upload' && state.state === 'p2pCreating' && (
           <div className="flex-1 flex flex-col items-center justify-center px-6 py-10 text-center">
-            <LockClosedIcon className="w-12 h-12 text-primary mb-3" strokeWidth={2.5} />
-            <Spinner size="sm" className="text-primary mb-2" />
+            <Spinner size="xl" className="text-primary mb-4" />
             <p className="text-sm text-muted-foreground">
-              {t('unifiedBox.p2pWaitingTitle')}…
+              {t('common.loading')}
             </p>
           </div>
         )}
@@ -274,33 +289,33 @@ const UnifiedFileBox: React.FC = () => {
             onCancel={onP2PCancel}
           />
         )}
-        {state.mode === 'upload' && state.state === 'p2pConnected' && (
-          <P2PConnected
-            fileCount={state.files.length}
-            peerDeviceInfo={p2p.peerDeviceInfo}
-            onCancel={onP2PCancel}
-          />
-        )}
-        {state.mode === 'upload' && state.state === 'p2pTransferring' && (
-          <P2PTransferring
-            files={state.files}
-            fileProgresses={p2p.fileProgresses}
-            peerDeviceInfo={p2p.peerDeviceInfo}
-            onCancel={onP2PCancel}
-          />
-        )}
-        {state.mode === 'upload' && state.state === 'p2pCompleted' && (
-          <P2PCompleted
-            fileCount={state.files.length}
-            peerDeviceInfo={p2p.peerDeviceInfo}
-            onNew={() => dispatch({ type: 'p2pNewTransfer' })}
-          />
-        )}
-        {state.mode === 'download' && (
+        {state.mode === 'upload' &&
+          (state.state === 'p2pConnected' ||
+            state.state === 'p2pTransferring' ||
+            state.state === 'p2pCompleted') && (
+            <P2PActiveStage
+              status={p2p.status}
+              files={state.files}
+              fileProgresses={p2p.fileProgresses}
+              peerDeviceInfo={p2p.peerDeviceInfo}
+              completed={state.state === 'p2pCompleted'}
+              onCancel={onP2PCancel}
+              onNew={() => dispatch({ type: 'p2pNewTransfer' })}
+            />
+          )}
+        {state.mode === 'download' && state.state === 'idleDownload' && (
           <IdleDownload
             shortcutEnabled
             prefill={downloadPrefill}
             onPrefillConsumed={() => setDownloadPrefill(null)}
+            onSubmit={(downloadCode) => dispatch({ type: 'enterDownload', code: downloadCode })}
+          />
+        )}
+        {state.mode === 'download' && state.state === 'downloadActive' && state.downloadCode && (
+          <DownloadFilePage
+            embedded
+            codeOverride={state.downloadCode}
+            onReset={() => dispatch({ type: 'closeDownload' })}
           />
         )}
       </div>

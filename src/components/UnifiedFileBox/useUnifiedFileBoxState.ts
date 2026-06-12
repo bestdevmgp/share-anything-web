@@ -5,6 +5,7 @@ export type Mode = 'upload' | 'download';
 export type BoxState =
   | 'idleUpload'
   | 'idleDownload'
+  | 'downloadActive'
   | 'uploading'
   | 'success'
   | 'p2pCreating'
@@ -21,6 +22,7 @@ export interface State {
   uploadFailures: string[];
   p2pShareCode: string | null;
   p2pExpiresAt: string | null;
+  downloadCode: string | null;
 }
 
 export type Action =
@@ -36,7 +38,9 @@ export type Action =
   | { type: 'p2pStatusChange'; status: 'waiting' | 'connected' | 'transferring' | 'waiting_for_next' | 'completed' }
   | { type: 'p2pFailed' }
   | { type: 'p2pCancel' }
-  | { type: 'p2pNewTransfer' };
+  | { type: 'p2pNewTransfer' }
+  | { type: 'enterDownload'; code: string }
+  | { type: 'closeDownload' };
 
 export const initialState: State = {
   mode: 'upload',
@@ -46,6 +50,7 @@ export const initialState: State = {
   uploadFailures: [],
   p2pShareCode: null,
   p2pExpiresAt: null,
+  downloadCode: null,
 };
 
 const isUploadActive = (s: BoxState): boolean =>
@@ -90,9 +95,19 @@ export const reducer = (s: State, a: Action): State => {
     case 'switchMode':
       if (isUploadActive(s.state)) return s;
       if (a.mode === 'download') {
-        return { ...s, mode: 'download', state: 'idleDownload' };
+        return { ...s, mode: 'download', state: 'idleDownload', downloadCode: null };
       }
-      return { ...s, mode: 'upload', state: s.lastResult ? 'success' : 'idleUpload' };
+      return {
+        ...s,
+        mode: 'upload',
+        state: s.lastResult ? 'success' : 'idleUpload',
+        downloadCode: null,
+      };
+    case 'enterDownload':
+      if (s.mode !== 'download') return s;
+      return { ...s, state: 'downloadActive', downloadCode: a.code };
+    case 'closeDownload':
+      return { ...s, state: 'idleDownload', downloadCode: null };
     case 'p2pSessionCreated':
       if (s.state !== 'p2pCreating') return s;
       return {

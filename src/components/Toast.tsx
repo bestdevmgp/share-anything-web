@@ -253,7 +253,7 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; is
             <button
               type="button"
               onClick={handleAction}
-              className="self-stretch -my-1 flex-shrink-0 flex items-center rounded-full bg-foreground text-background text-xs font-semibold px-4 can-hover:hover:opacity-90 active:opacity-90"
+              className="self-stretch -my-1 flex-shrink-0 flex items-center rounded-full bg-foreground text-background text-sm font-semibold px-4 can-hover:hover:opacity-90 active:opacity-90"
             >
               {toast.actionLabel}
             </button>

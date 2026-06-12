@@ -21,14 +21,22 @@ import DownloadErrorState from './download/DownloadErrorState';
 import PasswordForm from './download/PasswordForm';
 import SingleFileView from './download/SingleFileView';
 import MultiFileList from './download/MultiFileList';
+import BoxDownloadView from '../components/UnifiedFileBox/BoxDownloadView';
 
-const DownloadFilePage: React.FC = () => {
-  const { code } = useParams<{ code: string }>();
+interface DownloadFilePageProps {
+  embedded?: boolean;
+  codeOverride?: string;
+  onReset?: () => void;
+}
+
+const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverride, onReset }) => {
+  const { code: codeParam } = useParams<{ code: string }>();
+  const code = codeOverride ?? codeParam;
   const { t, language } = useTranslation();
 
   useEffect(() => {
-    document.title = t('download.pageTitle');
-  }, [t]);
+    if (!embedded) document.title = t('download.pageTitle');
+  }, [t, embedded]);
   const navigate = useNavigate();
 
   const [fileList, setFileList] = useState<FileListResponse | null>(null);
@@ -209,7 +217,7 @@ const DownloadFilePage: React.FC = () => {
 
   const loadFileList = useCallback(async () => {
     if (!code) {
-      navigate('/');
+      if (!embedded) navigate('/');
       return;
     }
 
@@ -278,7 +286,7 @@ const DownloadFilePage: React.FC = () => {
     let blobUrl: string | null = null;
 
     const loadFilePreview = async () => {
-      if (!fileList || !code || fileList.files.length !== 1 || isP2PDownload) return;
+      if (!fileList || !code || fileList.files.length !== 1 || isP2PDownload || embedded) return;
 
       const file = fileList.files[0];
 
@@ -300,7 +308,7 @@ const DownloadFilePage: React.FC = () => {
     return () => {
       if (blobUrl) URL.revokeObjectURL(blobUrl);
     };
-  }, [fileList, code, password, isP2PDownload]);
+  }, [fileList, code, password, isP2PDownload, embedded]);
 
   const openPreview = async (fileName: string, fileSize: number, fileId: string, blobSource: string) => {
     const presignedUrl = isPptxFile(fileName) && code
@@ -452,6 +460,42 @@ const DownloadFilePage: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (embedded && fileList && passwordVerified) {
+      setSelectedFiles(new Set(fileList.files.map((f) => f.id)));
+    }
+  }, [embedded, fileList, passwordVerified]);
+
+  if (embedded) {
+    return (
+      <BoxDownloadView
+        fileList={fileList}
+        loading={loading}
+        errorTitle={errorTitleKey ? t(errorTitleKey) : ''}
+        errorDesc={errorDescKey ? t(errorDescKey) : errorDescFallback}
+        passwordVerified={passwordVerified}
+        password={password}
+        showPassword={showPassword}
+        setPassword={setPassword}
+        setShowPassword={setShowPassword}
+        handlePasswordSubmit={handlePasswordSubmit}
+        isP2PDownload={isP2PDownload}
+        p2pStatus={p2pStatus}
+        p2pProgress={p2pProgress}
+        p2pTimeRemaining={p2pTimeRemaining}
+        p2pPeerDeviceInfo={p2pPeerDeviceInfo}
+        p2pActiveFileId={p2pActiveFileId}
+        p2pCompletedFileIds={p2pCompletedFileIds}
+        downloading={downloading}
+        handleDownload={handleDownload}
+        startP2PDownload={startP2PDownload}
+        startBulkP2PDownload={startBulkP2PDownload}
+        handleCancelP2PDownload={handleCancelP2PDownload}
+        onReset={onReset || (() => {})}
+        t={t}
+      />
+    );
+  }
 
   if (loading) {
     return (

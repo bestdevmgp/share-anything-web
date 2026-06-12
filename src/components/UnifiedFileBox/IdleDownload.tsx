@@ -10,11 +10,14 @@ interface Props {
   shortcutEnabled: boolean;
   prefill?: string | null;
   onPrefillConsumed?: () => void;
+  onSubmit?: (code: string) => void;
 }
 
-const IdleDownload: React.FC<Props> = ({ shortcutEnabled, prefill, onPrefillConsumed }) => {
+const IdleDownload: React.FC<Props> = ({ shortcutEnabled, prefill, onPrefillConsumed, onSubmit }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const onSubmitRef = useRef(onSubmit);
+  onSubmitRef.current = onSubmit;
   const [digits, setDigits] = useState<string[]>(Array(LENGTH).fill(''));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -58,7 +61,12 @@ const IdleDownload: React.FC<Props> = ({ shortcutEnabled, prefill, onPrefillCons
   const tryNavigate = useCallback(
     (arr: string[]) => {
       if (arr.every((d) => d !== '')) {
-        navigate(`/download/${arr.join('')}`);
+        const code = arr.join('');
+        if (onSubmitRef.current) {
+          onSubmitRef.current(code);
+        } else {
+          navigate(`/download/${code}`);
+        }
       }
     },
     [navigate]
@@ -125,7 +133,7 @@ const IdleDownload: React.FC<Props> = ({ shortcutEnabled, prefill, onPrefillCons
 
   return (
     <div
-      className="flex-1 flex flex-col items-center justify-center px-6 py-10"
+      className="flex-1 flex flex-col items-center justify-center px-6 pt-6 pb-24"
       onClick={(e) => e.stopPropagation()}
     >
       <ArrowDownTrayIcon

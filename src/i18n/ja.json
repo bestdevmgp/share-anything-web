@@ -187,7 +187,7 @@
     "maxSizeNotice": "最大3GBまでアップロードできます。",
     "maxSizeNoticeGuest1": "未ログイン時はアップロード可能な容量が最大500MBに制限されます。",
     "maxSizeNoticeGuest2": "ログインすると3GBまでアップロードできます。",
-    "p2pSizeNotice": "ファイル容量の制限なく転送できます。",
+    "p2pSizeNotice": "ファイルサイズの制限なく転送できます。",
     "selectFiles": "ファイルを選択",
     "selectedFiles": "選択されたファイル ({{count}})",
     "processingFiles": "ファイル処理中...",

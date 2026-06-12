@@ -187,7 +187,7 @@
     "maxSizeNotice": "최대 3GB까지 업로드할 수 있어요.",
     "maxSizeNoticeGuest1": "비로그인 시 업로드 가능 용량이 최대 500MB로 제한돼요.",
     "maxSizeNoticeGuest2": "로그인하여 3GB까지 업로드할 수 있어요.",
-    "p2pSizeNotice": "파일 용량 제한 없이 전송할 수 있어요.",
+    "p2pSizeNotice": "파일 크기 제한 없이 전송할 수 있어요.",
     "selectFiles": "파일 선택",
     "selectedFiles": "선택된 파일 ({{count}})",
     "processingFiles": "파일 처리 중...",

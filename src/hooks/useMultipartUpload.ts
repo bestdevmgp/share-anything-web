@@ -224,7 +224,7 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
       return {
         upload_session_id: initResponse.upload_session_id,
         share_code: initResponse.share_code,
-        expires_at: (completeResp as any).expires_at || new Date(Date.now() + 30 * 60_000).toISOString(),
+        expires_at: completeResp.files?.[0]?.expires_at || new Date(Date.now() + 30 * 60_000).toISOString(),
         fileNames: files.map((f) => f.name),
         totalSize: files.reduce((s, f) => s + f.size, 0),
       };
