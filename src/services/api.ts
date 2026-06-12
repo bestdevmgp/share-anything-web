@@ -103,29 +103,81 @@ export const workerAPI = {
 };
 
 let currentSessionToken: string | null = null;
+let tokenUnavailable = false;
+let tokenWaiters: Array<(t: string | null) => void> = [];
 
 export const setSessionToken = (token: string | null): void => {
   currentSessionToken = token;
+  if (token) {
+    tokenUnavailable = false;
+    const waiters = tokenWaiters;
+    tokenWaiters = [];
+    waiters.forEach((w) => w(token));
+  }
+};
+
+export const getSessionToken = (): string | null => currentSessionToken;
+
+// Set when Turnstile can't mint (e.g. ad-blocked) so requests fail fast instead
+// of waiting out the full startup timeout.
+export const markTokenUnavailable = (v: boolean): void => {
+  tokenUnavailable = v;
+};
+
+const STARTUP_TOKEN_WAIT_MS = 12_000;
+const REFRESH_WAIT_MS = 8_000;
+
+// Resolve on the NEXT minted token (ignores any current/stale value), or null on
+// timeout.
+const waitForNextToken = (timeoutMs: number): Promise<string | null> =>
+  new Promise((resolve) => {
+    let settled = false;
+    const finish = (t: string | null) => {
+      if (settled) return;
+      settled = true;
+      resolve(t);
+    };
+    tokenWaiters.push(finish);
+    setTimeout(() => finish(currentSessionToken), timeoutMs);
+  });
+
+const waitForToken = (timeoutMs: number): Promise<string | null> =>
+  currentSessionToken ? Promise.resolve(currentSessionToken) : waitForNextToken(timeoutMs);
+
+// Ask the provider to mint, de-duped so parallel 401s don't thrash the widget.
+let lastMintRequest = 0;
+const requestFreshToken = (): void => {
+  const now = Date.now();
+  if (now - lastMintRequest < 2000) return;
+  lastMintRequest = now;
+  window.dispatchEvent(new Event('session-token:force-refresh'));
 };
 
 const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('auth_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  if (currentSessionToken) {
-    config.headers['X-Session-Token'] = currentSessionToken;
+api.interceptors.request.use(async (config) => {
+  const authToken = localStorage.getItem('auth_token');
+  if (authToken) {
+    config.headers.Authorization = `Bearer ${authToken}`;
   }
 
   config.headers['X-Device-Id'] = ensureDeviceId();
-
   if (!(config.data instanceof FormData)) {
     config.headers['Content-Type'] = 'application/json';
+  }
+
+  // The exchange call mints the session token, so it must never wait on one.
+  const isExchange = (config.url || '').includes('/auth/session-token');
+
+  // Anonymous requests wait for the token instead of firing tokenless and
+  // bouncing off a 401. Logged-in users are exempt server-side.
+  if (!isExchange && !currentSessionToken && !authToken && !tokenUnavailable) {
+    await waitForToken(STARTUP_TOKEN_WAIT_MS);
+  }
+  if (!isExchange && currentSessionToken) {
+    config.headers['X-Session-Token'] = currentSessionToken;
   }
 
   return config;
@@ -146,13 +198,11 @@ api.interceptors.response.use(
       !original._retriedAfterSessionRefresh
     ) {
       original._retriedAfterSessionRefresh = true;
-      // Ask SessionTokenProvider to refresh — it listens for this event
-      window.dispatchEvent(new Event('session-token:force-refresh'));
-      // Wait briefly for the new token to land in currentSessionToken
-      await new Promise((r) => setTimeout(r, 1500));
-      // Re-attach header from the freshly-set module state
-      if (currentSessionToken) {
-        original.headers['X-Session-Token'] = currentSessionToken;
+      // Await a freshly minted token instead of a fixed sleep that races it.
+      requestFreshToken();
+      const fresh = await waitForNextToken(REFRESH_WAIT_MS);
+      if (fresh) {
+        original.headers['X-Session-Token'] = fresh;
       }
       return api(original);
     }

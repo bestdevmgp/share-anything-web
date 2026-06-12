@@ -684,5 +684,9 @@
     "byCode.INTERNAL_SERVER_ERROR": "서버 오류가 발생했어요. 잠시 후 다시 시도해 주세요.",
     "byCode.DATABASE_ERROR": "데이터베이스 오류가 발생했어요.",
     "byCode.HTTP_ERROR": "외부 요청에 실패했어요."
+  },
+  "botCheck": {
+    "title": "보안 확인을 불러오지 못했어요",
+    "desc": "광고 차단 프로그램이 Cloudflare 보안 확인을 막고 있을 수 있어요. 광고 차단을 끄거나 challenges.cloudflare.com 을 허용한 뒤 다시 시도해 주세요."
   }
 }

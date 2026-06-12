@@ -680,5 +680,9 @@
     "byCode.INTERNAL_SERVER_ERROR": "サーバーエラーが発生しました。しばらくしてから再試行してください。",
     "byCode.DATABASE_ERROR": "データベースエラーが発生しました。",
     "byCode.HTTP_ERROR": "外部リクエストに失敗しました。"
+  },
+  "botCheck": {
+    "title": "セキュリティ確認を読み込めませんでした",
+    "desc": "広告ブロッカーが Cloudflare のセキュリティ確認を妨げている可能性があります。無効にするか challenges.cloudflare.com を許可してから、もう一度お試しください。"
   }
 }

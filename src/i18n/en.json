@@ -684,5 +684,9 @@
     "byCode.INTERNAL_SERVER_ERROR": "A server error occurred. Please try again later.",
     "byCode.DATABASE_ERROR": "A database error occurred.",
     "byCode.HTTP_ERROR": "An external request failed."
+  },
+  "botCheck": {
+    "title": "Couldn’t load the security check",
+    "desc": "An ad blocker may be blocking the Cloudflare security check. Disable it or allow challenges.cloudflare.com, then try again."
   }
 }
