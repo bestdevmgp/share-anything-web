@@ -5,7 +5,7 @@ import { useTranslation } from '../../i18n';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from '../../context/ToastContext';
 import { useShareList } from '../../hooks/useShareList';
-import { useSharePreviews } from './useSharePreviews';
+import { useSharePreviews, useBundlePreviews } from './useSharePreviews';
 import { fetchShareFileList, getCachedFileList } from './shareFileList';
 import { fileAPI } from '../../services/api';
 import { FileListItem } from '../../types';
@@ -58,6 +58,12 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
       cancelled = true;
     };
   }, [expanded, bundleFiles]);
+
+  const expandedShare = expanded ? items.find((i) => i.code === expanded) : undefined;
+  const expandedFiles = expanded && bundleFiles[expanded]
+    ? bundleFiles[expanded].map((f) => ({ id: f.id, name: f.file_name }))
+    : undefined;
+  const bundlePreviews = useBundlePreviews(expanded, expandedFiles, expandedShare?.hasPassword);
 
   const openPreviewFor = async (
     code: string,
@@ -258,10 +264,10 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                             className="flex-shrink-0 rounded-md transition-transform can-hover:hover:scale-[1.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                             aria-label={f.name}
                           >
-                            <FileThumbnail source={null} fileName={f.name} size="sm" />
+                            <FileThumbnail source={bundlePreviews[f.id] ?? null} fileName={f.name} size="sm" />
                           </button>
                         ) : (
-                          <FileThumbnail source={null} fileName={f.name} size="sm" />
+                          <FileThumbnail source={f.id ? bundlePreviews[f.id] ?? null : null} fileName={f.name} size="sm" />
                         )}
                         <span className="flex-1 min-w-0 text-sm text-foreground/80 truncate">{f.name}</span>
                         {f.size != null && (

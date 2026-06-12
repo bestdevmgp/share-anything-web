@@ -5,7 +5,7 @@ import {
   isCsvFile, isExcelFile, isDocxFile, isPptxFile, isHwpFile
 } from '../utils/format';
 import { getArrayBuffer } from '../utils/filePreview';
-import { DocumentIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon, TableCellsIcon, PresentationChartBarIcon } from '@heroicons/react/24/outline';
+import { DocumentIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon, TableCellsIcon, PresentationChartBarIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import { Spinner } from './ui/spinner';
 import { cn } from 'lib/utils';
 
@@ -146,6 +146,22 @@ const FileThumbnail: React.FC<FileThumbnailProps> = ({ source, fileName, size = 
         alt={fileName}
         className={cn(boxClass, 'object-cover rounded flex-shrink-0')}
       />
+    );
+  }
+
+  if (isImageFile(fileName)) {
+    return (
+      <div className={cn(boxClass, 'flex-shrink-0 bg-muted rounded flex items-center justify-center')}>
+        <PhotoIcon className={cn(iconClass, 'text-muted-foreground')} />
+      </div>
+    );
+  }
+
+  if (isPdfFile(fileName)) {
+    return (
+      <div className={cn(boxClass, 'flex-shrink-0 bg-red-50 dark:bg-red-500/10 rounded flex items-center justify-center')}>
+        <DocumentIcon className={cn(iconClass, 'text-red-600 dark:text-red-400')} />
+      </div>
     );
   }
 
