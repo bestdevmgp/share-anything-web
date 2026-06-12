@@ -59,9 +59,10 @@ const UploadSuccess: React.FC<Props> = ({ result, failedNames, onConfirm, onRetr
           <label className="block text-sm font-medium text-muted-foreground mb-2">
             {t('uploadSuccess.shareCode')}
           </label>
-          <div className="relative bg-muted rounded-xl px-3 py-4 border border-foreground/[0.09] w-full max-w-[260px]">
+          <div className="flex items-center gap-1 bg-muted rounded-xl pl-3 pr-2 py-5 border border-foreground/[0.09] w-full max-w-[340px]">
+            <span className="w-9 flex-shrink-0" aria-hidden="true" />
             <p
-              className="text-2xl sm:text-[1.75rem] font-bold text-center text-foreground leading-none px-8"
+              className="flex-1 text-3xl font-bold text-center text-foreground leading-none whitespace-nowrap"
               style={{ letterSpacing: '0.1em' }}
             >
               {displayCode}
@@ -71,7 +72,7 @@ const UploadSuccess: React.FC<Props> = ({ result, failedNames, onConfirm, onRetr
                 <CopyButton
                   value={result.code}
                   aria-label={t('uploadSuccess.copyCode')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8"
+                  className="flex-shrink-0 h-9 w-9"
                   iconClassName="w-5 h-5"
                   iconCopiedClass="text-green-600 dark:text-green-600"
                 />
@@ -88,7 +89,7 @@ const UploadSuccess: React.FC<Props> = ({ result, failedNames, onConfirm, onRetr
 
         {/* Right: share link + QR */}
         <div className="flex flex-col items-center justify-center gap-5 md:flex-1">
-          <div className="w-full max-w-[300px]">
+          <div className="w-full max-w-[340px]">
             <label className="block text-sm font-medium text-muted-foreground mb-2">
               {t('uploadSuccess.shareLink')}
             </label>
@@ -97,7 +98,7 @@ const UploadSuccess: React.FC<Props> = ({ result, failedNames, onConfirm, onRetr
                 type="text"
                 value={url}
                 readOnly
-                className="w-full pr-12 bg-muted border-foreground/[0.09] rounded-lg text-sm text-foreground"
+                className="w-full h-12 pr-12 bg-muted border-foreground/[0.09] rounded-lg text-sm text-foreground"
               />
               <Tooltip>
                 <TooltipTrigger asChild>
