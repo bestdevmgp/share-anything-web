@@ -149,6 +149,24 @@ describe('UnifiedFileBox reducer', () => {
     expect(after.state).toBe('p2pCompleted');
   });
 
+  it('p2pStatusChange connected p2pWaiting → p2pConnected', () => {
+    const before: State = { ...initialState, state: 'p2pWaiting' };
+    const after = reducer(before, { type: 'p2pStatusChange', status: 'connected' });
+    expect(after.state).toBe('p2pConnected');
+  });
+
+  it('p2pStatusChange transferring p2pConnected → p2pTransferring', () => {
+    const before: State = { ...initialState, state: 'p2pConnected' };
+    const after = reducer(before, { type: 'p2pStatusChange', status: 'transferring' });
+    expect(after.state).toBe('p2pTransferring');
+  });
+
+  it('p2pStatusChange connected does not regress from p2pTransferring', () => {
+    const before: State = { ...initialState, state: 'p2pTransferring' };
+    const after = reducer(before, { type: 'p2pStatusChange', status: 'connected' });
+    expect(after.state).toBe('p2pTransferring');
+  });
+
   it('p2pNewTransfer → idleUpload', () => {
     const before: State = { ...initialState, state: 'p2pCompleted', p2pShareCode: 'xxx' };
     const after = reducer(before, { type: 'p2pNewTransfer' });

@@ -531,7 +531,7 @@
     "apiKeys.keyStatus.expiresIn": "{{days}}天后过期",
     "defaultExpirationLabel": "默认有效期",
     "defaultExpirationDescription": "在主页快速上传时应用",
-    "defaultExpirationSaved": "默认有效期已保存"
+    "defaultExpirationSaved": "设置已保存"
   },
   "unifiedBox": {
     "tabUpload": "发送文件",
@@ -546,11 +546,13 @@
     "secureDescription": "与接收方直接连接安全发送。文件不会存储在服务器上。",
     "qrAndDetails": "二维码 · 详情",
     "recentTitle": "最近的分享",
+    "sessionCount": "{{count}}个",
+    "recentDownloadsTitle": "最近的下载",
     "viewAll": "查看全部",
     "recentEmpty": "暂无分享",
     "expired": "已过期",
-    "remainingMinutes": "剩余{{minutes}}分钟",
-    "remainingHours": "剩余{{hours}}小时",
+    "remainingMinutes": "{{minutes}}分钟后删除",
+    "remainingHours": "{{hours}}小时后删除",
     "bundleExtraCount": "等{{count}}个",
     "retry": "重试",
     "partialFailure": "{{count}}个文件上传失败",

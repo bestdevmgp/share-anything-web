@@ -12,23 +12,26 @@ import { cn } from 'lib/utils';
 interface FileThumbnailProps {
   source: File | string | null;
   fileName: string;
-  size?: 'sm' | 'md';
+  size?: 'sm' | 'md' | 'lg';
   thumbnailWidth?: number;
 }
 
 const sizeMap = {
   sm: 'w-11 h-11',
   md: 'w-12 h-12',
+  lg: 'w-16 h-16',
 };
 
 const sizePx = {
   sm: 44,
   md: 48,
+  lg: 64,
 };
 
 const iconSizeMap = {
   sm: 'w-7 h-7',
   md: 'w-7 h-7',
+  lg: 'w-8 h-8',
 };
 
 const docxHtmlCache = new Map<string, string>();

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { ArrowUpTrayIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../i18n';
@@ -7,16 +7,20 @@ import { cn } from '../../lib/utils';
 interface Props {
   onNormal: (files: File[]) => void;
   onSecure: (files: File[]) => void;
+  animateIn?: boolean;
 }
 
-const IdleUpload: React.FC<Props> = ({ onNormal, onSecure }) => {
+const IdleUpload: React.FC<Props> = ({ onNormal, onSecure, animateIn }) => {
   const { t } = useTranslation();
+  const [enterAnim] = useState(
+    animateIn ? 'animate-in fade-in-0 slide-in-from-bottom-1 duration-300' : ''
+  );
 
   const normalDz = useDropzone({ onDrop: onNormal, multiple: true });
   const secureDz = useDropzone({ onDrop: onSecure, multiple: true });
 
   return (
-    <div className="flex-1 flex flex-col md:flex-row">
+    <div className={cn('flex-1 flex flex-col md:flex-row', enterAnim)}>
       <div
         {...normalDz.getRootProps()}
         className={cn(

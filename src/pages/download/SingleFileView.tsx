@@ -2,12 +2,12 @@ import React from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { ArrowDownTrayIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { FileListResponse, FileListItem } from '../../types';
-import { formatFileSize, formatDateTime, isImageFile, isVideoFile, isPdfFile, isPptxFile, isHwpFile } from '../../utils/format';
+import { formatFileSize, formatDateTime, splitFilenameExt } from '../../utils/format';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 
 import { Spinner } from '../../components/ui/spinner';
-import LargeFileIcon from '../../components/LargeFileIcon';
+import FileThumbnail from '../../components/FileThumbnail';
 import { cn } from 'lib/utils';
 import { Language } from '../../context/LanguageContext';
 
@@ -45,13 +45,8 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
   p2pTimeRemaining,
   p2pPeerDeviceInfo,
   downloading,
-  downloadProgress,
-  downloadTimeRemaining,
-  loadingPreview,
   singleFilePreviewUrl,
-  singleFileThumbnail,
   handleDownload,
-  handleCancelDownload,
   handleCancelP2PDownload,
   closeP2PSession,
   setP2pEnabled,
@@ -60,14 +55,7 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
   t,
   language,
 }) => {
-  const needsThumbnail =
-    isPdfFile(file.file_name) ||
-    isVideoFile(file.file_name) ||
-    isPptxFile(file.file_name) ||
-    isHwpFile(file.file_name);
-  const waitingForThumbnail =
-    !!singleFilePreviewUrl && needsThumbnail && !singleFileThumbnail.url;
-  const showSpinner = loadingPreview || waitingForThumbnail;
+  const [nameBase, nameExt] = splitFilenameExt(file.file_name);
 
   return (
     <div className="flex items-center justify-center px-4 pt-12 pb-20">
@@ -122,108 +110,45 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
         `}</style>
 
         <Card className="rounded-3xl border-2 p-6 md:p-8">
-          <div className="flex justify-center mb-5">
-            {showSpinner ? (
-              file.image_width && file.image_height && isImageFile(file.file_name) ? (
-                <div
-                  className="rounded-2xl bg-muted/40 flex items-center justify-center"
-                  style={{
-                    aspectRatio: `${file.image_width} / ${file.image_height}`,
-                    width: '100%',
-                    maxWidth: `${file.image_width}px`,
-                    maxHeight: '24rem',
-                  }}
-                >
-                  <Spinner size="lg" />
-                </div>
-              ) : (
-                <div className="w-24 h-24 bg-muted rounded-full border border-border flex items-center justify-center">
-                  <Spinner size="lg" />
-                </div>
-              )
-            ) : singleFilePreviewUrl && isImageFile(file.file_name) ? (
-              <div
-                className="max-w-full max-h-96 overflow-hidden rounded-2xl cursor-pointer select-none"
-                style={{ WebkitTouchCallout: 'none' }}
-                onClick={() => openPreview(file.file_name, file.file_size, file.id, singleFilePreviewUrl!)}
-                onContextMenu={e => e.preventDefault()}
-                onDragStart={e => e.preventDefault()}
-              >
-                <img
-                  src={singleFilePreviewUrl}
-                  alt={file.file_name}
-                  draggable={false}
-                  className="max-w-full max-h-96 object-contain pointer-events-none"
-                />
-              </div>
-            ) : singleFilePreviewUrl && singleFileThumbnail.url ? (
-              <div
-                className="max-w-full max-h-[28rem] overflow-hidden rounded-2xl cursor-pointer relative select-none"
-                style={{ WebkitTouchCallout: 'none' }}
-                onClick={() => openPreview(file.file_name, file.file_size, file.id, singleFilePreviewUrl!)}
-                onContextMenu={e => e.preventDefault()}
-                onDragStart={e => e.preventDefault()}
-              >
-                <img
-                  src={singleFileThumbnail.url}
-                  alt={file.file_name}
-                  draggable={false}
-                  className="max-w-full max-h-[28rem] object-contain rounded-2xl pointer-events-none"
-                />
-                {isVideoFile(file.file_name) && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-12 h-12 bg-black/50 rounded-full flex items-center justify-center">
-                      <svg className="w-6 h-6 text-white ml-0.5" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : singleFilePreviewUrl ? (
+          <div className="flex items-center gap-4 p-4 bg-muted rounded-2xl border border-foreground/[0.09]">
+            {singleFilePreviewUrl ? (
               <button
                 type="button"
-                onClick={() => openPreview(file.file_name, file.file_size, file.id, singleFilePreviewUrl!)}
-                className="transition-transform can-hover:hover:scale-[1.02] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-2xl"
+                onClick={() => openPreview(file.file_name, file.file_size, file.id, singleFilePreviewUrl)}
+                className="flex-shrink-0 rounded-xl overflow-hidden transition-transform can-hover:hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                aria-label={file.file_name}
               >
-                <LargeFileIcon fileName={file.file_name} />
+                <FileThumbnail source={singleFilePreviewUrl} fileName={file.file_name} size="lg" />
               </button>
             ) : (
-              <LargeFileIcon fileName={file.file_name} />
+              <div className="flex-shrink-0">
+                <FileThumbnail source={null} fileName={file.file_name} size="lg" />
+              </div>
             )}
+            <div className="flex-1 min-w-0">
+              <h2 className="text-base md:text-lg font-bold text-foreground flex items-baseline min-w-0 leading-tight">
+                <span className="truncate">{nameBase}</span>
+                {nameExt && <span className="flex-shrink-0">{nameExt}</span>}
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">{formatFileSize(file.file_size)}</p>
+            </div>
           </div>
 
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-foreground mb-3 text-center break-all">
-              {file.file_name}
-            </h2>
-            {fileList.description && (
-              <p className="text-muted-foreground text-center mb-6 break-words whitespace-pre-wrap">
+          {!isP2PDownload && (
+            <p className="text-xs text-muted-foreground text-center mt-3">
+              {t('download.expiresAt')} · {formatDateTime(fileList.expires_at, language)}
+            </p>
+          )}
+
+          {fileList.description && (
+            <div className="mt-4 p-3 bg-muted/60 rounded-xl border border-foreground/[0.09]">
+              <p className="text-sm text-muted-foreground break-words whitespace-pre-wrap">
                 {fileList.description}
               </p>
-            )}
-          </div>
-
-          <div className="space-y-3 mb-8">
-            <div className="flex justify-between py-2 border-b border-border">
-              <span className="text-muted-foreground">{t('download.fileSize')}</span>
-              <span className="font-semibold text-foreground">{formatFileSize(file.file_size)}</span>
             </div>
-            {fileList.description && (
-              <div className="flex justify-between py-2 border-b border-border">
-                <span className="text-muted-foreground">{t('download.uploader')}</span>
-                <span className="font-semibold text-foreground">{t('common.anonymousUser')}</span>
-              </div>
-            )}
-            {!isP2PDownload && (
-              <div className="flex justify-between py-2">
-                <span className="text-muted-foreground">{t('download.expiresAt')}</span>
-                <span className="font-semibold text-foreground">{formatDateTime(fileList.expires_at, language)}</span>
-              </div>
-            )}
-          </div>
+          )}
 
-          <div className="">
+          <div className="mt-6">
             {isP2PDownload ? (
               p2pStatus === 'downloading' || p2pStatus === 'connecting' || p2pStatus === 'processing' ? (
                 <div>
@@ -290,42 +215,10 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
                 </Button>
               )
             ) : downloading ? (
-              <div>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between gap-2">
-                      <span className="text-sm font-medium text-foreground truncate">
-                        {t('download.downloadingP2P')}
-                      </span>
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        {downloadProgress === 100 ? (
-                          <span className="text-xs text-muted-foreground">{t('upload.pleaseWait')}</span>
-                        ) : (
-                          <>
-                            <span className="text-xs text-muted-foreground">{downloadTimeRemaining || t('format.calculating')}</span>
-                            <span className="text-xs font-semibold text-primary">{downloadProgress}%</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-center h-4 mt-0.5">
-                      <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
-                        <div
-                          className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
-                          style={{ width: `${downloadProgress}%` }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    onClick={handleCancelDownload}
-                    className="p-1 can-hover:hover:bg-accent active:bg-accent rounded transition-colors flex-shrink-0"
-                    title={t('download.cancelDownload')}
-                  >
-                    <XMarkIcon className="w-6 h-6 text-muted-foreground" />
-                  </button>
-                </div>
-              </div>
+              <Button size="lg" className="w-full" disabled>
+                <Spinner size="sm" className="text-primary-foreground" />
+                <span>{t('download.downloadingP2P')}</span>
+              </Button>
             ) : (
               <Button
                 onClick={() => handleDownload(false)}

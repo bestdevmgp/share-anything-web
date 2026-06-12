@@ -11,9 +11,11 @@ import IdleDownload from './IdleDownload';
 import Uploading, { UploadingItem } from './Uploading';
 import UploadSuccess from './UploadSuccess';
 import P2PWaiting from './P2PWaiting';
+import P2PConnected from './P2PConnected';
 import P2PTransferring from './P2PTransferring';
 import P2PCompleted from './P2PCompleted';
 import RecentShares from './RecentShares';
+import RecentDownloads from './RecentDownloads';
 import AnimatedHeight from './AnimatedHeight';
 import { fileAPI } from '../../services/api';
 import { toast } from '../../context/ToastContext';
@@ -29,6 +31,15 @@ const UnifiedFileBox: React.FC = () => {
   const [recentRefreshKey, setRecentRefreshKey] = useState(0);
   const handleRef = useRef<{ abort: () => void } | null>(null);
   const [downloadPrefill, setDownloadPrefill] = useState<string | null>(null);
+
+  // Animate the idle box back in only when returning from the success screen
+  // (the "완료" button), matching the upload-complete enter animation.
+  const prevStateRef = useRef(state.state);
+  const idleReturnFromSuccess =
+    state.state === 'idleUpload' && prevStateRef.current === 'success';
+  useEffect(() => {
+    prevStateRef.current = state.state;
+  }, [state.state]);
 
   // Always 'public': the box issues a share code. Authenticated uploads are still
   // recorded in /history by the backend, but must NOT land in Quick Access
@@ -52,7 +63,9 @@ const UnifiedFileBox: React.FC = () => {
   });
 
   const p2pEnabled =
-    state.state === 'p2pWaiting' || state.state === 'p2pTransferring';
+    state.state === 'p2pWaiting' ||
+    state.state === 'p2pConnected' ||
+    state.state === 'p2pTransferring';
   const p2p = useP2PUploader({
     shareCode: state.p2pShareCode || '',
     files: state.files,
@@ -185,6 +198,7 @@ const UnifiedFileBox: React.FC = () => {
         state.state === 'uploading' ||
         state.state === 'p2pCreating' ||
         state.state === 'p2pWaiting' ||
+        state.state === 'p2pConnected' ||
         state.state === 'p2pTransferring'
       ) {
         return;
@@ -205,6 +219,7 @@ const UnifiedFileBox: React.FC = () => {
     state.state === 'uploading' ||
     state.state === 'p2pCreating' ||
     state.state === 'p2pWaiting' ||
+    state.state === 'p2pConnected' ||
     state.state === 'p2pTransferring';
 
   const showRecent =
@@ -230,7 +245,7 @@ const UnifiedFileBox: React.FC = () => {
         role="tabpanel"
       >
         {state.mode === 'upload' && state.state === 'idleUpload' && (
-          <IdleUpload onNormal={onNormal} onSecure={onSecure} />
+          <IdleUpload onNormal={onNormal} onSecure={onSecure} animateIn={idleReturnFromSuccess} />
         )}
         {state.mode === 'upload' && state.state === 'uploading' && (
           <Uploading items={items} onCancel={onCancelItem} />
@@ -261,6 +276,13 @@ const UnifiedFileBox: React.FC = () => {
             onCancel={onP2PCancel}
           />
         )}
+        {state.mode === 'upload' && state.state === 'p2pConnected' && (
+          <P2PConnected
+            fileCount={state.files.length}
+            peerDeviceInfo={p2p.peerDeviceInfo}
+            onCancel={onP2PCancel}
+          />
+        )}
         {state.mode === 'upload' && state.state === 'p2pTransferring' && (
           <P2PTransferring
             files={state.files}
@@ -286,7 +308,11 @@ const UnifiedFileBox: React.FC = () => {
       </div>
       {showRecent && (
         <div className="border-t border-foreground/[0.09]">
-          <RecentShares refreshKey={recentRefreshKey} />
+          {state.mode === 'download' ? (
+            <RecentDownloads />
+          ) : (
+            <RecentShares refreshKey={recentRefreshKey} />
+          )}
         </div>
       )}
       </AnimatedHeight>

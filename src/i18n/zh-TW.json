@@ -531,7 +531,7 @@
     "apiKeys.keyStatus.expiresIn": "{{days}}天後過期",
     "defaultExpirationLabel": "預設有效期",
     "defaultExpirationDescription": "在首頁快速上傳時套用",
-    "defaultExpirationSaved": "預設有效期已儲存"
+    "defaultExpirationSaved": "設定已儲存"
   },
   "unifiedBox": {
     "tabUpload": "傳送檔案",
@@ -546,11 +546,13 @@
     "secureDescription": "與接收方直接連線安全傳送。檔案不會儲存於伺服器。",
     "qrAndDetails": "二維碼 · 詳情",
     "recentTitle": "最近的分享",
+    "sessionCount": "{{count}}個",
+    "recentDownloadsTitle": "最近的下載",
     "viewAll": "查看全部",
     "recentEmpty": "尚無分享",
     "expired": "已過期",
-    "remainingMinutes": "剩餘{{minutes}}分鐘",
-    "remainingHours": "剩餘{{hours}}小時",
+    "remainingMinutes": "{{minutes}}分鐘後刪除",
+    "remainingHours": "{{hours}}小時後刪除",
     "bundleExtraCount": "等{{count}}個",
     "retry": "重試",
     "partialFailure": "{{count}}個檔案上傳失敗",

@@ -7,9 +7,12 @@ import { toast } from '../../context/ToastContext';
 import { useShareList } from '../../hooks/useShareList';
 import { useSharePreviews } from './useSharePreviews';
 import { fetchShareFileList, getCachedFileList } from './shareFileList';
+import { fileAPI } from '../../services/api';
 import { FileListItem } from '../../types';
-import { formatFileSize } from '../../utils/format';
+import { MergedShare } from '../../utils/shareMerge';
+import { formatFileSize, isPptxFile } from '../../utils/format';
 import FileThumbnail from '../FileThumbnail';
+import FilePreviewModal from '../FilePreviewModal';
 import CopyButton from '../CopyButton';
 import { cn } from '../../lib/utils';
 
@@ -34,6 +37,9 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
   const previews = useSharePreviews(items);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [bundleFiles, setBundleFiles] = useState<Record<string, FileListItem[]>>({});
+  const [previewFile, setPreviewFile] = useState<
+    { fileName: string; fileSize: number; source: string; presignedUrl?: string } | null
+  >(null);
 
   useEffect(() => {
     if (!expanded || bundleFiles[expanded]) return;
@@ -53,7 +59,60 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
     };
   }, [expanded, bundleFiles]);
 
-  if (items.length === 0) return null;
+  const openPreviewFor = async (
+    code: string,
+    fileId: string,
+    fileName: string,
+    fileSize: number,
+    hasPassword?: boolean
+  ) => {
+    if (hasPassword) {
+      navigate(`/download/${code}`);
+      return;
+    }
+    try {
+      const { download_url } = await fileAPI.getDownloadUrl(code, fileId, undefined, true, true);
+      setPreviewFile({
+        fileName,
+        fileSize,
+        source: download_url,
+        presignedUrl: isPptxFile(fileName) ? download_url : undefined,
+      });
+    } catch {
+      navigate(`/download/${code}`);
+    }
+  };
+
+  const openSharePreview = async (s: MergedShare) => {
+    if (s.hasPassword) {
+      navigate(`/download/${s.code}`);
+      return;
+    }
+    let fileId = s.firstFileId;
+    let fileName = s.fileNames[0] || 'file';
+    let fileSize = s.totalSize;
+    if (!fileId) {
+      try {
+        const list = await fetchShareFileList(s.code);
+        const f = list.files[0];
+        if (!f) {
+          navigate(`/download/${s.code}`);
+          return;
+        }
+        fileId = f.id;
+        fileName = f.file_name;
+        fileSize = f.file_size;
+      } catch {
+        navigate(`/download/${s.code}`);
+        return;
+      }
+    }
+    openPreviewFor(s.code, fileId, fileName, fileSize, s.hasPassword);
+  };
+
+  const visibleItems = items.filter((i) => new Date(i.expiresAt).getTime() > Date.now());
+
+  if (visibleItems.length === 0) return null;
 
   const remainingLabel = (expiresAt: string): { text: string; expired: boolean } => {
     const diff = new Date(expiresAt).getTime() - Date.now();
@@ -65,22 +124,26 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
   };
 
   return (
+    <>
     <div className="flex flex-col">
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
         <h4 className="text-xs font-semibold text-foreground/70">
           {t('unifiedBox.recentTitle')}
+          <span className="text-muted-foreground/50 font-normal ml-1">
+            ({t('unifiedBox.sessionCount', { count: visibleItems.length })})
+          </span>
         </h4>
         {isAuthenticated && (
           <Link
             to="/history"
             className="text-[11px] text-muted-foreground can-hover:hover:text-foreground underline"
           >
-            {t('unifiedBox.viewAll')} →
+            {t('unifiedBox.viewAll')}
           </Link>
         )}
       </div>
-      <div className="px-4 pb-4 space-y-2">
-        {items.map((s) => {
+      <div className="px-4 pb-4 space-y-2 max-h-[420px] overflow-y-auto">
+        {visibleItems.map((s) => {
           const { text: remainText, expired } = remainingLabel(s.expiresAt);
           const isBundle = s.fileNames.length > 1;
           const isOpen = expanded === s.code;
@@ -98,17 +161,22 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                 role="button"
                 onClick={() => {
                   if (isBundle) setExpanded(isOpen ? null : s.code);
-                  else navigate(`/download/${s.code}`);
+                  else if (expired) navigate(`/download/${s.code}`);
+                  else openSharePreview(s);
                 }}
                 className="w-full flex items-center px-3 py-2.5 text-left cursor-pointer can-hover:hover:bg-accent active:bg-accent transition-colors"
               >
                 <div className="flex-shrink-0 mr-3">
                   {isBundle ? (
                     <div className="relative w-11 h-11">
-                      <div className="absolute -right-1 -top-1 w-11 h-11 rounded bg-card border border-foreground/[0.12]" />
+                      <div className="absolute -bottom-1.5 -right-1.5 w-11 h-11 rounded-md bg-muted border border-foreground/[0.15]" />
+                      <div className="absolute -bottom-[3px] -right-[3px] w-11 h-11 rounded-md bg-card border border-foreground/[0.15]" />
                       <div className="relative">
                         <FileThumbnail source={previews[s.code] ?? null} fileName={s.fileNames[0] || 'file'} size="sm" />
                       </div>
+                      <span className="absolute -top-1.5 -right-1.5 z-10 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold leading-none flex items-center justify-center ring-2 ring-card">
+                        {s.fileNames.length}
+                      </span>
                     </div>
                   ) : (
                     <FileThumbnail source={previews[s.code] ?? null} fileName={s.fileNames[0] || 'file'} size="sm" />
@@ -151,7 +219,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); requestDelete(s.code); }}
-                    className="p-1.5 rounded-lg text-muted-foreground/50 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 active:text-red-600 dark:active:text-red-400"
+                    className="p-1.5 rounded-lg text-muted-foreground can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 active:text-red-600 dark:active:text-red-400"
                     title={t('common.delete')}
                   >
                     <TrashIcon className="w-5 h-5" />
@@ -171,11 +239,30 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                 <div className="px-3 pb-3">
                   <div className="border-t border-foreground/[0.08] pt-2.5 space-y-2">
                     {(bundleFiles[s.code]
-                      ? bundleFiles[s.code].map((f) => ({ name: f.file_name, size: f.file_size }))
-                      : s.fileNames.map((name) => ({ name, size: undefined as number | undefined }))
+                      ? bundleFiles[s.code].map((f) => ({
+                          name: f.file_name,
+                          size: f.file_size as number | undefined,
+                          id: f.id as string | undefined,
+                        }))
+                      : s.fileNames.map((name) => ({
+                          name,
+                          size: undefined as number | undefined,
+                          id: undefined as string | undefined,
+                        }))
                     ).map((f, i) => (
                       <div key={`${f.name}-${i}`} className="flex items-center gap-3 min-w-0">
-                        <FileThumbnail source={null} fileName={f.name} size="sm" />
+                        {f.id && !s.hasPassword ? (
+                          <button
+                            type="button"
+                            onClick={() => openPreviewFor(s.code, f.id!, f.name, f.size ?? 0, s.hasPassword)}
+                            className="flex-shrink-0 rounded-md transition-transform can-hover:hover:scale-[1.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            aria-label={f.name}
+                          >
+                            <FileThumbnail source={null} fileName={f.name} size="sm" />
+                          </button>
+                        ) : (
+                          <FileThumbnail source={null} fileName={f.name} size="sm" />
+                        )}
                         <span className="flex-1 min-w-0 text-sm text-foreground/80 truncate">{f.name}</span>
                         {f.size != null && (
                           <span className="flex-shrink-0 text-xs text-muted-foreground">
@@ -192,6 +279,10 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
         })}
       </div>
     </div>
+    {previewFile && (
+      <FilePreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />
+    )}
+    </>
   );
 };
 

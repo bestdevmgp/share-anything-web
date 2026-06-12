@@ -531,7 +531,7 @@
     "apiKeys.keyStatus.expiresIn": "{{days}}日後に期限切れ",
     "defaultExpirationLabel": "デフォルト有効期限",
     "defaultExpirationDescription": "ホーム画面でのクイックアップロード時に適用",
-    "defaultExpirationSaved": "デフォルト有効期限を保存しました"
+    "defaultExpirationSaved": "設定を保存しました"
   },
   "unifiedBox": {
     "tabUpload": "送る",
@@ -546,11 +546,13 @@
     "secureDescription": "受信者と直接接続して安全に送れます。ファイルはサーバーに保存されません。",
     "qrAndDetails": "QR · 詳細",
     "recentTitle": "最近の共有",
+    "sessionCount": "{{count}}件",
+    "recentDownloadsTitle": "最近のダウンロード",
     "viewAll": "すべて見る",
     "recentEmpty": "共有されたファイルがありません",
     "expired": "期限切れ",
-    "remainingMinutes": "あと{{minutes}}分",
-    "remainingHours": "あと{{hours}}時間",
+    "remainingMinutes": "{{minutes}}分後に削除",
+    "remainingHours": "{{hours}}時間後に削除",
     "bundleExtraCount": "他{{count}}件",
     "retry": "再試行",
     "partialFailure": "{{count}}個のファイルがアップロードに失敗",

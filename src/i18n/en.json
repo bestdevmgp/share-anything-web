@@ -535,7 +535,7 @@
     "apiKeys.keyStatus.expiresIn": "Expires in {{days}}d",
     "defaultExpirationLabel": "Default expiration",
     "defaultExpirationDescription": "Applied to fast uploads from the home page",
-    "defaultExpirationSaved": "Default expiration saved"
+    "defaultExpirationSaved": "Settings saved"
   },
   "unifiedBox": {
     "tabUpload": "Send",
@@ -550,11 +550,13 @@
     "secureDescription": "Direct end-to-end transfer. Nothing stored on the server.",
     "qrAndDetails": "QR · Details",
     "recentTitle": "Recent shares",
+    "sessionCount": "{{count}}",
+    "recentDownloadsTitle": "Recent downloads",
     "viewAll": "View all",
     "recentEmpty": "No shares yet",
     "expired": "Expired",
-    "remainingMinutes": "{{minutes}} min left",
-    "remainingHours": "{{hours}}h left",
+    "remainingMinutes": "Deletes in {{minutes}}m",
+    "remainingHours": "Deletes in {{hours}}h",
     "bundleExtraCount": "+{{count}} more",
     "retry": "Retry",
     "partialFailure": "{{count}} file(s) failed to upload",

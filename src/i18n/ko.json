@@ -535,7 +535,7 @@
     "apiKeys.keyStatus.expiresIn": "{{days}}일 후 만료",
     "defaultExpirationLabel": "기본 만료시간",
     "defaultExpirationDescription": "홈 화면에서 빠른 업로드를 할 때 적용되는 기본 만료시간이에요",
-    "defaultExpirationSaved": "기본 만료시간이 저장되었어요"
+    "defaultExpirationSaved": "설정이 저장되었어요"
   },
   "unifiedBox": {
     "tabUpload": "파일 보내기",
@@ -550,11 +550,13 @@
     "secureDescription": "수신자와 직접 연결하여 안전하게 보낼 수 있어요. 파일이 서버에 저장되지 않아요.",
     "qrAndDetails": "QR · 상세 보기",
     "recentTitle": "최근 공유",
+    "sessionCount": "{{count}}개",
+    "recentDownloadsTitle": "최근 다운로드",
     "viewAll": "전체 보기",
     "recentEmpty": "아직 공유한 파일이 없어요",
     "expired": "만료",
-    "remainingMinutes": "{{minutes}}분 남음",
-    "remainingHours": "{{hours}}시간 남음",
+    "remainingMinutes": "{{minutes}}분 후 삭제",
+    "remainingHours": "{{hours}}시간 후 삭제",
     "bundleExtraCount": "외 {{count}}개",
     "retry": "재시도",
     "partialFailure": "{{count}}개 파일 업로드 실패",

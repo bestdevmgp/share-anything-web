@@ -3,9 +3,8 @@ import { useDropzone } from 'react-dropzone';
 import { useAuth } from '../context/AuthContext';
 import { quickAccessAPI } from '../services/api';
 import { QuickAccessFile } from '../types';
-import { formatFileSize } from '../utils/format';
-import { PlusIcon, TrashIcon, ArrowDownTrayIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
-import CopyButton from './CopyButton';
+import { formatFileSize, copyToClipboard } from '../utils/format';
+import { PlusIcon, TrashIcon, ArrowDownTrayIcon, ArrowUpTrayIcon, CheckIcon } from '@heroicons/react/24/outline';
 import UploadProgressRow from './UploadProgressRow';
 import { toast } from '../context/ToastContext';
 import { useTranslation } from '../i18n';
@@ -14,7 +13,6 @@ import FileThumbnail from './FileThumbnail';
 import FilePreviewModal from './FilePreviewModal';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { cn } from 'lib/utils';
 import { useQuickAccessUpload } from '../context/QuickAccessUploadContext';
 
@@ -165,21 +163,27 @@ const QuickAccess: React.FC = () => {
   };
 
   const [sharingFileId, setSharingFileId] = useState<string | null>(null);
-  const [sharedCode, setSharedCode] = useState<{ fileId: string; code: string; url: string } | null>(null);
+  const [sharedCodes, setSharedCodes] = useState<Map<string, { code: string; url: string }>>(new Map());
 
   const handleShare = async (file: QuickAccessFile) => {
     try {
       setSharingFileId(file.id);
       const response = await quickAccessAPI.shareFile(file.id);
       const shareUrl = `${window.location.origin}/download/${response.share_code}`;
-      await navigator.clipboard.writeText(shareUrl);
-      setSharedCode({ fileId: file.id, code: response.share_code, url: shareUrl });
+      await copyToClipboard(shareUrl);
+      setSharedCodes((prev) => new Map(prev).set(file.id, { code: response.share_code, url: shareUrl }));
       toast.success(t('quickAccess.shareSuccess'));
     } catch {
       toast.error(t('quickAccess.shareFailed'));
     } finally {
       setSharingFileId(null);
     }
+  };
+
+  const handleCopyShared = async (url: string) => {
+    const ok = await copyToClipboard(url);
+    if (ok) toast.success(t('quickAccess.shareSuccess'));
+    else toast.error(t('quickAccess.shareFailed'));
   };
 
   const handlePreviewClick = async (file: QuickAccessFile) => {
@@ -339,95 +343,27 @@ const QuickAccess: React.FC = () => {
                     </p>
                   </div>
                   <div className="flex items-center gap-0.5 flex-shrink-0">
-                    <Popover
-                      open={sharedCode?.fileId === file.id}
-                      onOpenChange={(open) => { if (!open) setSharedCode(null); }}
-                    >
-                      <PopoverTrigger asChild>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleShare(file); }}
-                          disabled={sharingFileId === file.id}
-                          className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10 disabled:opacity-50"
-                          title={t('quickAccess.share')}
-                        >
-                          <ArrowUpTrayIcon className="w-5 h-5" />
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent
-                        side="left"
-                        align="center"
-                        sideOffset={10}
-                        className="w-auto p-0 border-none bg-transparent shadow-none overflow-visible"
-                        onClick={(e) => e.stopPropagation()}
+                    {sharedCodes.has(file.id) ? (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleCopyShared(sharedCodes.get(file.id)!.url); }}
+                        className="flex items-center gap-1 h-8 pl-1.5 pr-2 rounded-lg transition-colors flex-shrink-0 bg-green-100 dark:bg-green-500/15 text-green-700 dark:text-green-400 can-hover:hover:bg-green-200/70 dark:can-hover:hover:bg-green-500/25 active:bg-green-200/70 dark:active:bg-green-500/25"
+                        title={t('common.copy')}
                       >
-                        <span className="relative inline-flex items-center">
-                          <span
-                            className="inline-flex items-center rounded-[10px] pl-3 pr-1.5 py-[7px]"
-                            style={{
-                              background: 'var(--share-bubble-bg)',
-                              backdropFilter: 'blur(20px) saturate(180%)',
-                              WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                              boxShadow: 'var(--share-bubble-shadow)',
-                              border: '1px solid var(--share-bubble-border)',
-                            }}
-                          >
-                            <span className="flex items-center gap-1.5">
-                              <span className="font-mono text-[1.125rem] font-bold text-foreground tracking-[0.06em] leading-none">
-                                {sharedCode?.code.slice(0, 3)}<span className="inline-block w-1" />{sharedCode?.code.slice(3)}
-                              </span>
-                              <CopyButton
-                                key={sharedCode?.code}
-                                value={sharedCode?.url ?? ''}
-                                defaultCopied
-                                stopPropagation
-                                onCopied={() => toast.success(t('quickAccess.shareSuccess'))}
-                                className="p-1.5 can-hover:hover:bg-foreground/10 active:bg-foreground/10"
-                                iconClassName="w-4 h-4"
-                                iconCopiedClass="text-green-600 dark:text-green-400"
-                              />
-                          </span>
+                        <CheckIcon className="w-4 h-4 flex-shrink-0" strokeWidth={2.5} />
+                        <span className="font-mono text-xs font-semibold tracking-wide leading-none">
+                          {sharedCodes.get(file.id)!.code}
                         </span>
-                          <span
-                            className="absolute top-1/2 -translate-y-1/2 pointer-events-none"
-                            style={{
-                              right: '-6px',
-                              width: '7px',
-                              height: '12px',
-                            }}
-                          >
-                            <span
-                              style={{
-                                position: 'absolute',
-                                inset: 0,
-                                background: 'var(--share-bubble-bg)',
-                                backdropFilter: 'blur(20px) saturate(180%)',
-                                WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                                clipPath: 'polygon(0% 0%, 100% 50%, 0% 100%)',
-                              }}
-                            />
-                            <svg
-                              width="7"
-                              height="12"
-                              viewBox="0 0 7 12"
-                              style={{
-                                position: 'absolute',
-                                inset: 0,
-                                overflow: 'visible',
-                              }}
-                            >
-                              <polyline
-                                points="1,0 7,6 1,12"
-                                fill="none"
-                                stroke="var(--share-bubble-border)"
-                                strokeWidth="1.5"
-                                strokeLinejoin="miter"
-                                vectorEffect="non-scaling-stroke"
-                              />
-                            </svg>
-                          </span>
-                        </span>
-                      </PopoverContent>
-                    </Popover>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleShare(file); }}
+                        disabled={sharingFileId === file.id}
+                        className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10 disabled:opacity-50"
+                        title={t('quickAccess.share')}
+                      >
+                        <ArrowUpTrayIcon className="w-5 h-5" />
+                      </button>
+                    )}
                     <button
                       onClick={(e) => { e.stopPropagation(); handleDownload(file); }}
                       className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"

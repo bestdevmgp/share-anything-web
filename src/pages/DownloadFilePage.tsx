@@ -10,6 +10,7 @@ import { useP2PDownloader } from '../hooks/useP2PDownloader';
 import { createWebSocketConnection, generatePeerId, sendSignalingMessage } from '../utils/webrtc';
 import FilePreviewModal from '../components/FilePreviewModal';
 import { useThumbnail } from '../hooks/useThumbnail';
+import { pushDownload } from '../utils/recentDownloads';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 
@@ -62,10 +63,23 @@ const DownloadFilePage: React.FC = () => {
   const bulkQueueRef = useRef<string[]>([]);
   const bulkTotalRef = useRef<number>(0);
 
+  const recordDownloadRef = useRef<() => void>(() => {});
+  recordDownloadRef.current = () => {
+    if (!code || !fileList || fileList.files.length === 0) return;
+    pushDownload({
+      code,
+      fileNames: fileList.files.map((f) => f.file_name),
+      totalSize: fileList.files.reduce((sum, f) => sum + f.file_size, 0),
+      expiresAt: fileList.expires_at,
+      downloadedAt: new Date().toISOString(),
+    });
+  };
+
   const handleP2PDownloadComplete = useCallback((blob: Blob, fileName: string) => {
     const completedId = p2pActiveFileId || '';
     downloadFile(blob, fileName);
     setP2pCompletedFileIds(prev => new Set(prev).add(completedId));
+    recordDownloadRef.current();
 
     if (bulkP2PDownloading) {
       bulkQueueRef.current = bulkQueueRef.current.filter(id => id !== completedId);
@@ -368,6 +382,7 @@ const DownloadFilePage: React.FC = () => {
         );
 
         downloadFile(blob, `share-${code}.zip`);
+        recordDownloadRef.current();
         toast.success(t('download.zipDownloadComplete'));
         return;
       }
@@ -407,6 +422,7 @@ const DownloadFilePage: React.FC = () => {
         }
       }
 
+      recordDownloadRef.current();
       toast.success(
         selectedFileIds.length === 1
           ? t('download.downloadStarted')

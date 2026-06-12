@@ -9,6 +9,7 @@ export type BoxState =
   | 'success'
   | 'p2pCreating'
   | 'p2pWaiting'
+  | 'p2pConnected'
   | 'p2pTransferring'
   | 'p2pCompleted';
 
@@ -48,7 +49,11 @@ export const initialState: State = {
 };
 
 const isUploadActive = (s: BoxState): boolean =>
-  s === 'uploading' || s === 'p2pCreating' || s === 'p2pWaiting' || s === 'p2pTransferring';
+  s === 'uploading' ||
+  s === 'p2pCreating' ||
+  s === 'p2pWaiting' ||
+  s === 'p2pConnected' ||
+  s === 'p2pTransferring';
 
 export const reducer = (s: State, a: Action): State => {
   switch (a.type) {
@@ -100,10 +105,21 @@ export const reducer = (s: State, a: Action): State => {
       if (a.status === 'completed') {
         return { ...s, state: 'p2pCompleted' };
       }
-      if (a.status === 'connected' || a.status === 'transferring') {
-        if (s.state === 'p2pWaiting' || s.state === 'p2pTransferring') {
+      if (a.status === 'transferring') {
+        if (
+          s.state === 'p2pWaiting' ||
+          s.state === 'p2pConnected' ||
+          s.state === 'p2pTransferring'
+        ) {
           return { ...s, state: 'p2pTransferring' };
         }
+        return s;
+      }
+      if (a.status === 'connected') {
+        if (s.state === 'p2pWaiting' || s.state === 'p2pConnected') {
+          return { ...s, state: 'p2pConnected' };
+        }
+        return s;
       }
       return s;
     case 'p2pFailed':

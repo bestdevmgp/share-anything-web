@@ -87,6 +87,7 @@ const SettingsPage: React.FC = () => {
   const [notifyLangOpen, setNotifyLangOpen] = useState(false);
   const [siteLangOpen, setSiteLangOpen] = useState(false);
   const [siteThemeOpen, setSiteThemeOpen] = useState(false);
+  const [expirationOpen, setExpirationOpen] = useState(false);
 
   const [personalTokens, setPersonalTokens] = useState<PersonalTokenItem[]>([]);
   const [personalTokensLoading, setPersonalTokensLoading] = useState(false);
@@ -656,6 +657,39 @@ const SettingsPage: React.FC = () => {
   const currentNotifyLang = langOptions.find((o) => o.key === notifyLanguage) || langOptions[0];
   const currentSiteLang = langOptions.find((o) => o.key === siteLanguage)!;
 
+  const expirationOptions: { value: FileExpirationOption; label: string }[] = [
+    { value: 'five_minutes', label: t('format.5min') },
+    { value: 'thirty_minutes', label: t('format.30min') },
+    { value: 'one_hour', label: t('format.1hour') },
+    { value: 'three_hours', label: t('format.3hours') },
+    { value: 'six_hours', label: t('format.6hours') },
+    { value: 'twelve_hours', label: t('format.12hours') },
+    { value: 'twenty_four_hours', label: t('format.24hours') },
+  ];
+  const currentExpiration =
+    expirationOptions.find((o) => o.value === defaultExpiration) || expirationOptions[1];
+
+  const handleDefaultExpirationChange = async (next: FileExpirationOption) => {
+    setExpirationOpen(false);
+    if (next === defaultExpiration) return;
+    const prev = defaultExpiration;
+    setDefaultExpiration(next);
+    try {
+      await userAPI.updateNotificationSettings({
+        notify_upload: notifyUpload,
+        notify_download: notifyDownload,
+        notify_download_alert: notifyDownloadAlert,
+        notify_security: notifySecurity,
+        notify_language: notifyLanguage,
+        default_expiration: next,
+      });
+      toast.success(t('settings.defaultExpirationSaved'));
+    } catch {
+      setDefaultExpiration(prev);
+      toast.error(t('settings.updateFailed'));
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
       <h1 className="text-2xl font-bold text-foreground mb-8">{t('settings.pageTitle')}</h1>
@@ -843,47 +877,6 @@ const SettingsPage: React.FC = () => {
                   </Popover>
                 </div>
 
-                <Separator />
-
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                  <div className="min-w-0">
-                    <Label className="text-sm font-medium">{t('settings.defaultExpirationLabel')}</Label>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {t('settings.defaultExpirationDescription')}
-                    </p>
-                  </div>
-                  <select
-                    value={defaultExpiration}
-                    onChange={async (e) => {
-                      const next = e.target.value as FileExpirationOption;
-                      const prev = defaultExpiration;
-                      setDefaultExpiration(next);
-                      try {
-                        await userAPI.updateNotificationSettings({
-                          notify_upload: notifyUpload,
-                          notify_download: notifyDownload,
-                          notify_download_alert: notifyDownloadAlert,
-                          notify_security: notifySecurity,
-                          notify_language: notifyLanguage,
-                          default_expiration: next,
-                        });
-                        toast.success(t('settings.defaultExpirationSaved'));
-                      } catch {
-                        setDefaultExpiration(prev);
-                        toast.error(t('settings.updateFailed'));
-                      }
-                    }}
-                    className="flex-shrink-0 rounded-lg border border-foreground/[0.09] bg-card text-foreground px-3 py-2 text-sm"
-                  >
-                    <option value="five_minutes">{t('format.5min')}</option>
-                    <option value="thirty_minutes">{t('format.30min')}</option>
-                    <option value="one_hour">{t('format.1hour')}</option>
-                    <option value="three_hours">{t('format.3hours')}</option>
-                    <option value="six_hours">{t('format.6hours')}</option>
-                    <option value="twelve_hours">{t('format.12hours')}</option>
-                    <option value="twenty_four_hours">{t('format.24hours')}</option>
-                  </select>
-                </div>
               </div>
             </div>
           )}
@@ -896,6 +889,46 @@ const SettingsPage: React.FC = () => {
               </div>
 
               <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <div className="min-w-0">
+                    <Label className="text-sm font-medium">{t('settings.defaultExpirationLabel')}</Label>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {t('settings.defaultExpirationDescription')}
+                    </p>
+                  </div>
+                  <Popover open={expirationOpen} onOpenChange={setExpirationOpen}>
+                    <PopoverTrigger asChild>
+                      <button
+                        className="group flex items-center justify-between w-40 h-10 px-2.5 border border-border bg-card text-muted-foreground can-hover:hover:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors text-sm flex-shrink-0"
+                      >
+                        <div className="flex items-center gap-2">
+                          <ClockIcon className="w-4 h-4" />
+                          <span>{currentExpiration.label}</span>
+                        </div>
+                        <ChevronDownIcon className="w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent side="bottom" align="start" sideOffset={4} className="w-40 p-0 rounded-none border border-border bg-card sm:align-end">
+                      {expirationOptions.map((option) => (
+                        <button
+                          key={option.value}
+                          onClick={() => handleDefaultExpirationChange(option.value)}
+                          className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors ${
+                            defaultExpiration === option.value
+                              ? 'text-foreground'
+                              : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
+                          }`}
+                        >
+                          <CheckIcon className={`w-3.5 h-3.5 flex-shrink-0 ${defaultExpiration === option.value ? 'opacity-100' : 'opacity-0'}`} />
+                          <span>{option.label}</span>
+                        </button>
+                      ))}
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                <Separator />
+
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                   <div className="min-w-0">
                     <Label className="text-sm font-medium">{t('settings.siteLanguage')}</Label>
