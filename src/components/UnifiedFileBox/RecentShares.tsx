@@ -255,28 +255,35 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                           size: undefined as number | undefined,
                           id: undefined as string | undefined,
                         }))
-                    ).map((f, i) => (
-                      <div key={`${f.name}-${i}`} className="flex items-center gap-3 min-w-0">
-                        {f.id && !s.hasPassword ? (
-                          <button
-                            type="button"
-                            onClick={() => openPreviewFor(s.code, f.id!, f.name, f.size ?? 0, s.hasPassword)}
-                            className="flex-shrink-0 rounded-md transition-transform can-hover:hover:scale-[1.06] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                            aria-label={f.name}
-                          >
-                            <FileThumbnail source={bundlePreviews[f.id] ?? null} fileName={f.name} size="sm" />
-                          </button>
-                        ) : (
+                    ).map((f, i) => {
+                      const clickable = !!f.id && !s.hasPassword;
+                      const rowInner = (
+                        <>
                           <FileThumbnail source={f.id ? bundlePreviews[f.id] ?? null : null} fileName={f.name} size="sm" />
-                        )}
-                        <span className="flex-1 min-w-0 text-sm text-foreground/80 truncate">{f.name}</span>
-                        {f.size != null && (
-                          <span className="flex-shrink-0 text-xs text-muted-foreground">
-                            {formatFileSize(f.size)}
-                          </span>
-                        )}
-                      </div>
-                    ))}
+                          <span className="flex-1 min-w-0 text-sm text-foreground/80 truncate text-left">{f.name}</span>
+                          {f.size != null && (
+                            <span className="flex-shrink-0 text-xs text-muted-foreground">
+                              {formatFileSize(f.size)}
+                            </span>
+                          )}
+                        </>
+                      );
+                      return clickable ? (
+                        <button
+                          key={`${f.name}-${i}`}
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); openPreviewFor(s.code, f.id!, f.name, f.size ?? 0, s.hasPassword); }}
+                          className="w-full flex items-center gap-3 min-w-0 -mx-2 px-2 py-1.5 rounded-lg can-hover:hover:bg-accent active:bg-accent transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          aria-label={f.name}
+                        >
+                          {rowInner}
+                        </button>
+                      ) : (
+                        <div key={`${f.name}-${i}`} className="flex items-center gap-3 min-w-0 -mx-2 px-2 py-1.5">
+                          {rowInner}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
