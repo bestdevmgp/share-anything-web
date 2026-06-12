@@ -241,12 +241,17 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                   )}
                 >
                   <TableCell className="px-6 py-3 max-w-0">
-                    <div className="flex items-center space-x-3 overflow-hidden">
+                    <div className="flex items-center space-x-3">
                       {isBundle ? (
-                        <div className="w-12 h-12 flex-shrink-0 rounded-lg bg-primary/10 flex items-center justify-center">
-                          <svg className="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.6} d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z" />
-                          </svg>
+                        <div className="relative w-12 h-12 flex-shrink-0">
+                          <div className="absolute -bottom-1.5 -right-1.5 w-12 h-12 rounded-md bg-muted border border-foreground/[0.15]" />
+                          <div className="absolute -bottom-[3px] -right-[3px] w-12 h-12 rounded-md bg-card border border-foreground/[0.15]" />
+                          <div className="relative">
+                            <FileThumbnail source={getThumbnailSource(firstFile)} fileName={firstFile.file_name} size="md" />
+                          </div>
+                          <span className="absolute -top-1.5 -right-1.5 z-10 min-w-[18px] h-[18px] px-1 rounded-full bg-primary text-primary-foreground text-[10px] font-bold leading-none flex items-center justify-center ring-2 ring-card">
+                            {group.files.length}
+                          </span>
                         </div>
                       ) : (
                         <FileThumbnail source={getThumbnailSource(firstFile)} fileName={firstFile.file_name} size="md" />
@@ -254,13 +259,8 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                       <div className="min-w-0 flex-1 h-12 overflow-hidden flex flex-col justify-center">
                         {isBundle ? (
                           <>
-                            <div className="flex items-center gap-2 min-w-0">
-                              <div className="text-sm font-semibold text-foreground font-mono tracking-wide">
-                                {group.shareCode}
-                              </div>
-                              <span className="inline-flex items-center text-xs px-2 py-[2px] rounded-full font-medium bg-primary/10 text-primary flex-shrink-0">
-                                {t('history.bundleFileCount', { count: group.files.length })}
-                              </span>
+                            <div className="text-sm font-semibold text-foreground font-mono tracking-wide truncate">
+                              {group.shareCode}
                             </div>
                             <div className="text-xs text-muted-foreground truncate mt-0.5">
                               {group.files.slice(0, 3).map(f => f.file_name).join(', ')}
