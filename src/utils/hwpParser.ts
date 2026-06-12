@@ -95,7 +95,7 @@ export function parseHwpToText(data: Uint8Array): string {
   const isCompressed = (properties & 0x01) !== 0;
   const isEncrypted = (properties & 0x02) !== 0;
 
-  if (isEncrypted) return '암호화된 HWP 파일은 미리보기를 지원하지 않습니다.';
+  if (isEncrypted) return '암호화된 HWP 파일은 미리보기를 지원하지 않아요.';
 
   const paragraphs: string[] = [];
 
