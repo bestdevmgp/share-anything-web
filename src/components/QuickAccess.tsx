@@ -334,7 +334,7 @@ const QuickAccess: React.FC = () => {
                     <p className="text-sm font-medium text-foreground truncate">
                       {file.file_name}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground truncate">
                       {formatFileSize(file.file_size)} · {getRemainingTime(file.expires_at)}
                     </p>
                     <p className="text-xs text-muted-foreground/50 truncate mt-0.5">

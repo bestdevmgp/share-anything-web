@@ -108,7 +108,7 @@ const RecentDownloads: React.FC = () => {
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground truncate">
                     {formatFileSize(d.totalSize)} · {remainText}
                   </p>
                   <p className="text-xs text-muted-foreground/50 truncate mt-0.5">
@@ -126,7 +126,7 @@ const RecentDownloads: React.FC = () => {
                         toast.success(t('quickAccess.shareSuccess'));
                       }
                     }}
-                    className="p-1.5 rounded-lg text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
+                    className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
                     iconClassName="w-5 h-5"
                     iconCopiedClass="text-green-600 dark:text-green-400"
                     title={t('common.copy')}
@@ -134,7 +134,7 @@ const RecentDownloads: React.FC = () => {
                   <button
                     type="button"
                     onClick={(e) => { e.stopPropagation(); handleRemove(d.code); }}
-                    className="p-1.5 rounded-lg text-muted-foreground can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 active:text-red-600 dark:active:text-red-400"
+                    className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 active:text-red-600 dark:active:text-red-400 active:bg-red-100/50 dark:active:bg-red-500/15"
                     title={t('common.delete')}
                   >
                     <TrashIcon className="w-5 h-5" />
