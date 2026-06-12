@@ -569,7 +569,7 @@
     "p2pFileCount": "{{count}}個のファイル",
     "p2pCompleted": "完了",
     "p2pWaiting": "待機中",
-    "p2pCancelButton": "セッションをキャンセル",
+    "p2pCancelButton": "転送をキャンセル",
     "p2pCompletedTitle": "転送完了",
     "p2pCompletedSummary": "{{count}}個のファイルを転送しました",
     "p2pNewTransferButton": "新しい転送を開始",

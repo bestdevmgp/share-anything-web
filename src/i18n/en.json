@@ -573,7 +573,7 @@
     "p2pFileCount": "{{count}} file(s)",
     "p2pCompleted": "Done",
     "p2pWaiting": "Waiting",
-    "p2pCancelButton": "Cancel session",
+    "p2pCancelButton": "Cancel transfer",
     "p2pCompletedTitle": "Transfer complete",
     "p2pCompletedSummary": "Sent {{count}} file(s)",
     "p2pNewTransferButton": "Start new transfer",

@@ -569,7 +569,7 @@
     "p2pFileCount": "{{count}}个文件",
     "p2pCompleted": "完成",
     "p2pWaiting": "等待中",
-    "p2pCancelButton": "取消会话",
+    "p2pCancelButton": "取消传输",
     "p2pCompletedTitle": "传输完成",
     "p2pCompletedSummary": "已传输{{count}}个文件",
     "p2pNewTransferButton": "开始新传输",

@@ -573,7 +573,7 @@
     "p2pFileCount": "파일 {{count}}개",
     "p2pCompleted": "완료",
     "p2pWaiting": "대기 중",
-    "p2pCancelButton": "세션 취소",
+    "p2pCancelButton": "전송 취소",
     "p2pCompletedTitle": "전송 완료",
     "p2pCompletedSummary": "파일 {{count}}개 전송됨",
     "p2pNewTransferButton": "새 전송 시작",
