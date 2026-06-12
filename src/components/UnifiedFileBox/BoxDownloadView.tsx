@@ -222,6 +222,25 @@ const BoxDownloadView: React.FC<Props> = ({
               {files.map((file) => {
                 const done = p2pCompletedFileIds.has(file.id);
                 const isActive = p2pActiveFileId === file.id && active;
+                // Before any transfer (ready state), keep rows compact like
+                // Quick Access — the 0% progress bar only appears once a
+                // download is actually running.
+                if (!active && !allDone) {
+                  return (
+                    <div
+                      key={file.id}
+                      className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/[0.09]"
+                    >
+                      <div className="flex-shrink-0 mr-3">
+                        <FileThumbnail source={null} fileName={file.file_name} size="sm" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{file.file_name}</p>
+                        <p className="text-xs text-muted-foreground">{formatFileSize(file.file_size)}</p>
+                      </div>
+                    </div>
+                  );
+                }
                 const pct = done ? 100 : isActive ? p2pProgress : 0;
                 let statusText: string | undefined;
                 if (done) statusText = t('uploadSuccess.completed');
