@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { ensureDeviceId } from '../utils/deviceId';
+import { getDeviceInfo } from '../utils/format';
 import type {
   FileUploadResponse,
   FileInfo,
@@ -412,7 +413,9 @@ export const fileAPI = {
   },
 
   getFileList: async (code: string, password?: string): Promise<FileListResponse> => {
-    const headers: Record<string, string> = {};
+    const headers: Record<string, string> = {
+      'X-Device-Info': getDeviceInfo().replace(/[^\x20-\x7E]/g, ''),
+    };
     if (password) {
       headers['X-File-Password'] = password;
     }
