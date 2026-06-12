@@ -94,8 +94,6 @@ const BoxDownloadView: React.FC<Props> = ({
   onReset,
   t,
 }) => {
-  // While an error is shown, Enter returns to the code input so the user can
-  // retry immediately — mirrors the retry button.
   const showError = !loading && !!errorTitle;
   useEffect(() => {
     if (!showError) return;
@@ -229,9 +227,6 @@ const BoxDownloadView: React.FC<Props> = ({
               {files.map((file) => {
                 const done = p2pCompletedFileIds.has(file.id);
                 const isActive = p2pActiveFileId === file.id && active;
-                // No thumbnail (receiver can't preview pre-download). The
-                // second line is a fixed-height slot that swaps size ↔ progress
-                // bar in place, so the box height never jumps mid-transfer.
                 return (
                   <div
                     key={file.id}
@@ -299,7 +294,6 @@ const BoxDownloadView: React.FC<Props> = ({
     );
   }
 
-  // Server transfer
   const multi = files.length > 1;
   return wrap(
     <>

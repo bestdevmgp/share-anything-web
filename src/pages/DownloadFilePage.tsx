@@ -196,10 +196,6 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [p2pStatus]);
 
-  // Tell the waiting sender a receiver arrived (flips its UI to "connected")
-  // before any download click. The backend flips the sender back to "waiting"
-  // whenever this socket drops, and QR/mobile links drop often, so we keepalive
-  // + reconnect + re-announce instead of a fragile one-shot announce.
   useEffect(() => {
     if (!isP2PDownload || !fileList || !passwordVerified || !code) return;
 
@@ -227,17 +223,15 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       sock.onopen = () => {
         if (closed) return;
         announce(sock);
-        // Quick second announce in case the first raced socket-delivery; the
-        // sender is already registered, so this only ever needs to be fast.
         reannounceTimer = setTimeout(() => {
           if (!closed && sock.readyState === WebSocket.OPEN) announce(sock);
-        }, 400);
+        }, 1500);
       };
 
       sock.onclose = () => {
         if (closed) return;
         if (reconnectTimer) clearTimeout(reconnectTimer);
-        reconnectTimer = setTimeout(connect, 800);
+        reconnectTimer = setTimeout(connect, 1500);
       };
     };
 
