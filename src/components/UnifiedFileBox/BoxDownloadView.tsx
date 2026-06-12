@@ -1,17 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   ArrowDownTrayIcon,
   ArchiveBoxIcon,
   LockClosedIcon,
   EyeIcon,
   EyeSlashIcon,
-  ExclamationTriangleIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { FileListResponse } from '../../types';
 import { formatFileSize } from '../../utils/format';
 import UploadProgressRow from '../UploadProgressRow';
 import FileThumbnail from '../FileThumbnail';
+import StatusIcon from '../StatusIcon';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Spinner } from '../ui/spinner';
@@ -95,6 +95,21 @@ const BoxDownloadView: React.FC<Props> = ({
   onReset,
   t,
 }) => {
+  // While an error is shown, Enter returns to the code input so the user can
+  // retry immediately — mirrors the retry button.
+  const showError = !loading && !!errorTitle;
+  useEffect(() => {
+    if (!showError) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        onReset();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [showError, onReset]);
+
   const wrap = (children: React.ReactNode) => (
     <div
       className="flex-1 flex flex-col px-6 md:px-8 py-8 animate-in fade-in-0 duration-300"
@@ -116,14 +131,10 @@ const BoxDownloadView: React.FC<Props> = ({
   if (errorTitle) {
     return wrap(
       <div className="flex-1 flex flex-col items-center justify-center text-center">
-        <div className="w-16 h-16 rounded-full flex items-center justify-center bg-red-100 dark:bg-red-500/15 mb-4">
-          <ExclamationTriangleIcon className="w-8 h-8 text-red-500" />
-        </div>
-        <h2 className="text-2xl font-bold text-foreground mb-1.5">{errorTitle}</h2>
-        <p className="text-sm text-muted-foreground">{errorDesc}</p>
-        <Button variant="outline" size="lg" className="w-full max-w-[280px] mt-6" onClick={onReset}>
-          {t('common.back')}
-        </Button>
+        <StatusIcon variant="error" />
+        <h2 className="text-2xl font-bold text-foreground mb-2">{errorTitle}</h2>
+        <p className="text-muted-foreground mb-6">{errorDesc}</p>
+        <Button onClick={onReset}>{t('common.retry')}</Button>
       </div>
     );
   }
