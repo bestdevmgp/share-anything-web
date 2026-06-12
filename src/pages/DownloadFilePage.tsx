@@ -196,22 +196,63 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [p2pStatus]);
 
+  // Tell the waiting sender a receiver arrived (flips its UI to "connected")
+  // before any download click. The backend flips the sender back to "waiting"
+  // whenever this socket drops, and QR/mobile links drop often, so we keepalive
+  // + reconnect + re-announce instead of a fragile one-shot announce.
   useEffect(() => {
     if (!isP2PDownload || !fileList || !passwordVerified || !code) return;
 
-    const ws = createWebSocketConnection(() => {});
+    let ws: WebSocket | null = null;
+    let keepalive: ReturnType<typeof setInterval> | null = null;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    let reannounceTimer: ReturnType<typeof setTimeout> | null = null;
+    let closed = false;
+    const peerId = generatePeerId();
 
-    ws.onopen = () => {
-      sendSignalingMessage(ws, {
+    const announce = (sock: WebSocket) => {
+      sendSignalingMessage(sock, {
         type: 'downloader_arrived',
         share_code: code,
-        peer_id: generatePeerId(),
+        peer_id: peerId,
         device_info: getDeviceInfo()
       });
     };
 
+    const connect = () => {
+      if (closed) return;
+      const sock = createWebSocketConnection(() => {});
+      ws = sock;
+
+      sock.onopen = () => {
+        if (closed) return;
+        announce(sock);
+        reannounceTimer = setTimeout(() => {
+          if (!closed && sock.readyState === WebSocket.OPEN) announce(sock);
+        }, 1500);
+      };
+
+      sock.onclose = () => {
+        if (closed) return;
+        if (reconnectTimer) clearTimeout(reconnectTimer);
+        reconnectTimer = setTimeout(connect, 1500);
+      };
+    };
+
+    connect();
+
+    keepalive = setInterval(() => {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        sendSignalingMessage(ws, { type: 'ping' });
+      }
+    }, 25000);
+
     return () => {
-      ws.close();
+      closed = true;
+      if (keepalive) clearInterval(keepalive);
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      if (reannounceTimer) clearTimeout(reannounceTimer);
+      if (ws) ws.close();
     };
   }, [isP2PDownload, fileList, passwordVerified, code]);
 
