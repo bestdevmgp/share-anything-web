@@ -137,6 +137,7 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
           tracking.partProgress[key] = 0;
           const result = await workerAPI.directUpload(
             fileInit.storage_key,
+            fileInit.upload_signature,
             file,
             (loaded) => {
               tracking.partProgress[key] = loaded;

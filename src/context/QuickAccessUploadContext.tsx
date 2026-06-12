@@ -220,6 +220,7 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
 
             const result = await workerAPI.directUpload(
               fileInit.storage_key,
+              fileInit.upload_signature,
               file,
               (loaded) => {
                 tracking.partProgress[progressKey] = loaded;

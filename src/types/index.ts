@@ -221,6 +221,7 @@ export interface MultipartUploadFileInit {
   storage_key: string;
   upload_id: string;
   total_parts: number;
+  upload_signature: string;
 }
 
 export interface InitMultipartUploadResponse {

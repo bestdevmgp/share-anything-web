@@ -82,6 +82,7 @@ export const workerAPI = {
 
   directUpload: async (
     storageKey: string,
+    signature: string,
     file: File,
     onUploadProgress?: (loaded: number, total: number) => void,
     signal?: AbortSignal
@@ -89,7 +90,8 @@ export const workerAPI = {
     const response = await axios.put(`${WORKER_URL}/upload`, file, {
       headers: {
         'Content-Type': file.type || 'application/octet-stream',
-        'X-Storage-Key': storageKey
+        'X-Storage-Key': storageKey,
+        'X-Upload-Signature': signature
       },
       signal,
       onUploadProgress: (progressEvent) => {

@@ -294,6 +294,7 @@ const UploadPage: React.FC = () => {
 
           const result = await workerAPI.directUpload(
             fileInit.storage_key,
+            fileInit.upload_signature,
             file,
             (loaded) => {
               partProgress[progressKey] = loaded;
