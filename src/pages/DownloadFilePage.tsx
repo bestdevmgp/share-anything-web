@@ -72,6 +72,7 @@ const DownloadFilePage: React.FC = () => {
       totalSize: fileList.files.reduce((sum, f) => sum + f.file_size, 0),
       expiresAt: fileList.expires_at,
       downloadedAt: new Date().toISOString(),
+      firstFileId: fileList.files[0].id,
     });
   };
 

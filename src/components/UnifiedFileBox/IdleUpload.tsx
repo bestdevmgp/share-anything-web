@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { ArrowUpTrayIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../i18n';
+import { useAuth } from '../../context/AuthContext';
 import { cn } from '../../lib/utils';
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
 
 const IdleUpload: React.FC<Props> = ({ onNormal, onSecure, animateIn }) => {
   const { t } = useTranslation();
+  const { isAuthenticated } = useAuth();
   const [enterAnim] = useState(
     animateIn ? 'animate-in fade-in-0 slide-in-from-bottom-1 duration-300' : ''
   );
@@ -42,6 +44,9 @@ const IdleUpload: React.FC<Props> = ({ onNormal, onSecure, animateIn }) => {
         <p className="text-sm text-muted-foreground text-center leading-relaxed max-w-[250px] min-h-[2.85rem]">
           {t('unifiedBox.normalDescription')}
         </p>
+        <p className="text-xs text-muted-foreground/60 text-center max-w-[250px] mt-2">
+          {isAuthenticated ? t('upload.maxSizeNotice') : t('upload.maxSizeNoticeGuest1')}
+        </p>
       </div>
       <div
         {...secureDz.getRootProps()}
@@ -62,6 +67,9 @@ const IdleUpload: React.FC<Props> = ({ onNormal, onSecure, animateIn }) => {
         </p>
         <p className="text-sm text-muted-foreground text-center leading-relaxed max-w-[250px] min-h-[2.85rem]">
           {t('unifiedBox.secureDescription')}
+        </p>
+        <p className="text-xs text-muted-foreground/60 text-center max-w-[250px] mt-2">
+          {t('upload.p2pSizeNotice')}
         </p>
       </div>
     </div>

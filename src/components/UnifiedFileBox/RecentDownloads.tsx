@@ -32,6 +32,7 @@ const RecentDownloads: React.FC = () => {
     createdAt: d.downloadedAt,
     expiresAt: d.expiresAt,
     source: 'server' as const,
+    firstFileId: d.firstFileId,
   }));
   const previews = useSharePreviews(mergedItems);
 

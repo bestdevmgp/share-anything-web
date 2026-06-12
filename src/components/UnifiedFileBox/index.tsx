@@ -32,8 +32,6 @@ const UnifiedFileBox: React.FC = () => {
   const handleRef = useRef<{ abort: () => void } | null>(null);
   const [downloadPrefill, setDownloadPrefill] = useState<string | null>(null);
 
-  // Animate the idle box back in only when returning from the success screen
-  // (the "완료" button), matching the upload-complete enter animation.
   const prevStateRef = useRef(state.state);
   const idleReturnFromSuccess =
     state.state === 'idleUpload' && prevStateRef.current === 'success';

@@ -7,6 +7,7 @@ export interface RecentDownload {
   totalSize: number;
   expiresAt: string; // ISO8601
   downloadedAt: string; // ISO8601
+  firstFileId?: string;
 }
 
 const readAll = (): RecentDownload[] => {
