@@ -31,7 +31,7 @@ const Uploading: React.FC<Props> = ({ items, onCancel }) => {
                 {overall.progress}%
               </span>
             </div>
-            <div className="pl-5">
+            <div className="pl-1.5">
               <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden">
                 <div
                   className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
