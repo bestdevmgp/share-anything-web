@@ -9,7 +9,6 @@ import {
 } from '@heroicons/react/24/outline';
 import { FileListResponse } from '../../types';
 import { formatFileSize } from '../../utils/format';
-import UploadProgressRow from '../UploadProgressRow';
 import FileThumbnail from '../FileThumbnail';
 import StatusIcon from '../StatusIcon';
 import { Button } from '../ui/button';
@@ -65,7 +64,7 @@ const Check: React.FC = () => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <path d="M5 13l4 4L19 7" />
+    <path d="M5 13l4 4L19 7" className="box-check-path" />
   </svg>
 );
 
@@ -115,6 +114,14 @@ const BoxDownloadView: React.FC<Props> = ({
       className="flex-1 flex flex-col px-6 md:px-8 py-8 animate-in fade-in-0 duration-300"
       onClick={(e) => e.stopPropagation()}
     >
+      <style>{`
+        .box-check-path {
+          stroke-dasharray: 20;
+          stroke-dashoffset: 20;
+          animation: drawBoxCheck 0.6s ease-out forwards;
+        }
+        @keyframes drawBoxCheck { to { stroke-dashoffset: 0; } }
+      `}</style>
       {children}
     </div>
   );
@@ -222,38 +229,46 @@ const BoxDownloadView: React.FC<Props> = ({
               {files.map((file) => {
                 const done = p2pCompletedFileIds.has(file.id);
                 const isActive = p2pActiveFileId === file.id && active;
-                // Before any transfer (ready state), keep rows compact like
-                // Quick Access — the 0% progress bar only appears once a
-                // download is actually running.
-                // The receiver can't know a P2P file's preview before download,
-                // so these rows carry no thumbnail.
-                if (!active && !allDone) {
-                  return (
-                    <div
-                      key={file.id}
-                      className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/[0.09]"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{file.file_name}</p>
-                        <p className="text-xs text-muted-foreground">{formatFileSize(file.file_size)}</p>
+                // No thumbnail (receiver can't preview pre-download). The
+                // second line is a fixed-height slot that swaps size ↔ progress
+                // bar in place, so the box height never jumps mid-transfer.
+                return (
+                  <div
+                    key={file.id}
+                    className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/[0.09]"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground truncate">{file.file_name}</p>
+                      <div className="h-5 flex items-center mt-0.5">
+                        {isActive ? (
+                          <div className="w-full flex items-center gap-2">
+                            <div className="flex-1 bg-secondary rounded-full h-1.5 overflow-hidden">
+                              <div
+                                className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
+                                style={{ width: `${p2pProgress}%` }}
+                              />
+                            </div>
+                            {p2pTimeRemaining && (
+                              <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0 leading-none">
+                                {p2pTimeRemaining}
+                              </span>
+                            )}
+                            <span className="text-xs font-semibold text-primary whitespace-nowrap flex-shrink-0 leading-none">
+                              {p2pProgress}%
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground leading-none">
+                            {done
+                              ? t('uploadSuccess.completed')
+                              : active
+                                ? t('uploadSuccess.waiting')
+                                : formatFileSize(file.file_size)}
+                          </span>
+                        )}
                       </div>
                     </div>
-                  );
-                }
-                const pct = done ? 100 : isActive ? p2pProgress : 0;
-                let statusText: string | undefined;
-                if (done) statusText = t('uploadSuccess.completed');
-                else if (!isActive) statusText = t('uploadSuccess.waiting');
-                return (
-                  <UploadProgressRow
-                    key={file.id}
-                    fileName={file.file_name}
-                    fileSize={file.file_size}
-                    progress={pct}
-                    timeRemaining={isActive ? p2pTimeRemaining : undefined}
-                    statusText={statusText}
-                    hideThumbnail
-                  />
+                  </div>
                 );
               })}
             </div>
