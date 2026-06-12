@@ -40,13 +40,13 @@ const UnifiedFileBox: React.FC = () => {
         prev.map((it, i) => {
           const e = events[i];
           if (!e) return it;
-          return { ...it, progress: e.percent };
+          return { ...it, loadedBytes: e.loadedBytes };
         })
       );
     },
     onFileComplete: (idx) => {
       setItems((prev) =>
-        prev.map((it, i) => (i === idx ? { ...it, completed: true, progress: 100 } : it))
+        prev.map((it, i) => (i === idx ? { ...it, completed: true, loadedBytes: it.fileSize } : it))
       );
     },
   });
@@ -78,8 +78,7 @@ const UnifiedFileBox: React.FC = () => {
           id: `u-${Date.now()}-${i}`,
           fileName: f.name,
           fileSize: f.size,
-          progress: 0,
-          timeRemaining: '',
+          loadedBytes: 0,
           completed: false,
         }))
       );
