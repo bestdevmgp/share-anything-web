@@ -53,6 +53,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   const [currentPage, setCurrentPage] = useState(1);
   const [pdfSource, setPdfSource] = useState<File | { url: string } | null>(null);
   const [pdfPageSize, setPdfPageSize] = useState<{ width: number; height: number } | null>(null);
+  const [pageRendered, setPageRendered] = useState(false);
 
   useEffect(() => {
     let objectUrl: string | null = null;
@@ -273,7 +274,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
             }
           >
             <div
-              className="flex items-center justify-center"
+              className="relative flex items-center justify-center"
               style={{ width: getPdfPageWidth(), minHeight: getPdfPageHeight() }}
             >
               <Page
@@ -282,6 +283,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
                 renderAnnotationLayer={false}
                 renderTextLayer={false}
                 onLoadSuccess={onPageLoadSuccess}
+                onRenderSuccess={() => setPageRendered(true)}
                 loading={
                   <div
                     className="bg-white"
@@ -289,6 +291,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
                   />
                 }
               />
+              {!pageRendered && <div className="absolute inset-0 bg-white" />}
             </div>
           </Document>
           {numPages && numPages > 1 && (
@@ -296,7 +299,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                onClick={() => { setPageRendered(false); setCurrentPage(p => Math.max(1, p - 1)); }}
                 disabled={currentPage <= 1}
               >
                 <ChevronLeftIcon className="w-5 h-5" />
@@ -307,7 +310,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setCurrentPage(p => Math.min(numPages, p + 1))}
+                onClick={() => { setPageRendered(false); setCurrentPage(p => Math.min(numPages, p + 1)); }}
                 disabled={currentPage >= numPages}
               >
                 <ChevronRightIcon className="w-5 h-5" />
