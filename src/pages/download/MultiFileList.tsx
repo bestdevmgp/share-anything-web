@@ -88,7 +88,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                 key={file.id}
                 onClick={() => toggleFileSelection(file.id)}
                 className={cn(
-                  'flex items-center space-x-3 px-3 py-2 rounded-lg cursor-pointer transition-all',
+                  'flex items-center space-x-3 px-3 py-3 rounded-lg cursor-pointer transition-all',
                   selectedFiles.has(file.id)
                     ? 'bg-accent border border-primary'
                     : 'bg-muted border border-foreground/[0.09] can-hover:hover:bg-accent active:bg-accent'
@@ -102,7 +102,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                 </div>
 
                 <div className="flex-shrink-0 hidden sm:flex">
-                  <FileThumbnail source={null} fileName={file.file_name} size="sm" />
+                  <FileThumbnail source={null} fileName={file.file_name} size="md" />
                 </div>
 
                 <div className="flex-1 min-w-0">

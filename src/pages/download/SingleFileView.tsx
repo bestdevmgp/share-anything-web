@@ -126,17 +126,17 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <h2 className="text-base md:text-lg font-bold text-foreground flex items-baseline min-w-0 leading-tight">
+              <h2 className="text-base font-semibold text-foreground flex items-baseline min-w-0 leading-tight">
                 <span className="truncate">{nameBase}</span>
                 {nameExt && <span className="flex-shrink-0">{nameExt}</span>}
               </h2>
-              <p className="text-sm text-muted-foreground mt-1">{formatFileSize(file.file_size)}</p>
+              <p className="text-sm text-muted-foreground mt-0.5">{formatFileSize(file.file_size)}</p>
             </div>
           </div>
 
           {!isP2PDownload && (
             <p className="text-xs text-muted-foreground text-center mt-3">
-              {t('download.expiresAt')} · {formatDateTime(fileList.expires_at, language)}
+              {t('download.expires', { dateTime: formatDateTime(fileList.expires_at, language) })}
             </p>
           )}
 
