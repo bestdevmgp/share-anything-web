@@ -500,6 +500,26 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     }
   };
 
+  const toggleFileSelection = (fileId: string) => {
+    setSelectedFiles(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(fileId)) {
+        newSet.delete(fileId);
+      } else {
+        newSet.add(fileId);
+      }
+      return newSet;
+    });
+  };
+
+  const selectAllFiles = () => {
+    setSelectedFiles(new Set((fileList?.files ?? []).map(f => f.id)));
+  };
+
+  const deselectAllFiles = () => {
+    setSelectedFiles(new Set());
+  };
+
   useEffect(() => {
     if (embedded && fileList && passwordVerified) {
       setSelectedFiles(new Set(fileList.files.map((f) => f.id)));
@@ -534,6 +554,10 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         onReset={onReset || (() => {})}
         onRetry={onRetry}
         previews={filePreviews}
+        selectedFiles={selectedFiles}
+        toggleFileSelection={toggleFileSelection}
+        selectAllFiles={selectAllFiles}
+        deselectAllFiles={deselectAllFiles}
         t={t}
       />
     );
@@ -616,26 +640,6 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       </>
     );
   }
-
-  const toggleFileSelection = (fileId: string) => {
-    setSelectedFiles(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(fileId)) {
-        newSet.delete(fileId);
-      } else {
-        newSet.add(fileId);
-      }
-      return newSet;
-    });
-  };
-
-  const selectAllFiles = () => {
-    setSelectedFiles(new Set(fileList.files.map(f => f.id)));
-  };
-
-  const deselectAllFiles = () => {
-    setSelectedFiles(new Set());
-  };
 
   if (isP2PDownload && fileList.files.length > 1) {
     const allP2PCompleted = fileList.files.every(f => p2pCompletedFileIds.has(f.id));

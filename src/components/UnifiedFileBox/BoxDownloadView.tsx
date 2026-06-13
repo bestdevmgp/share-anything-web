@@ -14,6 +14,8 @@ import StatusIcon from '../StatusIcon';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Spinner } from '../ui/spinner';
+import { Checkbox } from '../ui/checkbox';
+import { cn } from '../../lib/utils';
 
 interface Props {
   fileList: FileListResponse | null;
@@ -41,6 +43,10 @@ interface Props {
   onReset: () => void;
   onRetry: () => void;
   previews?: Record<string, string>;
+  selectedFiles: Set<string>;
+  toggleFileSelection: (fileId: string) => void;
+  selectAllFiles: () => void;
+  deselectAllFiles: () => void;
   t: (key: string, params?: Record<string, string | number>) => string;
 }
 
@@ -131,6 +137,10 @@ const BoxDownloadView: React.FC<Props> = ({
   onReset,
   onRetry,
   previews,
+  selectedFiles,
+  toggleFileSelection,
+  selectAllFiles,
+  deselectAllFiles,
   t,
 }) => {
   const showError = !loading && !!errorTitle;
@@ -362,44 +372,77 @@ const BoxDownloadView: React.FC<Props> = ({
           </p>
         </div>
         <div className="md:flex-1 flex flex-col min-w-0">
-          {fileListHeader}
-          <ScrollableFileList count={files.length}>
-            {files.map((file) => (
-              <div
-                key={file.id}
-                className="flex items-center px-3 py-3.5 bg-muted rounded-lg border border-foreground/[0.09]"
+          {multi ? (
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <p className="text-sm font-medium text-muted-foreground truncate">
+                {t('download.fileListSelected', { selected: selectedFiles.size, total: files.length })}
+              </p>
+              <button
+                type="button"
+                onClick={() => (selectedFiles.size === files.length ? deselectAllFiles() : selectAllFiles())}
+                className="flex-shrink-0 text-xs font-medium text-primary can-hover:hover:underline"
               >
-                <div className="flex-shrink-0 mr-3">
-                  <FileThumbnail source={previews?.[file.id] ?? null} fileName={file.file_name} size="sm" />
+                {selectedFiles.size === files.length ? t('download.deselectAll') : t('download.selectAll')}
+              </button>
+            </div>
+          ) : (
+            fileListHeader
+          )}
+          <ScrollableFileList count={files.length}>
+            {files.map((file) => {
+              const selected = selectedFiles.has(file.id);
+              return (
+                <div
+                  key={file.id}
+                  onClick={multi ? () => toggleFileSelection(file.id) : undefined}
+                  className={cn(
+                    'flex items-center px-3 py-3.5 bg-muted rounded-lg border border-foreground/[0.09]',
+                    multi && 'cursor-pointer transition-opacity',
+                    multi && !selected && 'opacity-50'
+                  )}
+                >
+                  {multi && (
+                    <Checkbox checked={selected} className="h-5 w-5 rounded-md border-2 flex-shrink-0 mr-3" />
+                  )}
+                  <div className="flex-shrink-0 mr-3">
+                    <FileThumbnail source={previews?.[file.id] ?? null} fileName={file.file_name} size="sm" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{file.file_name}</p>
+                    <p className="text-xs text-muted-foreground">{formatFileSize(file.file_size)}</p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{file.file_name}</p>
-                  <p className="text-xs text-muted-foreground">{formatFileSize(file.file_size)}</p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </ScrollableFileList>
         </div>
       </div>
       <div className="mt-6 flex flex-col gap-2">
-        {multi ? (
-          <div className="flex gap-2">
-            <Button onClick={() => handleDownload(true)} disabled={downloading} size="lg" className="flex-1">
-              <ArchiveBoxIcon className="w-5 h-5" />
-              <span>{t('download.zipDownload')}</span>
-            </Button>
-            <Button
-              onClick={() => handleDownload(false)}
-              disabled={downloading}
-              variant="outline"
-              size="lg"
-              className="flex-1"
-            >
-              <ArrowDownTrayIcon className="w-5 h-5" />
-              <span>{t('download.individualDownload')}</span>
-            </Button>
-          </div>
-        ) : (
+        {multi ? (() => {
+          const selectedTotalSize = files
+            .filter((f) => selectedFiles.has(f.id))
+            .reduce((sum, f) => sum + f.file_size, 0);
+          const canZip = selectedFiles.size > 1 && selectedTotalSize < 500 * 1024 * 1024;
+          const hasSelection = selectedFiles.size > 0;
+          return (
+            <div className="flex gap-2">
+              <Button onClick={() => handleDownload(true)} disabled={downloading || !canZip} size="lg" className="flex-1">
+                <ArchiveBoxIcon className="w-5 h-5" />
+                <span>{t('download.zipDownload')}</span>
+              </Button>
+              <Button
+                onClick={() => handleDownload(false)}
+                disabled={downloading || !hasSelection}
+                variant="outline"
+                size="lg"
+                className="flex-1"
+              >
+                <ArrowDownTrayIcon className="w-5 h-5" />
+                <span>{t('download.individualDownload')}</span>
+              </Button>
+            </div>
+          );
+        })() : (
           <Button onClick={() => handleDownload(false)} disabled={downloading} size="lg" className="w-full">
             {downloading ? (
               <Spinner size="sm" className="text-primary-foreground" />
