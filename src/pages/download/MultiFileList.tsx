@@ -104,7 +104,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
             </div>
           </div>
 
-          <div className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
+          <div className="space-y-2 sm:space-y-2.5 mb-6 sm:mb-8">
             {fileList.files.map((file) => (
               <div
                 key={file.id}

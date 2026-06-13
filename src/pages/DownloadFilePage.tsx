@@ -76,6 +76,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   const recordDownloadRef = useRef<() => void>(() => {});
   recordDownloadRef.current = () => {
     if (!code || !fileList || fileList.files.length === 0) return;
+    if (isP2PDownload) return;
     pushDownload({
       code,
       fileNames: fileList.files.map((f) => f.file_name),
@@ -300,11 +301,20 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   }, [code, navigate]);
 
   const onRetry = useCallback(() => {
+    // A missing/expired share never resolves by retrying the same code, so
+    // "retry" must lead back to entering a different code (box) or home (full
+    // page). Only transient/connection errors (sender offline, rate limit,
+    // unknown) re-fetch the same code.
+    if (errorTitleKey === 'download.invalidCode') {
+      if (embedded) onReset?.();
+      else navigate('/');
+      return;
+    }
     setErrorTitleKey('');
     setErrorDescKey('');
     setErrorDescFallback('');
     loadFileList();
-  }, [loadFileList]);
+  }, [errorTitleKey, embedded, onReset, navigate, loadFileList]);
 
   useEffect(() => {
     loadFileList();
@@ -730,12 +740,12 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                   <div
                     key={file.id}
                     className={cn(
-                      'px-3 py-2.5 rounded-lg border transition-all',
+                      'px-3 py-3 rounded-lg border transition-all',
                       isActive ? 'bg-muted border-primary' : 'bg-muted border-foreground/[0.09]'
                     )}
                   >
-                    <div className="flex items-center space-x-4 h-10">
-                      <div className="flex-1 min-w-0 h-full">
+                    <div className="flex items-center space-x-4 h-12">
+                      <div className="flex-1 min-w-0 h-full flex flex-col justify-center">
                         <div className="flex items-center justify-between gap-2">
                           <TruncatedFilename name={file.file_name} className="text-base font-semibold text-foreground flex-1 leading-tight" />
                         </div>

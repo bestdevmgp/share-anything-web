@@ -1,7 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
-  ArrowDownTrayIcon,
-  ArchiveBoxIcon,
   LockClosedIcon,
   EyeIcon,
   EyeSlashIcon,
@@ -352,7 +350,6 @@ const BoxDownloadView: React.FC<Props> = ({
               size="lg"
               className="w-full"
             >
-              <ArrowDownTrayIcon className="w-5 h-5" />
               <span>{files.length > 1 ? t('download.downloadAll') : t('download.downloadFile')}</span>
             </Button>
           )}
@@ -444,7 +441,6 @@ const BoxDownloadView: React.FC<Props> = ({
           return (
             <div className="flex gap-2">
               <Button onClick={() => handleDownload(true)} disabled={downloading || !canZip} size="lg" className="flex-1">
-                <ArchiveBoxIcon className="w-5 h-5" />
                 <span>{t('download.zipDownload')}</span>
               </Button>
               <Button
@@ -454,18 +450,13 @@ const BoxDownloadView: React.FC<Props> = ({
                 size="lg"
                 className="flex-1"
               >
-                <ArrowDownTrayIcon className="w-5 h-5" />
                 <span>{t('download.individualDownload')}</span>
               </Button>
             </div>
           );
         })() : (
           <Button onClick={() => handleDownload(false)} disabled={downloading} size="lg" className="w-full">
-            {downloading ? (
-              <Spinner size="sm" className="text-primary-foreground" />
-            ) : (
-              <ArrowDownTrayIcon className="w-5 h-5" />
-            )}
+            {downloading && <Spinner size="sm" className="text-primary-foreground" />}
             <span>{t('download.downloadFile')}</span>
           </Button>
         )}

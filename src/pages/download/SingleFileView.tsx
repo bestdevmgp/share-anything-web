@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavigateFunction } from 'react-router-dom';
-import { ArrowDownTrayIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 import { FileListResponse, FileListItem } from '../../types';
 import { formatFileSize, formatDateTime } from '../../utils/format';
 import { Card } from '../../components/ui/card';
@@ -206,7 +206,6 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
                   size="lg"
                   className="w-full"
                 >
-                  <ArrowDownTrayIcon />
                   <span>{t('download.startDownload')}</span>
                 </Button>
               )
@@ -221,7 +220,6 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
                 size="lg"
                 className="w-full"
               >
-                <ArrowDownTrayIcon />
                 <span>{t('download.downloadFile')}</span>
               </Button>
             )}
