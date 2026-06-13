@@ -53,7 +53,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
           </p>
         </div>
 
-        <Card className="rounded-2xl sm:rounded-3xl border-2 p-4 sm:p-10 sm:pt-5">
+        <Card className="rounded-2xl sm:rounded-3xl border-2 p-4 pt-5 sm:p-10 sm:pt-[22px]">
           {fileList.description && (
             <div className="mb-8 p-4 bg-muted rounded-lg border border-foreground/[0.09]">
               <p className="text-foreground break-words whitespace-pre-wrap">{fileList.description}</p>
@@ -189,7 +189,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
             )}
           </div>
 
-          <div className="mt-3 -mb-2 md:-mb-4 text-center">
+          <div className="mt-3 -mb-1 md:-mb-4 text-center">
             <Button
               variant="ghost"
               size="sm"
