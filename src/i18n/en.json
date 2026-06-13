@@ -576,7 +576,7 @@
     "p2pWaiting": "Waiting",
     "p2pCancelButton": "Cancel transfer",
     "p2pCreatingTitle": "Creating a secure session",
-    "p2pCreatingDesc": "Preparing your share code",
+    "p2pCreatingDesc": "Please wait a moment",
     "p2pCompletedTitle": "Transfer complete",
     "p2pCompletedSummary": "Sent {{count}} file(s)",
     "p2pNewTransferButton": "Start new transfer",

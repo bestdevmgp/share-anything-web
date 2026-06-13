@@ -572,7 +572,7 @@
     "p2pWaiting": "待機中",
     "p2pCancelButton": "転送をキャンセル",
     "p2pCreatingTitle": "セキュアセッションを作成しています",
-    "p2pCreatingDesc": "共有コードを準備しています",
+    "p2pCreatingDesc": "少々お待ちください",
     "p2pCompletedTitle": "転送完了",
     "p2pCompletedSummary": "{{count}}個のファイルを転送しました",
     "p2pNewTransferButton": "新しい転送を開始",

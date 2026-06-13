@@ -576,7 +576,7 @@
     "p2pWaiting": "대기 중",
     "p2pCancelButton": "전송 취소",
     "p2pCreatingTitle": "보안 세션을 만들고 있어요",
-    "p2pCreatingDesc": "공유 코드를 준비하는 중이에요",
+    "p2pCreatingDesc": "잠시만 기다려주세요",
     "p2pCompletedTitle": "전송 완료",
     "p2pCompletedSummary": "파일 {{count}}개 전송됨",
     "p2pNewTransferButton": "새 전송 시작",
