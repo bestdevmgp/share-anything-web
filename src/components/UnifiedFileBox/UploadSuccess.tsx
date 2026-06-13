@@ -37,7 +37,6 @@ const UploadSuccess: React.FC<Props> = ({ result, failedNames, onConfirm, onRetr
       `}</style>
 
       <div className="flex-1 flex flex-col md:flex-row items-center md:items-stretch justify-center gap-6 md:gap-10">
-        {/* Left: animated check, heading, share code */}
         <div className="flex flex-col items-center justify-center text-center md:flex-1">
           <div className="w-16 h-16 rounded-full flex items-center justify-center bg-green-100 dark:bg-green-500/15 mb-4">
             <svg
@@ -87,7 +86,6 @@ const UploadSuccess: React.FC<Props> = ({ result, failedNames, onConfirm, onRetr
           </p>
         </div>
 
-        {/* Right: share link + QR */}
         <div className="flex flex-col items-center justify-center gap-5 md:flex-1">
           <div className="w-full max-w-[420px]">
             <label className="block text-sm font-medium text-muted-foreground mb-2">

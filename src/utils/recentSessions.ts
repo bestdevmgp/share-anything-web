@@ -5,8 +5,8 @@ export interface RecentSession {
   code: string;
   fileNames: string[];
   totalSize: number;
-  expiresAt: string; // ISO8601
-  createdAt: string; // ISO8601
+  expiresAt: string;
+  createdAt: string;
 }
 
 const readAll = (): RecentSession[] => {
@@ -24,7 +24,6 @@ const writeAll = (list: RecentSession[]): void => {
   try {
     localStorage.setItem(KEY, JSON.stringify(list));
   } catch {
-    // quota / serialization errors are non-fatal
   }
 };
 
@@ -47,6 +46,5 @@ export const clearSessions = (): void => {
   try {
     localStorage.removeItem(KEY);
   } catch {
-    // ignore
   }
 };

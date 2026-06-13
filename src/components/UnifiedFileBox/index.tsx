@@ -36,9 +36,6 @@ const UnifiedFileBox: React.FC = () => {
     prevStateRef.current = state.state;
   }, [state.state]);
 
-  // Always 'public': the box issues a share code. Authenticated uploads are still
-  // recorded in /history by the backend, but must NOT land in Quick Access
-  // (that list is reserved for QuickAccess's own dropzone).
   const uploader = useMultipartUpload({
     mode: 'public',
     onProgress: (events: UploadProgressEvent[]) => {
@@ -72,8 +69,6 @@ const UnifiedFileBox: React.FC = () => {
     dispatch({ type: 'p2pStatusChange', status: p2p.status });
   }, [p2p.status, p2pEnabled, dispatch]);
 
-  // Warn before leaving while a transfer is in progress: an upload or an open
-  // P2P session is lost on refresh/close (the file blob can't be restored).
   useEffect(() => {
     const activeTransfer =
       state.state === 'uploading' ||
@@ -194,19 +189,14 @@ const UnifiedFileBox: React.FC = () => {
     navigate('/upload', { state: { initialFiles: state.files, fromUnifiedBox: true } });
   };
 
-  // Global shortcuts: "/" or a digit key jumps to the download tab. A digit
-  // key additionally pre-fills the first OTP cell.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const isSlash = e.key === '/';
       const isDigit = /^[0-9]$/.test(e.key);
       if (!isSlash && !isDigit) return;
-      // Don't hijack typing in any input/textarea anywhere on the page
       const tag = document.activeElement?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-      // Don't trigger when modifiers are held (browser shortcuts)
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      // Don't trigger while any upload activity is in progress
       if (
         state.state === 'uploading' ||
         state.state === 'p2pCreating' ||
@@ -251,8 +241,6 @@ const UnifiedFileBox: React.FC = () => {
       <div
         className={cn(
           'border-t border-foreground/[0.09]',
-          // Mobile stacks the two upload zones vertically so the panel floor is
-          // taller there to give each zone room; desktop lays them side by side.
           'min-h-[500px] md:min-h-[412px] flex flex-col'
         )}
         role="tabpanel"

@@ -33,7 +33,6 @@ const IdleDownload: React.FC<Props> = ({ shortcutEnabled, prefill, onPrefillCons
     focusAt(0);
   }, [focusAt]);
 
-  // Pre-fill the first cell when the user typed a digit on the home page
   useEffect(() => {
     if (!prefill || !/^[0-9]$/.test(prefill)) return;
     setDigits((prev) => {

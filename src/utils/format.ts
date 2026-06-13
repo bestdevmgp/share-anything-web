@@ -77,7 +77,6 @@ export const copyToClipboard = async (text: string): Promise<boolean> => {
       return true;
     }
   } catch {
-    // fall through to the legacy path below
   }
 
   try {

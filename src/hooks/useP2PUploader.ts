@@ -69,7 +69,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
 
   const sendFile = useCallback((file: File, dataChannel: RTCDataChannel) => {
     const chunkSize = 16 * 1024;
-    const sliceSize = chunkSize * 32; // 2MB per disk read
+    const sliceSize = chunkSize * 32;
     const BUFFER_HIGH = 4 * 1024 * 1024;
     const BUFFER_LOW = 1 * 1024 * 1024;
     dataChannel.bufferedAmountLowThreshold = BUFFER_LOW;
@@ -94,11 +94,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
         return newMap;
       });
 
-      // Session stays alive. The receiver will issue `file_request` for the
-      // next file (handled in the WS message switch below) or
-      // `transfer_complete` when finished — both reuse the OPEN PC+DC, so
-      // we deliberately do NOT close anything here. Per-file teardown +
-      // fresh ICE handshake was the old flow and cost 5–15s on TURN.
       setStatus('waiting_for_next');
       setCurrentFileName('');
 
@@ -113,11 +108,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       finishTransfer();
     };
 
-    // `onbufferedamountlow` is supposed to wake us when the channel drains, but the
-    // callback is *single-shot* and on some browsers / TURN paths it occasionally
-    // doesn't fire when expected (e.g. when bytes are still in-flight on the TURN
-    // relay). A short polling timer as a backstop guarantees the send loop resumes
-    // and the progress UI stays live while we wait.
     const armDrainWait = (threshold: number, onDrain: () => void) => {
       let done = false;
       let timer: ReturnType<typeof setInterval> | null = null;
@@ -136,8 +126,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
           if (timer) clearInterval(timer);
           return;
         }
-        // Refresh the progress UI even while we're stalled on the buffer; the
-        // wire-position calculation moves forward as bytes leave the channel.
         flushProgress();
         if (dataChannel.bufferedAmount <= threshold) finish();
       }, 200);
@@ -170,19 +158,9 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
 
         const updateProgress = () => {
           const now = Date.now();
-          // The receiver pushes per-chunk progress to its UI (every few tens of
-          // milliseconds), so a 1-second sender tick lags far behind and
-          // produces the visible "sender suddenly jumps then sits frozen"
-          // effect. Refresh the bar every 200 ms but keep ETA recomputation on
-          // a 1-second cadence (short-window estimates jitter wildly).
           if (now - lastProgressTickRef.current < 200) return;
           lastProgressTickRef.current = now;
 
-          // Report bytes that have actually left the local DC buffer (≈ bytes on
-          // the wire) instead of bytes we've pushed in. On TURN relays push
-          // races way ahead of wire and the bar would otherwise jump to 100%
-          // while the receiver sits at 30% — and the *sender* would appear
-          // frozen at a fixed % while the buffer drains.
           const onWire = Math.max(0, offset - dataChannel.bufferedAmount);
           const progressPercent = Math.min((onWire / file.size) * 100, 100);
           const elapsedMs = now - transferStartTimeRef.current;
@@ -244,10 +222,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shareCode, formatTime]);
 
-  // Stream a file on the ALREADY-open DataChannel. Used for every file after
-  // the first one — the PC + DC + ICE state are reused from the initial
-  // PeerMatched setup, so all that's required per file is metadata + chunks
-  // + EOF on the existing channel.
   const sendOnExistingChannel = useCallback((requestedFileName: string) => {
     const file = filesRef.current.find(f => f.name === requestedFileName);
     if (!file) {
@@ -451,11 +425,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
             setPeerDeviceInfo(message.device_info);
           }
 
-          // A live PC means this is a duplicate match for the current receiver —
-          // keep serving it. A closed/failed/disconnected PC is a stale leftover
-          // from a previous receiver (refs are closed but not nulled on
-          // teardown); discard it so the new receiver gets a fresh offer instead
-          // of being silently ignored.
           if (pcRef.current) {
             const cs = pcRef.current.connectionState;
             if (cs !== 'closed' && cs !== 'failed' && cs !== 'disconnected') {

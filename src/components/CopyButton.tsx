@@ -26,9 +26,6 @@ const CopyButton = forwardRef<HTMLButtonElement, CopyButtonProps>(
       return () => clearTimeout(t);
     }, [defaultCopied]);
 
-    // Wrappers like Radix TooltipTrigger (asChild) inject their own onClick via
-    // Slot; compose it instead of spreading after ours, or it silently replaces
-    // the copy handler.
     const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
       onClick?.(e);
       if (stopPropagation) e.stopPropagation();

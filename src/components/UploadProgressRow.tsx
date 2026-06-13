@@ -9,11 +9,8 @@ interface Props {
   fileSize: number;
   progress: number;
   timeRemaining?: string;
-  /** Override the right-side label (replaces "%" + time). Use for "completed", "waiting", etc. */
   statusText?: string;
-  /** Show cancel button. Omit to hide. */
   onCancel?: () => void;
-  /** Hide the type icon (receiver can't know a P2P file's preview pre-download). */
   hideThumbnail?: boolean;
 }
 

@@ -21,8 +21,6 @@ export const useSessionToken = (): Ctx => {
 const SITE_KEY = process.env.REACT_APP_TURNSTILE_SITE_KEY;
 const REFRESH_LEAD_MS = 60_000;
 const MAX_RETRIES = 3;
-// No token in this window ⇒ Turnstile likely blocked (ad blocker). Synced with
-// the API layer's startup wait.
 const LOAD_TIMEOUT_MS = 12_000;
 
 export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -40,7 +38,6 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
     markTokenUnavailable(true);
   }, []);
 
-  // De-dupe resets so a burst of force-refresh events doesn't thrash the widget.
   const forceRefresh = useCallback(() => {
     const now = Date.now();
     if (now - lastResetRef.current < 2000) return;

@@ -5,7 +5,6 @@ import { getDeviceInfo, getImageDimensions } from '../utils/format';
 
 type UploadMode = 'quick-access' | 'public';
 
-// Exported: consumed by UnifiedFileBox for the onProgress callback signature.
 export interface UploadProgressEvent {
   fileIndex: number;
   fileName: string;

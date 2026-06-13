@@ -95,11 +95,9 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; is
     const el = wrapperRef.current;
     if (!el) { finalizeRemove(); return; }
 
-    // Set explicit height so transition has a start value
     el.style.height = el.offsetHeight + 'px';
     el.style.overflow = 'hidden';
 
-    // Force reflow to register the explicit height
     void el.offsetHeight;
 
     el.style.transition = 'height 300ms cubic-bezier(0.4, 0, 0.2, 1), padding-bottom 300ms cubic-bezier(0.4, 0, 0.2, 1)';
@@ -124,7 +122,6 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; is
     };
   }, [isSwipeDismissing, DURATION]);
 
-  // When this toast reaches the top, ensure it stays visible for a minimum duration
   useEffect(() => {
     if (isFirst && !isLeaving && !isSwipeDismissing) {
       const elapsed = Date.now() - mountTimeRef.current;

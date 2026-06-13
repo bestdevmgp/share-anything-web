@@ -10,7 +10,6 @@ interface Props {
 const TurnstileBlockedOverlay: React.FC<Props> = ({ onRetry }) => {
   const { t } = useTranslation();
 
-  // Lock background scroll while the blocking modal is shown.
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';

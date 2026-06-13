@@ -6,12 +6,12 @@ import { useTheme } from '../context/ThemeContext';
 import { Button } from '../components/ui/button';
 import animationData from '../assets/lottie-404.json';
 
-const ORIG_MAIN   = [0.149, 0.361, 1.000]; // #265CFF - "4" 숫자, 지구본
-const ORIG_SHADOW = [0.123, 0.256, 0.703]; // #1F41B3 - 지구본 그림자
-const ORIG_MEDIUM = [0.451, 0.589, 0.999]; // #7396FF - 지구본 표면 곡선
-const ORIG_GRAY   = [0.416, 0.475, 0.659]; // #6A79A8 - 격자선, Wi-Fi 아이콘
-const ORIG_CLOUD  = [0.749, 0.808, 1.000]; // #BFCEFF - 떠다니는 구름
-const ORIG_WHITE  = [0.947, 0.959, 0.999]; // #F1F5FF - 배경 회전 원
+const ORIG_MAIN   = [0.149, 0.361, 1.000];
+const ORIG_SHADOW = [0.123, 0.256, 0.703];
+const ORIG_MEDIUM = [0.451, 0.589, 0.999];
+const ORIG_GRAY   = [0.416, 0.475, 0.659];
+const ORIG_CLOUD  = [0.749, 0.808, 1.000];
+const ORIG_WHITE  = [0.947, 0.959, 0.999];
 
 function colorClose(c: number[], t: number[], tol = 0.03): boolean {
   return Math.abs(c[0] - t[0]) < tol && Math.abs(c[1] - t[1]) < tol && Math.abs(c[2] - t[2]) < tol;

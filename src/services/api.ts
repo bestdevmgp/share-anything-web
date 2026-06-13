@@ -121,8 +121,6 @@ export const setSessionToken = (token: string | null): void => {
 
 export const getSessionToken = (): string | null => currentSessionToken;
 
-// Set when Turnstile can't mint (e.g. ad-blocked) so requests fail fast instead
-// of waiting out the full startup timeout.
 export const markTokenUnavailable = (v: boolean): void => {
   tokenUnavailable = v;
 };
@@ -130,8 +128,6 @@ export const markTokenUnavailable = (v: boolean): void => {
 const STARTUP_TOKEN_WAIT_MS = 12_000;
 const REFRESH_WAIT_MS = 8_000;
 
-// Resolve on the NEXT minted token (ignores any current/stale value), or null on
-// timeout.
 const waitForNextToken = (timeoutMs: number): Promise<string | null> =>
   new Promise((resolve) => {
     let settled = false;
@@ -147,7 +143,6 @@ const waitForNextToken = (timeoutMs: number): Promise<string | null> =>
 const waitForToken = (timeoutMs: number): Promise<string | null> =>
   currentSessionToken ? Promise.resolve(currentSessionToken) : waitForNextToken(timeoutMs);
 
-// Ask the provider to mint, de-duped so parallel 401s don't thrash the widget.
 let lastMintRequest = 0;
 const requestFreshToken = (): void => {
   const now = Date.now();
@@ -171,11 +166,8 @@ api.interceptors.request.use(async (config) => {
     config.headers['Content-Type'] = 'application/json';
   }
 
-  // The exchange call mints the session token, so it must never wait on one.
   const isExchange = (config.url || '').includes('/auth/session-token');
 
-  // Anonymous requests wait for the token instead of firing tokenless and
-  // bouncing off a 401. Logged-in users are exempt server-side.
   if (!isExchange && !currentSessionToken && !authToken && !tokenUnavailable) {
     await waitForToken(STARTUP_TOKEN_WAIT_MS);
   }
@@ -193,7 +185,6 @@ api.interceptors.response.use(
     const status = error.response?.status;
     const code = (error.response?.data as any)?.code;
 
-    // Session token expired/missing: try one refresh + retry
     if (
       status === 401 &&
       (code === 'SESSION_TOKEN_EXPIRED' || code === 'SESSION_TOKEN_REQUIRED') &&
@@ -201,7 +192,6 @@ api.interceptors.response.use(
       !original._retriedAfterSessionRefresh
     ) {
       original._retriedAfterSessionRefresh = true;
-      // Await a freshly minted token instead of a fixed sleep that races it.
       requestFreshToken();
       const fresh = await waitForNextToken(REFRESH_WAIT_MS);
       if (fresh) {
@@ -210,7 +200,6 @@ api.interceptors.response.use(
       return api(original);
     }
 
-    // Existing user-JWT 401 handling
     if (
       status === 401 &&
       error.config?.headers?.Authorization

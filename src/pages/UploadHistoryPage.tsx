@@ -38,7 +38,7 @@ import HistoryPagination from './history/HistoryPagination';
 import { groupUploads, localOnlyGroups } from '../utils/shareMerge';
 import { listSessions, removeSession, clearSessions } from '../utils/recentSessions';
 
-const PRESIGNED_URL_MAX_AGE_MS = 50 * 60 * 1000; // 50 minutes
+const PRESIGNED_URL_MAX_AGE_MS = 50 * 60 * 1000;
 
 const VideoPreview: React.FC<{ source: string; fileName: string }> = ({ source, fileName }) => {
   const { url, loading } = useThumbnail(source, fileName);

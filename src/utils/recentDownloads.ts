@@ -5,8 +5,8 @@ export interface RecentDownload {
   code: string;
   fileNames: string[];
   totalSize: number;
-  expiresAt: string; // ISO8601
-  downloadedAt: string; // ISO8601
+  expiresAt: string;
+  downloadedAt: string;
   firstFileId?: string;
 }
 
@@ -25,7 +25,6 @@ const writeAll = (list: RecentDownload[]): void => {
   try {
     localStorage.setItem(KEY, JSON.stringify(list));
   } catch {
-    // quota / serialization errors are non-fatal
   }
 };
 

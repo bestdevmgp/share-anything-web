@@ -137,10 +137,6 @@ export type SignalingMessageType =
   | 'downloader_offline'
   | 'downloader_paused'
   | 'uploader_cancelled'
-  // Receiver-to-uploader request to send the next file on the already-open
-  // PC+DC instead of running a fresh ICE handshake per file (5–15s saved on
-  // TURN). The corresponding uploader handler streams the requested file on
-  // the same DataChannel.
   | 'file_request'
   | 'ping'
   | 'pong';
@@ -340,7 +336,7 @@ export interface TrustedDevice {
 
 export interface SessionTokenResponse {
   session_token: string;
-  expires_at: string; // ISO8601
+  expires_at: string;
 }
 
 export interface UserSettings {

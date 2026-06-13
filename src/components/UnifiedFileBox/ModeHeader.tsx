@@ -24,7 +24,6 @@ const ModeHeader: React.FC<Props> = ({ mode, disabled, onSwitchMode, onDrillDown
       } else if (!active) {
         onSwitchMode(which);
       }
-      // active 'download' tab click: no-op
     };
     return (
       <button

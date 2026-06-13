@@ -1,8 +1,6 @@
 import { fileAPI } from '../../services/api';
 import { FileListResponse } from '../../types';
 
-// Shared, deduped cache of /files/list responses keyed by share code,
-// reused by preview-thumbnail fetching and the expanded per-file size list.
 const cache = new Map<string, FileListResponse>();
 const inflight = new Map<string, Promise<FileListResponse>>();
 

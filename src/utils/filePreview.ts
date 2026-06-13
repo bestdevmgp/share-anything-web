@@ -74,7 +74,6 @@ export function generateVideoThumbnail(source: File | string): Promise<string> {
       video.muted = true;
       video.playsInline = true;
 
-      // iOS Safari requires video element in DOM for reliable data loading
       video.style.cssText = 'position:fixed;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0';
       document.body.appendChild(video);
 

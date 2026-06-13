@@ -4,9 +4,6 @@ import { isImageFile, isPdfFile, isVideoFile } from '../../utils/format';
 import { MergedShare } from '../../utils/shareMerge';
 import { fetchShareFileList } from './shareFileList';
 
-// Module-level caches survive remounts within a session. Presigned URLs carry
-// an expiry so a stale link never reaches an <img> tag, and in-flight requests
-// are deduped so the collapsed row and the expanded bundle share one fetch.
 interface CachedUrl {
   url: string;
   expiresAt: number;
@@ -39,7 +36,7 @@ const resolvePreviewUrl = (code: string, fileId: string): Promise<string | null>
       });
       return download_url;
     } catch {
-      return null; // transient failure: leave the type icon, allow a later retry
+      return null;
     } finally {
       inflight.delete(key);
     }
@@ -48,7 +45,6 @@ const resolvePreviewUrl = (code: string, fileId: string): Promise<string | null>
   return p;
 };
 
-// Resolves a thumbnail URL for the FIRST file of each share (collapsed row).
 export const useSharePreviews = (items: MergedShare[]): Record<string, string> => {
   const [urls, setUrls] = useState<Record<string, string>>({});
   const itemsRef = useRef(items);
@@ -88,8 +84,6 @@ export interface BundleFile {
   name: string;
 }
 
-// Resolves thumbnail URLs for every previewable file inside an expanded bundle,
-// keyed by file id. Reuses the same cache as useSharePreviews.
 export const useBundlePreviews = (
   code: string | null,
   files: BundleFile[] | undefined,

@@ -95,7 +95,6 @@ const DocxMiniPreview: React.FC<{ source: File | string; boxClass: string; boxPx
     );
   }
 
-  // Render area: 440px wide → scale down to boxPx (e.g. 44px = 0.1 scale)
   const renderWidth = 440;
   const scale = boxPx / renderWidth;
   const renderHeight = boxPx / scale;

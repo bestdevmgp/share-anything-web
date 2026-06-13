@@ -13,18 +13,6 @@ interface UseP2PDownloaderProps {
   password?: string;
 }
 
-/// One signaling WS + one PC + one DC live for the entire `enabled` lifetime.
-/// Every subsequent file inside that window is requested over the existing
-/// channel via `file_request`, so per-file dead time drops from "full ICE
-/// handshake" (5–15s on a TURN relay) to "one signaling RTT".
-///
-/// Caller usage pattern:
-///   1. Set `enabled = true` and `fileInfo = first file` → session starts.
-///   2. On `onComplete`, set `fileInfo = next file` (keep `enabled = true`) →
-///      hook auto-sends `file_request` over the existing DC and resets the
-///      per-file progress refs; metadata + chunks + EOF arrive on the same DC.
-///   3. When the receiver is done with everything, call `close()` (which sends
-///      `transfer_complete`) or just set `enabled = false`.
 export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, password }: UseP2PDownloaderProps) => {
   const { t } = useTranslation();
   const [status, setStatus] = useState<'waiting' | 'connecting' | 'downloading' | 'processing' | 'completed' | 'error' | 'cancelled'>('waiting');
@@ -96,8 +84,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
     const blob = new Blob(receivedBlobsRef.current, { type: actualFileTypeRef.current });
     setStatus('completed');
     onCompleteRef.current(blob);
-    // Drop accumulated buffers so we don't keep file N's data resident while
-    // waiting for the file-N+1 request.
     receivedBlobsRef.current = [];
   }, []);
 
@@ -127,10 +113,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
     iceConnectedRef.current = false;
   }, []);
 
-  // Session-level setup. Runs once when `enabled` flips to true; runs again
-  // only after a teardown. fileInfo is intentionally NOT in deps — switching
-  // files within an enabled window happens in the second effect below via
-  // `file_request`, no new ICE handshake.
   useEffect(() => {
     if (!enabled || !shareCode || !fileInfo || !fileInfo.file_name) return;
     if (sessionActiveRef.current) return;
@@ -201,8 +183,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
 
           dataChannel.onclose = () => {
             if (isCleaningUpRef.current) return;
-            // Salvage if the current file is ≥95% — TURN relays sometimes
-            // close the DC after EOF + bytes have already been delivered.
             if (!completedFileRef.current && receivedSizeRef.current > 0 && receivedSizeRef.current >= actualFileSizeRef.current * 0.95) {
               finishCurrentFile();
             } else if (!completedFileRef.current) {
@@ -221,8 +201,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
             if (typeof event.data === 'string') {
               if (event.data === '__EOF__') {
                 if (completedFileRef.current) return;
-                // Defer slightly so any in-flight binary chunks have a chance
-                // to be processed before we close out the file.
                 setTimeout(() => {
                   setStatus('processing');
                   setTimeout(() => {
@@ -256,8 +234,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
             }
 
             const now = Date.now();
-            // 200ms throttle — fast enough to track sender's wire-based
-            // progress without thrashing React.
             if (now - lastTimeUpdateRef.current >= 200) {
               const target = actualFileSizeRef.current || 1;
               const progressPercent = Math.min((receivedSizeRef.current / target) * 100, 100);
@@ -425,10 +401,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, shareCode]);
 
-  // Mid-session file switch. Whenever the caller hands us a different file
-  // while the session is still live, send a `file_request` on the existing
-  // signaling WS and reset per-file progress. The uploader then streams
-  // metadata + chunks + EOF on the SAME DataChannel — no new ICE handshake.
   useEffect(() => {
     if (!enabled || !shareCode || !fileInfo || !fileInfo.file_name) return;
     if (!sessionActiveRef.current) return;
@@ -467,9 +439,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cleanupSession]);
 
-  // Receiver explicitly signals they are done with the entire share. Sends
-  // `transfer_complete` (which the server forwards to the uploader so it can
-  // exit gracefully) and tears down local resources.
   const close = useCallback(() => {
     if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
       sendSignalingMessage(wsRef.current, {

@@ -27,7 +27,6 @@ const P2PWaiting: React.FC<Props> = ({ shareCode, fileCount, onCancel, loading }
       onClick={(e) => e.stopPropagation()}
     >
       <div className="flex-1 flex flex-col md:flex-row items-center md:items-stretch justify-center gap-6 md:gap-10">
-        {/* Left: waiting status + share code */}
         <div className="flex flex-col items-center justify-center text-center md:flex-1">
           <div className="w-16 h-16 rounded-full flex items-center justify-center bg-card border border-foreground/[0.09] mb-4">
             <Spinner size="xl" />
@@ -74,7 +73,6 @@ const P2PWaiting: React.FC<Props> = ({ shareCode, fileCount, onCancel, loading }
           </p>
         </div>
 
-        {/* Right: share link + QR */}
         <div className="flex flex-col items-center justify-center gap-5 md:flex-1">
           <div className="w-full max-w-[420px]">
             <label className="block text-sm font-medium text-muted-foreground mb-2">

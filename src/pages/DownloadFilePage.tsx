@@ -95,9 +95,6 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       setBulkRemaining(bulkQueueRef.current.length);
       const nextId = bulkQueueRef.current[0];
       if (nextId) {
-        // Reuse the open WS+PC+DC: just swap the active fileId. The hook's
-        // `fileInfo` effect will fire a `file_request` on the existing
-        // channel — no new ICE handshake, ≈one signaling RTT per file.
         setP2pActiveFileId(nextId);
       } else {
         setBulkP2PDownloading(false);
@@ -107,10 +104,6 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       return;
     }
 
-    // Single-pick mode. Leave session open so a follow-up click on another
-    // file in the list is fast (same WS+PC). The session ends when the user
-    // explicitly leaves the page or hits the cancel button on the active
-    // download.
     toast.success(t('download.downloadComplete'));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [p2pActiveFileId, bulkP2PDownloading]);
@@ -150,9 +143,6 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   });
 
   const startP2PDownload = useCallback((fileId: string) => {
-    // Don't reset the hook here — that would tear down the existing PC+WS.
-    // Switching `p2pActiveFileId` while the session is alive triggers the
-    // hook's `file_request` flow, which reuses the open DataChannel.
     setP2pActiveFileId(fileId);
     setP2pEnabled(true);
   }, []);
