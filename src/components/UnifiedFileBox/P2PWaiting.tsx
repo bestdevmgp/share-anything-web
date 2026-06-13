@@ -6,18 +6,20 @@ import { Spinner } from '../ui/spinner';
 import CopyButton from '../CopyButton';
 import StyledQRCode from '../StyledQRCode';
 import { Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
+import { Skeleton } from '../ui/skeleton';
 
 interface Props {
-  shareCode: string;
+  shareCode?: string;
   fileCount: number;
   onCancel: () => void;
+  loading?: boolean;
 }
 
-const P2PWaiting: React.FC<Props> = ({ shareCode, fileCount, onCancel }) => {
+const P2PWaiting: React.FC<Props> = ({ shareCode, fileCount, onCancel, loading }) => {
   const { t } = useTranslation();
-  const url = `${window.location.origin}/download/${shareCode}`;
+  const url = shareCode ? `${window.location.origin}/download/${shareCode}` : '';
   const displayCode =
-    shareCode.length === 6 ? `${shareCode.slice(0, 3)} ${shareCode.slice(3)}` : shareCode;
+    shareCode && shareCode.length === 6 ? `${shareCode.slice(0, 3)} ${shareCode.slice(3)}` : (shareCode ?? '');
 
   return (
     <div
@@ -41,25 +43,31 @@ const P2PWaiting: React.FC<Props> = ({ shareCode, fileCount, onCancel }) => {
             {t('uploadSuccess.shareCode')}
           </label>
           <div className="flex items-center gap-1 bg-muted rounded-xl pl-3 pr-2 py-5 border border-foreground/[0.09] w-full max-w-[340px]">
-            <span className="w-9 flex-shrink-0" aria-hidden="true" />
-            <p
-              className="flex-1 text-[2.125rem] font-bold text-center text-foreground leading-none whitespace-nowrap"
-              style={{ letterSpacing: '0.1em' }}
-            >
-              {displayCode}
-            </p>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <CopyButton
-                  value={shareCode}
-                  aria-label={t('uploadSuccess.copyCode')}
-                  className="flex-shrink-0 h-9 w-9"
-                  iconClassName="w-5 h-5"
-                  iconCopiedClass="text-green-600 dark:text-green-600"
-                />
-              </TooltipTrigger>
-              <TooltipContent>{t('uploadSuccess.copyCode')}</TooltipContent>
-            </Tooltip>
+            {loading ? (
+              <Skeleton className="h-9 w-full rounded-lg" />
+            ) : (
+              <>
+                <span className="w-9 flex-shrink-0" aria-hidden="true" />
+                <p
+                  className="flex-1 text-[2.125rem] font-bold text-center text-foreground leading-none whitespace-nowrap"
+                  style={{ letterSpacing: '0.1em' }}
+                >
+                  {displayCode}
+                </p>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <CopyButton
+                      value={shareCode ?? ''}
+                      aria-label={t('uploadSuccess.copyCode')}
+                      className="flex-shrink-0 h-9 w-9"
+                      iconClassName="w-5 h-5"
+                      iconCopiedClass="text-green-600 dark:text-green-600"
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>{t('uploadSuccess.copyCode')}</TooltipContent>
+                </Tooltip>
+              </>
+            )}
           </div>
           <p className="text-xs text-muted-foreground mt-3">
             {t('unifiedBox.p2pFileCount', { count: fileCount })}
@@ -72,25 +80,29 @@ const P2PWaiting: React.FC<Props> = ({ shareCode, fileCount, onCancel }) => {
             <label className="block text-sm font-medium text-muted-foreground mb-2">
               {t('uploadSuccess.shareLink')}
             </label>
-            <div className="relative">
-              <Input
-                type="text"
-                value={url}
-                readOnly
-                className="w-full pr-12 bg-muted border-foreground/[0.09] rounded-lg text-sm text-foreground"
-              />
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <CopyButton
-                    value={url}
-                    aria-label={t('uploadSuccess.copyLink')}
-                    className="absolute right-[1.5px] top-1/2 -translate-y-1/2 h-9 w-9"
-                    iconCopiedClass="text-green-600 dark:text-green-600"
-                  />
-                </TooltipTrigger>
-                <TooltipContent>{t('uploadSuccess.copyLink')}</TooltipContent>
-              </Tooltip>
-            </div>
+            {loading ? (
+              <Skeleton className="h-10 w-full rounded-lg" />
+            ) : (
+              <div className="relative">
+                <Input
+                  type="text"
+                  value={url}
+                  readOnly
+                  className="w-full pr-12 bg-muted border-foreground/[0.09] rounded-lg text-sm text-foreground"
+                />
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <CopyButton
+                      value={url}
+                      aria-label={t('uploadSuccess.copyLink')}
+                      className="absolute right-[1.5px] top-1/2 -translate-y-1/2 h-9 w-9"
+                      iconCopiedClass="text-green-600 dark:text-green-600"
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>{t('uploadSuccess.copyLink')}</TooltipContent>
+                </Tooltip>
+              </div>
+            )}
           </div>
 
           <div className="flex flex-col items-center">
@@ -98,7 +110,11 @@ const P2PWaiting: React.FC<Props> = ({ shareCode, fileCount, onCancel }) => {
               {t('uploadSuccess.qrDownload')}
             </label>
             <div className="p-3 border-2 border-border rounded-2xl">
-              <StyledQRCode value={url} size={120} />
+              {loading ? (
+                <Skeleton className="w-[120px] h-[120px] rounded-lg" />
+              ) : (
+                <StyledQRCode value={url} size={120} />
+              )}
             </div>
           </div>
         </div>

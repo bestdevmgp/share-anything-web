@@ -18,7 +18,6 @@ import RecentDownloads from './RecentDownloads';
 import AnimatedHeight from './AnimatedHeight';
 import { fileAPI } from '../../services/api';
 import { toast } from '../../context/ToastContext';
-import { Spinner } from '../ui/spinner';
 import { cn } from '../../lib/utils';
 
 const UnifiedFileBox: React.FC = () => {
@@ -275,12 +274,11 @@ const UnifiedFileBox: React.FC = () => {
           />
         )}
         {state.mode === 'upload' && state.state === 'p2pCreating' && (
-          <div className="flex-1 flex flex-col items-center justify-center px-6 py-10 text-center">
-            <Spinner size="xl" className="text-primary mb-4" />
-            <p className="text-sm text-muted-foreground">
-              {t('common.loading')}
-            </p>
-          </div>
+          <P2PWaiting
+            loading
+            fileCount={state.files.length}
+            onCancel={onP2PCancel}
+          />
         )}
         {state.mode === 'upload' && state.state === 'p2pWaiting' && state.p2pShareCode && (
           <P2PWaiting
