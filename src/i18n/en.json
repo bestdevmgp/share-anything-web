@@ -391,6 +391,7 @@
     "receiveError": "An error occurred while receiving the file",
     "connectionFailed": "P2P connection failed. Please check your network",
     "setupFailed": "Failed to set up P2P connection",
+    "senderCancelled": "The sender stopped the transfer",
     "senderDisconnected": "The sender has disconnected",
     "downloadCancelled": "Download has been cancelled"
   },

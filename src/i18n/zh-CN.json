@@ -387,6 +387,7 @@
     "receiveError": "文件接收过程中发生错误",
     "connectionFailed": "P2P 连接失败，请检查网络",
     "setupFailed": "P2P 连接设置失败",
+    "senderCancelled": "发送方已中断传输",
     "senderDisconnected": "发送方已断开连接",
     "downloadCancelled": "下载已中断"
   },

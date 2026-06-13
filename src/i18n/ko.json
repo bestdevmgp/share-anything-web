@@ -391,6 +391,7 @@
     "receiveError": "파일 수신 중 오류가 발생했어요",
     "connectionFailed": "P2P 연결에 실패했어요. 네트워크를 확인해주세요",
     "setupFailed": "P2P 연결 설정에 실패했어요",
+    "senderCancelled": "발신자가 전송을 중단했어요",
     "senderDisconnected": "발신자가 연결을 종료했어요",
     "downloadCancelled": "다운로드가 중단되었어요"
   },

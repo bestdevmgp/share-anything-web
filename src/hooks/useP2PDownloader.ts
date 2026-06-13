@@ -206,8 +206,14 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
             if (!completedFileRef.current && receivedSizeRef.current > 0 && receivedSizeRef.current >= actualFileSizeRef.current * 0.95) {
               finishCurrentFile();
             } else if (!completedFileRef.current) {
-              setStatus('error');
-              toast.error(t('p2p.receiveError'));
+              if (pendingErrorTimerRef.current) clearTimeout(pendingErrorTimerRef.current);
+              pendingErrorTimerRef.current = setTimeout(() => {
+                if (!isCleaningUpRef.current && !completedFileRef.current) {
+                  setStatus('error');
+                  toast.error(t('p2p.receiveError'));
+                }
+                pendingErrorTimerRef.current = null;
+              }, 2000);
             }
           };
 
@@ -395,7 +401,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
           isCleaningUpRef.current = true;
           if (!completedFileRef.current) {
             setStatus('cancelled');
-            toast.warning(t('p2p.senderDisconnected'));
+            toast.warning(t(message.type === 'uploader_cancelled' ? 'p2p.senderCancelled' : 'p2p.senderDisconnected'));
           }
           cleanupSession();
           break;
