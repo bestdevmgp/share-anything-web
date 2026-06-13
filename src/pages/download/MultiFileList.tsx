@@ -46,14 +46,33 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
   return (
     <div className="pt-8 pb-20 px-4 sm:pt-12">
       <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-6 sm:mb-10">
-          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2 sm:mb-3">{t('download.pageTitle')}</h1>
+        <div className="text-center mb-10">
+          <div className="flex justify-center mb-5">
+            <div className="w-16 h-16 rounded-full flex items-center justify-center bg-green-100 dark:bg-green-500/15">
+              <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 13l4 4L19 7" className="download-checkmark-path" />
+              </svg>
+            </div>
+          </div>
+          <h1 className="text-4xl font-bold text-foreground mb-3">{t('download.readyToDownload')}</h1>
           <p className="text-muted-foreground">
             {t('download.totalFilesAvailable', { count: fileList.total_count })}
           </p>
         </div>
+        <style>{`
+          .download-checkmark-path {
+            stroke-dasharray: 20;
+            stroke-dashoffset: 20;
+            animation: drawDownloadCheck 0.6s ease-out forwards;
+          }
+          @keyframes drawDownloadCheck {
+            to {
+              stroke-dashoffset: 0;
+            }
+          }
+        `}</style>
 
-        <Card className="rounded-2xl sm:rounded-3xl border-2 p-4 pt-5 sm:p-10 sm:pt-[22px]">
+        <Card className="rounded-2xl sm:rounded-3xl border-2 p-4 pt-6 sm:p-10 sm:pt-[26px]">
           {fileList.description && (
             <div className="mb-8 p-4 bg-muted rounded-lg border border-foreground/[0.09]">
               <p className="text-foreground break-words whitespace-pre-wrap">{fileList.description}</p>
@@ -189,7 +208,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
             )}
           </div>
 
-          <div className="mt-3 -mb-1 md:-mb-4 text-center">
+          <div className="mt-3 md:-mb-4 text-center">
             <Button
               variant="ghost"
               size="sm"
