@@ -136,7 +136,7 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
 
           {!isP2PDownload && (
             <p className="text-xs text-muted-foreground text-center mt-3">
-              {t('download.expires', { dateTime: formatDateTime(fileList.expires_at, language) })}
+              {t('uploadSuccess.expires', { dateTime: formatDateTime(fileList.expires_at, language) })}
             </p>
           )}
 
