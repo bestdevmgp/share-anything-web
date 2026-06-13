@@ -46,16 +46,20 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
 
   useEffect(() => {
     filesRef.current = files;
-    const initialProgresses = new Map<string, FileProgress>();
-    files.forEach(file => {
-      initialProgresses.set(file.name, {
-        fileName: file.name,
-        progress: 0,
-        status: 'waiting',
-        timeRemaining: ''
+    // Preserve existing per-file progress so removing one file (state.files
+    // change) doesn't reset transferring/completed files back to 'waiting'.
+    setFileProgresses(prev => {
+      const next = new Map<string, FileProgress>();
+      files.forEach(file => {
+        next.set(file.name, prev.get(file.name) ?? {
+          fileName: file.name,
+          progress: 0,
+          status: 'waiting',
+          timeRemaining: ''
+        });
       });
+      return next;
     });
-    setFileProgresses(initialProgresses);
   }, [files]);
 
   const formatTime = useCallback((seconds: number): string => {
@@ -645,5 +649,22 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shareCode]);
 
-  return { status, fileProgresses, currentFileName, peerDeviceInfo, connectionFailed, retry, cancelTransfer };
+  // Drops a single file from the offer WITHOUT tearing down the session. If the
+  // data channel is open (a transfer is active), the receiver is told to remove
+  // it from its list in real time; otherwise it just leaves the sender's offer.
+  const removeFile = useCallback((fileName: string) => {
+    const dc = dataChannelRef.current;
+    if (dc && dc.readyState === 'open') {
+      try {
+        dc.send(JSON.stringify({ type: 'file_removed', fileName }));
+      } catch {}
+    }
+    setFileProgresses(prev => {
+      const newMap = new Map(prev);
+      newMap.delete(fileName);
+      return newMap;
+    });
+  }, []);
+
+  return { status, fileProgresses, currentFileName, peerDeviceInfo, connectionFailed, retry, cancelTransfer, removeFile };
 };

@@ -10,10 +10,11 @@ interface UseP2PDownloaderProps {
   fileInfo: FileInfo;
   enabled: boolean;
   onComplete: (blob: Blob) => void;
+  onPeerFileRemoved?: (fileName: string) => void;
   password?: string;
 }
 
-export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, password }: UseP2PDownloaderProps) => {
+export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onPeerFileRemoved, password }: UseP2PDownloaderProps) => {
   const { t } = useTranslation();
   const [status, setStatus] = useState<'waiting' | 'connecting' | 'downloading' | 'processing' | 'completed' | 'error' | 'cancelled'>('waiting');
   const [progress, setProgress] = useState(0);
@@ -43,6 +44,8 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
 
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
+  const onPeerFileRemovedRef = useRef(onPeerFileRemoved);
+  onPeerFileRemovedRef.current = onPeerFileRemoved;
   const shareCodeRef = useRef(shareCode);
   shareCodeRef.current = shareCode;
 
@@ -216,6 +219,10 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, pas
                   actualFileSizeRef.current = metadata.fileSize;
                   actualFileTypeRef.current = metadata.fileType;
                   downloadStartTimeRef.current = Date.now();
+                  return;
+                }
+                if (metadata.type === 'file_removed' && metadata.fileName) {
+                  onPeerFileRemovedRef.current?.(metadata.fileName);
                   return;
                 }
               } catch {}

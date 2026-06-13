@@ -39,6 +39,7 @@ export type Action =
   | { type: 'p2pFailed' }
   | { type: 'p2pCancel' }
   | { type: 'p2pNewTransfer' }
+  | { type: 'p2pRemoveFile'; fileName: string }
   | { type: 'enterDownload'; code: string }
   | { type: 'closeDownload' };
 
@@ -108,6 +109,8 @@ export const reducer = (s: State, a: Action): State => {
       return { ...s, state: 'downloadActive', downloadCode: a.code };
     case 'closeDownload':
       return { ...s, state: 'idleDownload', downloadCode: null };
+    case 'p2pRemoveFile':
+      return { ...s, files: s.files.filter((f) => f.name !== a.fileName) };
     case 'p2pSessionCreated':
       if (s.state !== 'p2pCreating') return s;
       return {

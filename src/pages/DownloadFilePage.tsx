@@ -147,7 +147,14 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       uploader_online: null
     },
     enabled: p2pEnabled && !!p2pActiveFile,
-    onComplete: (blob) => handleP2PDownloadComplete(blob, p2pActiveFile?.file_name || 'file')
+    onComplete: (blob) => handleP2PDownloadComplete(blob, p2pActiveFile?.file_name || 'file'),
+    onPeerFileRemoved: (fileName) => {
+      setFileList((prev) => {
+        if (!prev) return prev;
+        const files = prev.files.filter((f) => f.file_name !== fileName);
+        return { ...prev, files, total_count: files.length };
+      });
+    }
   });
 
   const startP2PDownload = useCallback((fileId: string) => {

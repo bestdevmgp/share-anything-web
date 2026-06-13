@@ -281,7 +281,10 @@ const UnifiedFileBox: React.FC = () => {
               peerDeviceInfo={p2p.peerDeviceInfo}
               completed={state.state === 'p2pCompleted'}
               onCancel={onP2PCancel}
-              onCancelFile={p2p.cancelTransfer}
+              onCancelFile={(name) => {
+                p2p.removeFile(name);
+                dispatch({ type: 'p2pRemoveFile', fileName: name });
+              }}
               onNew={() => dispatch({ type: 'p2pNewTransfer' })}
             />
           )}
