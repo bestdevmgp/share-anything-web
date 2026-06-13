@@ -8,6 +8,7 @@ import { listDownloads, removeDownload, RecentDownload } from '../../utils/recen
 import { MergedShare } from '../../utils/shareMerge';
 import { formatFileSize } from '../../utils/format';
 import FileThumbnail from '../FileThumbnail';
+import TruncatedFilename from '../TruncatedFilename';
 import CopyButton from '../CopyButton';
 import { cn } from '../../lib/utils';
 
@@ -99,9 +100,7 @@ const RecentDownloads: React.FC = () => {
                 </div>
                 <div className="flex-1 min-w-0 mr-3">
                   <div className="flex items-baseline min-w-0">
-                    <span className="text-sm font-medium text-foreground truncate">
-                      {d.fileNames[0]}
-                    </span>
+                    <TruncatedFilename name={d.fileNames[0]} className="text-sm font-medium text-foreground" />
                     {isBundle && (
                       <span className="text-sm text-muted-foreground font-normal flex-shrink-0 ml-1">
                         {t('unifiedBox.bundleExtraCount', { count: d.fileNames.length - 1 })}

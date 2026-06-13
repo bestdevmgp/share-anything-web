@@ -10,6 +10,7 @@ import {
 import { FileListResponse } from '../../types';
 import { formatFileSize } from '../../utils/format';
 import FileThumbnail from '../FileThumbnail';
+import TruncatedFilename from '../TruncatedFilename';
 import StatusIcon from '../StatusIcon';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -47,6 +48,7 @@ interface Props {
   toggleFileSelection: (fileId: string) => void;
   selectAllFiles: () => void;
   deselectAllFiles: () => void;
+  openPreview: (fileName: string, fileSize: number, fileId: string, blobSource: string) => void;
   t: (key: string, params?: Record<string, string | number>) => string;
 }
 
@@ -141,6 +143,7 @@ const BoxDownloadView: React.FC<Props> = ({
   toggleFileSelection,
   selectAllFiles,
   deselectAllFiles,
+  openPreview,
   t,
 }) => {
   const showError = !loading && !!errorTitle;
@@ -287,7 +290,7 @@ const BoxDownloadView: React.FC<Props> = ({
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{file.file_name}</p>
+                      <TruncatedFilename name={file.file_name} className="text-sm font-medium text-foreground" />
                       <div className="h-5 flex items-center mt-0.5">
                         {isActive ? (
                           <div className="w-full flex items-center gap-2">
@@ -380,7 +383,7 @@ const BoxDownloadView: React.FC<Props> = ({
               <button
                 type="button"
                 onClick={() => (selectedFiles.size === files.length ? deselectAllFiles() : selectAllFiles())}
-                className="flex-shrink-0 text-xs font-medium text-primary can-hover:hover:underline"
+                className="flex-shrink-0 text-[11px] text-muted-foreground can-hover:hover:text-foreground active:text-foreground underline"
               >
                 {selectedFiles.size === files.length ? t('download.deselectAll') : t('download.selectAll')}
               </button>
@@ -404,11 +407,25 @@ const BoxDownloadView: React.FC<Props> = ({
                   {multi && (
                     <Checkbox checked={selected} className="h-5 w-5 rounded-md border-2 flex-shrink-0 mr-3" />
                   )}
-                  <div className="flex-shrink-0 mr-3">
-                    <FileThumbnail source={previews?.[file.id] ?? null} fileName={file.file_name} size="sm" />
-                  </div>
+                  {previews?.[file.id] ? (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openPreview(file.file_name, file.file_size, file.id, previews[file.id]);
+                      }}
+                      className="flex-shrink-0 mr-3 rounded-lg overflow-hidden transition-transform can-hover:hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      aria-label={file.file_name}
+                    >
+                      <FileThumbnail source={previews[file.id]} fileName={file.file_name} size="sm" />
+                    </button>
+                  ) : (
+                    <div className="flex-shrink-0 mr-3">
+                      <FileThumbnail source={null} fileName={file.file_name} size="sm" />
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{file.file_name}</p>
+                    <TruncatedFilename name={file.file_name} className="text-sm font-medium text-foreground" />
                     <p className="text-xs text-muted-foreground">{formatFileSize(file.file_size)}</p>
                   </div>
                 </div>

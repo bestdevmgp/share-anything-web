@@ -3,6 +3,7 @@ import { UploadHistoryItem, UploadGroup, DownloadLog } from '../../types';
 import { isPdfFile, isVideoFile, formatFileSize, formatDateTime } from '../../utils/format';
 import { Language } from '../../context/LanguageContext';
 import FileThumbnail from '../../components/FileThumbnail';
+import TruncatedFilename from '../../components/TruncatedFilename';
 import { Button } from '../../components/ui/button';
 import { Skeleton } from '../../components/ui/skeleton';
 import { Card, CardContent } from '../../components/ui/card';
@@ -35,7 +36,6 @@ interface HistoryMobileCardsProps {
   openPreviewModal: (upload: UploadHistoryItem) => void;
   handlePreviewError: (uploadId: string) => void;
   getThumbnailSource: (upload: UploadHistoryItem) => string | null;
-  truncateFileName: (fileName: string, maxLength?: number) => string;
   isExpired: (expiresAt: string) => boolean;
   isImageFileByType: (fileType: string) => boolean;
   PdfPreview: React.FC<PdfPreviewProps>;
@@ -120,7 +120,6 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
   openPreviewModal,
   handlePreviewError,
   getThumbnailSource,
-  truncateFileName,
   isExpired,
   isImageFileByType,
   PdfPreview,
@@ -239,9 +238,7 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                     </>
                   ) : (
                     <>
-                      <h3 className={cn("text-sm font-medium text-foreground leading-4 truncate")} title={firstFile.file_name}>
-                        {truncateFileName(firstFile.file_name, 28)}
-                      </h3>
+                      <TruncatedFilename name={firstFile.file_name} className="text-sm font-medium text-foreground leading-4" />
                       <div className={cn("flex items-center space-x-2 text-xs text-muted-foreground leading-4", firstFile.description ? "mt-0.5" : "mt-1")}>
                         <span>{formatFileSize(group.totalSize)}</span>
                         <span>•</span>

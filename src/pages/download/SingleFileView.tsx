@@ -2,12 +2,13 @@ import React from 'react';
 import { NavigateFunction } from 'react-router-dom';
 import { ArrowDownTrayIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { FileListResponse, FileListItem } from '../../types';
-import { formatFileSize, formatDateTime, splitFilenameExt } from '../../utils/format';
+import { formatFileSize, formatDateTime } from '../../utils/format';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 
 import { Spinner } from '../../components/ui/spinner';
 import FileThumbnail from '../../components/FileThumbnail';
+import TruncatedFilename from '../../components/TruncatedFilename';
 import { cn } from 'lib/utils';
 import { Language } from '../../context/LanguageContext';
 
@@ -55,8 +56,6 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
   t,
   language,
 }) => {
-  const [nameBase, nameExt] = splitFilenameExt(file.file_name);
-
   return (
     <div className="flex items-center justify-center px-4 pt-12 pb-20">
       <div className="max-w-2xl w-full">
@@ -126,10 +125,7 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <h2 className="text-base font-semibold text-foreground flex items-baseline min-w-0 leading-tight">
-                <span className="truncate">{nameBase}</span>
-                {nameExt && <span className="flex-shrink-0">{nameExt}</span>}
-              </h2>
+              <TruncatedFilename name={file.file_name} className="text-base font-semibold text-foreground leading-tight" />
               <p className="text-sm text-muted-foreground mt-0.5">{formatFileSize(file.file_size)}</p>
             </div>
           </div>

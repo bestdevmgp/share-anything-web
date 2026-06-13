@@ -387,24 +387,6 @@ const UploadHistoryPage: React.FC = () => {
     return fileType.startsWith('image/');
   };
 
-  const truncateFileName = (fileName: string, maxLength: number = 40) => {
-    const normalized = fileName.normalize('NFC');
-    if (normalized.length <= maxLength) return normalized;
-
-    const lastDotIndex = normalized.lastIndexOf('.');
-    if (lastDotIndex === -1) {
-      return normalized.substring(0, maxLength) + '...';
-    }
-
-    const extension = normalized.substring(lastDotIndex);
-    const nameWithoutExt = normalized.substring(0, lastDotIndex);
-    const maxNameLength = maxLength - extension.length - 3;
-
-    if (nameWithoutExt.length <= maxNameLength) return normalized;
-
-    return nameWithoutExt.substring(0, maxNameLength) + '...' + extension;
-  };
-
   const handlePreviewError = useCallback((uploadId: string) => {
     setFailedPreviews(prev => new Set(prev).add(uploadId));
   }, []);
@@ -523,7 +505,6 @@ const UploadHistoryPage: React.FC = () => {
         openPreviewModal={openPreviewModal}
         handlePreviewError={handlePreviewError}
         getThumbnailSource={getThumbnailSource}
-        truncateFileName={truncateFileName}
         isExpired={isExpired}
         isImageFileByType={isImageFileByType}
         PdfPreview={PdfPreview}
@@ -562,7 +543,6 @@ const UploadHistoryPage: React.FC = () => {
             openPreviewModal={openPreviewModal}
             handlePreviewError={handlePreviewError}
             getThumbnailSource={getThumbnailSource}
-            truncateFileName={truncateFileName}
             isExpired={isExpired}
             isImageFileByType={isImageFileByType}
             PdfPreview={PdfPreview}

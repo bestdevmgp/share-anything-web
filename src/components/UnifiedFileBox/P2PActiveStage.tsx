@@ -4,6 +4,7 @@ import { useTranslation } from '../../i18n';
 import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
 import FileThumbnail from '../FileThumbnail';
+import TruncatedFilename from '../TruncatedFilename';
 import { FileProgress } from '../../hooks/useP2PUploader';
 import { formatFileSize } from '../../utils/format';
 import { cn } from '../../lib/utils';
@@ -153,7 +154,7 @@ const P2PActiveStage: React.FC<Props> = ({
                     <FileThumbnail source={null} fileName={file.name} size="sm" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{file.name}</p>
+                    <TruncatedFilename name={file.name} className="text-sm font-medium text-foreground" />
                     <div className="h-5 flex items-center mt-0.5">
                       {isTransferring ? (
                         <div className="w-full flex items-center gap-2">

@@ -3,6 +3,7 @@ import { UploadHistoryItem, UploadGroup, DownloadLog } from '../../types';
 import { isPdfFile, isVideoFile, formatFileSize, formatDateTime } from '../../utils/format';
 import { Language } from '../../context/LanguageContext';
 import FileThumbnail from '../../components/FileThumbnail';
+import TruncatedFilename from '../../components/TruncatedFilename';
 import { Button } from '../../components/ui/button';
 import { Tooltip, TooltipTrigger, TooltipContent } from '../../components/ui/tooltip';
 import { Skeleton } from '../../components/ui/skeleton';
@@ -45,7 +46,6 @@ interface HistoryTableProps {
   openPreviewModal: (upload: UploadHistoryItem) => void;
   handlePreviewError: (uploadId: string) => void;
   getThumbnailSource: (upload: UploadHistoryItem) => string | null;
-  truncateFileName: (fileName: string, maxLength?: number) => string;
   isExpired: (expiresAt: string) => boolean;
   isImageFileByType: (fileType: string) => boolean;
   PdfPreview: React.FC<PdfPreviewProps>;
@@ -133,7 +133,6 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
   openPreviewModal,
   handlePreviewError,
   getThumbnailSource,
-  truncateFileName,
   isExpired,
   isImageFileByType,
   PdfPreview,
@@ -269,9 +268,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                           </>
                         ) : (
                           <>
-                            <div className="text-sm font-medium text-foreground truncate" title={firstFile.file_name}>
-                              {truncateFileName(firstFile.file_name)}
-                            </div>
+                            <TruncatedFilename name={firstFile.file_name} className="text-sm font-medium text-foreground" />
                             {firstFile.description && (
                               <div className="text-sm text-muted-foreground truncate">
                                 {firstFile.description}

@@ -2,7 +2,8 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fileAPI } from '../services/api';
 import { FileListResponse } from '../types';
-import { downloadFile, isPptxFile, formatTimeRemaining, calculateTimeRemaining, getDeviceInfo, isImageFile, formatFileSize, splitFilenameExt } from '../utils/format';
+import { downloadFile, isPptxFile, formatTimeRemaining, calculateTimeRemaining, getDeviceInfo, isImageFile, formatFileSize } from '../utils/format';
+import TruncatedFilename from '../components/TruncatedFilename';
 import { PauseIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { toast } from '../context/ToastContext';
 import { useTranslation, translateApiError } from '../i18n';
@@ -528,6 +529,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
 
   if (embedded) {
     return (
+      <>
       <BoxDownloadView
         fileList={fileList}
         loading={loading}
@@ -558,8 +560,16 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         toggleFileSelection={toggleFileSelection}
         selectAllFiles={selectAllFiles}
         deselectAllFiles={deselectAllFiles}
+        openPreview={openPreview}
         t={t}
       />
+      {previewFile && (
+        <FilePreviewModal
+          file={previewFile}
+          onClose={() => setPreviewFile(null)}
+        />
+      )}
+      </>
     );
   }
 
@@ -715,7 +725,6 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                 const isActive = p2pActiveFileId === file.id;
                 const isDownloading = isActive && (p2pStatus === 'downloading' || p2pStatus === 'connecting');
                 const isCompleted = p2pCompletedFileIds.has(file.id);
-                const [nameBase, nameExt] = splitFilenameExt(file.file_name);
 
                 return (
                   <div
@@ -728,10 +737,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                     <div className="flex items-center space-x-4 h-10">
                       <div className="flex-1 min-w-0 h-full">
                         <div className="flex items-center justify-between gap-2">
-                          <h4 className="text-base font-semibold text-foreground flex items-baseline min-w-0 flex-1 leading-tight">
-                            <span className="truncate">{nameBase}</span>
-                            {nameExt && <span className="flex-shrink-0">{nameExt}</span>}
-                          </h4>
+                          <TruncatedFilename name={file.file_name} className="text-base font-semibold text-foreground flex-1 leading-tight" />
                         </div>
                         <div className={cn("h-5 flex", isDownloading ? "items-end" : "items-start")}>
                           {isDownloading ? (

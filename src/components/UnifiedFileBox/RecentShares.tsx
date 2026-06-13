@@ -14,6 +14,7 @@ import { formatFileSize, isPptxFile } from '../../utils/format';
 import FileThumbnail from '../FileThumbnail';
 import FilePreviewModal from '../FilePreviewModal';
 import CopyButton from '../CopyButton';
+import TruncatedFilename from '../TruncatedFilename';
 import { cn } from '../../lib/utils';
 
 interface Props {
@@ -190,9 +191,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                 </div>
                 <div className="flex-1 min-w-0 mr-3">
                   <div className="flex items-baseline min-w-0">
-                    <span className="text-sm font-medium text-foreground truncate">
-                      {s.fileNames[0]}
-                    </span>
+                    <TruncatedFilename name={s.fileNames[0]} className="text-sm font-medium text-foreground" />
                     {isBundle && (
                       <span className="text-sm text-muted-foreground font-normal flex-shrink-0 ml-1">
                         {t('unifiedBox.bundleExtraCount', { count: s.fileNames.length - 1 })}
@@ -261,7 +260,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                       const rowInner = (
                         <>
                           <FileThumbnail source={f.id ? bundlePreviews[f.id] ?? null : null} fileName={f.name} size="sm" />
-                          <span className="flex-1 min-w-0 text-sm text-foreground/80 truncate text-left">{f.name}</span>
+                          <TruncatedFilename name={f.name} className="flex-1 text-sm text-foreground/80 text-left" />
                           {f.size != null && (
                             <span className="flex-shrink-0 text-xs text-muted-foreground">
                               {formatFileSize(f.size)}

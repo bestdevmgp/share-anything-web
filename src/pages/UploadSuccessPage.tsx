@@ -2,12 +2,13 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import StyledQRCode from '../components/StyledQRCode';
 import { FileUploadResponse } from '../types';
-import { formatDateTime, formatFileSize, splitFilenameExt } from '../utils/format';
+import { formatDateTime, formatFileSize } from '../utils/format';
 import { CheckIcon, ExclamationTriangleIcon, PauseIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import CopyButton from '../components/CopyButton';
 import { useP2PUploader } from '../hooks/useP2PUploader';
 import FileThumbnail from '../components/FileThumbnail';
 import FilePreviewModal from '../components/FilePreviewModal';
+import TruncatedFilename from '../components/TruncatedFilename';
 import { useTranslation } from '../i18n';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
@@ -253,9 +254,7 @@ const UploadSuccessPage: React.FC = () => {
                               </div>
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h4 className="text-sm font-medium text-foreground truncate">
-                                {file.name}
-                              </h4>
+                              <TruncatedFilename name={file.name} className="text-sm font-medium text-foreground" />
                               <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
                             </div>
                             <div className="flex-shrink-0 text-right mr-4">
@@ -322,9 +321,7 @@ const UploadSuccessPage: React.FC = () => {
                             <FileThumbnail source={file} fileName={file.name} size="sm" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="text-sm font-medium text-foreground truncate">
-                              {file.name}
-                            </h4>
+                            <TruncatedFilename name={file.name} className="text-sm font-medium text-foreground" />
                             <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
                           </div>
                           <div className="flex-shrink-0 text-right mr-4">
@@ -345,7 +342,6 @@ const UploadSuccessPage: React.FC = () => {
                       const progress = fileProgresses.get(file.name);
                       const isTransferring = progress?.status === 'transferring';
                       const isCompleted = progress?.status === 'completed';
-                      const [nameBase, nameExt] = splitFilenameExt(file.name);
 
                       return (
                         <div
@@ -373,10 +369,7 @@ const UploadSuccessPage: React.FC = () => {
 
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between gap-2">
-                                <h4 className="text-sm font-medium text-foreground flex items-baseline min-w-0 flex-1 leading-tight">
-                                  <span className="truncate">{nameBase}</span>
-                                  {nameExt && <span className="flex-shrink-0">{nameExt}</span>}
-                                </h4>
+                                <TruncatedFilename name={file.name} className="text-sm font-medium text-foreground flex-1 leading-tight" />
                                 {isTransferring && (
                                   <div className="flex items-center gap-2 flex-shrink-0">
                                     <span className="text-xs text-muted-foreground whitespace-nowrap">{progress?.timeRemaining || t('format.calculating')}</span>

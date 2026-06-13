@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/button';
 import { cn } from 'lib/utils';
 import { useTranslation } from '../../i18n';
 import FileThumbnail from '../../components/FileThumbnail';
+import TruncatedFilename from '../../components/TruncatedFilename';
 import { formatFileSize } from '../../utils/format';
 
 export interface FileDropzoneProps {
@@ -82,7 +83,7 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                     <div className="flex items-center space-x-3 flex-1 min-w-0">
                       <FileThumbnail source={file} fileName={file.name} size="sm" />
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-foreground truncate">{file.name}</p>
+                        <TruncatedFilename name={file.name} className="text-sm font-medium text-foreground" />
                         <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
                       </div>
                     </div>

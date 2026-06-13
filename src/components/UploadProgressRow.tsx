@@ -1,6 +1,7 @@
 import React from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import FileThumbnail from './FileThumbnail';
+import TruncatedFilename from './TruncatedFilename';
 import { formatFileSize } from '../utils/format';
 import { useTranslation } from '../i18n';
 
@@ -35,7 +36,7 @@ const UploadProgressRow: React.FC<Props> = ({
         </div>
       )}
       <div className="flex-1 min-w-0 mr-3">
-        <p className="text-sm font-medium text-foreground truncate">{fileName}</p>
+        <TruncatedFilename name={fileName} className="text-sm font-medium text-foreground" />
         <div className="flex items-center justify-between">
           <span className="text-xs text-muted-foreground">{formatFileSize(fileSize)}</span>
           <div className="flex items-center gap-2">

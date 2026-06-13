@@ -8,6 +8,7 @@ import { Button } from '../../components/ui/button';
 
 import { Checkbox } from '../../components/ui/checkbox';
 import FileThumbnail from '../../components/FileThumbnail';
+import TruncatedFilename from '../../components/TruncatedFilename';
 import { cn } from 'lib/utils';
 
 export interface MultiFileListProps {
@@ -127,9 +128,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-sm font-semibold text-foreground truncate">
-                    {file.file_name}
-                  </h4>
+                  <TruncatedFilename name={file.file_name} className="text-sm font-semibold text-foreground" />
                   <p className="text-xs text-muted-foreground">{formatFileSize(file.file_size)}</p>
                 </div>
               </div>

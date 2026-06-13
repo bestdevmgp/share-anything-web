@@ -11,6 +11,7 @@ import { useTranslation } from '../i18n';
 import { useNavigate } from 'react-router-dom';
 import FileThumbnail from './FileThumbnail';
 import FilePreviewModal from './FilePreviewModal';
+import TruncatedFilename from './TruncatedFilename';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
 import { cn } from 'lib/utils';
@@ -331,9 +332,7 @@ const QuickAccess: React.FC = () => {
                     />
                   </div>
                   <div className="flex-1 min-w-0 mr-3">
-                    <p className="text-sm font-medium text-foreground truncate">
-                      {file.file_name}
-                    </p>
+                    <TruncatedFilename name={file.file_name} className="text-sm font-medium text-foreground" />
                     <p className="text-xs text-muted-foreground truncate">
                       {formatFileSize(file.file_size)} · {getRemainingTime(file.expires_at)}
                     </p>
