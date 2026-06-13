@@ -23,6 +23,7 @@ export interface MultiFileListProps {
   handleDownload: (asZip: boolean) => void;
   handleCancelDownload: () => void;
   navigate: NavigateFunction;
+  previews?: Record<string, string>;
   t: (key: string, params?: Record<string, string | number>) => string;
 }
 
@@ -39,6 +40,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
   handleDownload,
   handleCancelDownload,
   navigate,
+  previews,
   t,
 }) => {
   return (
@@ -51,7 +53,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
           </p>
         </div>
 
-        <Card className="rounded-2xl sm:rounded-3xl border-2 p-4 sm:p-10">
+        <Card className="rounded-2xl sm:rounded-3xl border-2 p-4 sm:p-10 sm:pt-6">
           {fileList.description && (
             <div className="mb-8 p-4 bg-muted rounded-lg border border-foreground/[0.09]">
               <p className="text-foreground break-words whitespace-pre-wrap">{fileList.description}</p>
@@ -102,7 +104,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                 </div>
 
                 <div className="flex-shrink-0 hidden sm:flex">
-                  <FileThumbnail source={null} fileName={file.file_name} size="md" />
+                  <FileThumbnail source={previews?.[file.id] ?? null} fileName={file.file_name} size="md" />
                 </div>
 
                 <div className="flex-1 min-w-0">

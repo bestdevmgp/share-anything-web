@@ -40,6 +40,7 @@ interface Props {
   handleCancelP2PDownload: () => void;
   onReset: () => void;
   onRetry: () => void;
+  previews?: Record<string, string>;
   t: (key: string, params?: Record<string, string | number>) => string;
 }
 
@@ -94,6 +95,7 @@ const BoxDownloadView: React.FC<Props> = ({
   handleCancelP2PDownload,
   onReset,
   onRetry,
+  previews,
   t,
 }) => {
   const showError = !loading && !!errorTitle;
@@ -236,7 +238,7 @@ const BoxDownloadView: React.FC<Props> = ({
                   >
                     {done && (
                       <div className="flex-shrink-0 mr-3">
-                        <FileThumbnail source={null} fileName={file.file_name} size="sm" />
+                        <FileThumbnail source={previews?.[file.id] ?? null} fileName={file.file_name} size="sm" />
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
@@ -314,7 +316,7 @@ const BoxDownloadView: React.FC<Props> = ({
   const multi = files.length > 1;
   return wrap(
     <>
-      <div className="flex-1 flex flex-col md:flex-row md:items-stretch gap-6 md:gap-8 min-h-0">
+      <div className="flex-1 flex flex-col justify-center md:flex-row md:items-stretch gap-6 md:gap-8 min-h-0">
         <div className="flex flex-col items-center justify-center text-center md:flex-1">
           {downloading ? <NeutralCircle><Spinner size="xl" /></NeutralCircle> : <GreenCircle><Check /></GreenCircle>}
           <h2 className="text-2xl font-bold text-foreground mb-1.5">
@@ -333,7 +335,7 @@ const BoxDownloadView: React.FC<Props> = ({
                 className="flex items-center px-3 py-3.5 bg-muted rounded-lg border border-foreground/[0.09]"
               >
                 <div className="flex-shrink-0 mr-3">
-                  <FileThumbnail source={null} fileName={file.file_name} size="sm" />
+                  <FileThumbnail source={previews?.[file.id] ?? null} fileName={file.file_name} size="sm" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{file.file_name}</p>

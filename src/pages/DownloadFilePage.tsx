@@ -10,6 +10,7 @@ import { useP2PDownloader } from '../hooks/useP2PDownloader';
 import { createWebSocketConnection, generatePeerId, sendSignalingMessage } from '../utils/webrtc';
 import FilePreviewModal from '../components/FilePreviewModal';
 import { useThumbnail } from '../hooks/useThumbnail';
+import { useBundlePreviews } from '../components/UnifiedFileBox/useSharePreviews';
 import { pushDownload } from '../utils/recentDownloads';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
@@ -113,6 +114,11 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     singleFile && singleFilePreviewUrl && !isImageFile(singleFile.file_name) ? singleFilePreviewUrl : null,
     singleFile?.file_name || '',
     600
+  );
+  const filePreviews = useBundlePreviews(
+    code ?? null,
+    fileList ? fileList.files.map((f) => ({ id: f.id, name: f.file_name })) : undefined,
+    (fileList?.has_password ?? false) || isP2PDownload
   );
   const p2pActiveFile = p2pActiveFileId ? fileList?.files?.find(f => f.id === p2pActiveFileId) : singleFile;
 
@@ -527,6 +533,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         handleCancelP2PDownload={handleCancelP2PDownload}
         onReset={onReset || (() => {})}
         onRetry={onRetry}
+        previews={filePreviews}
         t={t}
       />
     );
@@ -822,6 +829,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         handleDownload={handleDownload}
         handleCancelDownload={handleCancelDownload}
         navigate={navigate}
+        previews={filePreviews}
         t={t}
       />
       {previewFile && (
