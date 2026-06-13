@@ -574,15 +574,25 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     return () => {
       clearInterval(keepaliveInterval);
       isCleaningUpRef.current = true;
+      // Halt any in-progress send loop and reset session state so a later
+      // session (after cancel + reselect) doesn't inherit a stale "connected"
+      // status or a same-named file's leftover progress.
+      cancelledRef.current = true;
+      isTransferringRef.current = false;
       if (dataChannelRef.current) {
         dataChannelRef.current.close();
+        dataChannelRef.current = null;
       }
       if (pcRef.current) {
         pcRef.current.close();
+        pcRef.current = null;
       }
       if (wsRef.current) {
         wsRef.current.close();
       }
+      setStatus('waiting');
+      setPeerDeviceInfo(null);
+      setCurrentFileName('');
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, shareCode, retryCount]);
