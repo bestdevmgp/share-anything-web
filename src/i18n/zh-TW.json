@@ -571,6 +571,8 @@
     "p2pCompleted": "完成",
     "p2pWaiting": "等待中",
     "p2pCancelButton": "取消傳輸",
+    "p2pCreatingTitle": "正在建立安全工作階段",
+    "p2pCreatingDesc": "正在準備分享碼",
     "p2pCompletedTitle": "傳輸完成",
     "p2pCompletedSummary": "已傳輸{{count}}個檔案",
     "p2pNewTransferButton": "開始新傳輸",
