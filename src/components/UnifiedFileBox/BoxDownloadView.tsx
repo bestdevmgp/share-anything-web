@@ -109,7 +109,7 @@ const BoxDownloadView: React.FC<Props> = ({
 
   const wrap = (children: React.ReactNode) => (
     <div
-      className="flex-1 flex flex-col px-6 md:px-8 py-8 animate-in fade-in-0 duration-300"
+      className="flex-1 flex flex-col px-6 md:px-8 py-8 animate-in fade-in-0 slide-in-from-bottom-1 duration-300"
       onClick={(e) => e.stopPropagation()}
     >
       <style>{`
@@ -215,7 +215,7 @@ const BoxDownloadView: React.FC<Props> = ({
 
     return wrap(
       <>
-        <div className="flex-1 flex flex-col md:flex-row md:items-center gap-6 md:gap-8 min-h-0">
+        <div className="flex-1 flex flex-col md:flex-row md:items-stretch gap-6 md:gap-8 min-h-0">
           <div className="flex flex-col items-center justify-center text-center md:flex-1">
             {circle}
             <h2 className="text-2xl font-bold text-foreground mb-1.5">{title}</h2>
@@ -232,6 +232,11 @@ const BoxDownloadView: React.FC<Props> = ({
                     key={file.id}
                     className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/[0.09]"
                   >
+                    {done && (
+                      <div className="flex-shrink-0 mr-3">
+                        <FileThumbnail source={null} fileName={file.file_name} size="sm" />
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{file.file_name}</p>
                       <div className="h-5 flex items-center mt-0.5">
@@ -297,7 +302,7 @@ const BoxDownloadView: React.FC<Props> = ({
   const multi = files.length > 1;
   return wrap(
     <>
-      <div className="flex-1 flex flex-col md:flex-row md:items-center gap-6 md:gap-8 min-h-0">
+      <div className="flex-1 flex flex-col md:flex-row md:items-stretch gap-6 md:gap-8 min-h-0">
         <div className="flex flex-col items-center justify-center text-center md:flex-1">
           {downloading ? <NeutralCircle><Spinner size="xl" /></NeutralCircle> : <GreenCircle><Check /></GreenCircle>}
           <h2 className="text-2xl font-bold text-foreground mb-1.5">
@@ -355,7 +360,12 @@ const BoxDownloadView: React.FC<Props> = ({
             <span>{t('download.downloadFile')}</span>
           </Button>
         )}
-        <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={onReset}>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="self-center text-muted-foreground can-hover:hover:text-foreground active:text-foreground"
+          onClick={onReset}
+        >
           {t('common.back')}
         </Button>
       </div>
