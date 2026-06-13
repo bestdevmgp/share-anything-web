@@ -53,7 +53,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
           </p>
         </div>
 
-        <Card className="rounded-2xl sm:rounded-3xl border-2 p-4 sm:p-10 sm:pt-4">
+        <Card className="rounded-2xl sm:rounded-3xl border-2 p-4 sm:p-10 sm:pt-5">
           {fileList.description && (
             <div className="mb-8 p-4 bg-muted rounded-lg border border-foreground/[0.09]">
               <p className="text-foreground break-words whitespace-pre-wrap">{fileList.description}</p>
