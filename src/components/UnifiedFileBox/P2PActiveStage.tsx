@@ -1,10 +1,11 @@
 import React from 'react';
-import { PauseIcon } from '@heroicons/react/24/outline';
+import { PauseIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../i18n';
 import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
-import UploadProgressRow from '../UploadProgressRow';
+import FileThumbnail from '../FileThumbnail';
 import { FileProgress } from '../../hooks/useP2PUploader';
+import { formatFileSize } from '../../utils/format';
 import { cn } from '../../lib/utils';
 
 type P2PStatus = 'waiting' | 'connected' | 'transferring' | 'waiting_for_next' | 'completed';
@@ -87,7 +88,7 @@ const P2PActiveStage: React.FC<Props> = ({
         @keyframes drawP2PStageCheck { to { stroke-dashoffset: 0; } }
       `}</style>
 
-      <div className="flex-1 flex flex-col md:flex-row md:items-center gap-6 md:gap-8 min-h-0">
+      <div className="flex-1 flex flex-col md:flex-row md:items-stretch gap-6 md:gap-8 min-h-0">
         <div className="flex flex-col items-center justify-center text-center md:flex-1">
           <div
             className={cn(
@@ -141,20 +142,55 @@ const P2PActiveStage: React.FC<Props> = ({
               const progress = fileProgresses.get(file.name);
               const pct = progress?.progress ?? 0;
               const st = progress?.status ?? 'waiting';
-              let statusText: string | undefined;
-              if (st === 'completed') statusText = t('uploadSuccess.completed');
-              else if (st !== 'transferring') statusText = t('uploadSuccess.waiting');
+              const isTransferring = st === 'transferring';
               const showCancel = !isDone && st !== 'completed' && st !== 'cancelled';
               return (
-                <UploadProgressRow
+                <div
                   key={file.name}
-                  fileName={file.name}
-                  fileSize={file.size}
-                  progress={pct}
-                  timeRemaining={progress?.timeRemaining}
-                  statusText={statusText}
-                  onCancel={showCancel ? () => onCancelFile(file.name) : undefined}
-                />
+                  className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/[0.09]"
+                >
+                  <div className="flex-shrink-0 mr-3">
+                    <FileThumbnail source={null} fileName={file.name} size="sm" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{file.name}</p>
+                    <div className="h-5 flex items-center mt-0.5">
+                      {isTransferring ? (
+                        <div className="w-full flex items-center gap-2">
+                          <div className="flex-1 bg-secondary rounded-full h-1.5 overflow-hidden">
+                            <div
+                              className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                          {progress?.timeRemaining && (
+                            <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0 leading-none">
+                              {progress.timeRemaining}
+                            </span>
+                          )}
+                          <span className="text-xs font-semibold text-primary whitespace-nowrap flex-shrink-0 leading-none">
+                            {pct}%
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground leading-none">
+                          {st === 'completed' ? t('uploadSuccess.completed') : formatFileSize(file.size)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  {showCancel && (
+                    <div className="flex-shrink-0 ml-2">
+                      <button
+                        onClick={() => onCancelFile(file.name)}
+                        className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
+                        title={t('common.cancel')}
+                      >
+                        <XMarkIcon className="w-5 h-5" />
+                      </button>
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
