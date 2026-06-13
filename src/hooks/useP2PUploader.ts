@@ -38,6 +38,11 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
   const filesRef = useRef<File[]>(files);
   const cancelledRef = useRef<boolean>(false);
   const isCleaningUpRef = useRef<boolean>(false);
+  const fileProgressesRef = useRef<Map<string, FileProgress>>(new Map());
+
+  useEffect(() => {
+    fileProgressesRef.current = fileProgresses;
+  }, [fileProgresses]);
 
   useEffect(() => {
     filesRef.current = files;
@@ -515,7 +520,14 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
           }
           break;
 
-        case 'downloader_offline':
+        case 'downloader_offline': {
+          const allDone =
+            filesRef.current.length > 0 &&
+            filesRef.current.every(f => fileProgressesRef.current.get(f.name)?.status === 'completed');
+          if (allDone) {
+            setStatus('completed');
+            break;
+          }
           toast.warning(t('p2p.receiverDisconnected'));
           if (isTransferringRef.current) {
             isTransferringRef.current = false;
@@ -538,8 +550,16 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
           setCurrentFileName('');
           setPeerDeviceInfo(null);
           break;
+        }
 
-        case 'downloader_paused':
+        case 'downloader_paused': {
+          const allDone =
+            filesRef.current.length > 0 &&
+            filesRef.current.every(f => fileProgressesRef.current.get(f.name)?.status === 'completed');
+          if (allDone) {
+            setStatus('completed');
+            break;
+          }
           cancelledRef.current = true;
           isTransferringRef.current = false;
           if (dataChannelRef.current) {
@@ -562,6 +582,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
           setStatus('waiting_for_next');
           setCurrentFileName('');
           break;
+        }
 
         case 'transfer_complete':
           isCleaningUpRef.current = true;
