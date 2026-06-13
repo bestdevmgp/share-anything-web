@@ -190,10 +190,12 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   }, []);
 
   const onPageLoadSuccess = useCallback((page: { width: number; height: number }) => {
-    if (!pdfPageSize) {
-      setPdfPageSize({ width: page.width, height: page.height });
-    }
-  }, [pdfPageSize]);
+    setPdfPageSize(prev =>
+      prev && prev.width === page.width && prev.height === page.height
+        ? prev
+        : { width: page.width, height: page.height }
+    );
+  }, []);
 
   const getPdfPageWidth = () => {
     const maxWidth = Math.min(600, window.innerWidth - 64);
@@ -202,6 +204,12 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
     const aspectRatio = pdfPageSize.width / pdfPageSize.height;
     const widthFromHeight = availableHeight * aspectRatio;
     return Math.min(maxWidth, widthFromHeight);
+  };
+
+  const getPdfPageHeight = () => {
+    if (!pdfPageSize) return undefined;
+    const aspectRatio = pdfPageSize.width / pdfPageSize.height;
+    return getPdfPageWidth() / aspectRatio;
   };
 
   const renderTable = (data: string[][]) => (
@@ -264,13 +272,18 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
               <div className="py-16 text-muted-foreground text-sm">{t('preview.pdfLoading')}</div>
             }
           >
-            <Page
-              pageNumber={currentPage}
-              width={getPdfPageWidth()}
-              renderAnnotationLayer={false}
-              renderTextLayer={false}
-              onLoadSuccess={onPageLoadSuccess}
-            />
+            <div
+              className="flex items-center justify-center"
+              style={{ width: getPdfPageWidth(), minHeight: getPdfPageHeight() }}
+            >
+              <Page
+                pageNumber={currentPage}
+                width={getPdfPageWidth()}
+                renderAnnotationLayer={false}
+                renderTextLayer={false}
+                onLoadSuccess={onPageLoadSuccess}
+              />
+            </div>
           </Document>
           {numPages && numPages > 1 && (
             <div className="flex items-center gap-4 mt-4">

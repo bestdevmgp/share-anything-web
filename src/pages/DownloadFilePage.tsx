@@ -292,6 +292,13 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code, navigate]);
 
+  const onRetry = useCallback(() => {
+    setErrorTitleKey('');
+    setErrorDescKey('');
+    setErrorDescFallback('');
+    loadFileList();
+  }, [loadFileList]);
+
   useEffect(() => {
     loadFileList();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -519,6 +526,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         startBulkP2PDownload={startBulkP2PDownload}
         handleCancelP2PDownload={handleCancelP2PDownload}
         onReset={onReset || (() => {})}
+        onRetry={onRetry}
         t={t}
       />
     );
@@ -540,7 +548,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       <DownloadErrorState
         errorTitle={t(errorTitleKey)}
         error={errorDescKey ? t(errorDescKey) : errorDescFallback}
-        navigate={navigate}
+        onRetry={onRetry}
         t={t}
       />
     );

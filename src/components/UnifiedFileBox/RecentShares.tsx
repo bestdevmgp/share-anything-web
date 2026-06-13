@@ -219,6 +219,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                     }}
                     className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
                     iconClassName="w-5 h-5"
+                    iconIdleClass="text-muted-foreground/50"
                     iconCopiedClass="text-green-600 dark:text-green-400"
                     title={t('common.copy')}
                   />

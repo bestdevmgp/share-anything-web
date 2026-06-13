@@ -41,7 +41,7 @@ const P2PWaiting: React.FC<Props> = ({ shareCode, fileCount, onCancel, loading }
           <label className="block text-sm font-medium text-muted-foreground mb-2">
             {t('uploadSuccess.shareCode')}
           </label>
-          <div className="flex items-center gap-1 bg-muted rounded-xl pl-3 pr-2 py-5 border border-foreground/[0.09] w-full max-w-[340px]">
+          <div className="flex items-center gap-1 bg-muted rounded-xl pl-3 pr-2 py-5 border border-foreground/[0.09] w-full md:max-w-[340px]">
             {loading ? (
               <Skeleton className="h-9 w-full rounded-lg" />
             ) : (
@@ -74,7 +74,7 @@ const P2PWaiting: React.FC<Props> = ({ shareCode, fileCount, onCancel, loading }
         </div>
 
         <div className="flex flex-col items-center justify-center gap-5 md:flex-1">
-          <div className="w-full max-w-[420px]">
+          <div className="w-full md:max-w-[420px]">
             <label className="block text-sm font-medium text-muted-foreground mb-2">
               {t('uploadSuccess.shareLink')}
             </label>

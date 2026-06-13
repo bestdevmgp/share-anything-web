@@ -39,6 +39,7 @@ interface Props {
   startBulkP2PDownload: () => void;
   handleCancelP2PDownload: () => void;
   onReset: () => void;
+  onRetry: () => void;
   t: (key: string, params?: Record<string, string | number>) => string;
 }
 
@@ -92,6 +93,7 @@ const BoxDownloadView: React.FC<Props> = ({
   startBulkP2PDownload,
   handleCancelP2PDownload,
   onReset,
+  onRetry,
   t,
 }) => {
   const showError = !loading && !!errorTitle;
@@ -100,12 +102,12 @@ const BoxDownloadView: React.FC<Props> = ({
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        onReset();
+        onRetry();
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [showError, onReset]);
+  }, [showError, onRetry]);
 
   const wrap = (children: React.ReactNode) => (
     <div
@@ -139,7 +141,7 @@ const BoxDownloadView: React.FC<Props> = ({
         <StatusIcon variant="error" />
         <h2 className="text-2xl font-bold text-foreground mb-2">{errorTitle}</h2>
         <p className="text-muted-foreground mb-6">{errorDesc}</p>
-        <Button onClick={onReset}>{t('common.retry')}</Button>
+        <Button onClick={onRetry}>{t('common.retry')}</Button>
       </div>
     );
   }

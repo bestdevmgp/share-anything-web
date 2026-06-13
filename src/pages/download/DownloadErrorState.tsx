@@ -1,5 +1,4 @@
 import React from 'react';
-import { NavigateFunction } from 'react-router-dom';
 import { Card } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import StatusIcon from '../../components/StatusIcon';
@@ -7,14 +6,14 @@ import StatusIcon from '../../components/StatusIcon';
 export interface DownloadErrorStateProps {
   errorTitle: string;
   error: string;
-  navigate: NavigateFunction;
+  onRetry: () => void;
   t: (key: string, params?: Record<string, string | number>) => string;
 }
 
 const DownloadErrorState: React.FC<DownloadErrorStateProps> = ({
   errorTitle,
   error,
-  navigate,
+  onRetry,
   t,
 }) => {
   return (
@@ -24,9 +23,7 @@ const DownloadErrorState: React.FC<DownloadErrorStateProps> = ({
           <StatusIcon variant="error" />
           <h2 className="text-2xl font-bold text-foreground mb-2">{errorTitle}</h2>
           <p className="text-muted-foreground mb-6">{error}</p>
-          <Button
-            onClick={() => navigate('/', { state: { autoFocus: true } })}
-          >
+          <Button onClick={onRetry}>
             {t('common.retry')}
           </Button>
         </Card>

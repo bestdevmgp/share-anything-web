@@ -58,7 +58,7 @@ const UploadSuccess: React.FC<Props> = ({ result, failedNames, onConfirm, onRetr
           <label className="block text-sm font-medium text-muted-foreground mb-2">
             {t('uploadSuccess.shareCode')}
           </label>
-          <div className="flex items-center gap-1 bg-muted rounded-xl pl-3 pr-2 py-5 border border-foreground/[0.09] w-full max-w-[340px]">
+          <div className="flex items-center gap-1 bg-muted rounded-xl pl-3 pr-2 py-5 border border-foreground/[0.09] w-full md:max-w-[340px]">
             <span className="w-9 flex-shrink-0" aria-hidden="true" />
             <p
               className="flex-1 text-[2.125rem] font-bold text-center text-foreground leading-none whitespace-nowrap"
@@ -87,7 +87,7 @@ const UploadSuccess: React.FC<Props> = ({ result, failedNames, onConfirm, onRetr
         </div>
 
         <div className="flex flex-col items-center justify-center gap-5 md:flex-1">
-          <div className="w-full max-w-[420px]">
+          <div className="w-full md:max-w-[420px]">
             <label className="block text-sm font-medium text-muted-foreground mb-2">
               {t('uploadSuccess.shareLink')}
             </label>
