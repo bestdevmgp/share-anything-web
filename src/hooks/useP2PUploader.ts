@@ -446,12 +446,20 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
             setPeerDeviceInfo(message.device_info);
           }
 
-          // Only set up PC/DC + ICE on the FIRST PeerMatched. Subsequent files
-          // arrive via `file_request` over the existing channel. If a stale or
-          // duplicate PeerMatched arrives (e.g. legacy receiver that creates a
-          // fresh WS per file) we ignore it — the existing PC keeps serving.
+          // A live PC means this is a duplicate match for the current receiver —
+          // keep serving it. A closed/failed/disconnected PC is a stale leftover
+          // from a previous receiver (refs are closed but not nulled on
+          // teardown); discard it so the new receiver gets a fresh offer instead
+          // of being silently ignored.
           if (pcRef.current) {
-            break;
+            const cs = pcRef.current.connectionState;
+            if (cs !== 'closed' && cs !== 'failed' && cs !== 'disconnected') {
+              break;
+            }
+            try { dataChannelRef.current?.close(); } catch {}
+            try { pcRef.current.close(); } catch {}
+            dataChannelRef.current = null;
+            pcRef.current = null;
           }
 
           {
