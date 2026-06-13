@@ -282,6 +282,12 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
                 renderAnnotationLayer={false}
                 renderTextLayer={false}
                 onLoadSuccess={onPageLoadSuccess}
+                loading={
+                  <div
+                    className="bg-white"
+                    style={{ width: getPdfPageWidth(), height: getPdfPageHeight() }}
+                  />
+                }
               />
             </div>
           </Document>
