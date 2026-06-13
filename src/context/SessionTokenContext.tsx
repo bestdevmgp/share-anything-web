@@ -22,16 +22,19 @@ const SITE_KEY = process.env.REACT_APP_TURNSTILE_SITE_KEY;
 const REFRESH_LEAD_MS = 60_000;
 const MAX_RETRIES = 3;
 const LOAD_TIMEOUT_MS = 12_000;
+const BACKEND_RETRY_MS = 30_000;
 
 export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [status, setStatus] = useState<Status>('idle');
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
+  const [overlayMounted, setOverlayMounted] = useState(false);
+  const [overlayClosing, setOverlayClosing] = useState(false);
   const widgetRef = useRef<TurnstileInstance>(null);
   const interactiveRef = useRef<TurnstileInstance>(null);
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const loadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const attemptsRef = useRef(0);
-  const everReadyRef = useRef(false);
+  const widgetSolvedRef = useRef(false);
   const lastResetRef = useRef(0);
   const statusRef = useRef<Status>('idle');
   statusRef.current = status;
@@ -50,10 +53,18 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
     widgetRef.current?.reset();
   }, []);
 
+  const markUnreachable = useCallback(() => {
+    markTokenUnavailable(true);
+    attemptsRef.current = 0;
+    setStatus('idle');
+    if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
+    refreshTimerRef.current = setTimeout(forceRefresh, BACKEND_RETRY_MS);
+  }, [forceRefresh]);
+
   const armLoadTimeout = useCallback(() => {
     if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
     loadTimerRef.current = setTimeout(() => {
-      if (!everReadyRef.current) markFailed();
+      if (!widgetSolvedRef.current) markFailed();
     }, LOAD_TIMEOUT_MS);
   }, [markFailed]);
 
@@ -75,26 +86,32 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, [forceRefresh]);
 
   const onTurnstileSuccess = useCallback(async (turnstileToken: string) => {
+    widgetSolvedRef.current = true;
     setStatus('minting');
     try {
       const { session_token, expires_at } = await authAPI.exchangeSessionToken(turnstileToken);
       setSessionToken(session_token);
       setExpiresAt(expires_at);
       setStatus('ready');
-      everReadyRef.current = true;
       attemptsRef.current = 0;
       if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
       scheduleRefresh(expires_at);
-    } catch (err) {
+    } catch (err: any) {
       console.warn('[SessionToken] exchange failed', err);
       attemptsRef.current += 1;
       if (attemptsRef.current < MAX_RETRIES) {
         setTimeout(forceRefresh, 1000 * attemptsRef.current);
-      } else {
+        return;
+      }
+      const httpStatus = err?.response?.status;
+      const tokenRejected = httpStatus === 400 || httpStatus === 401 || httpStatus === 403;
+      if (tokenRejected) {
         markFailed();
+      } else {
+        markUnreachable();
       }
     }
-  }, [scheduleRefresh, forceRefresh, markFailed]);
+  }, [scheduleRefresh, forceRefresh, markFailed, markUnreachable]);
 
   const onTurnstileError = useCallback(() => {
     attemptsRef.current += 1;
@@ -120,6 +137,22 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
     return () => window.removeEventListener('session-token:force-refresh', handler);
   }, [forceRefresh]);
 
+  useEffect(() => {
+    if (status === 'failed') {
+      setOverlayClosing(false);
+      setOverlayMounted(true);
+      return;
+    }
+    if ((status === 'ready' || status === 'idle') && overlayMounted) {
+      setOverlayClosing(true);
+      const timer = setTimeout(() => {
+        setOverlayMounted(false);
+        setOverlayClosing(false);
+      }, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [status, overlayMounted]);
+
   if (!SITE_KEY) {
     console.error('[SessionToken] REACT_APP_TURNSTILE_SITE_KEY is not defined');
     return <>{children}</>;
@@ -141,8 +174,8 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
         />
       </div>
       {children}
-      {status === 'failed' && (
-        <TurnstileBlockedOverlay onRetry={retry}>
+      {overlayMounted && (
+        <TurnstileBlockedOverlay onRetry={retry} closing={overlayClosing}>
           <Turnstile
             ref={interactiveRef}
             siteKey={SITE_KEY}
