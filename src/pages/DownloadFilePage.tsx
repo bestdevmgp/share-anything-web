@@ -712,7 +712,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                   <div
                     key={file.id}
                     className={cn(
-                      'p-4 rounded-xl border-2 transition-all',
+                      'px-3 py-2.5 rounded-lg border transition-all',
                       isActive ? 'bg-muted border-primary' : 'bg-muted border-foreground/[0.09]'
                     )}
                   >
