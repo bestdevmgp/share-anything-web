@@ -693,7 +693,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
             }
           `}</style>
 
-          <Card className="rounded-3xl border-2 p-10">
+          <Card className="rounded-3xl border-2 p-6 md:p-8">
             {fileList.description && (
               <div className="mb-8 p-4 bg-muted rounded-lg border border-foreground/[0.09]">
                 <p className="text-foreground break-words whitespace-pre-wrap">{fileList.description}</p>
@@ -775,7 +775,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
               })}
             </div>
 
-            <div className="mt-4 flex flex-col items-center gap-3">
+            <div className="mt-4 -mb-2 md:-mb-4 flex flex-col items-center gap-3">
               {!bulkP2PDownloading && p2pCompletedFileIds.size < fileList.files.length && (
                 <Button
                   variant="secondary"
