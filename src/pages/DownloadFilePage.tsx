@@ -730,7 +730,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
               </h3>
             </div>
 
-            <div className="space-y-3 mb-8">
+            <div className="space-y-2 sm:space-y-2.5 mb-8">
               {fileList.files.map((file) => {
                 const isActive = p2pActiveFileId === file.id;
                 const isDownloading = isActive && (p2pStatus === 'downloading' || p2pStatus === 'connecting');

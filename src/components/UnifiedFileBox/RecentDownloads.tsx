@@ -1,13 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { TrashIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../i18n';
 import { toast } from '../../context/ToastContext';
-import { useSharePreviews } from './useSharePreviews';
+import { useSharePreviews, useBundlePreviews } from './useSharePreviews';
+import { fetchShareFileList, getCachedFileList } from './shareFileList';
+import { fileAPI } from '../../services/api';
+import { FileListItem } from '../../types';
 import { listDownloads, removeDownload, RecentDownload } from '../../utils/recentDownloads';
 import { MergedShare } from '../../utils/shareMerge';
-import { formatFileSize } from '../../utils/format';
+import { formatFileSize, isPptxFile } from '../../utils/format';
 import FileThumbnail from '../FileThumbnail';
+import FilePreviewModal from '../FilePreviewModal';
 import TruncatedFilename from '../TruncatedFilename';
 import CopyButton from '../CopyButton';
 import { cn } from '../../lib/utils';
@@ -25,6 +29,11 @@ const RecentDownloads: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [downloads, setDownloads] = useState<RecentDownload[]>(() => listDownloads());
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [bundleFiles, setBundleFiles] = useState<Record<string, FileListItem[]>>({});
+  const [previewFile, setPreviewFile] = useState<
+    { fileName: string; fileSize: number; source: string; presignedUrl?: string } | null
+  >(null);
 
   const mergedItems: MergedShare[] = downloads.map((d) => ({
     code: d.code,
@@ -37,9 +46,70 @@ const RecentDownloads: React.FC = () => {
   }));
   const previews = useSharePreviews(mergedItems);
 
+  useEffect(() => {
+    if (!expanded || bundleFiles[expanded]) return;
+    const cached = getCachedFileList(expanded);
+    if (cached) {
+      setBundleFiles((p) => ({ ...p, [expanded]: cached.files }));
+      return;
+    }
+    let cancelled = false;
+    fetchShareFileList(expanded)
+      .then((res) => {
+        if (!cancelled) setBundleFiles((p) => ({ ...p, [expanded]: res.files }));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [expanded, bundleFiles]);
+
+  const expandedFiles = expanded && bundleFiles[expanded]
+    ? bundleFiles[expanded].map((f) => ({ id: f.id, name: f.file_name }))
+    : undefined;
+  const bundlePreviews = useBundlePreviews(expanded, expandedFiles, false);
+
   const handleRemove = (code: string) => {
     removeDownload(code);
     setDownloads((prev) => prev.filter((d) => d.code !== code));
+    if (expanded === code) setExpanded(null);
+  };
+
+  const openPreviewFor = async (code: string, fileId: string, fileName: string, fileSize: number) => {
+    try {
+      const { download_url } = await fileAPI.getDownloadUrl(code, fileId, undefined, true, true);
+      setPreviewFile({
+        fileName,
+        fileSize,
+        source: download_url,
+        presignedUrl: isPptxFile(fileName) ? download_url : undefined,
+      });
+    } catch {
+      navigate(`/download/${code}`);
+    }
+  };
+
+  const openDownloadPreview = async (d: RecentDownload) => {
+    let fileId = d.firstFileId;
+    let fileName = d.fileNames[0] || 'file';
+    let fileSize = d.totalSize;
+    if (!fileId) {
+      try {
+        const list = await fetchShareFileList(d.code);
+        const f = list.files[0];
+        if (!f) {
+          navigate(`/download/${d.code}`);
+          return;
+        }
+        fileId = f.id;
+        fileName = f.file_name;
+        fileSize = f.file_size;
+      } catch {
+        navigate(`/download/${d.code}`);
+        return;
+      }
+    }
+    openPreviewFor(d.code, fileId, fileName, fileSize);
   };
 
   if (downloads.length === 0) return null;
@@ -54,6 +124,7 @@ const RecentDownloads: React.FC = () => {
   };
 
   return (
+    <>
     <div className="flex flex-col">
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
         <h4 className="text-xs font-semibold text-foreground/70">
@@ -67,6 +138,7 @@ const RecentDownloads: React.FC = () => {
         {downloads.map((d) => {
           const { text: remainText, expired } = remainingLabel(d.expiresAt);
           const isBundle = d.fileNames.length > 1;
+          const isOpen = expanded === d.code;
           const url = `${window.location.origin}/download/${d.code}`;
 
           return (
@@ -79,7 +151,11 @@ const RecentDownloads: React.FC = () => {
             >
               <div
                 role="button"
-                onClick={() => navigate(`/download/${d.code}`)}
+                onClick={() => {
+                  if (isBundle) setExpanded(isOpen ? null : d.code);
+                  else if (expired) navigate(`/download/${d.code}`);
+                  else openDownloadPreview(d);
+                }}
                 className="w-full flex items-center px-3 py-2.5 text-left cursor-pointer can-hover:hover:bg-accent active:bg-accent transition-colors"
               >
                 <div className="flex-shrink-0 mr-3">
@@ -127,6 +203,7 @@ const RecentDownloads: React.FC = () => {
                     }}
                     className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
                     iconClassName="w-5 h-5"
+                    iconIdleClass="text-muted-foreground/50"
                     iconCopiedClass="text-green-600 dark:text-green-400"
                     title={t('common.copy')}
                   />
@@ -138,13 +215,72 @@ const RecentDownloads: React.FC = () => {
                   >
                     <TrashIcon className="w-5 h-5" />
                   </button>
+                  {isBundle && (
+                    <ChevronDownIcon
+                      className={cn(
+                        'w-5 h-5 text-muted-foreground/50 transition-transform',
+                        isOpen && 'rotate-180'
+                      )}
+                    />
+                  )}
                 </div>
               </div>
+
+              {isBundle && isOpen && (
+                <div className="px-3 pb-3">
+                  <div className="border-t border-foreground/[0.08] pt-2.5 space-y-2">
+                    {(bundleFiles[d.code]
+                      ? bundleFiles[d.code].map((f) => ({
+                          name: f.file_name,
+                          size: f.file_size as number | undefined,
+                          id: f.id as string | undefined,
+                        }))
+                      : d.fileNames.map((name) => ({
+                          name,
+                          size: undefined as number | undefined,
+                          id: undefined as string | undefined,
+                        }))
+                    ).map((f, i) => {
+                      const clickable = !!f.id;
+                      const rowInner = (
+                        <>
+                          <FileThumbnail source={f.id ? bundlePreviews[f.id] ?? null : null} fileName={f.name} size="sm" />
+                          <TruncatedFilename name={f.name} className="flex-1 text-sm text-foreground/80 text-left" />
+                          {f.size != null && (
+                            <span className="flex-shrink-0 text-xs text-muted-foreground">
+                              {formatFileSize(f.size)}
+                            </span>
+                          )}
+                        </>
+                      );
+                      return clickable ? (
+                        <button
+                          key={`${f.name}-${i}`}
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); openPreviewFor(d.code, f.id!, f.name, f.size ?? 0); }}
+                          className="w-full flex items-center gap-3 min-w-0 -mx-2 px-2 py-1.5 rounded-lg can-hover:hover:bg-accent active:bg-accent transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          aria-label={f.name}
+                        >
+                          {rowInner}
+                        </button>
+                      ) : (
+                        <div key={`${f.name}-${i}`} className="flex items-center gap-3 min-w-0 -mx-2 px-2 py-1.5">
+                          {rowInner}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}
       </div>
     </div>
+    {previewFile && (
+      <FilePreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />
+    )}
+    </>
   );
 };
 

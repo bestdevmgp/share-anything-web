@@ -5,6 +5,7 @@ import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
 import FileThumbnail from '../FileThumbnail';
 import TruncatedFilename from '../TruncatedFilename';
+import ScrollableFileList from './ScrollableFileList';
 import { FileProgress } from '../../hooks/useP2PUploader';
 import { formatFileSize } from '../../utils/format';
 import { cn } from '../../lib/utils';
@@ -77,7 +78,7 @@ const P2PActiveStage: React.FC<Props> = ({
 
   return (
     <div
-      className="flex-1 flex flex-col px-6 md:px-8 py-8 animate-in fade-in-0 duration-300"
+      className="flex-1 flex flex-col px-6 md:px-8 py-8 md:py-5 animate-in fade-in-0 duration-300"
       onClick={(e) => e.stopPropagation()}
     >
       <style>{`
@@ -138,7 +139,7 @@ const P2PActiveStage: React.FC<Props> = ({
           <p className="text-sm font-medium text-muted-foreground mb-2">
             {t('uploadSuccess.fileList', { count: files.length })}
           </p>
-          <div className="space-y-2 overflow-y-auto max-h-[200px] md:max-h-[284px] pr-0.5">
+          <ScrollableFileList count={files.length}>
             {files.map((file) => {
               const progress = fileProgresses.get(file.name);
               const pct = progress?.progress ?? 0;
@@ -151,7 +152,7 @@ const P2PActiveStage: React.FC<Props> = ({
                   className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/[0.09]"
                 >
                   <div className="flex-shrink-0 mr-3">
-                    <FileThumbnail source={null} fileName={file.name} size="sm" />
+                    <FileThumbnail source={file} fileName={file.name} size="sm" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <TruncatedFilename name={file.name} className="text-sm font-medium text-foreground" />
@@ -173,9 +174,13 @@ const P2PActiveStage: React.FC<Props> = ({
                             {pct}%
                           </span>
                         </div>
+                      ) : st === 'completed' ? (
+                        <span className="text-xs font-medium text-green-600 leading-none">
+                          ✓ {t('uploadSuccess.completed')}
+                        </span>
                       ) : (
                         <span className="text-xs text-muted-foreground leading-none">
-                          {st === 'completed' ? t('uploadSuccess.completed') : formatFileSize(file.size)}
+                          {formatFileSize(file.size)}
                         </span>
                       )}
                     </div>
@@ -194,7 +199,7 @@ const P2PActiveStage: React.FC<Props> = ({
                 </div>
               );
             })}
-          </div>
+          </ScrollableFileList>
         </div>
       </div>
 
