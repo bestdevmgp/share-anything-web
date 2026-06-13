@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   ArrowDownTrayIcon,
   ArchiveBoxIcon,
@@ -70,6 +70,41 @@ const Check: React.FC = () => (
   </svg>
 );
 
+// Shows all rows (box grows) up to 10 files; caps at the height of exactly 10
+// rows and scrolls internally beyond that. Measures real rows so the threshold
+// stays exact regardless of row height (PC and mobile).
+const ScrollableFileList: React.FC<{ count: number; children: React.ReactNode }> = ({ count, children }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [maxHeight, setMaxHeight] = useState<number | undefined>(undefined);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const measure = () => {
+      const rows = el.children;
+      if (count > 10 && rows.length >= 10) {
+        const first = (rows[0] as HTMLElement).getBoundingClientRect();
+        const tenth = (rows[9] as HTMLElement).getBoundingClientRect();
+        const h = Math.ceil(tenth.bottom - first.top);
+        setMaxHeight((prev) => (prev !== h ? h : prev));
+      } else {
+        setMaxHeight((prev) => (prev !== undefined ? undefined : prev));
+      }
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [count]);
+  return (
+    <div
+      ref={ref}
+      className="space-y-2 pr-0.5"
+      style={maxHeight !== undefined ? { maxHeight, overflowY: 'auto' } : undefined}
+    >
+      {children}
+    </div>
+  );
+};
+
 const BoxDownloadView: React.FC<Props> = ({
   fileList,
   loading,
@@ -113,7 +148,7 @@ const BoxDownloadView: React.FC<Props> = ({
 
   const wrap = (children: React.ReactNode) => (
     <div
-      className="flex-1 flex flex-col px-6 md:px-8 py-8 animate-in fade-in-0 slide-in-from-bottom-1 duration-300"
+      className="flex-1 flex flex-col px-6 md:px-8 py-8 md:py-5 animate-in fade-in-0 slide-in-from-bottom-1 duration-300"
       onClick={(e) => e.stopPropagation()}
     >
       <style>{`
@@ -227,7 +262,7 @@ const BoxDownloadView: React.FC<Props> = ({
           </div>
           <div className="md:flex-1 flex flex-col min-w-0">
             {fileListHeader}
-            <div className="space-y-2 overflow-y-auto max-h-[200px] md:max-h-[284px] pr-0.5">
+            <ScrollableFileList count={files.length}>
               {files.map((file) => {
                 const done = p2pCompletedFileIds.has(file.id);
                 const isActive = p2pActiveFileId === file.id && active;
@@ -285,7 +320,7 @@ const BoxDownloadView: React.FC<Props> = ({
                   </div>
                 );
               })}
-            </div>
+            </ScrollableFileList>
           </div>
         </div>
         <div className="mt-6">
@@ -328,7 +363,7 @@ const BoxDownloadView: React.FC<Props> = ({
         </div>
         <div className="md:flex-1 flex flex-col min-w-0">
           {fileListHeader}
-          <div className="space-y-2 overflow-y-auto max-h-[200px] md:max-h-[284px] pr-0.5">
+          <ScrollableFileList count={files.length}>
             {files.map((file) => (
               <div
                 key={file.id}
@@ -343,7 +378,7 @@ const BoxDownloadView: React.FC<Props> = ({
                 </div>
               </div>
             ))}
-          </div>
+          </ScrollableFileList>
         </div>
       </div>
       <div className="mt-6 flex flex-col gap-2">
