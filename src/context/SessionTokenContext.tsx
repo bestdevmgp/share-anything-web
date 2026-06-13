@@ -27,11 +27,14 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [status, setStatus] = useState<Status>('idle');
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const widgetRef = useRef<TurnstileInstance>(null);
+  const interactiveRef = useRef<TurnstileInstance>(null);
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const loadTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const attemptsRef = useRef(0);
   const everReadyRef = useRef(false);
   const lastResetRef = useRef(0);
+  const statusRef = useRef<Status>('idle');
+  statusRef.current = status;
 
   const markFailed = useCallback(() => {
     setStatus('failed');
@@ -39,6 +42,7 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, []);
 
   const forceRefresh = useCallback(() => {
+    if (statusRef.current === 'failed') return;
     const now = Date.now();
     if (now - lastResetRef.current < 2000) return;
     lastResetRef.current = now;
@@ -57,10 +61,8 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
     markTokenUnavailable(false);
     attemptsRef.current = 0;
     lastResetRef.current = Date.now();
-    setStatus('minting');
-    armLoadTimeout();
-    widgetRef.current?.reset();
-  }, [armLoadTimeout]);
+    interactiveRef.current?.reset();
+  }, []);
 
   const scheduleRefresh = useCallback((expIso: string) => {
     if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
@@ -100,6 +102,10 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
     if (attemptsRef.current >= MAX_RETRIES) markFailed();
   }, [markFailed]);
 
+  const onInteractiveError = useCallback(() => {
+    console.warn('[SessionToken] interactive Turnstile error');
+  }, []);
+
   useEffect(() => {
     armLoadTimeout();
     return () => {
@@ -135,7 +141,17 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
         />
       </div>
       {children}
-      {status === 'failed' && <TurnstileBlockedOverlay onRetry={retry} />}
+      {status === 'failed' && (
+        <TurnstileBlockedOverlay onRetry={retry}>
+          <Turnstile
+            ref={interactiveRef}
+            siteKey={SITE_KEY}
+            onSuccess={onTurnstileSuccess}
+            onError={onInteractiveError}
+            options={{ size: 'flexible', action: 'session' }}
+          />
+        </TurnstileBlockedOverlay>
+      )}
     </SessionTokenContext.Provider>
   );
 };

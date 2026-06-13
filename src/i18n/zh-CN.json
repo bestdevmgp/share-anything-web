@@ -683,7 +683,7 @@
     "byCode.HTTP_ERROR": "外部请求失败。"
   },
   "botCheck": {
-    "title": "无法加载安全验证",
-    "desc": "广告拦截程序可能阻止了 Cloudflare 安全验证。请关闭它或允许 challenges.cloudflare.com，然后重试。"
+    "title": "需要完成安全验证",
+    "desc": "请完成下方的安全验证。如果一直失败，请关闭广告拦截程序或允许 challenges.cloudflare.com，然后重试。"
   }
 }

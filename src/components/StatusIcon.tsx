@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type StatusIconVariant = 'success' | 'info' | 'expired' | 'invalid' | 'error';
+export type StatusIconVariant = 'success' | 'info' | 'expired' | 'invalid' | 'error' | 'security';
 
 interface StatusIconProps {
   variant: StatusIconVariant;
@@ -53,6 +53,15 @@ const StatusIcon: React.FC<StatusIconProps> = ({ variant, className }) => {
           <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M6 18L18 6" className="status-error-x-1" />
             <path d="M6 6l12 12" className="status-error-x-2" />
+          </svg>
+        </div>
+      );
+    case 'security':
+      return (
+        <div className={`${wrapperBase} bg-blue-100 dark:bg-blue-500/15 ${className ?? ''}`}>
+          <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <path d="M9 12l2 2 4-4" />
           </svg>
         </div>
       );

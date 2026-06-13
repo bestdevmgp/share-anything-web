@@ -683,7 +683,7 @@
     "byCode.HTTP_ERROR": "外部請求失敗。"
   },
   "botCheck": {
-    "title": "無法載入安全驗證",
-    "desc": "廣告攔截程式可能阻擋了 Cloudflare 安全驗證。請關閉它或允許 challenges.cloudflare.com，然後重試。"
+    "title": "需要完成安全驗證",
+    "desc": "請完成下方的安全驗證。如果持續失敗，請關閉廣告攔截程式或允許 challenges.cloudflare.com，然後重試。"
   }
 }
