@@ -110,7 +110,7 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
         `}</style>
 
         <Card className="rounded-3xl border-2 p-6 md:p-8">
-          <div className="flex items-center gap-4 p-4 bg-muted rounded-2xl border border-foreground/[0.09]">
+          <div className="flex items-center gap-4 p-3 bg-muted rounded-2xl border border-foreground/[0.09]">
             {singleFilePreviewUrl ? (
               <button
                 type="button"
@@ -118,11 +118,11 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
                 className="flex-shrink-0 rounded-xl overflow-hidden transition-transform can-hover:hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 aria-label={file.file_name}
               >
-                <FileThumbnail source={singleFilePreviewUrl} fileName={file.file_name} size="lg" />
+                <FileThumbnail source={singleFilePreviewUrl} fileName={file.file_name} size="md" />
               </button>
             ) : (
               <div className="flex-shrink-0">
-                <FileThumbnail source={null} fileName={file.file_name} size="lg" />
+                <FileThumbnail source={null} fileName={file.file_name} size="md" />
               </div>
             )}
             <div className="flex-1 min-w-0">

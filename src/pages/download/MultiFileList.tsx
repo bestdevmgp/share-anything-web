@@ -102,7 +102,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                 </div>
 
                 <div className="flex-shrink-0 hidden sm:flex">
-                  <FileThumbnail source={null} fileName={file.file_name} size="xs" />
+                  <FileThumbnail source={null} fileName={file.file_name} size="sm" />
                 </div>
 
                 <div className="flex-1 min-w-0">
