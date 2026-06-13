@@ -643,8 +643,8 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     const awaitingNextSelection = !anyP2PDownloading && !allP2PCompleted && p2pCompletedFileIds.size > 0;
 
     return (
-      <div className="pt-12 pb-20 px-4">
-        <div className="max-w-3xl mx-auto">
+      <div className="min-h-full flex flex-col items-center justify-center pt-12 pb-20 px-4">
+        <div className="w-full max-w-3xl mx-auto">
           <div className="text-center mb-10">
             <div className="flex justify-center mb-5">
               <div className={cn(
