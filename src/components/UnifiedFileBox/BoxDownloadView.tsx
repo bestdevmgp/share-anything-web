@@ -268,6 +268,16 @@ const BoxDownloadView: React.FC<Props> = ({
                         )}
                       </div>
                     </div>
+                    {files.length > 1 && !done && !isActive && (
+                      <Button
+                        onClick={() => startP2PDownload(file.id)}
+                        disabled={active}
+                        size="sm"
+                        className="flex-shrink-0 ml-2"
+                      >
+                        {t('common.download')}
+                      </Button>
+                    )}
                   </div>
                 );
               })}
