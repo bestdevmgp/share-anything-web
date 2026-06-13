@@ -232,11 +232,11 @@ const BoxDownloadView: React.FC<Props> = ({
                 return (
                   <div
                     key={file.id}
-                    className="flex items-center px-3 py-2 bg-muted rounded-lg border border-foreground/[0.09]"
+                    className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/[0.09]"
                   >
                     {done && (
                       <div className="flex-shrink-0 mr-3">
-                        <FileThumbnail source={null} fileName={file.file_name} size="xs" />
+                        <FileThumbnail source={null} fileName={file.file_name} size="sm" />
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
@@ -330,10 +330,10 @@ const BoxDownloadView: React.FC<Props> = ({
             {files.map((file) => (
               <div
                 key={file.id}
-                className="flex items-center px-3 py-2 bg-muted rounded-lg border border-foreground/[0.09]"
+                className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/[0.09]"
               >
                 <div className="flex-shrink-0 mr-3">
-                  <FileThumbnail source={null} fileName={file.file_name} size="xs" />
+                  <FileThumbnail source={null} fileName={file.file_name} size="sm" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{file.file_name}</p>
