@@ -539,6 +539,30 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
           setPeerDeviceInfo(null);
           break;
 
+        case 'downloader_paused':
+          cancelledRef.current = true;
+          isTransferringRef.current = false;
+          if (dataChannelRef.current) {
+            dataChannelRef.current.close();
+            dataChannelRef.current = null;
+          }
+          if (pcRef.current) {
+            pcRef.current.close();
+            pcRef.current = null;
+          }
+          setFileProgresses(prev => {
+            const newMap = new Map(prev);
+            newMap.forEach((progress, fileName) => {
+              if (progress.status === 'transferring') {
+                newMap.set(fileName, { ...progress, progress: 0, status: 'waiting', timeRemaining: '' });
+              }
+            });
+            return newMap;
+          });
+          setStatus('waiting_for_next');
+          setCurrentFileName('');
+          break;
+
         case 'transfer_complete':
           isCleaningUpRef.current = true;
           setStatus('completed');

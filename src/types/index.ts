@@ -135,6 +135,7 @@ export type SignalingMessageType =
   | 'error'
   | 'uploader_offline'
   | 'downloader_offline'
+  | 'downloader_paused'
   | 'uploader_cancelled'
   // Receiver-to-uploader request to send the next file on the already-open
   // PC+DC instead of running a fresh ICE handshake per file (5–15s saved on
