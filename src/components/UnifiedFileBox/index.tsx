@@ -273,20 +273,15 @@ const UnifiedFileBox: React.FC = () => {
             }
           />
         )}
-        {state.mode === 'upload' && state.state === 'p2pCreating' && (
-          <P2PWaiting
-            loading
-            fileCount={state.files.length}
-            onCancel={onP2PCancel}
-          />
-        )}
-        {state.mode === 'upload' && state.state === 'p2pWaiting' && state.p2pShareCode && (
-          <P2PWaiting
-            shareCode={state.p2pShareCode}
-            fileCount={state.files.length}
-            onCancel={onP2PCancel}
-          />
-        )}
+        {state.mode === 'upload' &&
+          (state.state === 'p2pCreating' || state.state === 'p2pWaiting') && (
+            <P2PWaiting
+              loading={state.state === 'p2pCreating' || !state.p2pShareCode}
+              shareCode={state.p2pShareCode ?? undefined}
+              fileCount={state.files.length}
+              onCancel={onP2PCancel}
+            />
+          )}
         {state.mode === 'upload' &&
           (state.state === 'p2pConnected' ||
             state.state === 'p2pTransferring' ||

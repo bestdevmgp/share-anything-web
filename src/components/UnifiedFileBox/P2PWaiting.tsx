@@ -23,7 +23,7 @@ const P2PWaiting: React.FC<Props> = ({ shareCode, fileCount, onCancel, loading }
 
   return (
     <div
-      className="flex-1 flex flex-col px-6 md:px-8 py-8"
+      className="flex-1 flex flex-col px-6 md:px-8 py-8 animate-in fade-in-0 slide-in-from-bottom-1 duration-300"
       onClick={(e) => e.stopPropagation()}
     >
       <div className="flex-1 flex flex-col md:flex-row items-center md:items-stretch justify-center gap-6 md:gap-10">
