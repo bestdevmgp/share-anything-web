@@ -516,8 +516,8 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
           break;
 
         case 'downloader_offline':
+          toast.warning(t('p2p.receiverDisconnected'));
           if (isTransferringRef.current) {
-            toast.warning(t('p2p.receiverDisconnected'));
             isTransferringRef.current = false;
             setFileProgresses(prev => {
               const newMap = new Map(prev);
