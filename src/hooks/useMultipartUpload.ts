@@ -74,6 +74,9 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
     const files = input.files;
     const perFileAbort = files.map(() => new AbortController());
     const canceled = new Set<number>();
+    // abort() ends the whole session — no share finalized, even for already-
+    // uploaded files. cancelFile() only drops one file and lets the rest finish.
+    let sessionAborted = false;
 
     const trackingPerFile = files.map((f) => ({
       completedBytes: 0,
@@ -215,10 +218,14 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
         MAX_CONCURRENT_FILES
       );
 
+      if (sessionAborted) throw new Error('Upload cancelled');
+
       const liveIndices = indices.filter((i) => !canceled.has(i));
       if (liveIndices.length === 0) throw new Error('Upload cancelled');
 
       const dimensions = await Promise.all(liveIndices.map((i) => getImageDimensions(files[i])));
+
+      if (sessionAborted) throw new Error('Upload cancelled');
 
       const completeResp = await fileAPI.completeMultipartUpload({
         upload_session_id: initResponse.upload_session_id,
@@ -249,6 +256,7 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
 
     return {
       abort: () => {
+        sessionAborted = true;
         perFileAbort.forEach((c) => c.abort());
       },
       cancelFile: (fileIndex: number) => {
