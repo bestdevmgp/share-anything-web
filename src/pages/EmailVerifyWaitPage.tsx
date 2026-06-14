@@ -5,9 +5,9 @@ import { authAPI } from '../services/api';
 import { toast } from '../context/ToastContext';
 import { useTranslation } from '../i18n';
 import { Card, CardContent } from '../components/ui/card';
-import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Spinner } from '../components/ui/spinner';
+import CodeInput from '../components/CodeInput';
 import { EnvelopeIcon, ArrowLeftIcon, LinkIcon } from '@heroicons/react/24/outline';
 import { providerLogoMap } from '../utils/providerLogos';
 import type { User } from '../types';
@@ -126,23 +126,18 @@ const EmailVerifyWaitPage: React.FC = () => {
     return () => channel.close();
   }, [mergeInfo, handleLoginSuccess]);
 
-  const handleVerifyCode = async () => {
-    if (code.length !== 6) return;
+  const handleVerifyCode = async (value?: string) => {
+    const target = value ?? code;
+    if (target.length !== 6 || verifying) return;
     setCodeError('');
     setVerifying(true);
     try {
-      const data = await authAPI.verifyEmailCode(sessionId, code);
+      const data = await authAPI.verifyEmailCode(sessionId, target);
       handleLoginSuccess(data.token, data.user, data.existing_provider);
     } catch {
       setCodeError(t('emailAuth.verifyFailed'));
     } finally {
       setVerifying(false);
-    }
-  };
-
-  const handleCodeKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      handleVerifyCode();
     }
   };
 
@@ -245,29 +240,23 @@ const EmailVerifyWaitPage: React.FC = () => {
 
             {showCodeInput ? (
               <div className="mb-6">
-                <Input
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={6}
-                  placeholder={t('emailAuth.codePlaceholder')}
-                  value={code}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(/\D/g, '');
+                <CodeInput
+                  onChange={(val) => {
                     setCode(val);
                     setCodeError('');
                   }}
-                  onKeyDown={handleCodeKeyDown}
-                  className="h-12 text-center font-mono mb-3"
-                  autoFocus
+                  onComplete={(val) => handleVerifyCode(val)}
+                  disabled={verifying}
+                  ariaLabel={t('emailAuth.codePlaceholder')}
                 />
                 {codeError && (
-                  <p className="text-sm text-destructive mb-3">{codeError}</p>
+                  <p className="text-sm text-destructive text-center mt-3">{codeError}</p>
                 )}
                 <Button
-                  onClick={handleVerifyCode}
+                  onClick={() => handleVerifyCode()}
                   disabled={code.length !== 6 || verifying}
                   size="xl"
-                  className="w-full"
+                  className="w-full mt-3"
                 >
                   {verifying ? <Spinner size="sm" className="text-primary-foreground" /> : t('emailAuth.verify')}
                 </Button>
