@@ -366,7 +366,6 @@
     "dragOrClick": "Drag files here or click to add",
     "uploadComplete": "Upload complete",
     "uploadFailed": "Upload failed",
-    "deleteSuccess": "Deleted",
     "deleteFailed": "Failed to delete",
     "loginRequired": "Sign in",
     "hoursRemaining": "Deletes in {{hours}}h",

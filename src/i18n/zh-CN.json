@@ -362,7 +362,6 @@
     "dragOrClick": "拖放文件或点击添加",
     "uploadComplete": "上传完成",
     "uploadFailed": "上传失败",
-    "deleteSuccess": "已删除",
     "deleteFailed": "删除失败",
     "loginRequired": "登录",
     "hoursRemaining": "{{hours}}小时后删除",

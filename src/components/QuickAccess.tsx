@@ -31,6 +31,7 @@ const QuickAccess: React.FC = () => {
   const { uploadingFiles, isUploading, handleUpload, handleCancelUpload, completedCounter } = useQuickAccessUpload();
 
   const [files, setFiles] = useState<QuickAccessFile[]>([]);
+  const [pendingDelete, setPendingDelete] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(false);
   const [, setTick] = useState(0);
 
@@ -132,19 +133,39 @@ const QuickAccess: React.FC = () => {
     onFileDialogCancel: () => setIsFileDialogOpen(false),
   });
 
-  const handleDelete = async (fileId: string) => {
-    try {
-      await quickAccessAPI.deleteFile(fileId);
+  const handleDelete = (fileId: string) => {
+    setPendingDelete(prev => new Set(prev).add(fileId));
+
+    const restore = () =>
+      setPendingDelete(prev => {
+        const next = new Set(prev);
+        next.delete(fileId);
+        return next;
+      });
+
+    const commit = async () => {
+      try {
+        await quickAccessAPI.deleteFile(fileId);
+      } catch {
+        toast.error(tRef.current('quickAccess.deleteFailed'));
+        restore();
+        return;
+      }
       setFiles(prev => prev.filter(f => f.id !== fileId));
       setPreviewUrls(prev => {
         const next = new Map(prev);
         next.delete(fileId);
         return next;
       });
-      toast.success(t('quickAccess.deleteSuccess'));
-    } catch {
-      toast.error(t('quickAccess.deleteFailed'));
-    }
+      restore();
+    };
+
+    toast.action(tRef.current('common.deleted'), {
+      actionLabel: tRef.current('common.undo'),
+      duration: 5000,
+      onAction: restore,
+      onAutoClose: commit,
+    });
   };
 
   const handleDownload = async (file: QuickAccessFile) => {
@@ -229,7 +250,8 @@ const QuickAccess: React.FC = () => {
     );
   }
 
-  const hasContent = files.length > 0 || uploadingFiles.length > 0;
+  const visibleFiles = files.filter(f => !pendingDelete.has(f.id));
+  const hasContent = visibleFiles.length > 0 || uploadingFiles.length > 0;
 
   if (isLoading && !hasContent) {
     return (
@@ -298,7 +320,7 @@ const QuickAccess: React.FC = () => {
           <>
             <div className="flex items-center justify-between px-7 pt-4 pb-3 md:px-8 md:pt-5 md:pb-4 flex-shrink-0">
               <h3 className="text-base font-semibold text-foreground">
-                {t('quickAccess.titleShort')}{files.length > 0 && <span className="text-muted-foreground/50 font-normal ml-1">({t('quickAccess.fileCount', { count: files.length })})</span>}
+                {t('quickAccess.titleShort')}{visibleFiles.length > 0 && <span className="text-muted-foreground/50 font-normal ml-1">({t('quickAccess.fileCount', { count: visibleFiles.length })})</span>}
               </h3>
               <span className="text-xs text-muted-foreground/50">
                 {t('quickAccess.dragOrClick')}
@@ -318,7 +340,7 @@ const QuickAccess: React.FC = () => {
                   onCancel={uf.completed ? undefined : () => handleCancelUpload(uf.id)}
                 />
               ))}
-              {files.map((file) => (
+              {visibleFiles.map((file) => (
                 <div
                   key={file.id}
                   className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/[0.09] can-hover:hover:bg-accent active:bg-accent transition-colors cursor-pointer"

@@ -362,7 +362,6 @@
     "dragOrClick": "ファイルをドラッグするか、クリックして追加",
     "uploadComplete": "アップロード完了",
     "uploadFailed": "アップロードに失敗しました",
-    "deleteSuccess": "削除しました",
     "deleteFailed": "削除に失敗しました",
     "loginRequired": "ログイン",
     "hoursRemaining": "{{hours}}時間後に削除",
