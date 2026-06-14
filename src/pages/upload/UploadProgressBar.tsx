@@ -3,6 +3,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import { Button } from '../../components/ui/button';
 import { Spinner } from '../../components/ui/spinner';
 import { useTranslation } from '../../i18n';
+import { cn } from '../../lib/utils';
 
 export interface UploadProgressBarProps {
   isUploading: boolean;
@@ -60,10 +61,14 @@ const UploadProgressBar: React.FC<UploadProgressBarProps> = ({
               </div>
               <button
                 onClick={onCancelUpload}
-                className="p-1 can-hover:hover:bg-accent active:bg-accent rounded transition-colors flex-shrink-0"
+                disabled={isCompleting}
+                className={cn(
+                  'p-1 rounded transition-colors flex-shrink-0',
+                  isCompleting ? 'cursor-not-allowed' : 'can-hover:hover:bg-accent active:bg-accent'
+                )}
                 title={t('upload.cancelUpload')}
               >
-                <XMarkIcon className="w-6 h-6 text-muted-foreground" />
+                <XMarkIcon className={cn('w-6 h-6', isCompleting ? 'text-muted-foreground/30' : 'text-muted-foreground')} />
               </button>
             </div>
           </div>

@@ -152,11 +152,15 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
             {isP2PDownload && (p2pStatus === 'downloading' || p2pStatus === 'connecting' || p2pStatus === 'processing') && (
               <button
                 onClick={handleCancelP2PDownload}
-                className="flex-shrink-0 self-center -mr-1 p-1 can-hover:hover:bg-accent active:bg-accent rounded-md transition-colors"
+                disabled={p2pStatus === 'processing'}
+                className={cn(
+                  'flex-shrink-0 self-center -mr-1 p-1 rounded-md transition-colors',
+                  p2pStatus === 'processing' ? 'cursor-not-allowed' : 'can-hover:hover:bg-accent active:bg-accent'
+                )}
                 title={t('download.cancelDownload')}
                 aria-label={t('download.cancelDownload')}
               >
-                <XMarkIcon className="w-4 h-4 text-muted-foreground" />
+                <XMarkIcon className={cn('w-4 h-4', p2pStatus === 'processing' ? 'text-muted-foreground/30' : 'text-muted-foreground')} />
               </button>
             )}
           </div>

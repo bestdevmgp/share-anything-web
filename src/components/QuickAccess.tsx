@@ -345,7 +345,8 @@ const QuickAccess: React.FC = () => {
                   progress={uf.progress}
                   timeRemaining={uf.timeRemaining}
                   statusText={uf.completed ? t('upload.pleaseWait') : undefined}
-                  onCancel={uf.completed ? undefined : () => handleCancelUpload(uf.id)}
+                  onCancel={() => handleCancelUpload(uf.id)}
+                  cancelDisabled={uf.completed}
                 />
               ))}
               {visibleFiles.map((file) => (
@@ -404,8 +405,8 @@ const QuickAccess: React.FC = () => {
                               border: '1px solid var(--share-bubble-border)',
                             }}
                           >
-                            <span className="flex items-center gap-1.5">
-                              <span className="font-mono text-[1.125rem] font-bold text-foreground tracking-[0.06em] leading-none">
+                            <span className="flex items-center gap-1">
+                              <span className="text-[1.125rem] font-bold text-foreground tracking-[0.06em] leading-none">
                                 {sharedCode?.code.slice(0, 3)}<span className="inline-block w-1" />{sharedCode?.code.slice(3)}
                               </span>
                               <CopyButton

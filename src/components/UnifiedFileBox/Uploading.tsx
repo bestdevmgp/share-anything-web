@@ -58,7 +58,8 @@ const Uploading: React.FC<Props> = ({ items, onCancel, onCancelAll }) => {
           progress={uf.progress}
           timeRemaining={uf.timeRemaining}
           statusText={uf.completed ? t('upload.pleaseWait') : undefined}
-          onCancel={!uf.completed ? () => onCancel(uf.id) : undefined}
+          onCancel={() => onCancel(uf.id)}
+          cancelDisabled={uf.completed}
         />
       ))}
     </div>

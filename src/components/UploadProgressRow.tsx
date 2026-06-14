@@ -4,6 +4,7 @@ import FileThumbnail from './FileThumbnail';
 import TruncatedFilename from './TruncatedFilename';
 import { formatFileSize } from '../utils/format';
 import { useTranslation } from '../i18n';
+import { cn } from 'lib/utils';
 
 interface Props {
   fileName: string;
@@ -12,6 +13,7 @@ interface Props {
   timeRemaining?: string;
   statusText?: string;
   onCancel?: () => void;
+  cancelDisabled?: boolean;
   hideThumbnail?: boolean;
 }
 
@@ -22,6 +24,7 @@ const UploadProgressRow: React.FC<Props> = ({
   timeRemaining,
   statusText,
   onCancel,
+  cancelDisabled,
   hideThumbnail,
 }) => {
   const { t } = useTranslation();
@@ -63,7 +66,13 @@ const UploadProgressRow: React.FC<Props> = ({
         <div className="flex-shrink-0">
           <button
             onClick={onCancel}
-            className="-mr-1 p-1 rounded-md transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
+            disabled={cancelDisabled}
+            className={cn(
+              '-mr-1 p-1 rounded-md transition-colors',
+              cancelDisabled
+                ? 'text-muted-foreground/30 cursor-not-allowed'
+                : 'text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10'
+            )}
             title={t('common.cancel')}
           >
             <XMarkIcon className="w-4 h-4" />

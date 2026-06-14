@@ -284,7 +284,13 @@ const BoxDownloadView: React.FC<Props> = ({
                     {isActive ? (
                       <button
                         onClick={handleCancelP2PDownload}
-                        className="flex-shrink-0 self-center ml-1 -mr-1 p-1 rounded-md transition-colors text-muted-foreground can-hover:hover:bg-accent active:bg-accent"
+                        disabled={p2pStatus === 'processing'}
+                        className={cn(
+                          'flex-shrink-0 self-center ml-1 -mr-1 p-1 rounded-md transition-colors',
+                          p2pStatus === 'processing'
+                            ? 'text-muted-foreground/30 cursor-not-allowed'
+                            : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
+                        )}
                         title={t('download.cancelDownload')}
                         aria-label={t('download.cancelDownload')}
                       >

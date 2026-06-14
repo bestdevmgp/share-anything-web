@@ -156,10 +156,14 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                   </div>
                   <button
                     onClick={handleCancelDownload}
-                    className="p-1 can-hover:hover:bg-accent active:bg-accent rounded transition-colors flex-shrink-0"
+                    disabled={downloadProgress === 100}
+                    className={cn(
+                      'p-1 rounded transition-colors flex-shrink-0',
+                      downloadProgress === 100 ? 'cursor-not-allowed' : 'can-hover:hover:bg-accent active:bg-accent'
+                    )}
                     title={t('download.cancelDownload')}
                   >
-                    <XMarkIcon className="w-6 h-6 text-muted-foreground" />
+                    <XMarkIcon className={cn('w-6 h-6', downloadProgress === 100 ? 'text-muted-foreground/30' : 'text-muted-foreground')} />
                   </button>
                 </div>
               </div>
