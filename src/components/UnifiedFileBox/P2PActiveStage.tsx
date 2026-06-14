@@ -149,35 +149,38 @@ const P2PActiveStage: React.FC<Props> = ({
               return (
                 <div
                   key={file.name}
-                  className="flex items-center px-3 py-3 bg-muted rounded-lg border border-foreground/[0.09]"
+                  className="flex items-center px-3 py-2 bg-muted rounded-lg border border-foreground/[0.09]"
                 >
                   <div className="flex-shrink-0 mr-3">
                     <FileThumbnail source={file} fileName={file.name} size="sm" />
                   </div>
-                  <div className={cn('flex-1 min-w-0', !isTransferring && 'py-[7px]')}>
-                    <TruncatedFilename name={file.name} className="text-sm font-medium text-foreground" />
-                    <div className="flex items-center justify-between gap-2 mt-0.5 leading-none">
-                      {st === 'completed' ? (
-                        <span className="text-xs font-medium text-green-600">✓ {t('uploadSuccess.completed')}</span>
-                      ) : (
-                        <>
-                          <span className="text-xs text-muted-foreground whitespace-nowrap">{formatFileSize(file.size)}</span>
-                          {isTransferring && (
-                            <div className="flex items-center gap-2">
-                              {progress?.timeRemaining && (
-                                <span className="text-xs text-muted-foreground whitespace-nowrap">{progress.timeRemaining}</span>
-                              )}
-                              <span className="text-xs font-semibold text-primary whitespace-nowrap">{pct}%</span>
-                            </div>
-                          )}
-                        </>
-                      )}
+                  <div className="flex-1 min-w-0">
+                    {/* text slides up as the bar fades in; bar slot is always reserved so row height never changes */}
+                    <div className={cn('transition-transform duration-300 ease-out', !isTransferring && 'translate-y-[7px]')}>
+                      <TruncatedFilename name={file.name} className="text-sm font-medium text-foreground" />
+                      <div className="flex items-center justify-between gap-2 mt-0.5 leading-none">
+                        {st === 'completed' ? (
+                          <span className="text-xs font-medium text-green-600">✓ {t('uploadSuccess.completed')}</span>
+                        ) : (
+                          <>
+                            <span className="text-xs text-muted-foreground whitespace-nowrap">{formatFileSize(file.size)}</span>
+                            {isTransferring && (
+                              <div className="flex items-center gap-2">
+                                {progress?.timeRemaining && (
+                                  <span className="text-xs text-muted-foreground whitespace-nowrap">{progress.timeRemaining}</span>
+                                )}
+                                <span className="text-xs font-semibold text-primary whitespace-nowrap">{pct}%</span>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
                     </div>
-                    {isTransferring && (
-                      <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden mt-2">
+                    <div className="mt-2 h-1.5">
+                      <div className={cn('w-full h-full bg-secondary rounded-full overflow-hidden transition-opacity duration-300', isTransferring ? 'opacity-100' : 'opacity-0')}>
                         <div className="bg-primary h-full transition-all duration-1000 ease-out rounded-full" style={{ width: `${pct}%` }} />
                       </div>
-                    )}
+                    </div>
                   </div>
                   {showCancel && (
                     <div className="flex-shrink-0 ml-1 -mr-1">

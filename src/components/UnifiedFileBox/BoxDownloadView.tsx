@@ -246,37 +246,40 @@ const BoxDownloadView: React.FC<Props> = ({
                 return (
                   <div
                     key={file.id}
-                    className="flex items-center px-3 py-3 bg-muted rounded-lg border border-foreground/[0.09]"
+                    className="flex items-center px-3 py-2 bg-muted rounded-lg border border-foreground/[0.09]"
                   >
                     {done && (
                       <div className="flex-shrink-0 mr-3">
                         <FileThumbnail source={previews?.[file.id] ?? null} fileName={file.file_name} size="sm" />
                       </div>
                     )}
-                    <div className={cn('flex-1 min-w-0', !isActive && 'py-[7px]')}>
-                      <TruncatedFilename name={file.file_name} className="text-sm font-medium text-foreground" />
-                      <div className="flex items-center justify-between gap-2 mt-0.5 leading-none">
-                        {done ? (
-                          <span className="text-xs text-muted-foreground">{t('uploadSuccess.completed')}</span>
-                        ) : (
-                          <>
-                            <span className="text-xs text-muted-foreground whitespace-nowrap">{formatFileSize(file.file_size)}</span>
-                            <div className="flex items-center gap-2">
-                              {isActive && (
-                                <>
-                                  {p2pTimeRemaining && <span className="text-xs text-muted-foreground whitespace-nowrap">{p2pTimeRemaining}</span>}
-                                  <span className="text-xs font-semibold text-primary whitespace-nowrap">{p2pProgress}%</span>
-                                </>
-                              )}
-                            </div>
-                          </>
-                        )}
+                    <div className="flex-1 min-w-0">
+                      {/* text slides up as the bar fades in; bar slot is always reserved so row height never changes */}
+                      <div className={cn('transition-transform duration-300 ease-out', !isActive && 'translate-y-[7px]')}>
+                        <TruncatedFilename name={file.file_name} className="text-sm font-medium text-foreground" />
+                        <div className="flex items-center justify-between gap-2 mt-0.5 leading-none">
+                          {done ? (
+                            <span className="text-xs text-muted-foreground">{t('uploadSuccess.completed')}</span>
+                          ) : (
+                            <>
+                              <span className="text-xs text-muted-foreground whitespace-nowrap">{formatFileSize(file.file_size)}</span>
+                              <div className="flex items-center gap-2">
+                                {isActive && (
+                                  <>
+                                    {p2pTimeRemaining && <span className="text-xs text-muted-foreground whitespace-nowrap">{p2pTimeRemaining}</span>}
+                                    <span className="text-xs font-semibold text-primary whitespace-nowrap">{p2pProgress}%</span>
+                                  </>
+                                )}
+                              </div>
+                            </>
+                          )}
+                        </div>
                       </div>
-                      {isActive && (
-                        <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden mt-2">
+                      <div className="mt-2 h-1.5">
+                        <div className={cn('w-full h-full bg-secondary rounded-full overflow-hidden transition-opacity duration-300', isActive ? 'opacity-100' : 'opacity-0')}>
                           <div className="bg-primary h-full transition-all duration-1000 ease-out rounded-full" style={{ width: `${p2pProgress}%` }} />
                         </div>
-                      )}
+                      </div>
                     </div>
                     {isActive ? (
                       <button
@@ -372,7 +375,7 @@ const BoxDownloadView: React.FC<Props> = ({
                   key={file.id}
                   onClick={multi ? () => toggleFileSelection(file.id) : undefined}
                   className={cn(
-                    'flex items-center px-3 py-3.5 bg-muted rounded-lg border border-foreground/[0.09]',
+                    'flex items-center px-3 py-3 bg-muted rounded-lg border border-foreground/[0.09]',
                     multi && 'cursor-pointer transition-opacity',
                     multi && !selected && 'opacity-50'
                   )}
