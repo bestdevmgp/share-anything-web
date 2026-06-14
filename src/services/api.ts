@@ -166,9 +166,12 @@ api.interceptors.request.use(async (config) => {
     config.headers['Content-Type'] = 'application/json';
   }
 
-  const isExchange = (config.url || '').includes('/auth/session-token');
+  const url = config.url || '';
+  const isExchange = url.includes('/auth/session-token');
+  // OAuth callback isn't session-gated, so don't block login on the Turnstile mint.
+  const skipTokenWait = isExchange || url.includes('/auth/callback/');
 
-  if (!isExchange && !currentSessionToken && !authToken && !tokenUnavailable) {
+  if (!skipTokenWait && !currentSessionToken && !authToken && !tokenUnavailable) {
     await waitForToken(STARTUP_TOKEN_WAIT_MS);
   }
   if (!isExchange && currentSessionToken) {
