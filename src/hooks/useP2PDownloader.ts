@@ -3,7 +3,7 @@ import { SignalingMessage, FileInfo } from '../types';
 import { createWebSocketConnection, createPeerConnection, generatePeerId, sendSignalingMessage } from '../utils/webrtc';
 import { toast } from '../context/ToastContext';
 import { getDeviceInfo } from '../utils/format';
-import { useTranslation } from '../i18n';
+import { useTranslation, translateSignalingError } from '../i18n';
 
 interface UseP2PDownloaderProps {
   shareCode: string;
@@ -380,7 +380,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
         console.error('Signaling error:', message.message);
         if (!isCleaningUpRef.current && !completedFileRef.current) {
           setStatus('error');
-          toast.error(message.message || t('p2p.connectionError'));
+          toast.error(translateSignalingError(message.message, t));
         }
         return;
       }

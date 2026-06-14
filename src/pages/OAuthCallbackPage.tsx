@@ -111,7 +111,7 @@ const OAuthCallbackPage: React.FC = () => {
           setTimeout(() => navigate('/signin', { replace: true }), 3000);
         }
       } catch (err: any) {
-        const errorMessage = translateApiError(err.response?.data, t) || err.message || t('oauth.loginFailed');
+        const errorMessage = translateApiError(err.response?.data, t) || t('oauth.loginFailed');
         toast.error(errorMessage);
         setTimeout(() => navigate('/signin', { replace: true }), 3000);
       }
