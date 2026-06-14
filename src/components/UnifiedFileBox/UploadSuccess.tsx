@@ -137,7 +137,7 @@ const UploadSuccess: React.FC<Props> = ({ result, failedNames, onConfirm, onRetr
         </div>
       )}
 
-      <Button onClick={onConfirm} size="lg" className="w-full mt-6">
+      <Button onClick={onConfirm} size="lg" className="w-full mt-6 -mb-2">
         {t('common.done')}
       </Button>
     </div>

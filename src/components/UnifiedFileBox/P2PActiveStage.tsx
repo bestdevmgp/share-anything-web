@@ -204,7 +204,7 @@ const P2PActiveStage: React.FC<Props> = ({
         onClick={isDone ? onNew : onCancel}
         variant={isDone ? 'default' : 'outline'}
         size="lg"
-        className="w-full mt-6"
+        className="w-full mt-6 -mb-2 md:mb-1"
       >
         {isDone ? t('common.done') : t('unifiedBox.p2pCancelButton')}
       </Button>

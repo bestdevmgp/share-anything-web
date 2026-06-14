@@ -34,7 +34,7 @@ const P2PWaiting: React.FC<Props> = ({ shareCode, fileCount, onCancel, loading }
             {t('unifiedBox.p2pCreatingDesc')}
           </p>
         </div>
-        <Button variant="outline" onClick={onCancel} size="lg" className="w-full mt-6">
+        <Button variant="outline" onClick={onCancel} size="lg" className="w-full mt-6 -mb-2">
           {t('unifiedBox.p2pCancelButton')}
         </Button>
       </div>
@@ -128,7 +128,7 @@ const P2PWaiting: React.FC<Props> = ({ shareCode, fileCount, onCancel, loading }
         </div>
       </div>
 
-      <Button variant="outline" onClick={onCancel} size="lg" className="w-full mt-6">
+      <Button variant="outline" onClick={onCancel} size="lg" className="w-full mt-6 -mb-2">
         {t('unifiedBox.p2pCancelButton')}
       </Button>
     </div>

@@ -308,7 +308,7 @@ const BoxDownloadView: React.FC<Props> = ({
             </ScrollableFileList>
           </div>
         </div>
-        <div className="mt-6 -mb-4 md:-mb-1 flex flex-col gap-2">
+        <div className={cn('mt-6 flex flex-col gap-2', allDone ? '-mb-2 md:mb-1' : '-mb-5 md:-mb-2')}>
           {allDone ? (
             <Button onClick={onReset} size="lg" className="w-full">
               {t('common.done')}
@@ -410,7 +410,7 @@ const BoxDownloadView: React.FC<Props> = ({
           </ScrollableFileList>
         </div>
       </div>
-      <div className="mt-6 -mb-4 md:-mb-1 flex flex-col gap-2">
+      <div className="mt-6 -mb-5 md:-mb-2 flex flex-col gap-2">
         {multi ? (() => {
           const selectedTotalSize = files
             .filter((f) => selectedFiles.has(f.id))
