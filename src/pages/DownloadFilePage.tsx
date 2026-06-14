@@ -751,33 +751,36 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                       isActive ? 'bg-muted border-primary' : 'bg-muted border-foreground/[0.09]'
                     )}
                   >
-                    <div className="flex items-center space-x-4">
-                      <div className={cn('flex-1 min-w-0', !isDownloading && 'py-[7px]')}>
-                        <TruncatedFilename name={file.file_name} className="text-base font-semibold text-foreground leading-tight" />
-                        <div className="flex items-center justify-between gap-2 mt-0.5 leading-none">
-                          <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">{formatFileSize(file.file_size)}</span>
-                          {isDownloading && (
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs text-muted-foreground whitespace-nowrap">{p2pTimeRemaining || t('format.calculating')}</span>
-                              <span className="text-xs font-semibold text-primary whitespace-nowrap">{p2pProgress}%</span>
-                            </div>
-                          )}
+                    <div className="flex items-center">
+                      <div className="flex-1 min-w-0">
+                        {/* text slides up as the bar fades in; bar slot is always reserved so row height never changes */}
+                        <div className={cn('transition-transform duration-300 ease-out', !isDownloading && 'translate-y-[7px]')}>
+                          <TruncatedFilename name={file.file_name} className="text-base font-semibold text-foreground leading-tight" />
+                          <div className="flex items-center justify-between gap-2 mt-0.5 leading-none">
+                            <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">{formatFileSize(file.file_size)}</span>
+                            {isDownloading && (
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-muted-foreground whitespace-nowrap">{p2pTimeRemaining || t('format.calculating')}</span>
+                                <span className="text-xs font-semibold text-primary whitespace-nowrap">{p2pProgress}%</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        {isDownloading && (
-                          <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden mt-2">
+                        <div className="mt-2 h-1.5">
+                          <div className={cn('w-full h-full bg-secondary rounded-full overflow-hidden transition-opacity duration-300', isDownloading ? 'opacity-100' : 'opacity-0')}>
                             <div className="bg-primary h-full transition-all duration-1000 ease-out rounded-full" style={{ width: `${p2pProgress}%` }} />
                           </div>
-                        )}
+                        </div>
                       </div>
 
                       {isCompleted ? (
-                        <span className="flex-shrink-0 px-4 py-2 text-green-600 text-sm font-medium">
+                        <span className="flex-shrink-0 self-center px-4 py-2 text-green-600 text-sm font-medium whitespace-nowrap">
                           ✓ {t('common.done')}
                         </span>
                       ) : isDownloading ? (
                         <button
                           onClick={handleCancelP2PDownload}
-                          className="flex-shrink-0 self-center -mr-1 p-1 can-hover:hover:bg-accent active:bg-accent rounded-md transition-colors"
+                          className="flex-shrink-0 self-center ml-1 -mr-1 p-1 can-hover:hover:bg-accent active:bg-accent rounded-md transition-colors"
                           title={t('download.cancelDownload')}
                           aria-label={t('download.cancelDownload')}
                         >
@@ -788,7 +791,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                           onClick={() => startP2PDownload(file.id)}
                           disabled={bulkP2PDownloading || Boolean(anyP2PDownloading)}
                           size="sm"
-                          className="flex-shrink-0"
+                          className="flex-shrink-0 ml-3"
                         >
                           {t('common.download')}
                         </Button>

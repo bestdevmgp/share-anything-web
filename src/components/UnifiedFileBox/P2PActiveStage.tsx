@@ -182,7 +182,16 @@ const P2PActiveStage: React.FC<Props> = ({
                       </div>
                     </div>
                   </div>
-                  {showCancel && (
+                  {!isDone && isTransferring ? (
+                    <button
+                      onClick={() => onCancelFile(file.name)}
+                      className="flex-shrink-0 self-center ml-1 -mr-1 p-1 rounded-md transition-colors text-muted-foreground can-hover:hover:bg-accent active:bg-accent"
+                      title={t('common.cancel')}
+                      aria-label={t('common.cancel')}
+                    >
+                      <XMarkIcon className="w-4 h-4" />
+                    </button>
+                  ) : showCancel ? (
                     <div className="flex-shrink-0 ml-1 -mr-1">
                       <button
                         onClick={() => onCancelFile(file.name)}
@@ -192,7 +201,7 @@ const P2PActiveStage: React.FC<Props> = ({
                         <XMarkIcon className="w-4 h-4" />
                       </button>
                     </div>
-                  )}
+                  ) : null}
                 </div>
               );
             })}
