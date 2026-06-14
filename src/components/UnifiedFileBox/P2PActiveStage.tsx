@@ -145,7 +145,6 @@ const P2PActiveStage: React.FC<Props> = ({
               const pct = progress?.progress ?? 0;
               const st = progress?.status ?? 'waiting';
               const isTransferring = st === 'transferring';
-              const showCancel = !isDone && st === 'waiting';
               return (
                 <div
                   key={file.name}
@@ -182,7 +181,7 @@ const P2PActiveStage: React.FC<Props> = ({
                       </div>
                     </div>
                   </div>
-                  {!isDone && isTransferring ? (
+                  {!isDone && (isTransferring || st === 'waiting') ? (
                     <button
                       onClick={() => onCancelFile(file.name)}
                       className="flex-shrink-0 self-center ml-1 -mr-1 p-1 rounded-md transition-colors text-muted-foreground can-hover:hover:bg-accent active:bg-accent"
@@ -191,16 +190,6 @@ const P2PActiveStage: React.FC<Props> = ({
                     >
                       <XMarkIcon className="w-4 h-4" />
                     </button>
-                  ) : showCancel ? (
-                    <div className="flex-shrink-0 ml-1 -mr-1">
-                      <button
-                        onClick={() => onCancelFile(file.name)}
-                        className="p-1 rounded-md transition-colors text-muted-foreground/50 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 active:text-red-600 dark:active:text-red-400 active:bg-red-100/50 dark:active:bg-red-500/15"
-                        title={t('common.delete')}
-                      >
-                        <XMarkIcon className="w-4 h-4" />
-                      </button>
-                    </div>
                   ) : null}
                 </div>
               );
