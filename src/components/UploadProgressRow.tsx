@@ -27,7 +27,7 @@ const UploadProgressRow: React.FC<Props> = ({
   const { t } = useTranslation();
   return (
     <div
-      className="flex items-center px-3 py-2 bg-muted rounded-lg border border-foreground/[0.09]"
+      className="flex items-center px-3 py-[11px] bg-muted rounded-lg border border-foreground/[0.09]"
       onClick={(e) => e.stopPropagation()}
     >
       {!hideThumbnail && (
