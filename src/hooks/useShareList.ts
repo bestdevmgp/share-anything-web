@@ -36,6 +36,12 @@ export const useShareList = (refreshKey?: number) => {
 
   useEffect(() => { load(); }, [load, refreshKey]);
 
+  useEffect(() => {
+    const onRefresh = () => load();
+    window.addEventListener('recent-shares:refresh', onRefresh);
+    return () => window.removeEventListener('recent-shares:refresh', onRefresh);
+  }, [load]);
+
   const items: MergedShare[] = mergeShares(local, serverGroups).filter(
     (i) => !pending.has(i.code)
   );
