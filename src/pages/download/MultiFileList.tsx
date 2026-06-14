@@ -84,24 +84,14 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
             <h3 className="text-base sm:text-lg font-semibold text-foreground">
               {t('download.fileListSelected', { selected: selectedFiles.size, total: fileList.total_count })}
             </h3>
-            <div className="flex gap-1">
-              <Button
-                variant="ghost"
-                onClick={selectAllFiles}
-                size="sm"
-                className="text-primary can-hover:hover:bg-primary/10 active:bg-primary/10"
-              >
-                {t('download.selectAll')}
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={deselectAllFiles}
-                size="sm"
-                className="text-muted-foreground"
-              >
-                {t('download.deselectAll')}
-              </Button>
-            </div>
+            <Button
+              variant="ghost"
+              onClick={selectedFiles.size === fileList.files.length ? deselectAllFiles : selectAllFiles}
+              size="sm"
+              className="text-primary can-hover:hover:bg-primary/10 active:bg-primary/10"
+            >
+              {selectedFiles.size === fileList.files.length ? t('download.deselectAll') : t('download.selectAll')}
+            </Button>
           </div>
 
           <div className="space-y-2 sm:space-y-2.5 mb-6 sm:mb-8">

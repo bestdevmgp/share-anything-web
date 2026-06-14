@@ -539,10 +539,10 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   };
 
   useEffect(() => {
-    if (embedded && fileList && passwordVerified) {
+    if (fileList && passwordVerified) {
       setSelectedFiles(new Set(fileList.files.map((f) => f.id)));
     }
-  }, [embedded, fileList, passwordVerified]);
+  }, [fileList, passwordVerified]);
 
   if (embedded) {
     return (
