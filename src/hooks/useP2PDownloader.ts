@@ -30,6 +30,10 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
   const isCleaningUpRef = useRef<boolean>(false);
   const keepaliveIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pendingErrorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Bounded retry of downloader_join when the receiver joins before the sender
+  // has registered (backend "Uploader is not online"); re-joins the same socket.
+  const joinRetryCountRef = useRef<number>(0);
+  const joinRetryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const receivedBlobsRef = useRef<Blob[]>([]);
   const pendingChunksRef = useRef<ArrayBuffer[]>([]);
@@ -100,6 +104,10 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
       clearTimeout(pendingErrorTimerRef.current);
       pendingErrorTimerRef.current = null;
     }
+    if (joinRetryTimerRef.current) {
+      clearTimeout(joinRetryTimerRef.current);
+      joinRetryTimerRef.current = null;
+    }
     if (dataChannelRef.current) {
       try { dataChannelRef.current.close(); } catch {}
       dataChannelRef.current = null;
@@ -127,6 +135,21 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
     resetPerFileState(fileInfo);
     setStatus('connecting');
     setPeerDeviceInfo(null);
+    joinRetryCountRef.current = 0;
+
+    const sendJoin = () => {
+      if (isCleaningUpRef.current) return;
+      const ws = wsRef.current;
+      if (!ws || ws.readyState !== WebSocket.OPEN) return;
+      sendSignalingMessage(ws, {
+        type: 'downloader_join',
+        share_code: shareCodeRef.current,
+        peer_id: peerIdRef.current,
+        file_name: currentFileNameRef.current,
+        device_info: getDeviceInfo(),
+        ...(password ? { password } : {})
+      });
+    };
 
     const setupP2PConnection = async () => {
       try {
@@ -136,14 +159,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
         wsRef.current = ws;
 
         ws.onopen = () => {
-          sendSignalingMessage(ws, {
-            type: 'downloader_join',
-            share_code: shareCodeRef.current,
-            peer_id: peerIdRef.current,
-            file_name: currentFileNameRef.current,
-            device_info: getDeviceInfo(),
-            ...(password ? { password } : {})
-          });
+          sendJoin();
         };
 
         ws.onerror = (error) => {
@@ -335,10 +351,42 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
     };
 
     const handleSignalingMessage = async (message: SignalingMessage) => {
-      const pc = pcRef.current;
       const ws = wsRef.current;
+      if (!ws) return;
 
-      if (!pc || !ws) return;
+      // Handle 'error' before requiring pc: pc may still be awaiting TURN creds
+      // when the early "Uploader is not online" reply arrives, so gating behind
+      // pc would drop it and skip the retry.
+      if (message.type === 'error') {
+        const isUploaderNotReady =
+          typeof message.message === 'string' &&
+          message.message.includes('Uploader is not online');
+        const MAX_JOIN_RETRIES = 8;
+        if (
+          isUploaderNotReady &&
+          !isCleaningUpRef.current &&
+          !completedFileRef.current &&
+          joinRetryCountRef.current < MAX_JOIN_RETRIES
+        ) {
+          joinRetryCountRef.current += 1;
+          const delay = Math.min(250 + joinRetryCountRef.current * 100, 700);
+          if (joinRetryTimerRef.current) clearTimeout(joinRetryTimerRef.current);
+          joinRetryTimerRef.current = setTimeout(() => {
+            joinRetryTimerRef.current = null;
+            sendJoin();
+          }, delay);
+          return;
+        }
+        console.error('Signaling error:', message.message);
+        if (!isCleaningUpRef.current && !completedFileRef.current) {
+          setStatus('error');
+          toast.error(message.message || t('p2p.connectionError'));
+        }
+        return;
+      }
+
+      const pc = pcRef.current;
+      if (!pc) return;
 
       switch (message.type) {
         case 'peer_matched':
@@ -387,14 +435,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
             toast.warning(t(message.type === 'uploader_cancelled' ? 'p2p.senderCancelled' : 'p2p.senderDisconnected'));
           }
           cleanupSession();
-          break;
-
-        case 'error':
-          console.error('Signaling error:', message.message);
-          if (!isCleaningUpRef.current && !completedFileRef.current) {
-            setStatus('error');
-            toast.error(message.message || t('p2p.connectionError'));
-          }
           break;
       }
     };
