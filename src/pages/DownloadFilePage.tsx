@@ -747,7 +747,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                   <div
                     key={file.id}
                     className={cn(
-                      'px-3 py-3 rounded-lg border transition-all',
+                      'px-3 py-2 rounded-lg border transition-all',
                       isActive ? 'bg-muted border-primary' : 'bg-muted border-foreground/[0.09]'
                     )}
                   >
@@ -755,9 +755,9 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                       <div className="flex-1 min-w-0">
                         {/* text slides up as the bar fades in; bar slot is always reserved so row height never changes */}
                         <div className={cn('transition-transform duration-300 ease-out', !isDownloading && 'translate-y-[7px]')}>
-                          <TruncatedFilename name={file.file_name} className="text-base font-semibold text-foreground leading-tight" />
+                          <TruncatedFilename name={file.file_name} className="text-sm font-semibold text-foreground" />
                           <div className="flex items-center justify-between gap-2 mt-0.5 leading-none">
-                            <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">{formatFileSize(file.file_size)}</span>
+                            <span className="text-xs text-muted-foreground whitespace-nowrap">{formatFileSize(file.file_size)}</span>
                             {isDownloading && (
                               <div className="flex items-center gap-2">
                                 <span className="text-xs text-muted-foreground whitespace-nowrap">{p2pTimeRemaining || t('format.calculating')}</span>
@@ -774,7 +774,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                       </div>
 
                       {isCompleted ? (
-                        <span className="flex-shrink-0 self-center px-4 py-2 text-green-600 text-sm font-medium whitespace-nowrap">
+                        <span className="flex-shrink-0 self-center ml-2 text-green-600 text-sm font-medium whitespace-nowrap">
                           ✓ {t('common.done')}
                         </span>
                       ) : isDownloading ? (
@@ -791,7 +791,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                           onClick={() => startP2PDownload(file.id)}
                           disabled={bulkP2PDownloading || Boolean(anyP2PDownloading)}
                           size="sm"
-                          className="flex-shrink-0 ml-3"
+                          className="flex-shrink-0 ml-2"
                         >
                           {t('common.download')}
                         </Button>
