@@ -187,7 +187,7 @@ const RecentDownloads: React.FC = () => {
                     {formatFileSize(d.totalSize)} · {remainText}
                   </p>
                   <p className="text-xs text-muted-foreground/50 truncate mt-0.5">
-                    <span className="font-mono">{d.code}</span> · {formatCompactDate(d.downloadedAt)}
+                    <span>{d.code}</span> · {formatCompactDate(d.downloadedAt)}
                   </p>
                 </div>
                 <div className="flex items-center gap-0.5 flex-shrink-0">

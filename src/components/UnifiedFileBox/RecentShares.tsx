@@ -202,7 +202,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                     {formatFileSize(s.totalSize)} · {remainText}
                   </p>
                   <p className="text-xs text-muted-foreground/50 truncate mt-0.5">
-                    <span className="font-mono">{s.code}</span> · {formatCompactDate(s.createdAt)}
+                    <span>{s.code}</span> · {formatCompactDate(s.createdAt)}
                   </p>
                 </div>
                 <div className="flex items-center gap-0.5 flex-shrink-0">

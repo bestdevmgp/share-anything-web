@@ -258,7 +258,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                       <div className="min-w-0 flex-1 h-12 overflow-hidden flex flex-col justify-center">
                         {isBundle ? (
                           <>
-                            <div className="text-sm font-semibold text-foreground font-mono tracking-wide truncate">
+                            <div className="text-sm font-semibold text-foreground tracking-wide truncate">
                               {group.shareCode}
                             </div>
                             <div className="text-xs text-muted-foreground truncate mt-0.5">
@@ -354,7 +354,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                               <CardContent className="p-4 grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-3">
                                 <div>
                                   <span className="text-sm font-medium text-muted-foreground">{t('history.shareCodeLabel')}</span>
-                                  <p className="text-sm text-foreground font-mono">{group.shareCode}</p>
+                                  <p className="text-sm text-foreground">{group.shareCode}</p>
                                 </div>
                                 <div>
                                   <span className="text-sm font-medium text-muted-foreground">{t('history.bundleSize')}</span>
@@ -423,7 +423,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                                       <>
                                         <div>
                                           <span className="text-sm font-medium text-muted-foreground">{t('history.shareCodeLabel')}</span>
-                                          <p className="text-sm text-foreground font-mono">{upload.share_code}</p>
+                                          <p className="text-sm text-foreground">{upload.share_code}</p>
                                         </div>
                                         <div>
                                           <span className="text-sm font-medium text-muted-foreground">{t('history.passwordLabel')}</span>

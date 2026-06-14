@@ -219,7 +219,7 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                 <div className="flex-1 min-w-0 h-12 overflow-hidden flex flex-col justify-center">
                   {isBundle ? (
                     <>
-                      <h3 className="text-sm font-semibold text-foreground font-mono tracking-wide leading-4 truncate">
+                      <h3 className="text-sm font-semibold text-foreground tracking-wide leading-4 truncate">
                         {group.shareCode}
                       </h3>
                       <p className="text-xs text-muted-foreground truncate leading-4 mt-0.5">
@@ -273,7 +273,7 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                     <CardContent className="p-3 space-y-2 text-xs">
                       <div>
                         <span className="text-muted-foreground">{t('history.shareCodeLabel')}:</span>
-                        <span className="ml-2 text-foreground font-mono">{group.shareCode}</span>
+                        <span className="ml-2 text-foreground">{group.shareCode}</span>
                       </div>
                       <div>
                         <span className="text-muted-foreground">{t('history.bundleSize')}:</span>
@@ -345,7 +345,7 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                           <>
                             <div>
                               <span className="text-muted-foreground">{t('history.shareCodeLabel')}:</span>
-                              <span className="ml-2 text-foreground font-mono">{upload.share_code}</span>
+                              <span className="ml-2 text-foreground">{upload.share_code}</span>
                             </div>
                             <div>
                               <span className="text-muted-foreground">{t('history.passwordLabel')}:</span>
