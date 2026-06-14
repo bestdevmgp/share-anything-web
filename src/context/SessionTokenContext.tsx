@@ -138,6 +138,22 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, [forceRefresh]);
 
   useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState !== 'visible') return;
+      if (statusRef.current === 'failed' || statusRef.current === 'minting') return;
+      if (!expiresAt) return;
+      const msLeft = new Date(expiresAt).getTime() - Date.now();
+      if (msLeft <= REFRESH_LEAD_MS) forceRefresh();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    window.addEventListener('focus', onVisible);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisible);
+      window.removeEventListener('focus', onVisible);
+    };
+  }, [expiresAt, forceRefresh]);
+
+  useEffect(() => {
     if (status === 'failed') {
       setOverlayClosing(false);
       setOverlayMounted(true);
