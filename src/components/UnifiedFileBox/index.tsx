@@ -301,6 +301,11 @@ const UnifiedFileBox: React.FC = () => {
               completed={state.state === 'p2pCompleted'}
               onCancel={onP2PCancel}
               onCancelFile={(name) => {
+                const remaining = state.files.filter((f) => f.name !== name);
+                if (remaining.length === 0) {
+                  onP2PCancel();
+                  return;
+                }
                 p2p.removeFile(name);
                 dispatch({ type: 'p2pRemoveFile', fileName: name });
               }}
