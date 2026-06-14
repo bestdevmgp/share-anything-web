@@ -747,7 +747,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                   <div
                     key={file.id}
                     className={cn(
-                      'px-3 py-2 rounded-lg border transition-all',
+                      'px-4 py-2 rounded-lg border transition-all',
                       isCompleted
                         ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30'
                         : isActive
@@ -784,7 +784,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                       ) : isDownloading ? (
                         <button
                           onClick={handleCancelP2PDownload}
-                          className="flex-shrink-0 self-center ml-1 -mr-1 p-1 can-hover:hover:bg-accent active:bg-accent rounded-md transition-colors"
+                          className="flex-shrink-0 self-center ml-1 -mr-2 p-1 can-hover:hover:bg-accent active:bg-accent rounded-md transition-colors"
                           title={t('download.cancelDownload')}
                           aria-label={t('download.cancelDownload')}
                         >

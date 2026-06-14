@@ -353,7 +353,7 @@ const UploadSuccessPage: React.FC = () => {
                         <div
                           key={file.name}
                           className={cn(
-                            'px-3 py-2 rounded-lg border transition-all',
+                            'px-4 py-2 rounded-lg border transition-all',
                             isTransferring ? 'bg-muted border-primary' :
                             isCompleted ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30' :
                             'bg-muted border-foreground/[0.09] cursor-pointer can-hover:hover:bg-accent active:bg-accent'
@@ -398,11 +398,11 @@ const UploadSuccessPage: React.FC = () => {
                             </div>
 
                             {isCompleted ? (
-                              <span className="flex-shrink-0 self-center ml-3 mr-4 text-sm text-green-600 font-medium whitespace-nowrap">{t('uploadSuccess.completed')}</span>
+                              <span className="flex-shrink-0 self-center ml-3 text-sm text-green-600 font-medium whitespace-nowrap">{t('uploadSuccess.completed')}</span>
                             ) : isTransferring ? (
                               <button
                                 onClick={(e) => { e.stopPropagation(); cancelTransfer(file.name); }}
-                                className="flex-shrink-0 self-center ml-1 -mr-1 p-1 rounded-md transition-colors can-hover:hover:bg-accent active:bg-accent"
+                                className="flex-shrink-0 self-center ml-1 -mr-2 p-1 rounded-md transition-colors can-hover:hover:bg-accent active:bg-accent"
                                 title={t('uploadSuccess.cancelTransfer')}
                                 aria-label={t('uploadSuccess.cancelTransfer')}
                               >
