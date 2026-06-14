@@ -300,7 +300,7 @@ const BoxDownloadView: React.FC<Props> = ({
             </ScrollableFileList>
           </div>
         </div>
-        <div className="mt-6">
+        <div className="mt-6 flex flex-col gap-2">
           {allDone ? (
             <Button onClick={onReset} size="lg" className="w-full">
               {t('common.done')}
@@ -317,6 +317,16 @@ const BoxDownloadView: React.FC<Props> = ({
               className="w-full"
             >
               <span>{files.length > 1 ? t('download.downloadAll') : t('download.downloadFile')}</span>
+            </Button>
+          )}
+          {!allDone && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="self-center text-muted-foreground can-hover:hover:text-foreground active:text-foreground"
+              onClick={onReset}
+            >
+              {t('common.back')}
             </Button>
           )}
         </div>
