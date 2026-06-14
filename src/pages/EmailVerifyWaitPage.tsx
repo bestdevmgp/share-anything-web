@@ -8,6 +8,7 @@ import { Card, CardContent } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Spinner } from '../components/ui/spinner';
 import CodeInput from '../components/CodeInput';
+import AnimatedHeight from '../components/UnifiedFileBox/AnimatedHeight';
 import { EnvelopeIcon, ArrowLeftIcon, LinkIcon } from '@heroicons/react/24/outline';
 import { providerLogoMap } from '../utils/providerLogos';
 import type { User } from '../types';
@@ -238,40 +239,42 @@ const EmailVerifyWaitPage: React.FC = () => {
               {t('emailAuth.linkExpiresNotice')}
             </p>
 
-            {showCodeInput ? (
-              <div className="mb-6">
-                <CodeInput
-                  onChange={(val) => {
-                    setCode(val);
-                    setCodeError('');
-                  }}
-                  onComplete={(val) => handleVerifyCode(val)}
-                  disabled={verifying}
-                  ariaLabel={t('emailAuth.codePlaceholder')}
-                />
-                {codeError && (
-                  <p className="text-sm text-destructive text-center mt-3">{codeError}</p>
-                )}
-                <Button
-                  onClick={() => handleVerifyCode()}
-                  disabled={code.length !== 6 || verifying}
-                  size="xl"
-                  className="w-full mt-3"
-                >
-                  {verifying ? <Spinner size="sm" className="text-primary-foreground" /> : t('emailAuth.verify')}
-                </Button>
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground text-center mb-3">
-                {t('emailAuth.otherBrowser')}{' '}
-                <button
-                  onClick={() => setShowCodeInput(true)}
-                  className="text-foreground underline can-hover:hover:text-foreground/80 active:text-foreground/80"
-                >
-                  {t('emailAuth.enterCode')}
-                </button>
-              </p>
-            )}
+            <AnimatedHeight>
+              {showCodeInput ? (
+                <div className="pb-6 animate-in fade-in-0 duration-300 delay-150 fill-mode-backwards">
+                  <CodeInput
+                    onChange={(val) => {
+                      setCode(val);
+                      setCodeError('');
+                    }}
+                    onComplete={(val) => handleVerifyCode(val)}
+                    disabled={verifying}
+                    ariaLabel={t('emailAuth.codePlaceholder')}
+                  />
+                  {codeError && (
+                    <p className="text-sm text-destructive text-center mt-3">{codeError}</p>
+                  )}
+                  <Button
+                    onClick={() => handleVerifyCode()}
+                    disabled={code.length !== 6 || verifying}
+                    size="xl"
+                    className="w-full mt-6"
+                  >
+                    {verifying ? <Spinner size="sm" className="text-primary-foreground" /> : t('emailAuth.verify')}
+                  </Button>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center pb-3">
+                  {t('emailAuth.otherBrowser')}{' '}
+                  <button
+                    onClick={() => setShowCodeInput(true)}
+                    className="text-foreground underline can-hover:hover:text-foreground/80 active:text-foreground/80"
+                  >
+                    {t('emailAuth.enterCode')}
+                  </button>
+                </p>
+              )}
+            </AnimatedHeight>
 
             <p className="text-sm text-muted-foreground text-center">
               {t('emailAuth.notSeeingEmail')}{' '}
