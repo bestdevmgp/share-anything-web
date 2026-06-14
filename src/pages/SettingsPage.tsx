@@ -1153,9 +1153,16 @@ const SettingsPage: React.FC = () => {
                 </div>
 
                 {sessionsLoading && !sessionsLoaded ? (
-                  <div className="animate-pulse space-y-3">
+                  <div className="animate-pulse">
                     {[1, 2].map((i) => (
-                      <div key={i} className="h-16 bg-black/[0.08] dark:bg-muted rounded-lg" />
+                      <div key={i}>
+                        {i > 1 && <Separator />}
+                        <div className="py-4 space-y-2">
+                          <div className="h-4 w-40 bg-black/[0.08] dark:bg-muted rounded" />
+                          <div className="h-3 w-56 bg-black/[0.08] dark:bg-muted rounded" />
+                          <div className="h-3 w-44 bg-black/[0.08] dark:bg-muted rounded" />
+                        </div>
+                      </div>
                     ))}
                   </div>
                 ) : sessions.length === 0 ? (
@@ -1285,9 +1292,16 @@ const SettingsPage: React.FC = () => {
                 </div>
 
                 {sessionsLoading && !sessionsLoaded ? (
-                  <div className="animate-pulse space-y-3">
+                  <div className="animate-pulse">
                     {[1, 2].map((i) => (
-                      <div key={i} className="h-12 bg-black/[0.08] dark:bg-muted rounded-lg" />
+                      <div key={i}>
+                        {i > 1 && <Separator />}
+                        <div className="py-4 space-y-2">
+                          <div className="h-4 w-40 bg-black/[0.08] dark:bg-muted rounded" />
+                          <div className="h-3 w-56 bg-black/[0.08] dark:bg-muted rounded" />
+                          <div className="h-3 w-44 bg-black/[0.08] dark:bg-muted rounded" />
+                        </div>
+                      </div>
                     ))}
                   </div>
                 ) : trustedDevices.length === 0 ? (
@@ -1476,9 +1490,12 @@ const SettingsPage: React.FC = () => {
                 </div>
 
                 {apiApplicationsLoading ? (
-                  <div className="animate-pulse space-y-3">
+                  <div className="overflow-hidden border border-border rounded-lg animate-pulse">
+                    <div className="h-10 bg-muted" />
                     {[1, 2].map((i) => (
-                      <div key={i} className="h-12 bg-black/[0.08] dark:bg-muted rounded-lg" />
+                      <div key={i} className={`flex items-center px-4 py-3 ${i !== 1 ? 'border-t border-border' : ''}`}>
+                        <div className="h-3 w-full bg-black/[0.08] dark:bg-muted rounded" />
+                      </div>
                     ))}
                   </div>
                 ) : apiApplications.length === 0 ? (
@@ -1551,9 +1568,15 @@ const SettingsPage: React.FC = () => {
                 <h3 className="text-base font-medium text-foreground mb-3">{t('settings.apiKeys.keysTitle')}</h3>
 
                 {apiKeysLoading ? (
-                  <div className="animate-pulse space-y-3">
+                  <div className="animate-pulse">
                     {[1, 2].map((i) => (
-                      <div key={i} className="h-12 bg-black/[0.08] dark:bg-muted rounded-lg" />
+                      <div key={i}>
+                        {i > 1 && <Separator />}
+                        <div className="py-4 space-y-2">
+                          <div className="h-4 w-40 bg-black/[0.08] dark:bg-muted rounded" />
+                          <div className="h-3 w-56 bg-black/[0.08] dark:bg-muted rounded" />
+                        </div>
+                      </div>
                     ))}
                   </div>
                 ) : apiKeys.length === 0 ? (
