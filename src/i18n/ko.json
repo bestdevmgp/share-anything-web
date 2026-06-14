@@ -362,7 +362,7 @@
   "quickAccess": {
     "title": "로그인된 다른 기기로 전송",
     "titleShort": "빠른 접근",
-    "description": "동일 계정으로 로그인된 다른 기기에서 파일을 즉시 다운로드할 수 있습니다.",
+    "description": "동일 계정으로 로그인된 다른 기기에서 파일을 즉시 다운로드할 수 있어요.",
     "dragOrClick": "드래그하거나 클릭하여 파일 추가",
     "uploadComplete": "업로드 완료",
     "uploadFailed": "업로드에 실패했어요",
