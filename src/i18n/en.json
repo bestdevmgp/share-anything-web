@@ -547,7 +547,7 @@
     "uploadComplete": "Upload complete",
     "fileCountSummary": "{{count}} files · expires in {{duration}}",
     "confirmButton": "Done",
-    "normalDescription": "Upload quickly and share with a code.",
+    "normalDescription": "Send files quickly with a share link.",
     "secureDescription": "Direct end-to-end transfer. Nothing stored on the server.",
     "qrAndDetails": "QR · Details",
     "recentTitle": "Recent shares",

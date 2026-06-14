@@ -543,7 +543,7 @@
     "uploadComplete": "上傳完成",
     "fileCountSummary": "{{count}}個檔案 · {{duration}}後過期",
     "confirmButton": "完成",
-    "normalDescription": "快速上傳並透過分享代碼分享。",
+    "normalDescription": "透過分享連結快速傳送檔案。",
     "secureDescription": "與接收方直接連線安全傳送。檔案不會儲存於伺服器。",
     "qrAndDetails": "二維碼 · 詳情",
     "recentTitle": "最近的分享",
