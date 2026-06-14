@@ -353,7 +353,7 @@ const UploadSuccessPage: React.FC = () => {
                         <div
                           key={file.name}
                           className={cn(
-                            'p-4 rounded-xl border-2 transition-all',
+                            'px-3 py-3 rounded-lg border transition-all',
                             isTransferring ? 'bg-muted border-primary' :
                             isCompleted ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30' :
                             'bg-muted border-foreground/[0.09] cursor-pointer can-hover:hover:bg-accent active:bg-accent'
@@ -374,7 +374,7 @@ const UploadSuccessPage: React.FC = () => {
                             </div>
 
                             <div className={cn('flex-1 min-w-0', !isTransferring && 'py-[7px]')}>
-                              <TruncatedFilename name={file.name} className="text-sm font-medium text-foreground leading-tight" />
+                              <TruncatedFilename name={file.name} className="text-base font-semibold text-foreground leading-tight" />
                               <div className="flex items-center justify-between gap-2 mt-0.5 leading-none">
                                 <span className="text-xs text-muted-foreground whitespace-nowrap">{formatFileSize(file.size)}</span>
                                 {isTransferring && (

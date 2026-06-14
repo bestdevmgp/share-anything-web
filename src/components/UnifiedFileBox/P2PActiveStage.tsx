@@ -149,7 +149,7 @@ const P2PActiveStage: React.FC<Props> = ({
               return (
                 <div
                   key={file.name}
-                  className="flex items-center px-3 py-2.5 bg-muted rounded-lg border border-foreground/[0.09]"
+                  className="flex items-center px-3 py-3 bg-muted rounded-lg border border-foreground/[0.09]"
                 >
                   <div className="flex-shrink-0 mr-3">
                     <FileThumbnail source={file} fileName={file.name} size="sm" />
