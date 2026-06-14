@@ -185,7 +185,7 @@
     "dropzoneActionUpload": "upload",
     "dropzoneActionTransfer": "transfer",
     "maxSizeNotice": "Upload up to 3GB.",
-    "maxSizeNoticeGuest1": "Upload size is limited to 500MB without signing in.",
+    "maxSizeNoticeGuest1": "Uploads are limited to 500MB without signing in.",
     "maxSizeNoticeGuest2": "Sign in to upload up to 3GB.",
     "p2pSizeNotice": "Transfer files with no size limit.",
     "selectFiles": "Select Files",

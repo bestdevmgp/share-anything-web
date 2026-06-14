@@ -185,7 +185,7 @@
     "dropzoneActionUpload": "アップロード",
     "dropzoneActionTransfer": "転送",
     "maxSizeNotice": "最大3GBまでアップロードできます。",
-    "maxSizeNoticeGuest1": "未ログイン時はアップロード可能な容量が最大500MBに制限されます。",
+    "maxSizeNoticeGuest1": "未ログイン時はアップロード容量が500MBに制限されます。",
     "maxSizeNoticeGuest2": "ログインすると3GBまでアップロードできます。",
     "p2pSizeNotice": "ファイルサイズの制限なく転送できます。",
     "selectFiles": "ファイルを選択",

@@ -185,7 +185,7 @@
     "dropzoneActionUpload": "上傳",
     "dropzoneActionTransfer": "傳送",
     "maxSizeNotice": "最大可上傳 3GB。",
-    "maxSizeNoticeGuest1": "未登入時可上傳容量限制為 500MB。",
+    "maxSizeNoticeGuest1": "未登入時上傳容量限制為 500MB。",
     "maxSizeNoticeGuest2": "登入後可上傳最大 3GB 檔案。",
     "p2pSizeNotice": "檔案大小無限制，可自由傳輸。",
     "selectFiles": "選擇檔案",
