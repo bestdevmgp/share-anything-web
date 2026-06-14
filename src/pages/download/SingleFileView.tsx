@@ -124,10 +124,41 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
                 <FileThumbnail source={null} fileName={file.file_name} size="md" />
               </div>
             )}
-            <div className="flex-1 min-w-0">
+            <div className={cn('flex-1 min-w-0', isP2PDownload && p2pStatus !== 'downloading' && p2pStatus !== 'processing' && 'py-[7px]')}>
               <TruncatedFilename name={file.file_name} className="text-base font-semibold text-foreground leading-tight" />
-              <p className="text-sm text-muted-foreground mt-0.5">{formatFileSize(file.file_size)}</p>
+              <div className="flex items-center justify-between gap-2 mt-0.5 leading-none">
+                <span className="text-sm text-muted-foreground whitespace-nowrap">{formatFileSize(file.file_size)}</span>
+                {isP2PDownload && (p2pStatus === 'downloading' || p2pStatus === 'processing') ? (
+                  <div className="flex items-center gap-2">
+                    {p2pStatus === 'processing' ? (
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">{t('upload.pleaseWait')}</span>
+                    ) : (
+                      <>
+                        <span className="text-xs text-muted-foreground whitespace-nowrap">{p2pTimeRemaining || t('format.calculating')}</span>
+                        <span className="text-xs font-semibold text-primary whitespace-nowrap">{p2pProgress}%</span>
+                      </>
+                    )}
+                  </div>
+                ) : isP2PDownload && p2pStatus === 'connecting' ? (
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">{t('download.connectingP2P')}</span>
+                ) : null}
+              </div>
+              {isP2PDownload && (p2pStatus === 'downloading' || p2pStatus === 'processing') && (
+                <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden mt-2">
+                  <div className="bg-primary h-full transition-all duration-1000 ease-out rounded-full" style={{ width: `${p2pProgress}%` }} />
+                </div>
+              )}
             </div>
+            {isP2PDownload && (p2pStatus === 'downloading' || p2pStatus === 'connecting' || p2pStatus === 'processing') && (
+              <button
+                onClick={handleCancelP2PDownload}
+                className="flex-shrink-0 self-center -mr-1 p-1 can-hover:hover:bg-accent active:bg-accent rounded-md transition-colors"
+                title={t('download.cancelDownload')}
+                aria-label={t('download.cancelDownload')}
+              >
+                <XMarkIcon className="w-4 h-4 text-muted-foreground" />
+              </button>
+            )}
           </div>
 
           {!isP2PDownload && (
@@ -146,48 +177,7 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
 
           <div className="mt-6">
             {isP2PDownload ? (
-              p2pStatus === 'downloading' || p2pStatus === 'connecting' || p2pStatus === 'processing' ? (
-                <div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between gap-2">
-                        <span className="text-sm font-medium text-foreground truncate">
-                          {p2pStatus === 'connecting' ? t('download.connectingP2P') : t('download.downloadingP2P')}
-                        </span>
-                        {(p2pStatus === 'downloading' || p2pStatus === 'processing') && (
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            {p2pStatus === 'processing' ? (
-                              <span className="text-xs text-muted-foreground">{t('upload.pleaseWait')}</span>
-                            ) : (
-                              <>
-                                <span className="text-xs text-muted-foreground">{p2pTimeRemaining || t('format.calculating')}</span>
-                                <span className="text-xs font-semibold text-primary">{p2pProgress}%</span>
-                              </>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                      {(p2pStatus === 'downloading' || p2pStatus === 'processing') && (
-                        <div className="flex items-center h-4 mt-0.5">
-                          <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
-                            <div
-                              className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
-                              style={{ width: `${p2pProgress}%` }}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                    <button
-                      onClick={handleCancelP2PDownload}
-                      className="p-1 can-hover:hover:bg-accent active:bg-accent rounded transition-colors flex-shrink-0"
-                      title={t('download.cancelDownload')}
-                    >
-                      <XMarkIcon className="w-6 h-6 text-muted-foreground" />
-                    </button>
-                  </div>
-                </div>
-              ) : p2pStatus === 'completed' ? (
+              p2pStatus === 'downloading' || p2pStatus === 'connecting' || p2pStatus === 'processing' ? null : p2pStatus === 'completed' ? (
                 <div className="flex flex-col items-center gap-3">
                   <div className="text-center text-green-600 font-semibold">
                     ✓ {t('download.receiveCompleteMark')}

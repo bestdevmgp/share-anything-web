@@ -154,45 +154,39 @@ const P2PActiveStage: React.FC<Props> = ({
                   <div className="flex-shrink-0 mr-3">
                     <FileThumbnail source={file} fileName={file.name} size="sm" />
                   </div>
-                  <div className="flex-1 min-w-0">
+                  <div className={cn('flex-1 min-w-0', !isTransferring && 'py-[7px]')}>
                     <TruncatedFilename name={file.name} className="text-sm font-medium text-foreground" />
-                    <div className="h-5 flex items-center mt-0.5">
-                      {isTransferring ? (
-                        <div className="w-full flex items-center gap-2">
-                          <div className="flex-1 bg-secondary rounded-full h-1.5 overflow-hidden">
-                            <div
-                              className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
-                              style={{ width: `${pct}%` }}
-                            />
-                          </div>
-                          {progress?.timeRemaining && (
-                            <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0 leading-none">
-                              {progress.timeRemaining}
-                            </span>
-                          )}
-                          <span className="text-xs font-semibold text-primary whitespace-nowrap flex-shrink-0 leading-none">
-                            {pct}%
-                          </span>
-                        </div>
-                      ) : st === 'completed' ? (
-                        <span className="text-xs font-medium text-green-600 leading-none">
-                          ✓ {t('uploadSuccess.completed')}
-                        </span>
+                    <div className="flex items-center justify-between gap-2 mt-0.5 leading-none">
+                      {st === 'completed' ? (
+                        <span className="text-xs font-medium text-green-600">✓ {t('uploadSuccess.completed')}</span>
                       ) : (
-                        <span className="text-xs text-muted-foreground leading-none">
-                          {formatFileSize(file.size)}
-                        </span>
+                        <>
+                          <span className="text-xs text-muted-foreground whitespace-nowrap">{formatFileSize(file.size)}</span>
+                          {isTransferring && (
+                            <div className="flex items-center gap-2">
+                              {progress?.timeRemaining && (
+                                <span className="text-xs text-muted-foreground whitespace-nowrap">{progress.timeRemaining}</span>
+                              )}
+                              <span className="text-xs font-semibold text-primary whitespace-nowrap">{pct}%</span>
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
+                    {isTransferring && (
+                      <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden mt-2">
+                        <div className="bg-primary h-full transition-all duration-1000 ease-out rounded-full" style={{ width: `${pct}%` }} />
+                      </div>
+                    )}
                   </div>
                   {showCancel && (
-                    <div className="flex-shrink-0 ml-2">
+                    <div className="flex-shrink-0 ml-1 -mr-1">
                       <button
                         onClick={() => onCancelFile(file.name)}
-                        className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 active:text-red-600 dark:active:text-red-400 active:bg-red-100/50 dark:active:bg-red-500/15"
+                        className="p-1 rounded-md transition-colors text-muted-foreground/50 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 active:text-red-600 dark:active:text-red-400 active:bg-red-100/50 dark:active:bg-red-500/15"
                         title={t('common.delete')}
                       >
-                        <XMarkIcon className="w-5 h-5" />
+                        <XMarkIcon className="w-4 h-4" />
                       </button>
                     </div>
                   )}

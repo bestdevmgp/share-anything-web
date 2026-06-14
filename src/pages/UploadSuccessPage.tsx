@@ -268,42 +268,51 @@ const UploadSuccessPage: React.FC = () => {
 
                   if (isTransferring || p2pStatus === 'connected') {
                     return (
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1">
-                            <div className="flex items-start justify-between gap-2">
-                              <span className="text-sm font-medium text-muted-foreground truncate">
-                                {isTransferring ? t('uploadSuccess.sending') : t('uploadSuccess.connecting')}
-                              </span>
-                              {isTransferring && (
-                                <div className="flex items-center gap-2 flex-shrink-0">
-                                  <span className="text-xs text-muted-foreground">{progress?.timeRemaining || t('format.calculating')}</span>
-                                  <span className="text-xs font-semibold text-primary">{progress?.progress || 0}%</span>
-                                </div>
-                              )}
+                      <>
+                        <label className="block text-sm font-medium text-muted-foreground mb-3">
+                          {t('common.file')}
+                        </label>
+                        <div className="p-4 rounded-xl border-2 bg-muted border-primary">
+                          <div className="flex items-center space-x-3">
+                            <div className="flex-shrink-0">
+                              <FileThumbnail source={file} fileName={file.name} size="sm" />
                             </div>
-                            {isTransferring && (
-                              <div className="flex items-center h-4 mt-0.5">
-                                <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
+                            <div className={cn('flex-1 min-w-0', !isTransferring && 'py-[7px]')}>
+                              <TruncatedFilename name={file.name} className="text-sm font-medium text-foreground" />
+                              <div className="flex items-center justify-between gap-2 mt-0.5 leading-none">
+                                <span className="text-xs text-muted-foreground whitespace-nowrap">{formatFileSize(file.size)}</span>
+                                {isTransferring ? (
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs text-muted-foreground whitespace-nowrap">{progress?.timeRemaining || t('format.calculating')}</span>
+                                    <span className="text-xs font-semibold text-primary whitespace-nowrap">{progress?.progress || 0}%</span>
+                                  </div>
+                                ) : (
+                                  <span className="text-xs text-muted-foreground whitespace-nowrap">{t('uploadSuccess.connecting')}</span>
+                                )}
+                              </div>
+                              {isTransferring && (
+                                <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden mt-2">
                                   <div
                                     className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
                                     style={{ width: `${progress?.progress || 0}%` }}
                                   />
                                 </div>
-                              </div>
-                            )}
+                              )}
+                            </div>
+                            <div className="flex-shrink-0">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => cancelTransfer(file.name)}
+                                className="flex-shrink-0 self-center -mr-1 h-7 w-7 can-hover:hover:bg-accent active:bg-accent"
+                                title={t('uploadSuccess.cancelTransfer')}
+                              >
+                                <XMarkIcon className="w-4 h-4 text-muted-foreground" />
+                              </Button>
+                            </div>
                           </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => cancelTransfer(file.name)}
-                            className="flex-shrink-0 can-hover:hover:bg-accent active:bg-accent"
-                            title={t('uploadSuccess.cancelTransfer')}
-                          >
-                            <XMarkIcon className="w-6 h-6 text-muted-foreground" />
-                          </Button>
                         </div>
-                      </div>
+                      </>
                     );
                   }
 
@@ -323,9 +332,6 @@ const UploadSuccessPage: React.FC = () => {
                           <div className="flex-1 min-w-0">
                             <TruncatedFilename name={file.name} className="text-sm font-medium text-foreground" />
                             <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
-                          </div>
-                          <div className="flex-shrink-0 text-right mr-4">
-                            <span className="text-sm text-muted-foreground/60">{t('uploadSuccess.waiting')}</span>
                           </div>
                         </div>
                       </div>
@@ -367,27 +373,24 @@ const UploadSuccessPage: React.FC = () => {
                               )}
                             </div>
 
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between gap-2">
-                                <TruncatedFilename name={file.name} className="text-sm font-medium text-foreground flex-1 leading-tight" />
+                            <div className={cn('flex-1 min-w-0', !isTransferring && 'py-[7px]')}>
+                              <TruncatedFilename name={file.name} className="text-sm font-medium text-foreground leading-tight" />
+                              <div className="flex items-center justify-between gap-2 mt-0.5 leading-none">
+                                <span className="text-xs text-muted-foreground whitespace-nowrap">{formatFileSize(file.size)}</span>
                                 {isTransferring && (
-                                  <div className="flex items-center gap-2 flex-shrink-0">
+                                  <div className="flex items-center gap-2">
                                     <span className="text-xs text-muted-foreground whitespace-nowrap">{progress?.timeRemaining || t('format.calculating')}</span>
                                     <span className="text-xs font-semibold text-primary whitespace-nowrap">{progress?.progress || 0}%</span>
                                   </div>
                                 )}
                               </div>
-                              {isTransferring ? (
-                                <div className="flex items-start h-4 mt-1">
-                                  <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
-                                    <div
-                                      className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
-                                      style={{ width: `${progress?.progress || 0}%` }}
-                                    />
-                                  </div>
+                              {isTransferring && (
+                                <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden mt-2">
+                                  <div
+                                    className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
+                                    style={{ width: `${progress?.progress || 0}%` }}
+                                  />
                                 </div>
-                              ) : (
-                                <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
                               )}
                             </div>
 
@@ -399,14 +402,12 @@ const UploadSuccessPage: React.FC = () => {
                                   variant="ghost"
                                   size="icon"
                                   onClick={(e) => { e.stopPropagation(); cancelTransfer(file.name); }}
-                                  className="h-8 w-8 can-hover:hover:bg-accent active:bg-accent"
+                                  className="h-7 w-7 -mr-1 can-hover:hover:bg-accent active:bg-accent"
                                   title={t('uploadSuccess.cancelTransfer')}
                                 >
-                                  <XMarkIcon className="w-5 h-5 text-muted-foreground" />
+                                  <XMarkIcon className="w-4 h-4 text-muted-foreground" />
                                 </Button>
-                              ) : (
-                                <span className="text-sm text-muted-foreground/60 mr-4">{t('uploadSuccess.waiting')}</span>
-                              )}
+                              ) : null}
                             </div>
                           </div>
                         </div>

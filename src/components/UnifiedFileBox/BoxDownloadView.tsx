@@ -231,7 +231,7 @@ const BoxDownloadView: React.FC<Props> = ({
 
     return wrap(
       <>
-        <div className="flex-1 flex flex-col md:flex-row md:items-stretch gap-6 md:gap-8 min-h-0">
+        <div className="flex-1 flex flex-col justify-center md:flex-row md:items-stretch gap-6 md:gap-8 min-h-0">
           <div className="flex flex-col items-center justify-center text-center md:flex-1">
             {circle}
             <h2 className="text-2xl font-bold text-foreground mb-1.5">{title}</h2>
@@ -253,46 +253,51 @@ const BoxDownloadView: React.FC<Props> = ({
                         <FileThumbnail source={previews?.[file.id] ?? null} fileName={file.file_name} size="sm" />
                       </div>
                     )}
-                    <div className="flex-1 min-w-0">
+                    <div className={cn('flex-1 min-w-0', !isActive && 'py-[7px]')}>
                       <TruncatedFilename name={file.file_name} className="text-sm font-medium text-foreground" />
-                      <div className="h-5 flex items-center mt-0.5">
-                        {isActive ? (
-                          <div className="w-full flex items-center gap-2">
-                            <div className="flex-1 bg-secondary rounded-full h-1.5 overflow-hidden">
-                              <div
-                                className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
-                                style={{ width: `${p2pProgress}%` }}
-                              />
-                            </div>
-                            {p2pTimeRemaining && (
-                              <span className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0 leading-none">
-                                {p2pTimeRemaining}
-                              </span>
-                            )}
-                            <span className="text-xs font-semibold text-primary whitespace-nowrap flex-shrink-0 leading-none">
-                              {p2pProgress}%
-                            </span>
-                          </div>
+                      <div className="flex items-center justify-between gap-2 mt-0.5 leading-none">
+                        {done ? (
+                          <span className="text-xs text-muted-foreground">{t('uploadSuccess.completed')}</span>
                         ) : (
-                          <span className="text-xs text-muted-foreground leading-none">
-                            {done
-                              ? t('uploadSuccess.completed')
-                              : active
-                                ? t('uploadSuccess.waiting')
-                                : formatFileSize(file.file_size)}
-                          </span>
+                          <>
+                            <span className="text-xs text-muted-foreground whitespace-nowrap">{formatFileSize(file.file_size)}</span>
+                            <div className="flex items-center gap-2">
+                              {isActive && (
+                                <>
+                                  {p2pTimeRemaining && <span className="text-xs text-muted-foreground whitespace-nowrap">{p2pTimeRemaining}</span>}
+                                  <span className="text-xs font-semibold text-primary whitespace-nowrap">{p2pProgress}%</span>
+                                </>
+                              )}
+                            </div>
+                          </>
                         )}
                       </div>
+                      {isActive && (
+                        <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden mt-2">
+                          <div className="bg-primary h-full transition-all duration-1000 ease-out rounded-full" style={{ width: `${p2pProgress}%` }} />
+                        </div>
+                      )}
                     </div>
-                    {files.length > 1 && !done && !isActive && (
-                      <Button
-                        onClick={() => startP2PDownload(file.id)}
-                        disabled={active}
-                        size="sm"
-                        className="flex-shrink-0 ml-2"
+                    {isActive ? (
+                      <button
+                        onClick={handleCancelP2PDownload}
+                        className="flex-shrink-0 self-center ml-1 -mr-1 p-1 rounded-md transition-colors text-muted-foreground can-hover:hover:bg-accent active:bg-accent"
+                        title={t('download.cancelDownload')}
+                        aria-label={t('download.cancelDownload')}
                       >
-                        {t('common.download')}
-                      </Button>
+                        <XMarkIcon className="w-4 h-4" />
+                      </button>
+                    ) : (
+                      files.length > 1 && !done && (
+                        <Button
+                          onClick={() => startP2PDownload(file.id)}
+                          disabled={active}
+                          size="sm"
+                          className="flex-shrink-0 ml-2"
+                        >
+                          {t('common.download')}
+                        </Button>
+                      )
                     )}
                   </div>
                 );
@@ -300,17 +305,12 @@ const BoxDownloadView: React.FC<Props> = ({
             </ScrollableFileList>
           </div>
         </div>
-        <div className="mt-6 flex flex-col gap-2">
+        <div className="mt-6 -mb-4 md:-mb-1 flex flex-col gap-2">
           {allDone ? (
             <Button onClick={onReset} size="lg" className="w-full">
               {t('common.done')}
             </Button>
-          ) : active ? (
-            <Button variant="outline" onClick={handleCancelP2PDownload} size="lg" className="w-full">
-              <XMarkIcon className="w-5 h-5" />
-              <span>{t('download.cancelDownload')}</span>
-            </Button>
-          ) : (
+          ) : !active ? (
             <Button
               onClick={() => (files.length > 1 ? startBulkP2PDownload() : startP2PDownload(files[0].id))}
               size="lg"
@@ -318,7 +318,7 @@ const BoxDownloadView: React.FC<Props> = ({
             >
               <span>{files.length > 1 ? t('download.downloadAll') : t('download.downloadFile')}</span>
             </Button>
-          )}
+          ) : null}
           {!allDone && (
             <Button
               variant="ghost"
@@ -407,7 +407,7 @@ const BoxDownloadView: React.FC<Props> = ({
           </ScrollableFileList>
         </div>
       </div>
-      <div className="mt-6 flex flex-col gap-2">
+      <div className="mt-6 -mb-4 md:-mb-1 flex flex-col gap-2">
         {multi ? (() => {
           const selectedTotalSize = files
             .filter((f) => selectedFiles.has(f.id))

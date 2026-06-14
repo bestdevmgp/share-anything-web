@@ -35,7 +35,7 @@ const UploadProgressRow: React.FC<Props> = ({
           <FileThumbnail source={null} fileName={fileName} size="sm" />
         </div>
       )}
-      <div className="flex-1 min-w-0 mr-3">
+      <div className="flex-1 min-w-0 mr-2">
         <TruncatedFilename name={fileName} className="text-sm font-medium text-foreground" />
         <div className="flex items-center justify-between">
           <span className="text-xs text-muted-foreground">{formatFileSize(fileSize)}</span>
@@ -65,10 +65,10 @@ const UploadProgressRow: React.FC<Props> = ({
         <div className="flex-shrink-0">
           <button
             onClick={onCancel}
-            className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
+            className="-mr-1 p-1 rounded-md transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
             title={t('common.cancel')}
           >
-            <XMarkIcon className="w-5 h-5" />
+            <XMarkIcon className="w-4 h-4" />
           </button>
         </div>
       )}

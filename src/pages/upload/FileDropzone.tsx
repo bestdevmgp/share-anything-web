@@ -89,9 +89,9 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                     </div>
                     <button
                       onClick={(e) => { e.stopPropagation(); onRemoveFile(index); }}
-                      className="ml-2 p-1 can-hover:hover:bg-foreground/10 active:bg-foreground/10 rounded transition-colors"
+                      className="ml-1 -mr-1 p-1 can-hover:hover:bg-foreground/10 active:bg-foreground/10 rounded-md transition-colors"
                     >
-                      <XMarkIcon className="w-5 h-5 text-muted-foreground" />
+                      <XMarkIcon className="w-4 h-4 text-muted-foreground" />
                     </button>
                   </div>
                 ))}
