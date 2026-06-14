@@ -134,7 +134,7 @@ const RecentDownloads: React.FC = () => {
           </span>
         </h4>
       </div>
-      <div className="px-4 pb-4 space-y-2 max-h-[420px] overflow-y-auto">
+      <div className="px-4 pb-2 mb-2 space-y-2 max-h-[420px] overflow-y-auto">
         {downloads.map((d) => {
           const { text: remainText, expired } = remainingLabel(d.expiresAt);
           const isBundle = d.fileNames.length > 1;

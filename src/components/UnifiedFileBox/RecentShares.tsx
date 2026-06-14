@@ -149,7 +149,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
           </Link>
         )}
       </div>
-      <div className="px-4 pb-4 space-y-2 max-h-[420px] overflow-y-auto">
+      <div className="px-4 pb-2 mb-2 space-y-2 max-h-[420px] overflow-y-auto">
         {visibleItems.map((s) => {
           const { text: remainText, expired } = remainingLabel(s.expiresAt);
           const isBundle = s.fileNames.length > 1;
