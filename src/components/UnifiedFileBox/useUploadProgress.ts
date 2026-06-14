@@ -8,6 +8,7 @@ export interface ProgressInput {
   fileSize: number;
   loadedBytes: number;
   completed: boolean;
+  canceled?: boolean;
 }
 
 export interface ProgressRow extends ProgressInput {
@@ -67,6 +68,7 @@ export const useUploadProgress = (items: ProgressInput[]) => {
       let totalSize = 0;
 
       for (const it of its) {
+        if (it.canceled) continue;
         const peak = Math.max(it.loadedBytes, filePeakRef.current.get(it.id) || 0);
         filePeakRef.current.set(it.id, peak);
         totalSize += it.fileSize;
@@ -87,7 +89,8 @@ export const useUploadProgress = (items: ProgressInput[]) => {
       const overallSamples = overallSamplesRef.current.filter((s) => s.time >= cutoff);
       overallSamples.push({ time: now, bytes: overallPeak });
       overallSamplesRef.current = overallSamples;
-      const allDone = its.length > 0 && its.every((i) => i.completed);
+      const active = its.filter((i) => !i.canceled);
+      const allDone = active.length > 0 && active.every((i) => i.completed);
       setOverallEta(allDone ? '' : estimate(overallSamples, totalSize, overallPeak, lang));
     };
 
@@ -95,14 +98,15 @@ export const useUploadProgress = (items: ProgressInput[]) => {
     return () => clearInterval(interval);
   }, []);
 
-  const rows: ProgressRow[] = items.map((it) => ({
+  const activeItems = items.filter((it) => !it.canceled);
+  const rows: ProgressRow[] = activeItems.map((it) => ({
     ...it,
     progress: pct(it.loadedBytes, it.fileSize),
     timeRemaining: it.completed ? '' : etas.get(it.id) || '',
   }));
 
-  const totalSize = items.reduce((s, i) => s + i.fileSize, 0);
-  const totalLoaded = items.reduce((s, i) => s + Math.min(i.loadedBytes, i.fileSize), 0);
+  const totalSize = activeItems.reduce((s, i) => s + i.fileSize, 0);
+  const totalLoaded = activeItems.reduce((s, i) => s + Math.min(i.loadedBytes, i.fileSize), 0);
 
   return {
     rows,

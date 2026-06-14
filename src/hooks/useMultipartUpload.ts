@@ -29,6 +29,7 @@ interface StartUploadInput {
 
 interface UploadHandle {
   abort: () => void;
+  cancelFile: (fileIndex: number) => void;
   promise: Promise<CompletedSessionResult>;
 }
 
@@ -70,8 +71,9 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
   optsRef.current = opts;
 
   const startUpload = useCallback((input: StartUploadInput): UploadHandle => {
-    const abortController = new AbortController();
     const files = input.files;
+    const perFileAbort = files.map(() => new AbortController());
+    const canceled = new Set<number>();
 
     const trackingPerFile = files.map((f) => ({
       completedBytes: 0,
@@ -124,78 +126,87 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
       const workerUploadIds: Record<string, string> = {};
 
       const uploadFile = async (fileIndex: number): Promise<void> => {
-        if (abortController.signal.aborted) throw new Error('Upload cancelled');
+        const signal = perFileAbort[fileIndex].signal;
         const file = files[fileIndex];
         const fileInit = initResponse.files[fileIndex];
         const tracking = trackingPerFile[fileIndex];
+        try {
+          if (signal.aborted) throw new Error('Upload cancelled');
 
-        const useDirect = file.size < DIRECT_UPLOAD_THRESHOLD;
+          const useDirect = file.size < DIRECT_UPLOAD_THRESHOLD;
 
-        if (useDirect) {
-          const key = 'direct';
-          tracking.partProgress[key] = 0;
-          const result = await workerAPI.directUpload(
-            fileInit.storage_key,
-            fileInit.upload_signature,
-            file,
-            (loaded) => {
-              tracking.partProgress[key] = loaded;
-              emitProgress();
-            },
-            abortController.signal
-          );
-          delete tracking.partProgress[key];
-          tracking.completedBytes = file.size;
-          emitProgress();
-          workerUploadIds[fileInit.storage_key] = 'direct';
-          completedFileParts[fileInit.storage_key] = [{ part_number: 1, etag: result.etag }];
-        } else {
-          const totalParts = fileInit.total_parts;
-          const uploadId = fileInit.upload_id;
-          workerUploadIds[fileInit.storage_key] = uploadId;
-
-          const partNumbers = Array.from({ length: totalParts }, (_, i) => i + 1);
-          const presignedResp = await fileAPI.getPartPresignedUrls({
-            upload_session_id: initResponse.upload_session_id,
-            storage_key: fileInit.storage_key,
-            upload_id: uploadId,
-            part_numbers: partNumbers,
-          });
-          const urlMap = new Map<number, string>();
-          presignedResp.urls.forEach((u) => urlMap.set(u.part_number, u.presigned_url));
-
-          const uploadPart = async (partNumber: number): Promise<{ part_number: number; etag: string }> => {
-            if (abortController.signal.aborted) throw new Error('Upload cancelled');
-            const start = (partNumber - 1) * CHUNK_SIZE;
-            const end = Math.min(start + CHUNK_SIZE, file.size);
-            const chunk = file.slice(start, end);
-            const partKey = `part-${partNumber}`;
-            tracking.partProgress[partKey] = 0;
-            const url = urlMap.get(partNumber);
-            if (!url) throw new Error(`No presigned URL for part ${partNumber}`);
-            const etag = await fileAPI.uploadPart(
-              url,
-              chunk,
+          if (useDirect) {
+            const key = 'direct';
+            tracking.partProgress[key] = 0;
+            const result = await workerAPI.directUpload(
+              fileInit.storage_key,
+              fileInit.upload_signature,
+              file,
               (loaded) => {
-                tracking.partProgress[partKey] = loaded;
+                tracking.partProgress[key] = loaded;
                 emitProgress();
               },
-              abortController.signal
+              signal
             );
-            delete tracking.partProgress[partKey];
-            tracking.completedBytes += end - start;
+            delete tracking.partProgress[key];
+            tracking.completedBytes = file.size;
             emitProgress();
-            return { part_number: partNumber, etag };
-          };
+            workerUploadIds[fileInit.storage_key] = 'direct';
+            completedFileParts[fileInit.storage_key] = [{ part_number: 1, etag: result.etag }];
+          } else {
+            const totalParts = fileInit.total_parts;
+            const uploadId = fileInit.upload_id;
+            workerUploadIds[fileInit.storage_key] = uploadId;
 
-          const results = await runConcurrent(
-            partNumbers.map((pn) => () => uploadPart(pn)),
-            MAX_CONCURRENT_UPLOADS
-          );
-          completedFileParts[fileInit.storage_key] = results.sort((a, b) => a.part_number - b.part_number);
+            const partNumbers = Array.from({ length: totalParts }, (_, i) => i + 1);
+            const presignedResp = await fileAPI.getPartPresignedUrls({
+              upload_session_id: initResponse.upload_session_id,
+              storage_key: fileInit.storage_key,
+              upload_id: uploadId,
+              part_numbers: partNumbers,
+            });
+            const urlMap = new Map<number, string>();
+            presignedResp.urls.forEach((u) => urlMap.set(u.part_number, u.presigned_url));
+
+            const uploadPart = async (partNumber: number): Promise<{ part_number: number; etag: string }> => {
+              if (signal.aborted) throw new Error('Upload cancelled');
+              const start = (partNumber - 1) * CHUNK_SIZE;
+              const end = Math.min(start + CHUNK_SIZE, file.size);
+              const chunk = file.slice(start, end);
+              const partKey = `part-${partNumber}`;
+              tracking.partProgress[partKey] = 0;
+              const url = urlMap.get(partNumber);
+              if (!url) throw new Error(`No presigned URL for part ${partNumber}`);
+              const etag = await fileAPI.uploadPart(
+                url,
+                chunk,
+                (loaded) => {
+                  tracking.partProgress[partKey] = loaded;
+                  emitProgress();
+                },
+                signal
+              );
+              delete tracking.partProgress[partKey];
+              tracking.completedBytes += end - start;
+              emitProgress();
+              return { part_number: partNumber, etag };
+            };
+
+            const results = await runConcurrent(
+              partNumbers.map((pn) => () => uploadPart(pn)),
+              MAX_CONCURRENT_UPLOADS
+            );
+            completedFileParts[fileInit.storage_key] = results.sort((a, b) => a.part_number - b.part_number);
+          }
+
+          optsRef.current.onFileComplete?.(fileIndex);
+        } catch (err) {
+          if (signal.aborted) {
+            canceled.add(fileIndex);
+            return;
+          }
+          throw err;
         }
-
-        optsRef.current.onFileComplete?.(fileIndex);
       };
 
       const indices = Array.from({ length: files.length }, (_, i) => i);
@@ -204,34 +215,46 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
         MAX_CONCURRENT_FILES
       );
 
-      const dimensions = await Promise.all(files.map((f) => getImageDimensions(f)));
+      const liveIndices = indices.filter((i) => !canceled.has(i));
+      if (liveIndices.length === 0) throw new Error('Upload cancelled');
+
+      const dimensions = await Promise.all(liveIndices.map((i) => getImageDimensions(files[i])));
 
       const completeResp = await fileAPI.completeMultipartUpload({
         upload_session_id: initResponse.upload_session_id,
         share_code: initResponse.share_code,
-        files: initResponse.files.map((fileInit, i) => ({
-          file_name: fileInit.file_name,
-          storage_key: fileInit.storage_key,
-          upload_id: workerUploadIds[fileInit.storage_key],
-          file_size: files[i].size,
-          content_type: files[i].type || 'application/octet-stream',
-          parts: completedFileParts[fileInit.storage_key],
-          image_width: dimensions[i]?.width,
-          image_height: dimensions[i]?.height,
-        })),
+        files: liveIndices.map((i, pos) => {
+          const fileInit = initResponse.files[i];
+          return {
+            file_name: fileInit.file_name,
+            storage_key: fileInit.storage_key,
+            upload_id: workerUploadIds[fileInit.storage_key],
+            file_size: files[i].size,
+            content_type: files[i].type || 'application/octet-stream',
+            parts: completedFileParts[fileInit.storage_key],
+            image_width: dimensions[pos]?.width,
+            image_height: dimensions[pos]?.height,
+          };
+        }),
       });
 
       return {
         upload_session_id: initResponse.upload_session_id,
         share_code: initResponse.share_code,
         expires_at: completeResp.files?.[0]?.expires_at || new Date(Date.now() + 30 * 60_000).toISOString(),
-        fileNames: files.map((f) => f.name),
-        totalSize: files.reduce((s, f) => s + f.size, 0),
+        fileNames: liveIndices.map((i) => files[i].name),
+        totalSize: liveIndices.reduce((s, i) => s + files[i].size, 0),
       };
     })();
 
     return {
-      abort: () => abortController.abort(),
+      abort: () => {
+        perFileAbort.forEach((c) => c.abort());
+      },
+      cancelFile: (fileIndex: number) => {
+        canceled.add(fileIndex);
+        perFileAbort[fileIndex]?.abort();
+      },
       promise,
     };
   }, []);

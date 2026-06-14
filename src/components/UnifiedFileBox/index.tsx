@@ -25,8 +25,10 @@ const UnifiedFileBox: React.FC = () => {
   const navigate = useNavigate();
   const [state, dispatch] = useUnifiedFileBoxState();
   const [items, setItems] = useState<UploadingItem[]>([]);
+  const itemsRef = useRef<UploadingItem[]>([]);
+  itemsRef.current = items;
   const [recentRefreshKey, setRecentRefreshKey] = useState(0);
-  const handleRef = useRef<{ abort: () => void } | null>(null);
+  const handleRef = useRef<{ abort: () => void; cancelFile: (fileIndex: number) => void } | null>(null);
   const [downloadPrefill, setDownloadPrefill] = useState<string | null>(null);
 
   const prevStateRef = useRef(state.state);
@@ -175,11 +177,28 @@ const UnifiedFileBox: React.FC = () => {
     [dispatch, createP2PSession]
   );
 
-  const onCancelItem = (_id: string) => {
+  const onCancelAllUpload = useCallback(() => {
     handleRef.current?.abort();
+    handleRef.current = null;
     dispatch({ type: 'cancelUpload' });
     setItems([]);
-  };
+  }, [dispatch]);
+
+  const onCancelUploadFile = useCallback((id: string) => {
+    const cur = itemsRef.current;
+    const idx = cur.findIndex((it) => it.id === id);
+    if (idx < 0) return;
+    handleRef.current?.cancelFile(idx);
+    const allCanceled = cur.every((it, i) => i === idx || it.canceled);
+    if (allCanceled) {
+      handleRef.current?.abort();
+      handleRef.current = null;
+      dispatch({ type: 'cancelUpload' });
+      setItems([]);
+      return;
+    }
+    setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, canceled: true } : it)));
+  }, [dispatch]);
 
   const onP2PCancel = useCallback(() => {
     dispatch({ type: 'p2pCancel' });
@@ -249,7 +268,7 @@ const UnifiedFileBox: React.FC = () => {
           <IdleUpload onNormal={onNormal} onSecure={onSecure} animateIn={idleReturnFromSuccess} />
         )}
         {state.mode === 'upload' && state.state === 'uploading' && (
-          <Uploading items={items} onCancel={onCancelItem} />
+          <Uploading items={items} onCancel={onCancelUploadFile} onCancelAll={onCancelAllUpload} />
         )}
         {state.mode === 'upload' && state.state === 'success' && state.lastResult && (
           <UploadSuccess

@@ -9,9 +9,10 @@ export type UploadingItem = ProgressInput;
 interface Props {
   items: UploadingItem[];
   onCancel: (id: string) => void;
+  onCancelAll: () => void;
 }
 
-const Uploading: React.FC<Props> = ({ items, onCancel }) => {
+const Uploading: React.FC<Props> = ({ items, onCancel, onCancelAll }) => {
   const { t } = useTranslation();
   const { rows, overall } = useUploadProgress(items);
   const multi = rows.length > 1;
@@ -41,7 +42,7 @@ const Uploading: React.FC<Props> = ({ items, onCancel }) => {
             </div>
           </div>
           <button
-            onClick={() => rows[0] && onCancel(rows[0].id)}
+            onClick={onCancelAll}
             className="flex-shrink-0 p-1.5 rounded-lg text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
             title={t('common.cancel')}
           >
@@ -57,7 +58,7 @@ const Uploading: React.FC<Props> = ({ items, onCancel }) => {
           progress={uf.progress}
           timeRemaining={uf.timeRemaining}
           statusText={uf.completed ? t('upload.pleaseWait') : undefined}
-          onCancel={!multi && !uf.completed ? () => onCancel(uf.id) : undefined}
+          onCancel={!uf.completed ? () => onCancel(uf.id) : undefined}
         />
       ))}
     </div>
