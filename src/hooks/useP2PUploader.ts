@@ -27,6 +27,16 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
   const [connectionFailed, setConnectionFailed] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
+  // A new session (new share code) must start clean. Otherwise a stale
+  // connectionFailed left from the previous receiver (ICE goes to 'failed'
+  // when the receiver disconnects after the last transfer) would immediately
+  // trigger "connection failed" on the next secure transfer.
+  const [prevShareCode, setPrevShareCode] = useState(shareCode);
+  if (shareCode !== prevShareCode) {
+    setPrevShareCode(shareCode);
+    setConnectionFailed(false);
+  }
+
   const wsRef = useRef<WebSocket | null>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
