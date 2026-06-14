@@ -748,7 +748,11 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                     key={file.id}
                     className={cn(
                       'px-3 py-2 rounded-lg border transition-all',
-                      isActive ? 'bg-muted border-primary' : 'bg-muted border-foreground/[0.09]'
+                      isCompleted
+                        ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30'
+                        : isActive
+                          ? 'bg-muted border-primary'
+                          : 'bg-muted border-foreground/[0.09]'
                     )}
                   >
                     <div className="flex items-center">
