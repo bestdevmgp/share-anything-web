@@ -1,14 +1,12 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { DropzoneInputProps, DropzoneRootProps } from 'react-dropzone';
-import { DocumentIcon, XMarkIcon, PlusIcon, FolderIcon } from '@heroicons/react/24/outline';
+import { DocumentIcon, XMarkIcon, PlusIcon, FolderIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { Button } from '../../components/ui/button';
 import { cn } from 'lib/utils';
 import { useTranslation } from '../../i18n';
 import FileThumbnail from '../../components/FileThumbnail';
-import FileTree from '../../components/FileTree';
 import { formatFileSize } from '../../utils/format';
 import { getRelativePathSafe } from '../../utils/fileWithPath';
-import { FlatTreeItem, hasFolders } from '../../utils/folderPath';
 
 export interface FileDropzoneProps {
   files: File[];
@@ -19,6 +17,7 @@ export interface FileDropzoneProps {
   getRootProps: <T extends DropzoneRootProps>(props?: T) => T;
   getInputProps: <T extends DropzoneInputProps>(props?: T) => T;
   onRemoveFile: (index: number) => void;
+  onRemoveFiles: (indices: number[]) => void;
   onPreviewFile: (file: File) => void;
   onSelectFolder: () => void;
   folderInputRef: React.RefObject<HTMLInputElement | null>;
@@ -34,6 +33,7 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
   getRootProps,
   getInputProps,
   onRemoveFile,
+  onRemoveFiles,
   onPreviewFile,
   onSelectFolder,
   folderInputRef,
@@ -41,19 +41,35 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const treeItems = useMemo<FlatTreeItem[]>(
-    () =>
-      files.map((file, index) => ({
-        id: String(index),
-        name: file.name,
-        size: file.size,
-        relativePath: getRelativePathSafe(file),
-      })),
-    [files]
-  );
+  const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
 
-  const showTree = files.length > 1 && hasFolders(treeItems);
+  const { folders, looseIndices } = useMemo(() => {
+    const folders = new Map<string, { index: number; sub: string }[]>();
+    const looseIndices: number[] = [];
+    files.forEach((file, index) => {
+      const rel = getRelativePathSafe(file);
+      const slash = rel.indexOf('/');
+      if (slash === -1) {
+        looseIndices.push(index);
+      } else {
+        const top = rel.slice(0, slash);
+        const arr = folders.get(top) ?? [];
+        arr.push({ index, sub: rel.slice(slash + 1) });
+        folders.set(top, arr);
+      }
+    });
+    return { folders, looseIndices };
+  }, [files]);
+
   const totalSize = useMemo(() => files.reduce((sum, f) => sum + f.size, 0), [files]);
+
+  const toggleFolder = (name: string) =>
+    setOpenFolders((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
 
   return (
     <>
@@ -86,7 +102,7 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                     : <><span className="inline-block">{t('upload.maxSizeNoticeGuest1')}</span>{' '}<span className="inline-block">{t('upload.maxSizeNoticeGuest2')}</span></>}
               </p>
               <div className="flex flex-wrap items-center justify-center gap-2">
-                <Button variant="secondary" size="lg">
+                <Button variant="default" size="lg">
                   {t('upload.selectFiles')}
                 </Button>
                 <Button
@@ -97,7 +113,6 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                     onSelectFolder();
                   }}
                 >
-                  <FolderIcon className="w-5 h-5 mr-1.5" />
                   {t('upload.selectFolder')}
                 </Button>
               </div>
@@ -109,34 +124,63 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                 <span className="text-xs text-muted-foreground whitespace-nowrap">{formatFileSize(totalSize)}</span>
               </div>
               <div className="flex-1 overflow-y-auto space-y-2 min-h-0">
-                {showTree ? (
-                  <FileTree
-                    items={treeItems}
-                    onFileClick={(item) => {
-                      const file = files[Number(item.id)];
-                      if (file) onPreviewFile(file);
-                    }}
-                    renderFileLeading={(item) => {
-                      const file = files[Number(item.id)];
-                      return file ? <FileThumbnail source={file} fileName={file.name} size="sm" /> : null;
-                    }}
-                    renderFileTrailing={(item) => (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); onRemoveFile(Number(item.id)); }}
-                        className="ml-1 -mr-1 p-1 can-hover:hover:bg-foreground/10 active:bg-foreground/10 rounded-md transition-colors flex-shrink-0"
+                {Array.from(folders.entries()).map(([folderName, items]) => {
+                  const isOpen = openFolders.has(folderName);
+                  const folderSize = items.reduce((s, it) => s + files[it.index].size, 0);
+                  return (
+                    <div key={`folder:${folderName}`} className="bg-muted rounded-lg border border-foreground/[0.09] overflow-hidden">
+                      <div
+                        role="button"
+                        onClick={(e) => { e.stopPropagation(); toggleFolder(folderName); }}
+                        className="flex items-center gap-3 p-3.5 cursor-pointer can-hover:hover:bg-accent active:bg-accent transition-colors"
                       >
-                        <XMarkIcon className="w-4 h-4 text-muted-foreground" />
-                      </button>
-                    )}
-                  />
-                ) : (
-                  files.map((file, index) => (
+                        <div className="w-9 h-9 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center flex-shrink-0">
+                          <FolderIcon className="w-5 h-5 text-muted-foreground" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-foreground truncate">{folderName}</p>
+                          <p className="text-xs text-muted-foreground">{t('upload.folderItemCount', { count: items.length })} · {formatFileSize(folderSize)}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); onRemoveFiles(items.map((it) => it.index)); }}
+                          className="p-1 can-hover:hover:bg-foreground/10 active:bg-foreground/10 rounded-md transition-colors flex-shrink-0"
+                        >
+                          <XMarkIcon className="w-4 h-4 text-muted-foreground" />
+                        </button>
+                        <ChevronDownIcon className={cn('w-5 h-5 text-muted-foreground/50 transition-transform flex-shrink-0', isOpen && 'rotate-180')} />
+                      </div>
+                      {isOpen && (
+                        <div className="px-3.5 pb-3">
+                          <div className="border-t border-foreground/[0.08] pt-2.5 space-y-2">
+                            {items.map((it) => {
+                              const file = files[it.index];
+                              return (
+                                <button
+                                  key={it.index}
+                                  type="button"
+                                  onClick={(e) => { e.stopPropagation(); onPreviewFile(file); }}
+                                  className="w-full flex items-center gap-3 min-w-0 py-1 cursor-pointer can-hover:hover:opacity-80 transition-opacity"
+                                >
+                                  <FileThumbnail source={file} fileName={file.name} size="sm" />
+                                  <span className="flex-1 text-sm text-foreground/80 text-left truncate">{it.sub}</span>
+                                  <span className="flex-shrink-0 text-xs text-muted-foreground">{formatFileSize(file.size)}</span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {looseIndices.map((index) => {
+                  const file = files[index];
+                  return (
                     <div
                       key={index}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onPreviewFile(file);
-                      }}
+                      onClick={(e) => { e.stopPropagation(); onPreviewFile(file); }}
                       className="flex items-center justify-between p-3.5 bg-muted rounded-lg border border-foreground/[0.09] can-hover:hover:bg-accent active:bg-accent transition-colors cursor-pointer"
                     >
                       <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -153,14 +197,26 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                         <XMarkIcon className="w-4 h-4 text-muted-foreground" />
                       </button>
                     </div>
-                  ))
-                )}
-                <button
-                  type="button"
-                  className="w-full p-3.5 border-2 border-dashed border-input rounded-lg flex items-center justify-center text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:border-foreground/40 active:text-muted-foreground active:border-foreground/40 transition-colors"
-                >
-                  <PlusIcon className="w-6 h-6" />
-                </button>
+                  );
+                })}
+
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    className="p-3.5 border-2 border-dashed border-input rounded-lg flex items-center justify-center gap-1.5 text-sm font-medium text-muted-foreground/60 can-hover:hover:text-muted-foreground can-hover:hover:border-foreground/40 active:text-muted-foreground active:border-foreground/40 transition-colors"
+                  >
+                    <PlusIcon className="w-5 h-5" />
+                    {t('upload.addFiles')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); onSelectFolder(); }}
+                    className="p-3.5 border-2 border-dashed border-input rounded-lg flex items-center justify-center gap-1.5 text-sm font-medium text-muted-foreground/60 can-hover:hover:text-muted-foreground can-hover:hover:border-foreground/40 active:text-muted-foreground active:border-foreground/40 transition-colors"
+                  >
+                    <PlusIcon className="w-5 h-5" />
+                    {t('upload.addFolder')}
+                  </button>
+                </div>
               </div>
             </>
           )}

@@ -212,7 +212,10 @@
     "uploadFailed": "업로드에 실패했어요",
     "fallbackNotice": "일반 전송으로 전환되었어요. 파일을 업로드해주세요",
     "dropzoneTextFolder": "여기에 파일이나 폴더를 드래그하거나 클릭하여 {{action}}하세요.",
-    "selectFolder": "폴더 선택"
+    "selectFolder": "폴더 선택",
+    "addFiles": "파일 추가",
+    "addFolder": "폴더 추가",
+    "folderItemCount": "{{count}}개"
   },
   "uploadSuccess": {
     "pageTitle": "업로드 완료",

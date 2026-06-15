@@ -212,7 +212,10 @@
     "uploadFailed": "アップロードに失敗しました",
     "fallbackNotice": "通常転送に切り替わりました。ファイルをアップロードしてください",
     "dropzoneTextFolder": "ここにファイルやフォルダをドラッグするか、クリックして{{action}}してください。",
-    "selectFolder": "フォルダを選択"
+    "selectFolder": "フォルダを選択",
+    "addFiles": "ファイルを追加",
+    "addFolder": "フォルダを追加",
+    "folderItemCount": "{{count}}個"
   },
   "uploadSuccess": {
     "pageTitle": "アップロード完了",

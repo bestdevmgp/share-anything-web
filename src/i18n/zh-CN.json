@@ -212,7 +212,10 @@
     "uploadFailed": "上传失败",
     "fallbackNotice": "已切换为普通传输，请上传文件",
     "dropzoneTextFolder": "将文件或文件夹拖放至此处，或点击以{{action}}。",
-    "selectFolder": "选择文件夹"
+    "selectFolder": "选择文件夹",
+    "addFiles": "添加文件",
+    "addFolder": "添加文件夹",
+    "folderItemCount": "{{count}}个文件"
   },
   "uploadSuccess": {
     "pageTitle": "上传完成",

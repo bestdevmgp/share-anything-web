@@ -225,6 +225,11 @@ const UploadPage: React.FC = () => {
     setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
+  const removeFiles = (indices: number[]) => {
+    const set = new Set(indices);
+    setFiles(prev => prev.filter((_, i) => !set.has(i)));
+  };
+
   const handleUpload = async () => {
     if (files.length === 0) {
       toast.error(t('upload.selectFilesError'));
@@ -558,6 +563,7 @@ const UploadPage: React.FC = () => {
           getRootProps={getRootProps}
           getInputProps={getInputProps}
           onRemoveFile={removeFile}
+          onRemoveFiles={removeFiles}
           onPreviewFile={setPreviewFile}
           onSelectFolder={handleSelectFolder}
           folderInputRef={folderInputRef}

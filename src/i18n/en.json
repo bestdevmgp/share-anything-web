@@ -212,7 +212,10 @@
     "uploadFailed": "Upload failed",
     "fallbackNotice": "Switched to standard transfer. Please upload your files",
     "dropzoneTextFolder": "Drag files or folders here, or click to {{action}}.",
-    "selectFolder": "Select Folder"
+    "selectFolder": "Select Folder",
+    "addFiles": "Add Files",
+    "addFolder": "Add Folder",
+    "folderItemCount": "{{count}} files"
   },
   "uploadSuccess": {
     "pageTitle": "Upload Complete",
