@@ -245,9 +245,9 @@ const RecentDownloads: React.FC = () => {
                       const rowInner = (
                         <>
                           <FileThumbnail source={f.id ? bundlePreviews[f.id] ?? null : null} fileName={f.name} size="sm" />
-                          <TruncatedFilename name={f.name} className="flex-1 text-sm text-foreground/80 text-left" />
+                          <TruncatedFilename name={f.name} className="flex-1 text-sm font-medium text-foreground text-left" />
                           {f.size != null && (
-                            <span className="flex-shrink-0 text-xs text-muted-foreground">
+                            <span className="flex-shrink-0 text-sm text-muted-foreground">
                               {formatFileSize(f.size)}
                             </span>
                           )}
@@ -258,13 +258,13 @@ const RecentDownloads: React.FC = () => {
                           key={`${f.name}-${i}`}
                           type="button"
                           onClick={(e) => { e.stopPropagation(); openPreviewFor(d.code, f.id!, f.name, f.size ?? 0); }}
-                          className="w-full flex items-center gap-3 min-w-0 -mx-2 px-2 py-1.5 rounded-lg can-hover:hover:bg-accent active:bg-accent transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          className="w-full flex items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2 rounded-lg can-hover:hover:bg-accent active:bg-accent transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                           aria-label={f.name}
                         >
                           {rowInner}
                         </button>
                       ) : (
-                        <div key={`${f.name}-${i}`} className="flex items-center gap-3 min-w-0 -mx-2 px-2 py-1.5">
+                        <div key={`${f.name}-${i}`} className="flex items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2">
                           {rowInner}
                         </div>
                       );
