@@ -6,6 +6,7 @@ import { cn } from 'lib/utils';
 import { useTranslation } from '../../i18n';
 import FileThumbnail from '../../components/FileThumbnail';
 import TruncatedFilename from '../../components/TruncatedFilename';
+import AnimatedHeight from '../../components/UnifiedFileBox/AnimatedHeight';
 import { formatFileSize } from '../../utils/format';
 import { getRelativePathSafe } from '../../utils/fileWithPath';
 
@@ -123,7 +124,7 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
             <>
               <div className="flex items-center justify-between gap-2 mt-0.5 md:mt-0 mb-3.5 md:mb-4 flex-shrink-0">
                 <h3 className="font-semibold text-foreground">{t('upload.selectedFiles', { count: files.length })}</h3>
-                <span className="text-xs text-muted-foreground whitespace-nowrap">{formatFileSize(totalSize)}</span>
+                <span className="text-sm text-muted-foreground whitespace-nowrap">{formatFileSize(totalSize)}</span>
               </div>
               <div className="flex-1 overflow-y-auto space-y-2 min-h-0">
                 {Array.from(folders.entries()).map(([folderName, items]) => {
@@ -136,43 +137,47 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                         onClick={(e) => { e.stopPropagation(); toggleFolder(folderName); }}
                         className="flex items-center gap-3 p-3.5 cursor-pointer can-hover:hover:bg-accent active:bg-accent transition-colors"
                       >
-                        <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center flex-shrink-0">
-                          <FolderIcon className="w-6 h-6 text-muted-foreground" />
+                        <div className="w-11 h-11 rounded bg-muted flex items-center justify-center flex-shrink-0">
+                          <FolderIcon className="w-7 h-7 text-muted-foreground" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-foreground truncate">{folderName}</p>
+                          <p className="text-base font-medium text-foreground truncate">{folderName}</p>
                           <p className="text-xs text-muted-foreground">{t('upload.folderItemCount', { count: items.length })} · {formatFileSize(folderSize)}</p>
                         </div>
-                        <button
-                          type="button"
-                          onClick={(e) => { e.stopPropagation(); onRemoveFiles(items.map((it) => it.index)); }}
-                          className="p-1 can-hover:hover:bg-foreground/10 active:bg-foreground/10 rounded-md transition-colors flex-shrink-0"
-                        >
-                          <XMarkIcon className="w-4 h-4 text-muted-foreground" />
-                        </button>
-                        <ChevronDownIcon className={cn('w-5 h-5 text-muted-foreground/50 transition-transform flex-shrink-0', isOpen && 'rotate-180')} />
-                      </div>
-                      {isOpen && (
-                        <div className="px-3.5 pb-3">
-                          <div className="border-t border-foreground/[0.08] pt-2.5 space-y-2">
-                            {items.map((it) => {
-                              const file = files[it.index];
-                              return (
-                                <button
-                                  key={it.index}
-                                  type="button"
-                                  onClick={(e) => { e.stopPropagation(); onPreviewFile(file); }}
-                                  className="w-full flex items-center gap-3 min-w-0 -mx-2 px-2 py-1.5 rounded-lg can-hover:hover:bg-accent active:bg-accent transition-colors cursor-pointer"
-                                >
-                                  <FileThumbnail source={file} fileName={file.name} size="sm" />
-                                  <TruncatedFilename name={it.sub} className="flex-1 text-sm text-foreground/80 text-left" />
-                                  <span className="flex-shrink-0 text-xs text-muted-foreground">{formatFileSize(file.size)}</span>
-                                </button>
-                              );
-                            })}
-                          </div>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <ChevronDownIcon className={cn('w-5 h-5 text-muted-foreground/50 transition-transform', isOpen && 'rotate-180')} />
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); onRemoveFiles(items.map((it) => it.index)); }}
+                            className="-mr-1 p-1 can-hover:hover:bg-foreground/10 active:bg-foreground/10 rounded-md transition-colors"
+                          >
+                            <XMarkIcon className="w-4 h-4 text-muted-foreground" />
+                          </button>
                         </div>
-                      )}
+                      </div>
+                      <AnimatedHeight>
+                        {isOpen && (
+                          <div className="px-3.5 pb-3">
+                            <div className="border-t border-foreground/[0.08] pt-2.5 space-y-1">
+                              {items.map((it) => {
+                                const file = files[it.index];
+                                return (
+                                  <button
+                                    key={it.index}
+                                    type="button"
+                                    onClick={(e) => { e.stopPropagation(); onPreviewFile(file); }}
+                                    className="w-full flex items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2 rounded-lg can-hover:hover:bg-accent active:bg-accent transition-colors cursor-pointer"
+                                  >
+                                    <FileThumbnail source={file} fileName={file.name} size="sm" />
+                                    <TruncatedFilename name={it.sub} className="flex-1 text-sm font-medium text-foreground text-left" />
+                                    <span className="flex-shrink-0 text-sm text-muted-foreground">{formatFileSize(file.size)}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </AnimatedHeight>
                     </div>
                   );
                 })}
