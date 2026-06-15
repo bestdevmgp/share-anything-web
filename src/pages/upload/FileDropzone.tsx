@@ -102,13 +102,14 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                     ? t('upload.maxSizeNotice')
                     : <><span className="inline-block">{t('upload.maxSizeNoticeGuest1')}</span>{' '}<span className="inline-block">{t('upload.maxSizeNoticeGuest2')}</span></>}
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                <Button variant="default" size="lg">
+              <div className="grid grid-cols-2 gap-2 w-fit">
+                <Button variant="default" size="lg" className="w-full">
                   {t('upload.selectFiles')}
                 </Button>
                 <Button
                   variant="secondary"
                   size="lg"
+                  className="w-full"
                   onClick={(e) => {
                     e.stopPropagation();
                     onSelectFolder();
