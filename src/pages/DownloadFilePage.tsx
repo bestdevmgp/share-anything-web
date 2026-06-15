@@ -622,6 +622,15 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     setSelectedFiles(new Set());
   };
 
+  const setFilesSelected = (fileIds: string[], selected: boolean) => {
+    setSelectedFiles(prev => {
+      const newSet = new Set(prev);
+      if (selected) fileIds.forEach(id => newSet.add(id));
+      else fileIds.forEach(id => newSet.delete(id));
+      return newSet;
+    });
+  };
+
   useEffect(() => {
     if (fileList && passwordVerified) {
       setSelectedFiles(new Set(fileList.files.map((f) => f.id)));
@@ -659,6 +668,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         previews={filePreviews}
         selectedFiles={selectedFiles}
         toggleFileSelection={toggleFileSelection}
+        setFilesSelected={setFilesSelected}
         selectAllFiles={selectAllFiles}
         deselectAllFiles={deselectAllFiles}
         openPreview={openPreview}
@@ -935,6 +945,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         fileList={fileList}
         selectedFiles={selectedFiles}
         toggleFileSelection={toggleFileSelection}
+        setFilesSelected={setFilesSelected}
         selectAllFiles={selectAllFiles}
         deselectAllFiles={deselectAllFiles}
         downloading={downloading}

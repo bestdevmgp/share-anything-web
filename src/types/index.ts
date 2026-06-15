@@ -62,6 +62,7 @@ export interface UploadHistoryItem {
   file_name: string;
   file_size: number;
   file_type: string;
+  relative_path?: string;
   description?: string;
   has_password: boolean;
   is_one_time?: boolean;

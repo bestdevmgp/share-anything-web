@@ -5,6 +5,7 @@ import { Button } from '../../components/ui/button';
 import { cn } from 'lib/utils';
 import { useTranslation } from '../../i18n';
 import FileThumbnail from '../../components/FileThumbnail';
+import TruncatedFilename from '../../components/TruncatedFilename';
 import { formatFileSize } from '../../utils/format';
 import { getRelativePathSafe } from '../../utils/fileWithPath';
 
@@ -134,8 +135,8 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                         onClick={(e) => { e.stopPropagation(); toggleFolder(folderName); }}
                         className="flex items-center gap-3 p-3.5 cursor-pointer can-hover:hover:bg-accent active:bg-accent transition-colors"
                       >
-                        <div className="w-9 h-9 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center flex-shrink-0">
-                          <FolderIcon className="w-5 h-5 text-muted-foreground" />
+                        <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center flex-shrink-0">
+                          <FolderIcon className="w-6 h-6 text-muted-foreground" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium text-foreground truncate">{folderName}</p>
@@ -160,10 +161,10 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                                   key={it.index}
                                   type="button"
                                   onClick={(e) => { e.stopPropagation(); onPreviewFile(file); }}
-                                  className="w-full flex items-center gap-3 min-w-0 py-1 cursor-pointer can-hover:hover:opacity-80 transition-opacity"
+                                  className="w-full flex items-center gap-3 min-w-0 -mx-2 px-2 py-1.5 rounded-lg can-hover:hover:bg-accent active:bg-accent transition-colors cursor-pointer"
                                 >
                                   <FileThumbnail source={file} fileName={file.name} size="sm" />
-                                  <span className="flex-1 text-sm text-foreground/80 text-left truncate">{it.sub}</span>
+                                  <TruncatedFilename name={it.sub} className="flex-1 text-sm text-foreground/80 text-left" />
                                   <span className="flex-shrink-0 text-xs text-muted-foreground">{formatFileSize(file.size)}</span>
                                 </button>
                               );

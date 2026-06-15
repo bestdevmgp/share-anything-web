@@ -1,12 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   LockClosedIcon,
   EyeIcon,
   EyeSlashIcon,
   XMarkIcon,
+  FolderIcon,
+  ChevronDownIcon,
 } from '@heroicons/react/24/outline';
 import { FileListResponse } from '../../types';
 import { formatFileSize } from '../../utils/format';
+import { sanitizeRelativePath } from '../../utils/folderPath';
 import FileThumbnail from '../FileThumbnail';
 import TruncatedFilename from '../TruncatedFilename';
 import ScrollableFileList from './ScrollableFileList';
@@ -45,6 +48,7 @@ interface Props {
   previews?: Record<string, string>;
   selectedFiles: Set<string>;
   toggleFileSelection: (fileId: string) => void;
+  setFilesSelected: (fileIds: string[], selected: boolean) => void;
   selectAllFiles: () => void;
   deselectAllFiles: () => void;
   openPreview: (fileName: string, fileSize: number, fileId: string, blobSource: string) => void;
@@ -105,12 +109,43 @@ const BoxDownloadView: React.FC<Props> = ({
   previews,
   selectedFiles,
   toggleFileSelection,
+  setFilesSelected,
   selectAllFiles,
   deselectAllFiles,
   openPreview,
   t,
 }) => {
   const showError = !loading && !!errorTitle;
+
+  const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
+  const toggleFolder = (name: string) =>
+    setOpenFolders((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+
+  const { folders, looseFiles } = useMemo(() => {
+    const folders = new Map<string, { id: string; name: string; size: number; sub: string }[]>();
+    const looseFiles: FileListResponse['files'] = [];
+    (fileList?.files ?? []).forEach((f) => {
+      const rel = sanitizeRelativePath(f.relative_path || '');
+      const slash = rel.indexOf('/');
+      if (slash === -1) {
+        looseFiles.push(f);
+      } else {
+        const top = rel.slice(0, slash);
+        const arr = folders.get(top) ?? [];
+        arr.push({ id: f.id, name: f.file_name, size: f.file_size, sub: rel.slice(slash + 1) });
+        folders.set(top, arr);
+      }
+    });
+    return { folders, looseFiles };
+  }, [fileList?.files]);
+
+  const hasFolders = folders.size > 0;
+
   useEffect(() => {
     if (!showError) return;
     const onKey = (e: KeyboardEvent) => {
@@ -344,6 +379,9 @@ const BoxDownloadView: React.FC<Props> = ({
   }
 
   const multi = files.length > 1;
+  // A folder share with exactly one file is still a multi-style selection surface
+  // (the folder has its own checkbox), so show the selection header + footer for it too.
+  const showSelection = multi || hasFolders;
   return wrap(
     <>
       <div className="flex-1 flex flex-col justify-center md:flex-row md:items-stretch gap-6 md:gap-8 min-h-0">
@@ -357,7 +395,7 @@ const BoxDownloadView: React.FC<Props> = ({
           </p>
         </div>
         <div className="md:flex-1 flex flex-col min-w-0">
-          {multi ? (
+          {showSelection ? (
             <div className="flex items-center justify-between gap-2 mb-2">
               <p className="text-sm font-medium text-muted-foreground truncate">
                 {t('download.fileListSelected', { selected: selectedFiles.size, total: files.length })}
@@ -373,51 +411,159 @@ const BoxDownloadView: React.FC<Props> = ({
           ) : (
             fileListHeader
           )}
-          <ScrollableFileList count={files.length}>
-            {files.map((file) => {
-              const selected = selectedFiles.has(file.id);
-              return (
-                <div
-                  key={file.id}
-                  onClick={multi ? () => toggleFileSelection(file.id) : undefined}
-                  className={cn(
-                    'flex items-center px-3 py-3 bg-muted rounded-lg border border-foreground/[0.09]',
-                    multi && 'cursor-pointer transition-opacity',
-                    multi && !selected && 'opacity-50'
-                  )}
-                >
-                  {multi && (
-                    <Checkbox checked={selected} className="h-5 w-5 rounded-md border-2 flex-shrink-0 mr-3" />
-                  )}
-                  {previews?.[file.id] ? (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openPreview(file.file_name, file.file_size, file.id, previews[file.id]);
-                      }}
-                      className="flex-shrink-0 mr-3 rounded-lg overflow-hidden transition-transform can-hover:hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                      aria-label={file.file_name}
+          <ScrollableFileList
+            count={hasFolders ? folders.size + looseFiles.length : files.length}
+            recomputeKey={hasFolders ? Array.from(openFolders).sort().join('|') : undefined}
+          >
+            {hasFolders ? (
+              <>
+                {Array.from(folders.entries()).map(([folderName, items]) => {
+                  const ids = items.map((it) => it.id);
+                  const allSelected = ids.every((id) => selectedFiles.has(id));
+                  const folderSize = items.reduce((s, it) => s + it.size, 0);
+                  const isOpen = openFolders.has(folderName);
+                  return (
+                    <div
+                      key={`folder:${folderName}`}
+                      className={cn(
+                        'bg-muted rounded-lg border border-foreground/[0.09] overflow-hidden transition-opacity',
+                        !allSelected && 'opacity-50'
+                      )}
                     >
-                      <FileThumbnail source={previews[file.id]} fileName={file.file_name} size="sm" />
-                    </button>
-                  ) : (
-                    <div className="flex-shrink-0 mr-3">
-                      <FileThumbnail source={null} fileName={file.file_name} size="sm" />
+                      <div
+                        onClick={() => setFilesSelected(ids, !allSelected)}
+                        className="flex items-center px-3 py-3 cursor-pointer"
+                      >
+                        <Checkbox checked={allSelected} className="h-5 w-5 rounded-md border-2 flex-shrink-0 mr-3" />
+                        <div className="flex-shrink-0 mr-3">
+                          <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
+                            <FolderIcon className="w-6 h-6 text-muted-foreground" />
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">{folderName}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {t('upload.folderItemCount', { count: items.length })} · {formatFileSize(folderSize)}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); toggleFolder(folderName); }}
+                          className="flex-shrink-0 self-center ml-1 -mr-1 p-1 rounded-md can-hover:hover:bg-accent active:bg-accent transition-colors"
+                          aria-label={folderName}
+                        >
+                          <ChevronDownIcon className={cn('w-5 h-5 text-muted-foreground/60 transition-transform', isOpen && 'rotate-180')} />
+                        </button>
+                      </div>
+                      {isOpen && (
+                        <div className="px-3 pb-3">
+                          <div className="border-t border-foreground/[0.08] pt-2.5 space-y-2">
+                            {items.map((it) => (
+                              <div key={it.id} className="flex items-center gap-3 min-w-0 -mx-2 px-2 py-1.5">
+                                {previews?.[it.id] ? (
+                                  <button
+                                    type="button"
+                                    onClick={(e) => { e.stopPropagation(); openPreview(it.name, it.size, it.id, previews[it.id]); }}
+                                    className="flex-shrink-0 rounded-lg overflow-hidden transition-transform can-hover:hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                    aria-label={it.name}
+                                  >
+                                    <FileThumbnail source={previews[it.id]} fileName={it.name} size="sm" />
+                                  </button>
+                                ) : (
+                                  <div className="flex-shrink-0">
+                                    <FileThumbnail source={null} fileName={it.name} size="sm" />
+                                  </div>
+                                )}
+                                <TruncatedFilename name={it.sub} className="flex-1 text-sm text-foreground/80 text-left" />
+                                <span className="flex-shrink-0 text-xs text-muted-foreground">{formatFileSize(it.size)}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <TruncatedFilename name={file.file_name} className="text-sm font-medium text-foreground" />
-                    <p className="text-xs text-muted-foreground">{formatFileSize(file.file_size)}</p>
+                  );
+                })}
+                {looseFiles.map((file) => {
+                  const selected = selectedFiles.has(file.id);
+                  return (
+                    <div
+                      key={file.id}
+                      onClick={() => toggleFileSelection(file.id)}
+                      className={cn(
+                        'flex items-center px-3 py-3 bg-muted rounded-lg border border-foreground/[0.09] cursor-pointer transition-opacity',
+                        !selected && 'opacity-50'
+                      )}
+                    >
+                      <Checkbox checked={selected} className="h-5 w-5 rounded-md border-2 flex-shrink-0 mr-3" />
+                      {previews?.[file.id] ? (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); openPreview(file.file_name, file.file_size, file.id, previews[file.id]); }}
+                          className="flex-shrink-0 mr-3 rounded-lg overflow-hidden transition-transform can-hover:hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          aria-label={file.file_name}
+                        >
+                          <FileThumbnail source={previews[file.id]} fileName={file.file_name} size="sm" />
+                        </button>
+                      ) : (
+                        <div className="flex-shrink-0 mr-3">
+                          <FileThumbnail source={null} fileName={file.file_name} size="sm" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <TruncatedFilename name={file.file_name} className="text-sm font-medium text-foreground" />
+                        <p className="text-xs text-muted-foreground">{formatFileSize(file.file_size)}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </>
+            ) : (
+              files.map((file) => {
+                const selected = selectedFiles.has(file.id);
+                return (
+                  <div
+                    key={file.id}
+                    onClick={multi ? () => toggleFileSelection(file.id) : undefined}
+                    className={cn(
+                      'flex items-center px-3 py-3 bg-muted rounded-lg border border-foreground/[0.09]',
+                      multi && 'cursor-pointer transition-opacity',
+                      multi && !selected && 'opacity-50'
+                    )}
+                  >
+                    {multi && (
+                      <Checkbox checked={selected} className="h-5 w-5 rounded-md border-2 flex-shrink-0 mr-3" />
+                    )}
+                    {previews?.[file.id] ? (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openPreview(file.file_name, file.file_size, file.id, previews[file.id]);
+                        }}
+                        className="flex-shrink-0 mr-3 rounded-lg overflow-hidden transition-transform can-hover:hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        aria-label={file.file_name}
+                      >
+                        <FileThumbnail source={previews[file.id]} fileName={file.file_name} size="sm" />
+                      </button>
+                    ) : (
+                      <div className="flex-shrink-0 mr-3">
+                        <FileThumbnail source={null} fileName={file.file_name} size="sm" />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <TruncatedFilename name={file.file_name} className="text-sm font-medium text-foreground" />
+                      <p className="text-xs text-muted-foreground">{formatFileSize(file.file_size)}</p>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </ScrollableFileList>
         </div>
       </div>
       <div className="mt-6 -mb-5 md:-mb-2 flex flex-col gap-2">
-        {multi ? (() => {
+        {showSelection ? (() => {
           const selectedTotalSize = files
             .filter((f) => selectedFiles.has(f.id))
             .reduce((sum, f) => sum + f.file_size, 0);

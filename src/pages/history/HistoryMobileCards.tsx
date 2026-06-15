@@ -1,6 +1,8 @@
-import React, { useRef, useLayoutEffect } from 'react';
+import React, { useRef, useState, useLayoutEffect } from 'react';
+import { FolderIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { UploadHistoryItem, UploadGroup, DownloadLog } from '../../types';
 import { isPdfFile, isVideoFile, formatFileSize, formatDateTime } from '../../utils/format';
+import { sanitizeRelativePath } from '../../utils/folderPath';
 import { Language } from '../../context/LanguageContext';
 import FileThumbnail from '../../components/FileThumbnail';
 import TruncatedFilename from '../../components/TruncatedFilename';
@@ -127,6 +129,32 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
   t,
 }) => {
   const expandRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
+  const toggleFolder = (key: string) =>
+    setOpenFolders((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+
+  const groupFiles = (files: UploadHistoryItem[]) => {
+    const folders = new Map<string, UploadHistoryItem[]>();
+    const looseFiles: UploadHistoryItem[] = [];
+    files.forEach((f) => {
+      const rel = sanitizeRelativePath(f.relative_path || '');
+      const slash = rel.indexOf('/');
+      if (slash === -1) {
+        looseFiles.push(f);
+      } else {
+        const top = rel.slice(0, slash);
+        const arr = folders.get(top) ?? [];
+        arr.push(f);
+        folders.set(top, arr);
+      }
+    });
+    return { folders, looseFiles };
+  };
 
   useLayoutEffect(() => {
     if (!closingRow) return;
@@ -168,6 +196,12 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
         const isBundle = group.files.length > 1;
         const firstFile = group.files[0];
         const expired = isExpired(group.expiresAt);
+        const { folders, looseFiles } = groupFiles(group.files);
+        const hasFoldersInGroup = folders.size > 0;
+        const topLevelNames = [
+          ...Array.from(folders.keys()).map((name) => `${name}/`),
+          ...looseFiles.map((f) => f.file_name),
+        ];
         return (
         <Card key={group.shareCode} className="rounded-xl border-2 border-border shadow-none overflow-hidden">
           <div className="relative">
@@ -223,8 +257,8 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                         {group.shareCode}
                       </h3>
                       <p className="text-xs text-muted-foreground truncate leading-4 mt-0.5">
-                        {group.files.slice(0, 2).map(f => f.file_name).join(', ')}
-                        {group.files.length > 2 && ` +${group.files.length - 2}`}
+                        {topLevelNames.slice(0, 2).join(', ')}
+                        {topLevelNames.length > 2 && ` +${topLevelNames.length - 2}`}
                       </p>
                       <div className="flex items-center space-x-2 text-xs text-muted-foreground leading-4 mt-0.5">
                         <span>{formatFileSize(group.totalSize)}</span>
@@ -299,8 +333,9 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                   <h4 className="text-sm font-semibold text-foreground">{t('history.filesInBundle')}</h4>
                 )}
 
-                {group.files.map((upload) => (
-                  <div key={upload.id} className="space-y-4">
+                {(() => {
+                const renderFileDetail = (upload: UploadHistoryItem) => (
+                  <div className="space-y-4">
                     <div>
                       <h4 className="text-sm font-semibold text-foreground mb-2">{t('history.preview')}</h4>
                       <Card
@@ -428,7 +463,49 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                       </Card>
                     </div>
                   </div>
-                ))}
+                  );
+                  return hasFoldersInGroup ? (
+                    <div className="space-y-3">
+                      {Array.from(folders.entries()).map(([folderName, items]) => {
+                        const fKey = `${group.shareCode}/${folderName}`;
+                        const isOpen = openFolders.has(fKey);
+                        const folderSize = items.reduce((s, it) => s + it.file_size, 0);
+                        return (
+                          <div key={`folder:${folderName}`} className="bg-muted rounded-lg border border-foreground/[0.09] overflow-hidden">
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); toggleFolder(fKey); }}
+                              className="w-full flex items-center gap-3 p-3 text-left can-hover:hover:bg-accent active:bg-accent transition-colors"
+                            >
+                              <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center flex-shrink-0">
+                                <FolderIcon className="w-6 h-6 text-muted-foreground" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-semibold text-foreground truncate">{folderName}</p>
+                                <p className="text-xs text-muted-foreground">{t('upload.folderItemCount', { count: items.length })} · {formatFileSize(folderSize)}</p>
+                              </div>
+                              <ChevronDownIcon className={cn('w-5 h-5 text-muted-foreground/50 transition-transform flex-shrink-0', isOpen && 'rotate-180')} />
+                            </button>
+                            {isOpen && (
+                              <div className="px-3 pb-3 pt-3 space-y-4 border-t border-foreground/[0.08]">
+                                {items.map((upload) => (
+                                  <React.Fragment key={upload.id}>{renderFileDetail(upload)}</React.Fragment>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                      {looseFiles.map((upload) => (
+                        <React.Fragment key={upload.id}>{renderFileDetail(upload)}</React.Fragment>
+                      ))}
+                    </div>
+                  ) : (
+                    group.files.map((upload) => (
+                      <React.Fragment key={upload.id}>{renderFileDetail(upload)}</React.Fragment>
+                    ))
+                  );
+                  })()}
               </div>
             </div>
           )}

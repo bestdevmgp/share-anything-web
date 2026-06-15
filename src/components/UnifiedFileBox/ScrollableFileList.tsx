@@ -2,13 +2,16 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 
 interface Props {
   count: number;
+  // Optional signal that changes when row heights change (e.g. a folder expands/collapses)
+  // so the 10-row height cap is re-measured against the current layout.
+  recomputeKey?: string | number;
   children: React.ReactNode;
 }
 
 // Shows all rows (box grows) up to 10 files; caps at the height of exactly 10
 // rows and scrolls internally beyond that. Measures real rows so the threshold
 // stays exact regardless of row height (PC and mobile).
-const ScrollableFileList: React.FC<Props> = ({ count, children }) => {
+const ScrollableFileList: React.FC<Props> = ({ count, recomputeKey, children }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [maxHeight, setMaxHeight] = useState<number | undefined>(undefined);
   useLayoutEffect(() => {
@@ -28,7 +31,7 @@ const ScrollableFileList: React.FC<Props> = ({ count, children }) => {
     measure();
     window.addEventListener('resize', measure);
     return () => window.removeEventListener('resize', measure);
-  }, [count]);
+  }, [count, recomputeKey]);
   return (
     <div
       ref={ref}

@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { NavigateFunction } from 'react-router-dom';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, FolderIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { FileListResponse } from '../../types';
 import { formatFileSize } from '../../utils/format';
 import { Card } from '../../components/ui/card';
@@ -9,14 +9,14 @@ import { Button } from '../../components/ui/button';
 import { Checkbox } from '../../components/ui/checkbox';
 import FileThumbnail from '../../components/FileThumbnail';
 import TruncatedFilename from '../../components/TruncatedFilename';
-import FileTree from '../../components/FileTree';
-import { FlatTreeItem, hasFolders } from '../../utils/folderPath';
+import { sanitizeRelativePath } from '../../utils/folderPath';
 import { cn } from 'lib/utils';
 
 export interface MultiFileListProps {
   fileList: FileListResponse;
   selectedFiles: Set<string>;
   toggleFileSelection: (fileId: string) => void;
+  setFilesSelected: (fileIds: string[], selected: boolean) => void;
   selectAllFiles: () => void;
   deselectAllFiles: () => void;
   downloading: boolean;
@@ -42,6 +42,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
   fileList,
   selectedFiles,
   toggleFileSelection,
+  setFilesSelected,
   selectAllFiles,
   deselectAllFiles,
   downloading,
@@ -62,18 +63,34 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
   handleZipFallbackToIndividual,
   t,
 }) => {
-  const treeItems = useMemo<FlatTreeItem[]>(
-    () =>
-      fileList.files.map((f) => ({
-        id: f.id,
-        name: f.file_name,
-        size: f.file_size,
-        relativePath: f.relative_path || '',
-      })),
-    [fileList.files]
-  );
+  const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
+  const toggleFolder = (name: string) =>
+    setOpenFolders((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
 
-  const isFolderShare = useMemo(() => hasFolders(treeItems), [treeItems]);
+  const { folders, looseFiles } = useMemo(() => {
+    const folders = new Map<string, { id: string; name: string; size: number; sub: string }[]>();
+    const looseFiles: FileListResponse['files'] = [];
+    fileList.files.forEach((f) => {
+      const rel = sanitizeRelativePath(f.relative_path || '');
+      const slash = rel.indexOf('/');
+      if (slash === -1) {
+        looseFiles.push(f);
+      } else {
+        const top = rel.slice(0, slash);
+        const arr = folders.get(top) ?? [];
+        arr.push({ id: f.id, name: f.file_name, size: f.file_size, sub: rel.slice(slash + 1) });
+        folders.set(top, arr);
+      }
+    });
+    return { folders, looseFiles };
+  }, [fileList.files]);
+
+  const isFolderShare = folders.size > 0;
 
   const selectedTotalSize = fileList.files
     .filter((f) => selectedFiles.has(f.id))
@@ -135,55 +152,100 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
             </Button>
           </div>
 
-          <div className="mb-6 sm:mb-8">
-            {isFolderShare ? (
-              <FileTree
-                items={treeItems}
-                onFileClick={(item) => toggleFileSelection(item.id)}
-                renderFileLeading={(item) => (
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <Checkbox
-                      checked={selectedFiles.has(item.id)}
-                      className="h-5 w-5 rounded-md border-2"
-                    />
-                    <div className="hidden sm:flex">
-                      <FileThumbnail source={previews?.[item.id] ?? null} fileName={item.name} size="sm" />
-                    </div>
-                  </div>
-                )}
-              />
-            ) : (
-              <div className="space-y-2 sm:space-y-2.5">
-                {fileList.files.map((file) => (
+          <div className="mb-6 sm:mb-8 space-y-2 sm:space-y-2.5">
+            {Array.from(folders.entries()).map(([folderName, items]) => {
+              const ids = items.map((it) => it.id);
+              const allSelected = ids.every((id) => selectedFiles.has(id));
+              const folderSize = items.reduce((s, it) => s + it.size, 0);
+              const isOpen = openFolders.has(folderName);
+              return (
+                <div
+                  key={`folder:${folderName}`}
+                  className={cn(
+                    'rounded-lg border overflow-hidden transition-all',
+                    allSelected
+                      ? 'bg-accent border-primary'
+                      : 'bg-muted border-foreground/[0.09]'
+                  )}
+                >
                   <div
-                    key={file.id}
-                    onClick={() => toggleFileSelection(file.id)}
+                    onClick={() => setFilesSelected(ids, !allSelected)}
                     className={cn(
-                      'flex items-center space-x-3 px-3 py-3 rounded-lg cursor-pointer transition-all',
-                      selectedFiles.has(file.id)
-                        ? 'bg-accent border border-primary'
-                        : 'bg-muted border border-foreground/[0.09] can-hover:hover:bg-accent active:bg-accent'
+                      'flex items-center gap-3 px-3 py-3 cursor-pointer transition-colors',
+                      !allSelected && 'can-hover:hover:bg-accent active:bg-accent'
                     )}
                   >
                     <div className="flex-shrink-0">
-                      <Checkbox
-                        checked={selectedFiles.has(file.id)}
-                        className="h-6 w-6 rounded-md border-2"
-                      />
+                      <Checkbox checked={allSelected} className="h-6 w-6 rounded-md border-2" />
                     </div>
 
                     <div className="flex-shrink-0 hidden sm:flex">
-                      <FileThumbnail source={previews?.[file.id] ?? null} fileName={file.file_name} size="md" />
+                      <div className="w-12 h-12 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
+                        <FolderIcon className="w-6 h-6 text-muted-foreground" />
+                      </div>
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <TruncatedFilename name={file.file_name} className="text-sm font-semibold text-foreground" />
-                      <p className="text-xs text-muted-foreground">{formatFileSize(file.file_size)}</p>
+                      <p className="text-sm font-semibold text-foreground truncate">{folderName}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t('upload.folderItemCount', { count: items.length })} · {formatFileSize(folderSize)}
+                      </p>
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); toggleFolder(folderName); }}
+                      className="p-1 rounded-md flex-shrink-0 can-hover:hover:bg-foreground/10 active:bg-foreground/10 transition-colors"
+                      aria-label={folderName}
+                    >
+                      <ChevronDownIcon className={cn('w-5 h-5 text-muted-foreground/60 transition-transform', isOpen && 'rotate-180')} />
+                    </button>
                   </div>
-                ))}
+
+                  {isOpen && (
+                    <div className="px-3 pb-3">
+                      <div className="border-t border-foreground/[0.08] pt-2.5 space-y-2">
+                        {items.map((it) => (
+                          <div key={it.id} className="flex items-center gap-3 min-w-0 -mx-2 px-2 py-1.5">
+                            <div className="flex-shrink-0 hidden sm:flex">
+                              <FileThumbnail source={previews?.[it.id] ?? null} fileName={it.name} size="sm" />
+                            </div>
+                            <TruncatedFilename name={it.sub} className="flex-1 text-sm text-foreground/80 text-left" />
+                            <span className="flex-shrink-0 text-xs text-muted-foreground">{formatFileSize(it.size)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            {looseFiles.map((file) => (
+              <div
+                key={file.id}
+                onClick={() => toggleFileSelection(file.id)}
+                className={cn(
+                  'flex items-center space-x-3 px-3 py-3 rounded-lg cursor-pointer transition-all',
+                  selectedFiles.has(file.id)
+                    ? 'bg-accent border border-primary'
+                    : 'bg-muted border border-foreground/[0.09] can-hover:hover:bg-accent active:bg-accent'
+                )}
+              >
+                <div className="flex-shrink-0">
+                  <Checkbox checked={selectedFiles.has(file.id)} className="h-6 w-6 rounded-md border-2" />
+                </div>
+
+                <div className="flex-shrink-0 hidden sm:flex">
+                  <FileThumbnail source={previews?.[file.id] ?? null} fileName={file.file_name} size="md" />
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <TruncatedFilename name={file.file_name} className="text-sm font-semibold text-foreground" />
+                  <p className="text-xs text-muted-foreground">{formatFileSize(file.file_size)}</p>
+                </div>
               </div>
-            )}
+            ))}
           </div>
 
           <div className="">
