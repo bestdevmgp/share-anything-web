@@ -4,7 +4,8 @@ import { fileAPI } from '../services/api';
 import { FileListResponse } from '../types';
 import { downloadFile, isPptxFile, formatTimeRemaining, calculateTimeRemaining, getDeviceInfo, isImageFile, formatFileSize } from '../utils/format';
 import TruncatedFilename from '../components/TruncatedFilename';
-import { PauseIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon } from '@heroicons/react/24/outline';
+import PauseBarsIcon from '../components/PauseBarsIcon';
 import { toast } from '../context/ToastContext';
 import { useTranslation, translateApiError } from '../i18n';
 import { useP2PDownloader } from '../hooks/useP2PDownloader';
@@ -689,7 +690,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                     <path d="M5 13l4 4L19 7" className="download-checkmark-path" />
                   </svg>
                 ) : awaitingNextSelection ? (
-                  <PauseIcon className="w-9 h-9 text-green-600" strokeWidth={4} />
+                  <PauseBarsIcon className="w-9 h-9 text-green-600" />
                 ) : (
                   <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
@@ -749,7 +750,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                     className={cn(
                       'px-4 py-2 rounded-lg border transition-all',
                       isCompleted
-                        ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30'
+                        ? 'bg-muted border-foreground/[0.09]'
                         : isActive
                           ? 'bg-muted border-primary'
                           : 'bg-muted border-foreground/[0.09]'

@@ -1,5 +1,6 @@
 import React from 'react';
-import { PauseIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon } from '@heroicons/react/24/outline';
+import PauseBarsIcon from '../PauseBarsIcon';
 import { useTranslation } from '../../i18n';
 import { Button } from '../ui/button';
 import { Spinner } from '../ui/spinner';
@@ -126,7 +127,7 @@ const P2PActiveStage: React.FC<Props> = ({
                 <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
               </svg>
             ) : overall === 'waiting_for_next' ? (
-              <PauseIcon className="w-9 h-9 text-green-600" strokeWidth={4} />
+              <PauseBarsIcon className="w-9 h-9 text-green-600" />
             ) : (
               <Spinner size="xl" />
             )}

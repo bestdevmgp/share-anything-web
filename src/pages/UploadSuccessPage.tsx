@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import StyledQRCode from '../components/StyledQRCode';
 import { FileUploadResponse } from '../types';
 import { formatDateTime, formatFileSize } from '../utils/format';
-import { CheckIcon, ExclamationTriangleIcon, PauseIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { CheckIcon, ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import PauseBarsIcon from '../components/PauseBarsIcon';
 import CopyButton from '../components/CopyButton';
 import { useP2PUploader } from '../hooks/useP2PUploader';
 import FileThumbnail from '../components/FileThumbnail';
@@ -124,7 +125,7 @@ const UploadSuccessPage: React.FC = () => {
                     <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
                   </svg>
                 ) : overallStatus === 'waiting_for_next' ? (
-                  <PauseIcon className="w-9 h-9 text-green-600" strokeWidth={4} />
+                  <PauseBarsIcon className="w-9 h-9 text-green-600" />
                 ) : (
                   <Spinner size="xl" />
                 )
@@ -246,7 +247,7 @@ const UploadSuccessPage: React.FC = () => {
                         <label className="block text-sm font-medium text-muted-foreground mb-3">
                           {t('common.file')}
                         </label>
-                        <div className="p-4 rounded-xl border-2 bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30">
+                        <div className="p-4 rounded-xl border-2 border-foreground/[0.09]">
                           <div className="flex items-center space-x-3">
                             <div className="flex-shrink-0">
                               <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-green-100 dark:bg-green-500/15">
@@ -355,7 +356,7 @@ const UploadSuccessPage: React.FC = () => {
                           className={cn(
                             'px-4 py-2 rounded-lg border transition-all',
                             isTransferring ? 'bg-muted border-primary' :
-                            isCompleted ? 'bg-green-50 dark:bg-green-500/10 border-green-200 dark:border-green-500/30' :
+                            isCompleted ? 'bg-muted border-foreground/[0.09]' :
                             'bg-muted border-foreground/[0.09] cursor-pointer can-hover:hover:bg-accent active:bg-accent'
                           )}
                           onClick={() => {
