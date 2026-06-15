@@ -99,6 +99,7 @@ export interface FileListItem {
   file_type: string;
   image_width?: number;
   image_height?: number;
+  relative_path?: string;
 }
 
 export interface FileListResponse {
@@ -202,6 +203,7 @@ export interface MultipartUploadFileInfo {
   file_name: string;
   file_size: number;
   content_type: string;
+  relative_path?: string;
 }
 
 export interface InitMultipartUploadRequest {
@@ -257,6 +259,7 @@ export interface CompleteMultipartFileInfo {
   upload_id: string;
   file_size: number;
   content_type: string;
+  relative_path?: string;
   parts: CompletedPart[];
   image_width?: number;
   image_height?: number;

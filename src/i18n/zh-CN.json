@@ -210,7 +210,9 @@
     "securityRequired": "需要进行安全验证",
     "securityFailed": "安全验证失败，请重试",
     "uploadFailed": "上传失败",
-    "fallbackNotice": "已切换为普通传输，请上传文件"
+    "fallbackNotice": "已切换为普通传输，请上传文件",
+    "dropzoneTextFolder": "将文件或文件夹拖放至此处，或点击以{{action}}。",
+    "selectFolder": "选择文件夹"
   },
   "uploadSuccess": {
     "pageTitle": "上传完成",
@@ -301,7 +303,9 @@
     "multiFileDownload": "下载 {{count}} 个文件",
     "downloadAll": "全部下载",
     "bulkProgress": "正在接收 {{done}} / {{total}} 个文件…",
-    "zipDownloadFailed": "ZIP 创建失败"
+    "zipDownloadFailed": "ZIP 创建失败",
+    "zipDownloadFolder": "下载为 ZIP（保留文件夹结构）",
+    "zipFallbackWarning": "此浏览器在内存中创建 ZIP，因此非常大的文件夹可能会很慢或失败。建议逐个下载文件。"
   },
   "history": {
     "pageTitle": "上传记录",

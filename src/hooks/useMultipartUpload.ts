@@ -2,6 +2,7 @@ import { useCallback, useRef } from 'react';
 import { quickAccessAPI, fileAPI, workerAPI } from '../services/api';
 import { InitMultipartUploadResponse } from '../types';
 import { getDeviceInfo, getImageDimensions } from '../utils/format';
+import { getRelativePathSafe } from '../utils/fileWithPath';
 
 type UploadMode = 'quick-access' | 'public';
 
@@ -118,6 +119,7 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
             file_name: file.name,
             file_size: file.size,
             content_type: file.type || 'application/octet-stream',
+            relative_path: getRelativePathSafe(file),
           })),
           description: input.description,
           password: input.password,
@@ -238,6 +240,7 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
             upload_id: workerUploadIds[fileInit.storage_key],
             file_size: files[i].size,
             content_type: files[i].type || 'application/octet-stream',
+            relative_path: getRelativePathSafe(files[i]),
             parts: completedFileParts[fileInit.storage_key],
             image_width: dimensions[pos]?.width,
             image_height: dimensions[pos]?.height,

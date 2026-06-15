@@ -210,7 +210,9 @@
     "securityRequired": "보안 확인이 필요해요",
     "securityFailed": "보안 확인에 실패했어요. 다시 시도해주세요",
     "uploadFailed": "업로드에 실패했어요",
-    "fallbackNotice": "일반 전송으로 전환되었어요. 파일을 업로드해주세요"
+    "fallbackNotice": "일반 전송으로 전환되었어요. 파일을 업로드해주세요",
+    "dropzoneTextFolder": "여기에 파일이나 폴더를 드래그하거나 클릭하여 {{action}}하세요.",
+    "selectFolder": "폴더 선택"
   },
   "uploadSuccess": {
     "pageTitle": "업로드 완료",
@@ -301,7 +303,9 @@
     "multiFileDownload": "{{count}}개 파일 다운로드",
     "downloadAll": "전체 다운로드",
     "bulkProgress": "{{done}} / {{total}} 파일 받는 중…",
-    "zipDownloadFailed": "ZIP 생성 실패"
+    "zipDownloadFailed": "ZIP 생성 실패",
+    "zipDownloadFolder": "ZIP으로 받기 (폴더 구조 유지)",
+    "zipFallbackWarning": "이 브라우저는 ZIP을 메모리에서 생성하므로 매우 큰 폴더는 느리거나 실패할 수 있어요. 개별 다운로드를 고려해 주세요."
   },
   "history": {
     "pageTitle": "업로드 기록",

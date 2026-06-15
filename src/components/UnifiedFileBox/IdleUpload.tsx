@@ -4,6 +4,7 @@ import { ArrowUpTrayIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../i18n';
 import { useAuth } from '../../context/AuthContext';
 import { cn } from '../../lib/utils';
+import { getFilesWithPaths } from '../../utils/dropzoneFiles';
 
 interface Props {
   onNormal: (files: File[]) => void;
@@ -18,8 +19,8 @@ const IdleUpload: React.FC<Props> = ({ onNormal, onSecure, animateIn }) => {
     animateIn ? 'animate-in fade-in-0 slide-in-from-bottom-1 duration-300' : ''
   );
 
-  const normalDz = useDropzone({ onDrop: onNormal, multiple: true });
-  const secureDz = useDropzone({ onDrop: onSecure, multiple: true });
+  const normalDz = useDropzone({ onDrop: onNormal, multiple: true, getFilesFromEvent: getFilesWithPaths });
+  const secureDz = useDropzone({ onDrop: onSecure, multiple: true, getFilesFromEvent: getFilesWithPaths });
 
   return (
     <div className={cn('flex-1 flex flex-col md:flex-row', enterAnim)}>

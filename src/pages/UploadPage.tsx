@@ -13,6 +13,8 @@ import FileDropzone from './upload/FileDropzone';
 import TransferSettings from './upload/TransferSettings';
 import UploadProgressBar from './upload/UploadProgressBar';
 import { storeUploadFiles, restoreUploadFiles, clearUploadFiles } from '../utils/uploadFileStorage';
+import { getFilesWithPaths } from '../utils/dropzoneFiles';
+import { getRelativePathSafe } from '../utils/fileWithPath';
 
 const runConcurrent = async <T,>(
   tasks: (() => Promise<T>)[],
@@ -198,8 +200,26 @@ const UploadPage: React.FC = () => {
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    multiple: true
+    multiple: true,
+    getFilesFromEvent: getFilesWithPaths,
   });
+
+  const folderInputRef = useRef<HTMLInputElement>(null);
+
+  const handleSelectFolder = useCallback(() => {
+    folderInputRef.current?.click();
+  }, []);
+
+  const handleFolderInputChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const picked = e.target.files ? Array.from(e.target.files) : [];
+      const accepted = await getFilesWithPaths({ target: { files: picked } } as any);
+      e.target.value = '';
+      if (accepted.length === 0) return;
+      await onDrop(accepted);
+    },
+    [onDrop]
+  );
 
   const removeFile = (index: number) => {
     setFiles(prev => prev.filter((_, i) => i !== index));
@@ -245,7 +265,8 @@ const UploadPage: React.FC = () => {
         files: files.map(file => ({
           file_name: file.name,
           file_size: file.size,
-          content_type: file.type || 'application/octet-stream'
+          content_type: file.type || 'application/octet-stream',
+          relative_path: getRelativePathSafe(file),
         })),
         description: description || undefined,
         password: isAuthenticated && password ? password : undefined,
@@ -393,6 +414,7 @@ const UploadPage: React.FC = () => {
           upload_id: workerUploadIds[fileInit.storage_key],
           file_size: files[i].size,
           content_type: files[i].type || 'application/octet-stream',
+          relative_path: getRelativePathSafe(files[i]),
           parts: completedFileParts[fileInit.storage_key],
           image_width: dimensions[i]?.width,
           image_height: dimensions[i]?.height,
@@ -537,6 +559,9 @@ const UploadPage: React.FC = () => {
           getInputProps={getInputProps}
           onRemoveFile={removeFile}
           onPreviewFile={setPreviewFile}
+          onSelectFolder={handleSelectFolder}
+          folderInputRef={folderInputRef}
+          onFolderInputChange={handleFolderInputChange}
         />
 
         <TransferSettings

@@ -14,6 +14,12 @@ import FilePreviewModal from '../components/FilePreviewModal';
 import { useThumbnail } from '../hooks/useThumbnail';
 import { useBundlePreviews } from '../components/UnifiedFileBox/useSharePreviews';
 import { pushDownload } from '../utils/recentDownloads';
+import {
+  createStructuredZip,
+  canStreamToDisk,
+  ZipFetchError,
+  ZipFileSpec,
+} from '../utils/structuredZip';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
 
@@ -59,6 +65,12 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   const [downloadAbortController, setDownloadAbortController] = useState<AbortController | null>(null);
   const [downloadAsZip, setDownloadAsZip] = useState(false);
   const lastDownloadTimeUpdateRef = useRef<number>(0);
+
+  const [zipping, setZipping] = useState(false);
+  const [zipDone, setZipDone] = useState(0);
+  const [zipTotal, setZipTotal] = useState(0);
+  const [zipError, setZipError] = useState(false);
+  const zipAbortRef = useRef<AbortController | null>(null);
 
   const [previewFile, setPreviewFile] = useState<{ fileName: string; fileSize: number; source: string; presignedUrl?: string } | null>(null);
   const [singleFilePreviewUrl, setSingleFilePreviewUrl] = useState<string | null>(null);
@@ -519,6 +531,77 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     }
   };
 
+  const handleStructuredZip = useCallback(
+    async (forceFallback = false) => {
+      if (!code || !fileList || selectedFiles.size === 0) return;
+
+      const selected = fileList.files.filter((f) => selectedFiles.has(f.id));
+      const specs: ZipFileSpec[] = selected.map((f) => {
+        const rel = (f.relative_path || '').trim();
+        return {
+          id: f.id,
+          fileName: f.file_name,
+          entryName: rel || f.file_name,
+          size: f.file_size,
+        };
+      });
+
+      const abort = new AbortController();
+      zipAbortRef.current = abort;
+
+      setZipping(true);
+      setZipError(false);
+      setZipDone(0);
+      setZipTotal(specs.length);
+
+      try {
+        const saved = await createStructuredZip({
+          specs,
+          suggestedName: `share-${code}.zip`,
+          getDownloadUrl: async (fileId) => {
+            const { download_url } = await fileAPI.getDownloadUrl(code, fileId, password || undefined);
+            return download_url;
+          },
+          onProgress: (p) => {
+            setZipDone(p.done);
+            setZipTotal(p.total);
+          },
+          signal: abort.signal,
+          preferFallback: forceFallback,
+        });
+
+        if (saved) {
+          recordDownloadRef.current();
+          toast.success(t('download.zipDownloadComplete'));
+        }
+      } catch (err: any) {
+        if (err?.name === 'AbortError' || err?.code === 'ERR_CANCELED' || abort.signal.aborted) {
+          toast.info(t('download.downloadCancelled'));
+        } else if (err instanceof ZipFetchError) {
+          setZipError(true);
+          toast.error(t('download.zipDownloadFailed'));
+        } else {
+          toast.error(translateApiError(err?.response?.data, t) || t('download.zipDownloadFailed'));
+        }
+      } finally {
+        setZipping(false);
+        zipAbortRef.current = null;
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [code, fileList, selectedFiles, password, t]
+  );
+
+  const handleCancelZip = useCallback(() => {
+    zipAbortRef.current?.abort();
+  }, []);
+
+  const handleZipFallbackToIndividual = useCallback(() => {
+    setZipError(false);
+    handleDownload(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const toggleFileSelection = (fileId: string) => {
     setSelectedFiles(prev => {
       const newSet = new Set(prev);
@@ -862,6 +945,14 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         handleCancelDownload={handleCancelDownload}
         navigate={navigate}
         previews={filePreviews}
+        zipping={zipping}
+        zipDone={zipDone}
+        zipTotal={zipTotal}
+        zipError={zipError}
+        canStreamZip={canStreamToDisk()}
+        handleStructuredZip={handleStructuredZip}
+        handleCancelZip={handleCancelZip}
+        handleZipFallbackToIndividual={handleZipFallbackToIndividual}
         t={t}
       />
       {previewFile && (

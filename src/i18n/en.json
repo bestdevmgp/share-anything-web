@@ -210,7 +210,9 @@
     "securityRequired": "Security verification required",
     "securityFailed": "Security verification failed. Please try again",
     "uploadFailed": "Upload failed",
-    "fallbackNotice": "Switched to standard transfer. Please upload your files"
+    "fallbackNotice": "Switched to standard transfer. Please upload your files",
+    "dropzoneTextFolder": "Drag files or folders here, or click to {{action}}.",
+    "selectFolder": "Select Folder"
   },
   "uploadSuccess": {
     "pageTitle": "Upload Complete",
@@ -301,7 +303,9 @@
     "multiFileDownload": "Download {{count}} files",
     "downloadAll": "Download all",
     "bulkProgress": "Downloading {{done}} / {{total}} files…",
-    "zipDownloadFailed": "ZIP creation failed"
+    "zipDownloadFailed": "ZIP creation failed",
+    "zipDownloadFolder": "Download as ZIP (keeps folders)",
+    "zipFallbackWarning": "This browser builds the ZIP in memory, so a very large folder may be slow or fail. Consider downloading files individually."
   },
   "history": {
     "pageTitle": "Upload History",

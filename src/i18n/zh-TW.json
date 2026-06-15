@@ -210,7 +210,9 @@
     "securityRequired": "需要進行安全驗證",
     "securityFailed": "安全驗證失敗，請重試",
     "uploadFailed": "上傳失敗",
-    "fallbackNotice": "已切換為一般傳輸，請上傳檔案"
+    "fallbackNotice": "已切換為一般傳輸，請上傳檔案",
+    "dropzoneTextFolder": "將檔案或資料夾拖曳至此處，或點擊以{{action}}。",
+    "selectFolder": "選擇資料夾"
   },
   "uploadSuccess": {
     "pageTitle": "上傳完成",
@@ -301,7 +303,9 @@
     "multiFileDownload": "下載 {{count}} 個檔案",
     "downloadAll": "全部下載",
     "bulkProgress": "正在接收 {{done}} / {{total}} 個檔案…",
-    "zipDownloadFailed": "ZIP 建立失敗"
+    "zipDownloadFailed": "ZIP 建立失敗",
+    "zipDownloadFolder": "下載為 ZIP（保留資料夾結構）",
+    "zipFallbackWarning": "此瀏覽器在記憶體中建立 ZIP，因此非常大的資料夾可能會很慢或失敗。建議逐個下載檔案。"
   },
   "history": {
     "pageTitle": "上傳紀錄",

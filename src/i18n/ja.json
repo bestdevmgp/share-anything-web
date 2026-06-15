@@ -210,7 +210,9 @@
     "securityRequired": "セキュリティ確認が必要です",
     "securityFailed": "セキュリティ確認に失敗しました。もう一度お試しください",
     "uploadFailed": "アップロードに失敗しました",
-    "fallbackNotice": "通常転送に切り替わりました。ファイルをアップロードしてください"
+    "fallbackNotice": "通常転送に切り替わりました。ファイルをアップロードしてください",
+    "dropzoneTextFolder": "ここにファイルやフォルダをドラッグするか、クリックして{{action}}してください。",
+    "selectFolder": "フォルダを選択"
   },
   "uploadSuccess": {
     "pageTitle": "アップロード完了",
@@ -301,7 +303,9 @@
     "multiFileDownload": "{{count}}件のファイルをダウンロード",
     "downloadAll": "全てダウンロード",
     "bulkProgress": "{{done}} / {{total}} 件受信中…",
-    "zipDownloadFailed": "ZIP作成失敗"
+    "zipDownloadFailed": "ZIP作成失敗",
+    "zipDownloadFolder": "ZIPでダウンロード（フォルダ構造を維持）",
+    "zipFallbackWarning": "このブラウザはZIPをメモリ上で作成するため、非常に大きいフォルダは遅くなったり失敗したりする場合があります。個別ダウンロードをご検討ください。"
   },
   "history": {
     "pageTitle": "アップロード履歴",

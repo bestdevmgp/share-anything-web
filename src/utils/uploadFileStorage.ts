@@ -1,3 +1,5 @@
+import { getRelativePath, setRelativePath } from './fileWithPath';
+
 const DB_NAME = 'ShareAnythingUpload';
 const STORE_NAME = 'pendingFiles';
 const DB_VERSION = 1;
@@ -29,6 +31,7 @@ export async function storeUploadFiles(files: File[]): Promise<void> {
         size: file.size,
         type: file.type,
         lastModified: file.lastModified,
+        relativePath: getRelativePath(file),
         data: await file.arrayBuffer(),
       }))
     );
@@ -68,10 +71,14 @@ export async function restoreUploadFiles(): Promise<File[]> {
 
     return items
       .sort((a, b) => a.index - b.index)
-      .map(item => new File([item.data], item.name, {
-        type: item.type,
-        lastModified: item.lastModified,
-      }));
+      .map(item => {
+        const file = new File([item.data], item.name, {
+          type: item.type,
+          lastModified: item.lastModified,
+        });
+        if (item.relativePath) setRelativePath(file, item.relativePath);
+        return file;
+      });
   } catch {
     return [];
   }
