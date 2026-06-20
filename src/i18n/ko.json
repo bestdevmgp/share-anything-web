@@ -228,7 +228,7 @@
     "uploadComplete": "업로드 완료",
     "keepPageOpen": "수신자가 연결될 때까지 이 페이지를 닫지 마세요.",
     "allFilesTransferred": "모든 파일이 성공적으로 전송되었어요.",
-    "connectedTo": "{{device}}에 연결되었어요. 파일을 보내는 중이에요.",
+    "connectedTo": "{{device}}으로 파일을 보내는 중이에요.",
     "connectedReadyToDownload": "{{device}}에 연결되었어요. 수신자가 다운로드를 시작할 수 있어요.",
     "transferringPleaseWait": "파일을 전송 중이에요. 잠시만 기다려주세요.",
     "shareCodeOrLink": "코드를 공유하거나 아래 링크를 통해 파일을 다운로드하세요.",

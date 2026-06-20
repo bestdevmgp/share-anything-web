@@ -228,7 +228,7 @@
     "uploadComplete": "上傳完成",
     "keepPageOpen": "在接收方連線前，請勿關閉此頁面。",
     "allFilesTransferred": "所有檔案已成功傳輸。",
-    "connectedTo": "已連線至 {{device}}，正在傳送檔案。",
+    "connectedTo": "正在向 {{device}} 傳送檔案。",
     "connectedReadyToDownload": "已連線至 {{device}}，接收方可開始下載。",
     "transferringPleaseWait": "正在傳輸檔案，請稍候。",
     "shareCodeOrLink": "分享代碼或透過下方連結下載檔案。",
