@@ -240,7 +240,7 @@ const CliPage: React.FC = () => {
               <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.featureInstall')}</td><td className="text-center px-4 py-3">-</td><td className="text-center px-4 py-3">{t('cli.featureRequired')}</td></tr>
               <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.featureProgress')}</td><td className="text-center px-4 py-3">-</td><td className="text-center px-4 py-3">✓</td></tr>
               <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.featurePipe')}</td><td className="text-center px-4 py-3">-</td><td className="text-center px-4 py-3">✓</td></tr>
-              <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.featureLargeFile')}</td><td className="text-center px-4 py-3">100MB</td><td className="text-center px-4 py-3">3GB</td></tr>
+              <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.featureLargeFile')}</td><td className="text-center px-4 py-3">10GB / day</td><td className="text-center px-4 py-3">1TB / day</td></tr>
               <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.featureMultipart')}</td><td className="text-center px-4 py-3">-</td><td className="text-center px-4 py-3">✓</td></tr>
               <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.featurePersonalToken')}</td><td className="text-center px-4 py-3">✓</td><td className="text-center px-4 py-3">✓</td></tr>
               <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.featureSecure')}</td><td className="text-center px-4 py-3">-</td><td className="text-center px-4 py-3">✓</td></tr>
@@ -263,7 +263,7 @@ const CliPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.limitMaxSize')}</td><td className="text-center px-4 py-3">100MB</td><td className="text-center px-4 py-3">3GB</td></tr>
+              <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.limitMaxSize')}</td><td className="text-center px-4 py-3">10GB / day</td><td className="text-center px-4 py-3">1TB / day</td></tr>
               <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.limitExpiration')}</td><td className="text-center px-4 py-3">30m</td><td className="text-center px-4 py-3">5m ~ 24h</td></tr>
               <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.limitPassword')}</td><td className="text-center px-4 py-3">-</td><td className="text-center px-4 py-3">✓</td></tr>
               <tr><td className="px-4 py-3 text-muted-foreground">{t('cli.limitOneTime')}</td><td className="text-center px-4 py-3">-</td><td className="text-center px-4 py-3">✓</td></tr>

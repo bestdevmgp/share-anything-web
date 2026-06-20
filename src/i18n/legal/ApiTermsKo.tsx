@@ -101,8 +101,8 @@ const ApiTermsKo: React.FC = () => (
                 <a href="/terms-of-use" className="underline underline-offset-2 can-hover:hover:text-gray-900 dark:can-hover:hover:text-[#EDEDED] transition-colors">ShareAnything 이용약관</a>을 참조하시기 바랍니다.
             </p>
             <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>일반 업로드 시 단일 파일의 최대 크기는 <strong>3GB</strong>입니다. P2P 보안 전송은 본 제한에 해당하지 않습니다. 초과 시 HTTP <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">413 Payload Too Large</code> 응답과 <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">file_too_large</code> 오류 코드가 반환됩니다.</li>
-                <li>API 키별로, 현재 유효기간이 남아있는 파일(만료 또는 삭제되지 않은 모든 공유)의 크기 합계는 <strong>8GB</strong>까지 허용됩니다. 초과 시 HTTP <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">429 Too Many Requests</code> 응답과 <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">storage_quota_exceeded</code> 오류 코드가 반환됩니다. 기존 공유를 삭제하거나 만료될 때까지 기다리면 그만큼의 용량이 다시 확보됩니다. 본 한도는 OpenAPI(API 키, sak_) 로 업로드된 파일에 한해 적용되며, 개인 토큰(sat_)으로 업로드된 파일에는 적용되지 않습니다.</li>
+                <li>일반 업로드에는 파일당 크기 제한이 없으며, 단일 파일은 아래의 API 키별 저장 용량 한도까지만 허용됩니다. 큰 파일은 멀티파트 업로드를 사용하세요. P2P 보안 전송은 크기 제한이 없습니다.</li>
+                <li>API 키별로, 현재 유효기간이 남아있는 파일(만료 또는 삭제되지 않은 모든 공유)의 크기 합계는 <strong>500GB</strong>까지 허용됩니다. 초과 시 HTTP <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">429 Too Many Requests</code> 응답과 <code className="bg-gray-100 dark:bg-white/10 px-1 py-0.5 rounded text-sm font-mono">storage_quota_exceeded</code> 오류 코드가 반환됩니다. 기존 공유를 삭제하거나 만료될 때까지 기다리면 그만큼의 용량이 다시 확보됩니다. 본 한도는 OpenAPI(API 키, sak_) 로 업로드된 파일에 한해 적용되며, 개인 토큰(sat_)으로 업로드된 파일에는 적용되지 않습니다.</li>
                 <li>그 외 업로드 파일의 1회 업로드 파일 수 등의 제한은 일반 이용약관의 규정을 따릅니다.</li>
                 <li>파일의 유효기간이 만료되면 자동으로 삭제되며, API를 통해 업로드된 파일에도 동일하게 적용됩니다.</li>
                 <li>서비스는 서비스 운영상 필요한 경우 이용 제한 기준을 사전 공지 후 변경할 수 있습니다.</li>
