@@ -432,7 +432,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
           isCleaningUpRef.current = true;
           if (!completedFileRef.current) {
             setStatus('cancelled');
-            toast.warning(t(message.type === 'uploader_cancelled' ? 'p2p.senderCancelled' : 'p2p.senderDisconnected'));
+            toast.warning(t('p2p.senderDisconnected'));
           }
           cleanupSession();
           break;
