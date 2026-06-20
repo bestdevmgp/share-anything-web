@@ -3,7 +3,6 @@ import {
   LockClosedIcon,
   EyeIcon,
   EyeSlashIcon,
-  XMarkIcon,
   FolderIcon,
   ChevronDownIcon,
 } from '@heroicons/react/24/outline';
@@ -253,11 +252,14 @@ const BoxDownloadView: React.FC<Props> = ({
       title = t('download.receiveCompleteTitle');
       desc = t('download.receivedSuccessfully');
     } else if (active) {
+      const connecting = p2pStatus === 'connecting';
       circle = <NeutralCircle><Spinner size="xl" /></NeutralCircle>;
-      title = p2pStatus === 'connecting' ? t('download.connectingP2P') : t('download.downloadingP2P');
-      desc = p2pPeerDeviceInfo
-        ? t('download.connectedToDevice', { device: p2pPeerDeviceInfo })
-        : t('download.receivingPleaseWait');
+      title = connecting ? t('download.connectingP2P') : t('download.receivingP2P');
+      desc = connecting
+        ? t('download.connectingToSender')
+        : p2pPeerDeviceInfo
+          ? t('download.connectedReceiving', { device: p2pPeerDeviceInfo })
+          : t('download.receivingPleaseWait');
     } else {
       circle = <GreenCircle><Check /></GreenCircle>;
       title = t('download.readyToDownload');
@@ -316,32 +318,15 @@ const BoxDownloadView: React.FC<Props> = ({
                         </div>
                       </div>
                     </div>
-                    {isActive ? (
-                      <button
-                        onClick={handleCancelP2PDownload}
-                        disabled={p2pStatus === 'processing'}
-                        className={cn(
-                          'flex-shrink-0 self-center ml-1 -mr-1 p-1 rounded-md transition-colors',
-                          p2pStatus === 'processing'
-                            ? 'text-muted-foreground/30 cursor-not-allowed'
-                            : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
-                        )}
-                        title={t('download.cancelDownload')}
-                        aria-label={t('download.cancelDownload')}
+                    {!isActive && files.length > 1 && !done && (
+                      <Button
+                        onClick={() => startP2PDownload(file.id)}
+                        disabled={active}
+                        size="sm"
+                        className="flex-shrink-0 ml-2"
                       >
-                        <XMarkIcon className="w-4 h-4" />
-                      </button>
-                    ) : (
-                      files.length > 1 && !done && (
-                        <Button
-                          onClick={() => startP2PDownload(file.id)}
-                          disabled={active}
-                          size="sm"
-                          className="flex-shrink-0 ml-2"
-                        >
-                          {t('common.download')}
-                        </Button>
-                      )
+                        {t('common.download')}
+                      </Button>
                     )}
                   </div>
                 );
@@ -354,7 +339,17 @@ const BoxDownloadView: React.FC<Props> = ({
             <Button onClick={onReset} size="lg" className="w-full">
               {t('common.done')}
             </Button>
-          ) : !active ? (
+          ) : active ? (
+            <Button
+              onClick={handleCancelP2PDownload}
+              disabled={p2pStatus === 'processing'}
+              variant="secondary"
+              size="lg"
+              className="w-full"
+            >
+              {t('download.cancelReceive')}
+            </Button>
+          ) : (
             <Button
               onClick={() => (files.length > 1 ? startBulkP2PDownload() : startP2PDownload(files[0].id))}
               size="lg"
@@ -362,7 +357,7 @@ const BoxDownloadView: React.FC<Props> = ({
             >
               <span>{files.length > 1 ? t('download.downloadAll') : t('download.downloadFile')}</span>
             </Button>
-          ) : null}
+          )}
           {!allDone && (
             <Button
               variant="ghost"
