@@ -30,6 +30,7 @@ const UnifiedFileBox: React.FC = () => {
   const [recentRefreshKey, setRecentRefreshKey] = useState(0);
   const handleRef = useRef<{ abort: () => void; cancelFile: (fileIndex: number) => void } | null>(null);
   const [downloadPrefill, setDownloadPrefill] = useState<string | null>(null);
+  const [downloadBusy, setDownloadBusy] = useState(false);
 
   const prevStateRef = useRef(state.state);
   const idleReturnFromSuccess =
@@ -239,6 +240,7 @@ const UnifiedFileBox: React.FC = () => {
   }, [state.state, state.mode, dispatch]);
 
   const tabsDisabled =
+    downloadBusy ||
     state.state === 'uploading' ||
     state.state === 'p2pCreating' ||
     state.state === 'p2pWaiting' ||
@@ -325,6 +327,7 @@ const UnifiedFileBox: React.FC = () => {
             embedded
             codeOverride={state.downloadCode}
             onReset={() => dispatch({ type: 'closeDownload' })}
+            onBusyChange={setDownloadBusy}
           />
         )}
       </div>

@@ -36,9 +36,10 @@ interface DownloadFilePageProps {
   embedded?: boolean;
   codeOverride?: string;
   onReset?: () => void;
+  onBusyChange?: (busy: boolean) => void;
 }
 
-const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverride, onReset }) => {
+const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverride, onReset, onBusyChange }) => {
   const { code: codeParam } = useParams<{ code: string }>();
   const code = codeOverride ?? codeParam;
   const { t, language } = useTranslation();
@@ -169,6 +170,19 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       });
     }
   });
+
+  // Report active-transfer state to an embedding container (e.g. the home box,
+  // which locks its Send/Receive tabs while a download is in progress).
+  const downloadBusy =
+    downloading ||
+    bulkP2PDownloading ||
+    (isP2PDownload && (p2pStatus === 'connecting' || p2pStatus === 'downloading' || p2pStatus === 'processing'));
+
+  useEffect(() => {
+    onBusyChange?.(downloadBusy);
+  }, [downloadBusy, onBusyChange]);
+
+  useEffect(() => () => { onBusyChange?.(false); }, [onBusyChange]);
 
   const startP2PDownload = useCallback((fileId: string) => {
     setP2pActiveFileId(fileId);
