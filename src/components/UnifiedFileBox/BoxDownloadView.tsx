@@ -3,6 +3,7 @@ import {
   LockClosedIcon,
   EyeIcon,
   EyeSlashIcon,
+  XMarkIcon,
   FolderIcon,
   ChevronDownIcon,
 } from '@heroicons/react/24/outline';
@@ -318,15 +319,32 @@ const BoxDownloadView: React.FC<Props> = ({
                         </div>
                       </div>
                     </div>
-                    {!isActive && files.length > 1 && !done && (
-                      <Button
-                        onClick={() => startP2PDownload(file.id)}
-                        disabled={active}
-                        size="sm"
-                        className="flex-shrink-0 ml-2"
+                    {isActive ? (
+                      <button
+                        onClick={handleCancelP2PDownload}
+                        disabled={p2pStatus === 'processing'}
+                        className={cn(
+                          'flex-shrink-0 self-center ml-1 -mr-1 p-1 rounded-md transition-colors',
+                          p2pStatus === 'processing'
+                            ? 'text-muted-foreground/30 cursor-not-allowed'
+                            : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
+                        )}
+                        title={t('download.cancelDownload')}
+                        aria-label={t('download.cancelDownload')}
                       >
-                        {t('common.download')}
-                      </Button>
+                        <XMarkIcon className="w-4 h-4" />
+                      </button>
+                    ) : (
+                      files.length > 1 && !done && (
+                        <Button
+                          onClick={() => startP2PDownload(file.id)}
+                          disabled={active}
+                          size="sm"
+                          className="flex-shrink-0 ml-2"
+                        >
+                          {t('common.download')}
+                        </Button>
+                      )
                     )}
                   </div>
                 );
