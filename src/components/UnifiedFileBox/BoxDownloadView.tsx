@@ -587,8 +587,11 @@ const BoxDownloadView: React.FC<Props> = ({
           );
         })() : (
           <Button onClick={() => handleDownload(false)} disabled={downloading} size="lg" className="w-full">
-            {downloading && <Spinner size="sm" className="text-primary-foreground" />}
-            <span>{t('download.downloadFile')}</span>
+            {downloading ? (
+              <Spinner size="sm" className="text-primary-foreground" />
+            ) : (
+              <span>{t('download.downloadFile')}</span>
+            )}
           </Button>
         )}
         <Button
