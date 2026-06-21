@@ -5,12 +5,6 @@ import { useAuth } from '../context/AuthContext';
 import { fileAPI, DailyQuotaResponse } from '../services/api';
 import { formatFileSize } from '../utils/format';
 
-/**
- * Compact daily-upload-quota meter shown at the bottom of the home page.
- * Fetches the caller's usage from GET /file/quota (guest 10GB/day per IP,
- * signed-in 1TB/day per user). Renders nothing on failure so the page is never
- * broken if the endpoint is unavailable.
- */
 const DailyUploadQuotaWidget: React.FC = () => {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
@@ -27,12 +21,10 @@ const DailyUploadQuotaWidget: React.FC = () => {
     }
   }, []);
 
-  // Refetch on mount and whenever auth state flips (login/logout changes tier).
   useEffect(() => {
     fetchQuota();
   }, [fetchQuota, isAuthenticated]);
 
-  // Refresh after an upload completes or when the tab regains focus.
   useEffect(() => {
     const refresh = () => fetchQuota();
     window.addEventListener('upload:complete', refresh);
@@ -47,10 +39,11 @@ const DailyUploadQuotaWidget: React.FC = () => {
 
   const { used_bytes, limit_bytes, remaining_bytes } = quota;
   const pct = limit_bytes > 0 ? Math.min(100, (used_bytes / limit_bytes) * 100) : 0;
+  // Warning/danger tiers use the toast colors (Toast.tsx): amber-500, then red-500.
   const barColor = pct >= 90 ? 'bg-red-500' : pct >= 70 ? 'bg-amber-500' : 'bg-primary';
 
   return (
-    <Card className="p-5">
+    <Card className="p-5 shadow-none">
       <div className="flex items-baseline justify-between gap-2 mb-3">
         <div className="flex items-baseline gap-2 min-w-0">
           <span className="text-sm font-medium text-foreground whitespace-nowrap">

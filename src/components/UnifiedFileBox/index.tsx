@@ -120,7 +120,6 @@ const UnifiedFileBox: React.FC = () => {
           pushSession(session);
           setRecentRefreshKey((k) => k + 1);
           dispatch({ type: 'completeAll', result: session });
-          // Notify the daily-quota widget to refresh its usage meter.
           window.dispatchEvent(new Event('upload:complete'));
         })
         .catch((err: any) => {
