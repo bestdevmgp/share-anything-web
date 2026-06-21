@@ -81,6 +81,13 @@
     "platform": "플랫폼",
     "downloadDate": "다운로드 날짜"
   },
+  "quota": {
+    "title": "오늘 사용량",
+    "remaining": "{{remaining}} 남음",
+    "usedOfLimit": "{{used}} / {{limit}}",
+    "resets": "한국시간 자정에 초기화",
+    "loginForMore": "로그인하면 하루 1TB까지"
+  },
   "home": {
     "uploadTitle": "파일 보내기",
     "uploadDescription": "파일을 선택하여 안전한 링크를 받으세요.",

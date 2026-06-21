@@ -312,6 +312,14 @@ export const authAPI = {
   },
 };
 
+export interface DailyQuotaResponse {
+  used_bytes: number;
+  limit_bytes: number;
+  remaining_bytes: number;
+  resets_at: string;
+  authenticated: boolean;
+}
+
 export const fileAPI = {
   upload: async (
     files: File[],
@@ -375,6 +383,11 @@ export const fileAPI = {
     };
     if (password) body.password = password;
     const response = await api.post<FileUploadResponse>('/file/p2p/create', body);
+    return response.data;
+  },
+
+  getDailyQuota: async (): Promise<DailyQuotaResponse> => {
+    const response = await api.get<DailyQuotaResponse>('/file/quota');
     return response.data;
   },
 

@@ -81,6 +81,13 @@
     "platform": "平台",
     "downloadDate": "下載日期"
   },
+  "quota": {
+    "title": "今日用量",
+    "remaining": "剩餘 {{remaining}}",
+    "usedOfLimit": "{{used}} / {{limit}}",
+    "resets": "韓國時間零點重設",
+    "loginForMore": "登入後每日 1TB"
+  },
   "home": {
     "uploadTitle": "傳送檔案",
     "uploadDescription": "選擇檔案，取得安全的分享連結。",

@@ -81,6 +81,13 @@
     "platform": "平台",
     "downloadDate": "下载日期"
   },
+  "quota": {
+    "title": "今日用量",
+    "remaining": "剩余 {{remaining}}",
+    "usedOfLimit": "{{used}} / {{limit}}",
+    "resets": "韩国时间零点重置",
+    "loginForMore": "登录后每日 1TB"
+  },
   "home": {
     "uploadTitle": "发送文件",
     "uploadDescription": "选择文件，获取安全链接。",

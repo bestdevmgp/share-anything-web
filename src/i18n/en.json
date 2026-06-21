@@ -81,6 +81,13 @@
     "platform": "Platform",
     "downloadDate": "Download Date"
   },
+  "quota": {
+    "title": "Today's usage",
+    "remaining": "{{remaining}} left",
+    "usedOfLimit": "{{used}} / {{limit}}",
+    "resets": "Resets at midnight (KST)",
+    "loginForMore": "Sign in for 1TB/day"
+  },
   "home": {
     "uploadTitle": "Send Files",
     "uploadDescription": "Select files to get a secure link.",

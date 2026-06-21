@@ -81,6 +81,13 @@
     "platform": "プラットフォーム",
     "downloadDate": "ダウンロード日時"
   },
+  "quota": {
+    "title": "本日の使用量",
+    "remaining": "残り {{remaining}}",
+    "usedOfLimit": "{{used}} / {{limit}}",
+    "resets": "韓国時間の0時にリセット",
+    "loginForMore": "ログインで1日1TBまで"
+  },
   "home": {
     "uploadTitle": "ファイルを送る",
     "uploadDescription": "ファイルを選択して安全なリンクを取得しましょう。",

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import QuickAccess from '../components/QuickAccess';
 import UnifiedFileBox from '../components/UnifiedFileBox';
+import DailyUploadQuotaWidget from '../components/DailyUploadQuotaWidget';
 
 const HomePage: React.FC = () => {
   useEffect(() => {
@@ -13,8 +14,12 @@ const HomePage: React.FC = () => {
         <UnifiedFileBox />
       </div>
 
-      <div className="max-w-5xl mx-auto px-4 pb-20">
+      <div className="max-w-5xl mx-auto px-4 pb-8">
         <QuickAccess />
+      </div>
+
+      <div className="max-w-5xl mx-auto px-4 pb-20">
+        <DailyUploadQuotaWidget />
       </div>
     </div>
   );
