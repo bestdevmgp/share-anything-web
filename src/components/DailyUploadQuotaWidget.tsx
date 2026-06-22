@@ -10,6 +10,7 @@ const DailyUploadQuotaWidget: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const [quota, setQuota] = useState<DailyQuotaResponse | null>(null);
   const [failed, setFailed] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
 
   const fetchQuota = useCallback(async () => {
     try {
@@ -35,6 +36,11 @@ const DailyUploadQuotaWidget: React.FC = () => {
     };
   }, [fetchQuota]);
 
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+
   if (failed || !quota) return null;
 
   const { used_bytes, limit_bytes, remaining_bytes } = quota;
@@ -42,14 +48,21 @@ const DailyUploadQuotaWidget: React.FC = () => {
   // Warning/danger tiers use the toast colors (Toast.tsx): amber-500, then red-500.
   const barColor = pct >= 90 ? 'bg-red-500' : pct >= 70 ? 'bg-amber-500' : 'bg-primary';
 
+  const resetMs = new Date(quota.resets_at).getTime();
+  const minutesLeft = Number.isFinite(resetMs) ? Math.max(0, Math.floor((resetMs - now) / 60000)) : 0;
+  const hoursLeft = Math.floor(minutesLeft / 60);
+  const resetText = hoursLeft > 0
+    ? t('quota.resetsInHm', { h: hoursLeft, m: minutesLeft % 60 })
+    : t('quota.resetsInM', { m: minutesLeft });
+
   return (
-    <Card className="p-5 shadow-none">
+    <Card className="p-5 shadow-none border-[3px] border-foreground/[0.09]">
       <div className="flex items-baseline justify-between gap-2 mb-3">
         <div className="flex items-baseline gap-2 min-w-0">
           <span className="text-sm font-medium text-foreground whitespace-nowrap">
             {t('quota.title')}
           </span>
-          <span className="text-xs text-muted-foreground truncate">{t('quota.resets')}</span>
+          <span className="text-xs text-muted-foreground truncate">{resetText}</span>
         </div>
         <span className="text-sm font-semibold text-foreground whitespace-nowrap">
           {t('quota.remaining', { remaining: formatFileSize(remaining_bytes) })}

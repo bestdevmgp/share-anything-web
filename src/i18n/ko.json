@@ -82,10 +82,11 @@
     "downloadDate": "다운로드 날짜"
   },
   "quota": {
-    "title": "오늘 사용량",
+    "title": "일일 사용량",
     "remaining": "{{remaining}} 남음",
     "usedOfLimit": "{{used}} / {{limit}}",
-    "resets": "한국시간 자정에 초기화",
+    "resetsInHm": "{{h}}시간 {{m}}분 후 초기화",
+    "resetsInM": "{{m}}분 후 초기화",
     "loginForMore": "로그인하면 하루 1TB까지"
   },
   "home": {

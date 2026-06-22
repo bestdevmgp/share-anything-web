@@ -82,10 +82,11 @@
     "downloadDate": "ダウンロード日時"
   },
   "quota": {
-    "title": "本日の使用量",
+    "title": "1日の使用量",
     "remaining": "残り {{remaining}}",
     "usedOfLimit": "{{used}} / {{limit}}",
-    "resets": "韓国時間の0時にリセット",
+    "resetsInHm": "{{h}}時間{{m}}分後にリセット",
+    "resetsInM": "{{m}}分後にリセット",
     "loginForMore": "ログインで1日1TBまで"
   },
   "home": {

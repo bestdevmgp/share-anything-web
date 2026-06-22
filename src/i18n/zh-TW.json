@@ -82,10 +82,11 @@
     "downloadDate": "下載日期"
   },
   "quota": {
-    "title": "今日用量",
+    "title": "每日用量",
     "remaining": "剩餘 {{remaining}}",
     "usedOfLimit": "{{used}} / {{limit}}",
-    "resets": "韓國時間零點重設",
+    "resetsInHm": "{{h}}小時{{m}}分鐘後重設",
+    "resetsInM": "{{m}}分鐘後重設",
     "loginForMore": "登入後每日 1TB"
   },
   "home": {

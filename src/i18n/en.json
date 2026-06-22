@@ -82,10 +82,11 @@
     "downloadDate": "Download Date"
   },
   "quota": {
-    "title": "Today's usage",
+    "title": "Daily usage",
     "remaining": "{{remaining}} left",
     "usedOfLimit": "{{used}} / {{limit}}",
-    "resets": "Resets at midnight (KST)",
+    "resetsInHm": "Resets in {{h}}h {{m}}m",
+    "resetsInM": "Resets in {{m}}m",
     "loginForMore": "Sign in for 1TB/day"
   },
   "home": {
