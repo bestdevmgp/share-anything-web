@@ -40,6 +40,8 @@ interface Props {
   p2pActiveFileId: string | null;
   p2pCompletedFileIds: Set<string>;
   downloading: boolean;
+  downloadProgress?: number;
+  downloadAsZip?: boolean;
   handleDownload: (asZip: boolean) => void;
   startP2PDownload: (fileId: string) => void;
   startBulkP2PDownload: () => void;
@@ -101,6 +103,8 @@ const BoxDownloadView: React.FC<Props> = ({
   p2pActiveFileId,
   p2pCompletedFileIds,
   downloading,
+  downloadProgress = 0,
+  downloadAsZip = false,
   handleDownload,
   startP2PDownload,
   startBulkP2PDownload,
@@ -414,7 +418,15 @@ const BoxDownloadView: React.FC<Props> = ({
             {downloading ? t('download.downloadingP2P') : t('download.readyToDownload')}
           </h2>
           <p className="text-sm text-muted-foreground">
-            {downloading ? t('upload.pleaseWait') : t('download.checkFileBeforeDownload')}
+            {downloading
+              ? (downloadAsZip
+                  ? (downloadProgress > 0
+                      ? t('download.zipReceiving', { percent: downloadProgress })
+                      : t('download.zipPreparing'))
+                  : (downloadProgress < 50
+                      ? t('download.preparing')
+                      : t('download.starting')))
+              : t('download.checkFileBeforeDownload')}
           </p>
         </div>
         <div className="md:flex-1 flex flex-col min-w-0">

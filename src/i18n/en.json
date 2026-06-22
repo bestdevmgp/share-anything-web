@@ -224,7 +224,8 @@
     "addFiles": "Add Files",
     "addFolder": "Add Folder",
     "emptyFolder": "This folder is empty. Choose a folder that contains files.",
-    "folderItemCount": "{{count}} files"
+    "folderItemCount": "{{count}} files",
+    "fileCountLabel": "{{count}} files"
   },
   "uploadSuccess": {
     "pageTitle": "Upload Complete",
@@ -302,6 +303,10 @@
     "expiresAt": "Expires",
     "connectingP2P": "Connecting...",
     "downloadingP2P": "Downloading...",
+    "preparing": "Preparing download...",
+    "starting": "Starting download...",
+    "zipPreparing": "Preparing zip file...",
+    "zipReceiving": "Downloading zip... ({{percent}}%)",
     "cancelDownload": "Cancel download",
     "receiveCompleteMark": "Transfer Complete",
     "startDownload": "Start Download",

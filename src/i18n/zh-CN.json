@@ -224,7 +224,8 @@
     "addFiles": "添加文件",
     "addFolder": "添加文件夹",
     "emptyFolder": "这是空文件夹。请选择包含文件的文件夹。",
-    "folderItemCount": "{{count}}个文件"
+    "folderItemCount": "{{count}}个文件",
+    "fileCountLabel": "{{count}} 个文件"
   },
   "uploadSuccess": {
     "pageTitle": "上传完成",
@@ -302,6 +303,10 @@
     "expiresAt": "过期时间",
     "connectingP2P": "连接中...",
     "downloadingP2P": "下载中...",
+    "preparing": "正在准备下载...",
+    "starting": "正在开始下载...",
+    "zipPreparing": "正在准备压缩文件...",
+    "zipReceiving": "正在接收压缩文件... ({{percent}}%)",
     "cancelDownload": "取消下载",
     "receiveCompleteMark": "接收完成",
     "startDownload": "开始下载",

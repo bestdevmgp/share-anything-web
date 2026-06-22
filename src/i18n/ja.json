@@ -224,7 +224,8 @@
     "addFiles": "ファイルを追加",
     "addFolder": "フォルダを追加",
     "emptyFolder": "空のフォルダです。ファイルが入ったフォルダを選択してください。",
-    "folderItemCount": "{{count}}個"
+    "folderItemCount": "{{count}}個",
+    "fileCountLabel": "{{count}}個のファイル"
   },
   "uploadSuccess": {
     "pageTitle": "アップロード完了",
@@ -302,6 +303,10 @@
     "expiresAt": "有効期限",
     "connectingP2P": "接続中...",
     "downloadingP2P": "ダウンロード中...",
+    "preparing": "ダウンロードを準備中...",
+    "starting": "ダウンロードを開始中...",
+    "zipPreparing": "ZIPファイルを準備中...",
+    "zipReceiving": "ZIPファイルを受信中... ({{percent}}%)",
     "cancelDownload": "ダウンロードをキャンセル",
     "receiveCompleteMark": "受信完了",
     "startDownload": "ダウンロード開始",
