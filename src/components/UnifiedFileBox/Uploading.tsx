@@ -24,8 +24,8 @@ const Uploading: React.FC<Props> = ({ items, onCancel, onCancelAll }) => {
       {multi && (
         <div className="flex items-center gap-2 pb-1">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between gap-2 mb-1">
-              <span className="text-xs whitespace-nowrap min-w-0 truncate">
+            <div className="flex items-center justify-between gap-2 mb-2 pl-1.5">
+              <span className="text-sm whitespace-nowrap min-w-0 truncate">
                 <span className="font-medium text-foreground">
                   {t('upload.fileCountLabel', { count: rows.length })}
                 </span>
@@ -33,11 +33,11 @@ const Uploading: React.FC<Props> = ({ items, onCancel, onCancelAll }) => {
               </span>
               <div className="flex items-center gap-2 flex-shrink-0">
                 {overall.timeRemaining && (
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                  <span className="text-sm text-muted-foreground whitespace-nowrap">
                     {overall.timeRemaining}
                   </span>
                 )}
-                <span className="text-xs font-semibold text-primary whitespace-nowrap">
+                <span className="text-sm font-semibold text-primary whitespace-nowrap">
                   {overall.progress}%
                 </span>
               </div>
