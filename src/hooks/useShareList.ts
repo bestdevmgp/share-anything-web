@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTranslation } from '../i18n';
 import { toast } from '../context/ToastContext';
 import { userAPI, fileAPI } from '../services/api';
-import { listSessions, removeSession, RecentSession } from '../utils/recentSessions';
+import { listSessions, removeSession, pushSession, RecentSession } from '../utils/recentSessions';
 import { groupUploads, mergeShares, MergedShare } from '../utils/shareMerge';
 import { UploadGroup } from '../types';
 
@@ -47,14 +47,29 @@ export const useShareList = (refreshKey?: number) => {
   );
 
   const requestDelete = useCallback((code: string) => {
-    setPending((prev) => new Set(prev).add(code));
+    const saved = local.find((s) => s.code === code);
 
-    const restore = () =>
+    // Hide the row and clear the local entry immediately, so the deletion
+    // sticks regardless of how the deferred server call resolves (a logout,
+    // navigation, or 401 must not leave a stale entry to resurface).
+    setPending((prev) => new Set(prev).add(code));
+    removeSession(code);
+    setLocal((prev) => prev.filter((s) => s.code !== code));
+
+    const unpend = () =>
       setPending((prev) => {
         const next = new Set(prev);
         next.delete(code);
         return next;
       });
+
+    const restore = () => {
+      unpend();
+      if (saved) {
+        pushSession(saved);
+        setLocal((prev) => (prev.some((s) => s.code === code) ? prev : [saved, ...prev]));
+      }
+    };
 
     const commit = async () => {
       try {
@@ -67,10 +82,8 @@ export const useShareList = (refreshKey?: number) => {
           return;
         }
       }
-      removeSession(code);
-      setLocal((prev) => prev.filter((s) => s.code !== code));
       setServerGroups((prev) => prev.filter((g) => g.shareCode !== code));
-      restore();
+      unpend();
     };
 
     toast.action(t('common.deleted'), {
@@ -79,7 +92,7 @@ export const useShareList = (refreshKey?: number) => {
       onAction: restore,
       onAutoClose: commit,
     });
-  }, [t]);
+  }, [t, local]);
 
   return { items, loading, refresh: load, requestDelete };
 };

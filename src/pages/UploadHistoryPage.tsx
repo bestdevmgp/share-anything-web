@@ -36,7 +36,7 @@ import HistoryTable from './history/HistoryTable';
 import HistoryMobileCards from './history/HistoryMobileCards';
 import HistoryPagination from './history/HistoryPagination';
 import { groupUploads, localOnlyGroups } from '../utils/shareMerge';
-import { listSessions, removeSession, clearSessions } from '../utils/recentSessions';
+import { listSessions, removeSession, pushSession, clearSessions } from '../utils/recentSessions';
 
 const PRESIGNED_URL_MAX_AGE_MS = 50 * 60 * 1000;
 
@@ -312,15 +312,25 @@ const UploadHistoryPage: React.FC = () => {
 
   const handleDeleteGroup = (shareCode: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    const saved = listSessions().find((s) => s.code === shareCode);
+
+    // Clear the local entry immediately so the deletion sticks even if the
+    // deferred server call is interrupted (logout, navigation, 401).
     setPendingDeleted((prev) => new Set(prev).add(shareCode));
     if (expandedRow === shareCode) setExpandedRow(null);
+    removeSession(shareCode);
 
-    const restore = () =>
+    const unpend = () =>
       setPendingDeleted((prev) => {
         const next = new Set(prev);
         next.delete(shareCode);
         return next;
       });
+
+    const restore = () => {
+      unpend();
+      if (saved) pushSession(saved);
+    };
 
     const commit = async () => {
       try {
@@ -333,9 +343,8 @@ const UploadHistoryPage: React.FC = () => {
           return;
         }
       }
-      removeSession(shareCode);
       setUploads((prev) => prev.filter((u) => u.share_code !== shareCode));
-      restore();
+      unpend();
     };
 
     toast.action(t('common.deleted'), {
