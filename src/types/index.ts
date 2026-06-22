@@ -40,6 +40,7 @@ export interface FileInfo {
   file_name: string;
   file_size: number;
   file_type: string;
+  relative_path?: string;
   transfer_type: 'server' | 'p2p';
   description?: string;
   has_password: boolean;

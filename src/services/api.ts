@@ -378,7 +378,7 @@ export const fileAPI = {
   },
 
   createP2PSession: async (
-    files: { name: string; size: number; type: string }[],
+    files: { name: string; size: number; type: string; relative_path?: string }[],
     password?: string
   ): Promise<FileUploadResponse> => {
     const body: Record<string, unknown> = {

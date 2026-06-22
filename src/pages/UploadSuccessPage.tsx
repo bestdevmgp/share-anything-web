@@ -7,6 +7,7 @@ import { CheckIcon, ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/
 import PauseBarsIcon from '../components/PauseBarsIcon';
 import CopyButton from '../components/CopyButton';
 import { useP2PUploader } from '../hooks/useP2PUploader';
+import { fileKey } from '../utils/fileWithPath';
 import FileThumbnail from '../components/FileThumbnail';
 import FilePreviewModal from '../components/FilePreviewModal';
 import TruncatedFilename from '../components/TruncatedFilename';
@@ -87,12 +88,12 @@ const UploadSuccessPage: React.FC = () => {
     : groupShareCode;
 
   const allFilesCompleted = isP2PTransfer && files.every(file => {
-    const progress = fileProgresses.get(file.name);
+    const progress = fileProgresses.get(fileKey(file));
     return progress?.status === 'completed';
   });
 
   const anyFileTransferring = isP2PTransfer && files.some(file => {
-    const progress = fileProgresses.get(file.name);
+    const progress = fileProgresses.get(fileKey(file));
     return progress?.status === 'transferring';
   });
 
@@ -237,7 +238,7 @@ const UploadSuccessPage: React.FC = () => {
               {files.length === 1 ? (
                 (() => {
                   const file = files[0];
-                  const progress = fileProgresses.get(file.name);
+                  const progress = fileProgresses.get(fileKey(file));
                   const isTransferring = progress?.status === 'transferring';
                   const isCompleted = progress?.status === 'completed';
 
@@ -304,7 +305,7 @@ const UploadSuccessPage: React.FC = () => {
                               </div>
                             </div>
                             <button
-                              onClick={() => cancelTransfer(file.name)}
+                              onClick={() => cancelTransfer(fileKey(file))}
                               className="flex-shrink-0 self-center ml-1 -mr-1 p-1 rounded-md transition-colors can-hover:hover:bg-accent active:bg-accent"
                               title={t('uploadSuccess.cancelTransfer')}
                               aria-label={t('uploadSuccess.cancelTransfer')}
@@ -346,13 +347,13 @@ const UploadSuccessPage: React.FC = () => {
                   </label>
                   <div className="space-y-3">
                     {files.map((file) => {
-                      const progress = fileProgresses.get(file.name);
+                      const progress = fileProgresses.get(fileKey(file));
                       const isTransferring = progress?.status === 'transferring';
                       const isCompleted = progress?.status === 'completed';
 
                       return (
                         <div
-                          key={file.name}
+                          key={fileKey(file)}
                           className={cn(
                             'px-4 py-2 rounded-lg border transition-all',
                             isTransferring ? 'bg-muted border-primary' :
@@ -402,7 +403,7 @@ const UploadSuccessPage: React.FC = () => {
                               <span className="flex-shrink-0 self-center ml-3 text-sm text-green-600 font-medium whitespace-nowrap">{t('uploadSuccess.completed')}</span>
                             ) : isTransferring ? (
                               <button
-                                onClick={(e) => { e.stopPropagation(); cancelTransfer(file.name); }}
+                                onClick={(e) => { e.stopPropagation(); cancelTransfer(fileKey(file)); }}
                                 className="flex-shrink-0 self-center ml-1 -mr-2 p-1 rounded-md transition-colors can-hover:hover:bg-accent active:bg-accent"
                                 title={t('uploadSuccess.cancelTransfer')}
                                 aria-label={t('uploadSuccess.cancelTransfer')}

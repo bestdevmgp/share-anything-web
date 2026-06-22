@@ -1,5 +1,6 @@
 import { useReducer } from 'react';
 import { RecentSession } from '../../utils/recentSessions';
+import { fileKey } from '../../utils/fileWithPath';
 
 export type Mode = 'upload' | 'download';
 export type BoxState =
@@ -110,7 +111,7 @@ export const reducer = (s: State, a: Action): State => {
     case 'closeDownload':
       return { ...s, state: 'idleDownload', downloadCode: null };
     case 'p2pRemoveFile':
-      return { ...s, files: s.files.filter((f) => f.name !== a.fileName) };
+      return { ...s, files: s.files.filter((f) => fileKey(f) !== a.fileName) };
     case 'p2pSessionCreated':
       if (s.state !== 'p2pCreating') return s;
       return {

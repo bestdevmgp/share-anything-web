@@ -8,6 +8,7 @@ import FileThumbnail from '../FileThumbnail';
 import TruncatedFilename from '../TruncatedFilename';
 import ScrollableFileList from './ScrollableFileList';
 import { FileProgress } from '../../hooks/useP2PUploader';
+import { fileKey } from '../../utils/fileWithPath';
 import { formatFileSize } from '../../utils/format';
 import { cn } from '../../lib/utils';
 
@@ -37,9 +38,9 @@ const P2PActiveStage: React.FC<Props> = ({
   const { t } = useTranslation();
 
   const allFilesCompleted =
-    files.length > 0 && files.every((f) => fileProgresses.get(f.name)?.status === 'completed');
+    files.length > 0 && files.every((f) => fileProgresses.get(fileKey(f))?.status === 'completed');
   const anyFileTransferring = files.some(
-    (f) => fileProgresses.get(f.name)?.status === 'transferring'
+    (f) => fileProgresses.get(fileKey(f))?.status === 'transferring'
   );
 
   const overall =
@@ -142,13 +143,13 @@ const P2PActiveStage: React.FC<Props> = ({
           </p>
           <ScrollableFileList count={files.length}>
             {files.map((file) => {
-              const progress = fileProgresses.get(file.name);
+              const progress = fileProgresses.get(fileKey(file));
               const pct = progress?.progress ?? 0;
               const st = progress?.status ?? 'waiting';
               const isTransferring = st === 'transferring';
               return (
                 <div
-                  key={file.name}
+                  key={fileKey(file)}
                   className="flex items-center px-3 py-2 bg-muted rounded-lg border border-foreground/[0.09]"
                 >
                   <div className="flex-shrink-0 mr-3">
@@ -184,7 +185,7 @@ const P2PActiveStage: React.FC<Props> = ({
                   </div>
                   {!isDone && (isTransferring || st === 'waiting') ? (
                     <button
-                      onClick={() => onCancelFile(file.name)}
+                      onClick={() => onCancelFile(fileKey(file))}
                       className="flex-shrink-0 self-center ml-1 -mr-1 p-1 rounded-md transition-colors text-muted-foreground can-hover:hover:bg-accent active:bg-accent"
                       title={t('common.cancel')}
                       aria-label={t('common.cancel')}

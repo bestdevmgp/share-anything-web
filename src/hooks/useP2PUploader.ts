@@ -3,6 +3,7 @@ import { SignalingMessage } from '../types';
 import { createWebSocketConnection, createPeerConnection, generatePeerId, sendSignalingMessage } from '../utils/webrtc';
 import { toast } from '../context/ToastContext';
 import { getDeviceInfo } from '../utils/format';
+import { fileKey } from '../utils/fileWithPath';
 import { useTranslation, translateSignalingError } from '../i18n';
 
 export interface FileProgress {
@@ -61,7 +62,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     setFileProgresses(prev => {
       const next = new Map<string, FileProgress>();
       files.forEach(file => {
-        next.set(file.name, prev.get(file.name) ?? {
+        next.set(fileKey(file), prev.get(fileKey(file)) ?? {
           fileName: file.name,
           progress: 0,
           status: 'waiting',
@@ -96,9 +97,9 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       isTransferringRef.current = false;
       setFileProgresses(prev => {
         const newMap = new Map(prev);
-        const fileProgress = newMap.get(file.name);
+        const fileProgress = newMap.get(fileKey(file));
         if (fileProgress) {
-          newMap.set(file.name, {
+          newMap.set(fileKey(file), {
             ...fileProgress,
             progress: 100,
             status: 'completed',
@@ -192,9 +193,9 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
 
           setFileProgresses(prev => {
             const newMap = new Map(prev);
-            const fileProgress = newMap.get(file.name);
+            const fileProgress = newMap.get(fileKey(file));
             if (fileProgress) {
-              newMap.set(file.name, {
+              newMap.set(fileKey(file), {
                 ...fileProgress,
                 progress: Math.round(progressPercent),
                 status: 'transferring',
@@ -237,7 +238,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
   }, [shareCode, formatTime]);
 
   const sendOnExistingChannel = useCallback((requestedFileName: string) => {
-    const file = filesRef.current.find(f => f.name === requestedFileName);
+    const file = filesRef.current.find(f => fileKey(f) === requestedFileName);
     if (!file) {
       console.error('[useP2PUploader] Requested file not found:', requestedFileName);
       toast.error(t('p2p.fileNotFound'));
@@ -249,13 +250,13 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       return;
     }
 
-    setCurrentFileName(requestedFileName);
+    setCurrentFileName(fileKey(file));
     isTransferringRef.current = true;
     setFileProgresses(prev => {
       const newMap = new Map(prev);
-      const fileProgress = newMap.get(requestedFileName);
+      const fileProgress = newMap.get(file.name);
       if (fileProgress) {
-        newMap.set(requestedFileName, {
+        newMap.set(file.name, {
           ...fileProgress,
           progress: 0,
           status: 'transferring',
@@ -277,21 +278,21 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
   }, [sendFile, t]);
 
   const setupPeerConnection = useCallback(async (requestedFileName: string) => {
-    const file = filesRef.current.find(f => f.name === requestedFileName);
+    const file = filesRef.current.find(f => fileKey(f) === requestedFileName);
     if (!file) {
       console.error('[useP2PUploader] Requested file not found:', requestedFileName);
       toast.error(t('p2p.fileNotFound'));
       return null;
     }
 
-    setCurrentFileName(requestedFileName);
+    setCurrentFileName(fileKey(file));
     isTransferringRef.current = true;
 
     setFileProgresses(prev => {
       const newMap = new Map(prev);
-      const fileProgress = newMap.get(requestedFileName);
+      const fileProgress = newMap.get(file.name);
       if (fileProgress) {
-        newMap.set(requestedFileName, {
+        newMap.set(file.name, {
           ...fileProgress,
           progress: 0,
           status: 'transferring',
@@ -451,7 +452,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
           }
 
           {
-            const fileName = message.file_name || (files.length === 1 ? files[0]?.name : undefined);
+            const fileName = message.file_name || (files.length === 1 && files[0] ? fileKey(files[0]) : undefined);
             if (fileName) {
               const pc = await setupPeerConnection(fileName);
               if (pc) {
@@ -506,7 +507,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
         case 'downloader_offline': {
           const allDone =
             filesRef.current.length > 0 &&
-            filesRef.current.every(f => fileProgressesRef.current.get(f.name)?.status === 'completed');
+            filesRef.current.every(f => fileProgressesRef.current.get(fileKey(f))?.status === 'completed');
           if (allDone) {
             setStatus('completed');
             break;
@@ -538,7 +539,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
         case 'downloader_paused': {
           const allDone =
             filesRef.current.length > 0 &&
-            filesRef.current.every(f => fileProgressesRef.current.get(f.name)?.status === 'completed');
+            filesRef.current.every(f => fileProgressesRef.current.get(fileKey(f))?.status === 'completed');
           if (allDone) {
             setStatus('completed');
             break;

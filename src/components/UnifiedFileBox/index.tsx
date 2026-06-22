@@ -4,6 +4,7 @@ import { useTranslation } from '../../i18n';
 import { useMultipartUpload, UploadProgressEvent } from '../../hooks/useMultipartUpload';
 import { useP2PUploader } from '../../hooks/useP2PUploader';
 import { pushSession } from '../../utils/recentSessions';
+import { getRelativePathSafe, fileKey } from '../../utils/fileWithPath';
 import { useUnifiedFileBoxState } from './useUnifiedFileBoxState';
 import ModeHeader from './ModeHeader';
 import IdleUpload from './IdleUpload';
@@ -141,6 +142,7 @@ const UnifiedFileBox: React.FC = () => {
           name: f.name,
           size: f.size,
           type: f.type || 'application/octet-stream',
+          relative_path: getRelativePathSafe(f),
         }));
         const res = await fileAPI.createP2PSession(fileInfo);
         const expiresAt =
@@ -303,14 +305,14 @@ const UnifiedFileBox: React.FC = () => {
               peerDeviceInfo={p2p.peerDeviceInfo}
               completed={state.state === 'p2pCompleted'}
               onCancel={onP2PCancel}
-              onCancelFile={(name) => {
-                const remaining = state.files.filter((f) => f.name !== name);
+              onCancelFile={(key) => {
+                const remaining = state.files.filter((f) => fileKey(f) !== key);
                 if (remaining.length === 0) {
                   onP2PCancel();
                   return;
                 }
-                p2p.removeFile(name);
-                dispatch({ type: 'p2pRemoveFile', fileName: name });
+                p2p.removeFile(key);
+                dispatch({ type: 'p2pRemoveFile', fileName: key });
               }}
               onNew={() => dispatch({ type: 'p2pNewTransfer' })}
             />

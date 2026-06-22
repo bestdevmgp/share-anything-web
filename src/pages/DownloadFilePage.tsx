@@ -16,6 +16,7 @@ import { useBundlePreviews } from '../components/UnifiedFileBox/useSharePreviews
 import { pushDownload } from '../utils/recentDownloads';
 import {
   createStructuredZip,
+  createZipFromBlobs,
   canStreamToDisk,
   ZipFetchError,
   ZipFileSpec,
@@ -86,6 +87,8 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   const [bulkRemaining, setBulkRemaining] = useState(0);
   const bulkQueueRef = useRef<string[]>([]);
   const bulkTotalRef = useRef<number>(0);
+  // For P2P folder shares, accumulate received blobs and emit one structured ZIP.
+  const bulkBlobsRef = useRef<{ entryName: string; blob: Blob }[]>([]);
 
   const recordDownloadRef = useRef<() => void>(() => {});
   recordDownloadRef.current = () => {
@@ -103,7 +106,21 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
 
   const handleP2PDownloadComplete = useCallback((blob: Blob, fileName: string) => {
     const completedId = p2pActiveFileId || '';
-    downloadFile(blob, fileName);
+    const completedFile = fileList?.files.find((f) => f.id === completedId);
+    // Folder share received in bulk: collect blobs into one structured ZIP
+    // (folders preserved). Otherwise save the file flat.
+    const zipMode =
+      bulkP2PDownloading &&
+      (fileList?.files ?? []).some((f) => (f.relative_path || '').includes('/'));
+
+    if (zipMode) {
+      bulkBlobsRef.current.push({
+        entryName: completedFile?.relative_path || completedFile?.file_name || fileName,
+        blob,
+      });
+    } else {
+      downloadFile(blob, fileName);
+    }
     setP2pCompletedFileIds(prev => new Set(prev).add(completedId));
     recordDownloadRef.current();
 
@@ -116,14 +133,22 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       } else {
         setBulkP2PDownloading(false);
         bulkTotalRef.current = 0;
-        toast.success(t('download.downloadComplete'));
+        if (zipMode) {
+          const collected = bulkBlobsRef.current;
+          bulkBlobsRef.current = [];
+          createZipFromBlobs(collected, `share-${code}.zip`)
+            .then(() => toast.success(t('download.zipDownloadComplete')))
+            .catch(() => toast.error(t('download.downloadFailed')));
+        } else {
+          toast.success(t('download.downloadComplete'));
+        }
       }
       return;
     }
 
     toast.success(t('download.downloadComplete'));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [p2pActiveFileId, bulkP2PDownloading]);
+  }, [p2pActiveFileId, bulkP2PDownloading, fileList, code, t]);
 
   const singleFile = fileList?.files?.length === 1 ? fileList.files[0] : null;
   const singleFileThumbnail = useThumbnail(
@@ -146,6 +171,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       file_name: p2pActiveFile.file_name,
       file_size: p2pActiveFile.file_size,
       file_type: p2pActiveFile.file_type,
+      relative_path: p2pActiveFile.relative_path,
       transfer_type: fileList?.transfer_type || 'server',
       has_password: fileList?.has_password || false,
       expires_at: fileList?.expires_at || '',
@@ -162,12 +188,20 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     },
     enabled: p2pEnabled && !!p2pActiveFile,
     onComplete: (blob) => handleP2PDownloadComplete(blob, p2pActiveFile?.file_name || 'file'),
-    onPeerFileRemoved: (fileName) => {
+    onPeerFileRemoved: (removedKey) => {
+      // The sender identifies the removed file by its path key (relative_path ||
+      // file_name); match the same way so a same-leaf sibling isn't also dropped.
+      const removed = fileList?.files.find((f) => (f.relative_path || f.file_name) === removedKey);
       setFileList((prev) => {
         if (!prev) return prev;
-        const files = prev.files.filter((f) => f.file_name !== fileName);
+        const files = prev.files.filter((f) => (f.relative_path || f.file_name) !== removedKey);
         return { ...prev, files, total_count: files.length };
       });
+      // Drop it from an in-flight bulk queue so the run can't stall on a gone id.
+      if (removed && bulkQueueRef.current.includes(removed.id)) {
+        bulkQueueRef.current = bulkQueueRef.current.filter((id) => id !== removed.id);
+        setBulkRemaining(bulkQueueRef.current.length);
+      }
     }
   });
 
@@ -196,6 +230,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     if (bulkP2PDownloading) {
       bulkQueueRef.current = [];
       bulkTotalRef.current = 0;
+      bulkBlobsRef.current = [];
       setBulkRemaining(0);
       setBulkP2PDownloading(false);
     }
@@ -207,6 +242,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     const ids = fileList.files.map(f => f.id);
     bulkQueueRef.current = [...ids];
     bulkTotalRef.current = ids.length;
+    bulkBlobsRef.current = [];
     setBulkRemaining(ids.length);
     setP2pCompletedFileIds(new Set());
     setBulkP2PDownloading(true);

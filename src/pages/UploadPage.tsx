@@ -259,7 +259,8 @@ const UploadPage: React.FC = () => {
           files.map(file => ({
             name: file.name,
             size: file.size,
-            type: file.type || 'application/octet-stream'
+            type: file.type || 'application/octet-stream',
+            relative_path: getRelativePathSafe(file)
           })),
           isAuthenticated && password ? password : undefined
         );

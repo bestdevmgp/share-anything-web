@@ -9,11 +9,20 @@ import {
 } from '@heroicons/react/24/outline';
 import { FileListResponse } from '../../types';
 import { formatFileSize } from '../../utils/format';
-import { sanitizeRelativePath } from '../../utils/folderPath';
+import {
+  buildFileTree,
+  collectFileIds,
+  nodeSize,
+  nodeFileCount,
+  countVisibleRows,
+  ancestorPaths,
+  hasFolders as treeHasFolders,
+} from '../../utils/fileTree';
 import FileThumbnail from '../FileThumbnail';
 import TruncatedFilename from '../TruncatedFilename';
 import ScrollableFileList from './ScrollableFileList';
 import AnimatedHeight from './AnimatedHeight';
+import FolderTreeRows, { treeIndent } from './FolderTreeRows';
 import StatusIcon from '../StatusIcon';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -131,34 +140,26 @@ const BoxDownloadView: React.FC<Props> = ({
       return next;
     });
 
-  const { folders, looseFiles } = useMemo(() => {
-    const folders = new Map<string, { id: string; name: string; size: number; sub: string }[]>();
-    const looseFiles: FileListResponse['files'] = [];
-    (fileList?.files ?? []).forEach((f) => {
-      const rel = sanitizeRelativePath(f.relative_path || '');
-      const slash = rel.indexOf('/');
-      if (slash === -1) {
-        looseFiles.push(f);
-      } else {
-        const top = rel.slice(0, slash);
-        const arr = folders.get(top) ?? [];
-        arr.push({ id: f.id, name: f.file_name, size: f.file_size, sub: rel.slice(slash + 1) });
-        folders.set(top, arr);
-      }
+  const tree = useMemo(() => buildFileTree(fileList?.files ?? []), [fileList?.files]);
+  const hasFolders = treeHasFolders(tree);
+
+  // Rows that drive the box-height cap: every folder row counts; its descendants
+  // only while it (and its ancestors) are expanded.
+  const effectiveRowCount = countVisibleRows(tree, (path) => openFolders.has(path));
+
+  // During a P2P receive, auto-expand every folder on the way to the active file
+  // so its progress is visible.
+  useEffect(() => {
+    if (!p2pActiveFileId) return;
+    const paths = ancestorPaths(tree, p2pActiveFileId);
+    if (!paths || paths.length === 0) return;
+    setOpenFolders((prev) => {
+      if (paths.every((p) => prev.has(p))) return prev;
+      const next = new Set(prev);
+      paths.forEach((p) => next.add(p));
+      return next;
     });
-    return { folders, looseFiles };
-  }, [fileList?.files]);
-
-  const hasFolders = folders.size > 0;
-
-  // Rows that drive the box-height cap: a collapsed folder is one row; an
-  // expanded folder counts its inner files too (treated as file rows).
-  const effectiveRowCount =
-    looseFiles.length +
-    Array.from(folders.entries()).reduce(
-      (sum, [name, items]) => sum + 1 + (openFolders.has(name) ? items.length : 0),
-      0
-    );
+  }, [p2pActiveFileId, tree]);
 
   useEffect(() => {
     if (!showError) return;
@@ -281,6 +282,69 @@ const BoxDownloadView: React.FC<Props> = ({
       desc = t('download.checkFileBeforeDownload');
     }
 
+    const p2pRowContent = (fileId: string, fileName: string, fileSize: number) => {
+      const done = p2pCompletedFileIds.has(fileId);
+      const isActive = p2pActiveFileId === fileId && active;
+      return (
+        <>
+          {done && (
+            <div className="flex-shrink-0 mr-3">
+              <FileThumbnail source={previews?.[fileId] ?? null} fileName={fileName} size="sm" />
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <div className={cn('transition-transform duration-300 ease-out', !isActive && 'translate-y-[7px]')}>
+              <TruncatedFilename name={fileName} className="text-sm font-medium text-foreground" />
+              <div className="flex items-center justify-between gap-2 mt-0.5 leading-none">
+                {done ? (
+                  <span className="text-xs text-muted-foreground">{t('uploadSuccess.completed')}</span>
+                ) : (
+                  <>
+                    <span className="text-xs text-muted-foreground whitespace-nowrap">{formatFileSize(fileSize)}</span>
+                    <div className="flex items-center gap-2">
+                      {isActive && (
+                        <>
+                          {p2pTimeRemaining && <span className="text-xs text-muted-foreground whitespace-nowrap">{p2pTimeRemaining}</span>}
+                          <span className="text-xs font-semibold text-primary whitespace-nowrap">{p2pProgress}%</span>
+                        </>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+            <div className="mt-2 h-1.5">
+              <div className={cn('w-full h-full bg-secondary rounded-full overflow-hidden transition-opacity duration-300', isActive ? 'opacity-100' : 'opacity-0')}>
+                <div className="bg-primary h-full transition-all duration-1000 ease-out rounded-full" style={{ width: `${p2pProgress}%` }} />
+              </div>
+            </div>
+          </div>
+          {isActive ? (
+            <button
+              onClick={handleCancelP2PDownload}
+              disabled={p2pStatus === 'processing'}
+              className={cn(
+                'flex-shrink-0 self-center ml-1 -mr-1 p-1 rounded-md transition-colors',
+                p2pStatus === 'processing'
+                  ? 'text-muted-foreground/30 cursor-not-allowed'
+                  : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
+              )}
+              title={t('download.cancelDownload')}
+              aria-label={t('download.cancelDownload')}
+            >
+              <XMarkIcon className="w-4 h-4" />
+            </button>
+          ) : (
+            files.length > 1 && !done && (
+              <Button onClick={() => startP2PDownload(fileId)} disabled={active} size="sm" className="flex-shrink-0 ml-2">
+                {t('common.download')}
+              </Button>
+            )
+          )}
+        </>
+      );
+    };
+
     return wrap(
       <>
         <div className="flex-1 flex flex-col justify-center md:flex-row md:items-stretch gap-6 md:gap-8 min-h-0">
@@ -289,80 +353,72 @@ const BoxDownloadView: React.FC<Props> = ({
             <h2 className="text-2xl font-bold text-foreground mb-1.5">{title}</h2>
             <p className="text-sm text-muted-foreground">{desc}</p>
           </div>
-          <div className="md:flex-1 flex flex-col min-w-0">
+          <div className="md:flex-1 flex flex-col min-w-0" style={{ containerType: 'inline-size' }}>
             {fileListHeader}
-            <ScrollableFileList count={files.length}>
-              {files.map((file) => {
-                const done = p2pCompletedFileIds.has(file.id);
-                const isActive = p2pActiveFileId === file.id && active;
-                return (
-                  <div
-                    key={file.id}
-                    className="flex items-center px-3 py-2 bg-muted rounded-lg border border-foreground/[0.09]"
-                  >
-                    {done && (
-                      <div className="flex-shrink-0 mr-3">
-                        <FileThumbnail source={previews?.[file.id] ?? null} fileName={file.file_name} size="sm" />
+            <ScrollableFileList
+              count={hasFolders ? effectiveRowCount : files.length}
+              recomputeKey={hasFolders ? Array.from(openFolders).sort().join('|') : undefined}
+            >
+              {hasFolders ? (
+                tree.map((node) => {
+                  if (node.kind === 'file') {
+                    return (
+                      <div key={node.id} data-row className="flex items-center px-3 py-2 bg-muted rounded-lg border border-foreground/[0.09]">
+                        {p2pRowContent(node.id, node.name, node.size)}
                       </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      {/* text slides up as the bar fades in; bar slot is always reserved so row height never changes */}
-                      <div className={cn('transition-transform duration-300 ease-out', !isActive && 'translate-y-[7px]')}>
-                        <TruncatedFilename name={file.file_name} className="text-sm font-medium text-foreground" />
-                        <div className="flex items-center justify-between gap-2 mt-0.5 leading-none">
-                          {done ? (
-                            <span className="text-xs text-muted-foreground">{t('uploadSuccess.completed')}</span>
-                          ) : (
-                            <>
-                              <span className="text-xs text-muted-foreground whitespace-nowrap">{formatFileSize(file.file_size)}</span>
-                              <div className="flex items-center gap-2">
-                                {isActive && (
-                                  <>
-                                    {p2pTimeRemaining && <span className="text-xs text-muted-foreground whitespace-nowrap">{p2pTimeRemaining}</span>}
-                                    <span className="text-xs font-semibold text-primary whitespace-nowrap">{p2pProgress}%</span>
-                                  </>
-                                )}
-                              </div>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                      <div className="mt-2 h-1.5">
-                        <div className={cn('w-full h-full bg-secondary rounded-full overflow-hidden transition-opacity duration-300', isActive ? 'opacity-100' : 'opacity-0')}>
-                          <div className="bg-primary h-full transition-all duration-1000 ease-out rounded-full" style={{ width: `${p2pProgress}%` }} />
-                        </div>
-                      </div>
-                    </div>
-                    {isActive ? (
-                      <button
-                        onClick={handleCancelP2PDownload}
-                        disabled={p2pStatus === 'processing'}
-                        className={cn(
-                          'flex-shrink-0 self-center ml-1 -mr-1 p-1 rounded-md transition-colors',
-                          p2pStatus === 'processing'
-                            ? 'text-muted-foreground/30 cursor-not-allowed'
-                            : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
-                        )}
-                        title={t('download.cancelDownload')}
-                        aria-label={t('download.cancelDownload')}
+                    );
+                  }
+                  const isOpen = openFolders.has(node.path);
+                  return (
+                    <div key={`folder:${node.path}`} className="bg-muted rounded-lg border border-foreground/[0.09] overflow-hidden">
+                      <div
+                        data-row
+                        onClick={() => toggleFolder(node.path)}
+                        className="flex items-center px-3 py-3 cursor-pointer can-hover:hover:bg-accent active:bg-accent transition-colors"
                       >
-                        <XMarkIcon className="w-4 h-4" />
-                      </button>
-                    ) : (
-                      files.length > 1 && !done && (
-                        <Button
-                          onClick={() => startP2PDownload(file.id)}
-                          disabled={active}
-                          size="sm"
-                          className="flex-shrink-0 ml-2"
-                        >
-                          {t('common.download')}
-                        </Button>
-                      )
-                    )}
+                        <div className="flex-shrink-0 mr-3">
+                          <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
+                            <FolderIcon className="w-6 h-6 text-muted-foreground" />
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">{node.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {t('upload.folderItemCount', { count: nodeFileCount(node) })} · {formatFileSize(nodeSize(node))}
+                          </p>
+                        </div>
+                        <ChevronDownIcon className={cn('w-5 h-5 text-muted-foreground/60 transition-transform flex-shrink-0', isOpen && 'rotate-180')} />
+                      </div>
+                      <AnimatedHeight>
+                        {isOpen && (
+                          <div className="px-3 pb-3">
+                            <div className="border-t border-foreground/[0.08] pt-2.5 space-y-1">
+                              <FolderTreeRows
+                                nodes={node.children}
+                                depth={1}
+                                openFolders={openFolders}
+                                toggleFolder={toggleFolder}
+                                t={t}
+                                renderFile={(file, depth) => (
+                                  <div data-row className="flex items-center py-1.5" style={{ paddingLeft: treeIndent(depth) }}>
+                                    {p2pRowContent(file.id, file.name, file.size)}
+                                  </div>
+                                )}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </AnimatedHeight>
+                    </div>
+                  );
+                })
+              ) : (
+                files.map((file) => (
+                  <div key={file.id} data-row className="flex items-center px-3 py-2 bg-muted rounded-lg border border-foreground/[0.09]">
+                    {p2pRowContent(file.id, file.file_name, file.file_size)}
                   </div>
-                );
-              })}
+                ))
+              )}
             </ScrollableFileList>
           </div>
         </div>
@@ -452,14 +508,47 @@ const BoxDownloadView: React.FC<Props> = ({
           >
             {hasFolders ? (
               <>
-                {Array.from(folders.entries()).map(([folderName, items]) => {
-                  const ids = items.map((it) => it.id);
-                  const allSelected = ids.every((id) => selectedFiles.has(id));
-                  const folderSize = items.reduce((s, it) => s + it.size, 0);
-                  const isOpen = openFolders.has(folderName);
+                {tree.map((node) => {
+                  if (node.kind === 'file') {
+                    const selected = selectedFiles.has(node.id);
+                    return (
+                      <div
+                        key={node.id}
+                        data-row
+                        onClick={() => toggleFileSelection(node.id)}
+                        className={cn(
+                          'flex items-center px-3 py-3 bg-muted rounded-lg border border-foreground/[0.09] cursor-pointer transition-opacity',
+                          !selected && 'opacity-50'
+                        )}
+                      >
+                        <Checkbox checked={selected} className="h-5 w-5 rounded-md border-2 flex-shrink-0 mr-3" />
+                        {previews?.[node.id] ? (
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); openPreview(node.name, node.size, node.id, previews[node.id]); }}
+                            className="flex-shrink-0 mr-3 rounded-lg overflow-hidden transition-transform can-hover:hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                            aria-label={node.name}
+                          >
+                            <FileThumbnail source={previews[node.id]} fileName={node.name} size="sm" />
+                          </button>
+                        ) : (
+                          <div className="flex-shrink-0 mr-3">
+                            <FileThumbnail source={null} fileName={node.name} size="sm" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <TruncatedFilename name={node.name} className="text-sm font-medium text-foreground" />
+                          <p className="text-xs text-muted-foreground">{formatFileSize(node.size)}</p>
+                        </div>
+                      </div>
+                    );
+                  }
+                  const ids = collectFileIds(node);
+                  const allSelected = ids.length > 0 && ids.every((id) => selectedFiles.has(id));
+                  const isOpen = openFolders.has(node.path);
                   return (
                     <div
-                      key={`folder:${folderName}`}
+                      key={`folder:${node.path}`}
                       className={cn(
                         'bg-muted rounded-lg border border-foreground/[0.09] overflow-hidden transition-opacity',
                         !allSelected && 'opacity-50'
@@ -467,13 +556,13 @@ const BoxDownloadView: React.FC<Props> = ({
                     >
                       <div
                         data-row
-                        onClick={() => toggleFolder(folderName)}
+                        onClick={() => toggleFolder(node.path)}
                         className="flex items-center px-3 py-3 cursor-pointer can-hover:hover:bg-accent active:bg-accent transition-colors"
                       >
                         <span
                           onClick={(e) => { e.stopPropagation(); setFilesSelected(ids, !allSelected); }}
                           className="flex-shrink-0 -my-1.5 -ml-1 mr-2 p-1.5 rounded-md cursor-pointer"
-                          aria-label={folderName}
+                          aria-label={node.name}
                         >
                           <Checkbox checked={allSelected} className="h-5 w-5 rounded-md border-2 pointer-events-none" />
                         </span>
@@ -483,82 +572,55 @@ const BoxDownloadView: React.FC<Props> = ({
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">{folderName}</p>
+                          <p className="text-sm font-medium text-foreground truncate">{node.name}</p>
                           <p className="text-xs text-muted-foreground">
-                            {t('upload.folderItemCount', { count: items.length })} · {formatFileSize(folderSize)}
+                            {t('upload.folderItemCount', { count: nodeFileCount(node) })} · {formatFileSize(nodeSize(node))}
                           </p>
                         </div>
                         <button
                           type="button"
-                          onClick={(e) => { e.stopPropagation(); toggleFolder(folderName); }}
+                          onClick={(e) => { e.stopPropagation(); toggleFolder(node.path); }}
                           className="flex-shrink-0 self-center ml-1 -mr-1 p-1 rounded-md can-hover:hover:bg-accent active:bg-accent transition-colors"
-                          aria-label={folderName}
+                          aria-label={node.name}
                         >
                           <ChevronDownIcon className={cn('w-5 h-5 text-muted-foreground/60 transition-transform', isOpen && 'rotate-180')} />
                         </button>
                       </div>
                       <AnimatedHeight>
                         {isOpen && (
-                        <div className="px-3 pb-3">
-                          <div className="border-t border-foreground/[0.08] pt-2.5 space-y-2">
-                            {items.map((it) => (
-                              <div key={it.id} data-row className="flex items-center gap-3 min-w-0 -mx-2 px-2 py-1.5">
-                                {previews?.[it.id] ? (
-                                  <button
-                                    type="button"
-                                    onClick={(e) => { e.stopPropagation(); openPreview(it.name, it.size, it.id, previews[it.id]); }}
-                                    className="flex-shrink-0 rounded-lg overflow-hidden transition-transform can-hover:hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                                    aria-label={it.name}
-                                  >
-                                    <FileThumbnail source={previews[it.id]} fileName={it.name} size="sm" />
-                                  </button>
-                                ) : (
-                                  <div className="flex-shrink-0">
-                                    <FileThumbnail source={null} fileName={it.name} size="sm" />
+                          <div className="px-3 pb-3">
+                            <div className="border-t border-foreground/[0.08] pt-2.5 space-y-2">
+                              <FolderTreeRows
+                                nodes={node.children}
+                                depth={1}
+                                openFolders={openFolders}
+                                toggleFolder={toggleFolder}
+                                t={t}
+                                renderFile={(file, depth) => (
+                                  <div data-row className="flex items-center gap-3 min-w-0 py-1.5" style={{ paddingLeft: treeIndent(depth) }}>
+                                    {previews?.[file.id] ? (
+                                      <button
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); openPreview(file.name, file.size, file.id, previews[file.id]); }}
+                                        className="flex-shrink-0 rounded-lg overflow-hidden transition-transform can-hover:hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                        aria-label={file.name}
+                                      >
+                                        <FileThumbnail source={previews[file.id]} fileName={file.name} size="sm" />
+                                      </button>
+                                    ) : (
+                                      <div className="flex-shrink-0">
+                                        <FileThumbnail source={null} fileName={file.name} size="sm" />
+                                      </div>
+                                    )}
+                                    <TruncatedFilename name={file.name} className="flex-1 text-sm text-foreground/80 text-left" />
+                                    <span className="flex-shrink-0 text-xs text-muted-foreground">{formatFileSize(file.size)}</span>
                                   </div>
                                 )}
-                                <TruncatedFilename name={it.sub} className="flex-1 text-sm text-foreground/80 text-left" />
-                                <span className="flex-shrink-0 text-xs text-muted-foreground">{formatFileSize(it.size)}</span>
-                              </div>
-                            ))}
+                              />
+                            </div>
                           </div>
-                        </div>
                         )}
                       </AnimatedHeight>
-                    </div>
-                  );
-                })}
-                {looseFiles.map((file) => {
-                  const selected = selectedFiles.has(file.id);
-                  return (
-                    <div
-                      key={file.id}
-                      data-row
-                      onClick={() => toggleFileSelection(file.id)}
-                      className={cn(
-                        'flex items-center px-3 py-3 bg-muted rounded-lg border border-foreground/[0.09] cursor-pointer transition-opacity',
-                        !selected && 'opacity-50'
-                      )}
-                    >
-                      <Checkbox checked={selected} className="h-5 w-5 rounded-md border-2 flex-shrink-0 mr-3" />
-                      {previews?.[file.id] ? (
-                        <button
-                          type="button"
-                          onClick={(e) => { e.stopPropagation(); openPreview(file.file_name, file.file_size, file.id, previews[file.id]); }}
-                          className="flex-shrink-0 mr-3 rounded-lg overflow-hidden transition-transform can-hover:hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          aria-label={file.file_name}
-                        >
-                          <FileThumbnail source={previews[file.id]} fileName={file.file_name} size="sm" />
-                        </button>
-                      ) : (
-                        <div className="flex-shrink-0 mr-3">
-                          <FileThumbnail source={null} fileName={file.file_name} size="sm" />
-                        </div>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <TruncatedFilename name={file.file_name} className="text-sm font-medium text-foreground" />
-                        <p className="text-xs text-muted-foreground">{formatFileSize(file.file_size)}</p>
-                      </div>
                     </div>
                   );
                 })}

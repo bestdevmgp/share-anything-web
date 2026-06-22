@@ -148,6 +148,22 @@ async function streamToDisk(
   }
 }
 
+// Zip already-fetched blobs preserving folder structure (entryName = relative
+// path). Used for P2P, where files arrive as blobs over WebRTC rather than URLs.
+export async function createZipFromBlobs(
+  files: { entryName: string; blob: Blob }[],
+  suggestedName: string
+): Promise<void> {
+  const specs = dedupeEntryNames(
+    files.map((f, i) => ({ id: String(i), entryName: f.entryName, fileName: f.entryName, size: f.blob.size }))
+  );
+  const JSZip = (await import('jszip')).default;
+  const zip = new JSZip();
+  specs.forEach((spec, i) => zip.file(spec.entryName, files[i].blob));
+  const out = await zip.generateAsync({ type: 'blob' });
+  downloadFile(out, suggestedName);
+}
+
 async function buildInMemory(
   specs: ZipFileSpec[],
   getDownloadUrl: GetUrl,

@@ -14,6 +14,12 @@ interface UseP2PDownloaderProps {
   password?: string;
 }
 
+// P2P transfer identifies each file by its full relative path (falling back to
+// the bare name for root files), so files sharing a leaf name across folders
+// stay distinct.
+const fileKey = (info: { relative_path?: string; file_name: string }): string =>
+  info.relative_path && info.relative_path.length > 0 ? info.relative_path : info.file_name;
+
 export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onPeerFileRemoved, password }: UseP2PDownloaderProps) => {
   const { t } = useTranslation();
   const [status, setStatus] = useState<'waiting' | 'connecting' | 'downloading' | 'processing' | 'completed' | 'error' | 'cancelled'>('waiting');
@@ -71,7 +77,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
     receivedSizeRef.current = 0;
     downloadStartTimeRef.current = Date.now();
     lastTimeUpdateRef.current = 0;
-    currentFileNameRef.current = info.file_name;
+    currentFileNameRef.current = fileKey(info);
     completedFileRef.current = false;
     actualFileSizeRef.current = info.file_size;
     actualFileTypeRef.current = info.file_type;
@@ -451,7 +457,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
   useEffect(() => {
     if (!enabled || !shareCode || !fileInfo || !fileInfo.file_name) return;
     if (!sessionActiveRef.current) return;
-    if (currentFileNameRef.current === fileInfo.file_name) return;
+    if (currentFileNameRef.current === fileKey(fileInfo)) return;
     const ws = wsRef.current;
     if (!ws || ws.readyState !== WebSocket.OPEN) return;
 
@@ -460,10 +466,10 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
     sendSignalingMessage(ws, {
       type: 'file_request',
       share_code: shareCode,
-      file_name: fileInfo.file_name,
+      file_name: fileKey(fileInfo),
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [enabled, shareCode, fileInfo?.file_name, fileInfo?.file_size, fileInfo?.file_type]);
+  }, [enabled, shareCode, fileInfo?.file_name, fileInfo?.relative_path, fileInfo?.file_size, fileInfo?.file_type]);
 
   const reset = useCallback(() => {
     setStatus('waiting');
