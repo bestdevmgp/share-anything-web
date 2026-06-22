@@ -468,11 +468,11 @@ const BoxDownloadView: React.FC<Props> = ({
                       <div
                         data-row
                         onClick={() => toggleFolder(folderName)}
-                        className="flex items-center px-3 py-3 cursor-pointer"
+                        className="flex items-center px-3 py-3 cursor-pointer can-hover:hover:bg-accent active:bg-accent transition-colors"
                       >
                         <span
                           onClick={(e) => { e.stopPropagation(); setFilesSelected(ids, !allSelected); }}
-                          className="flex-shrink-0 -my-1.5 -ml-1 mr-2 p-1.5 rounded-md cursor-pointer can-hover:hover:bg-accent active:bg-accent transition-colors"
+                          className="flex-shrink-0 -my-1.5 -ml-1 mr-2 p-1.5 rounded-md cursor-pointer"
                           aria-label={folderName}
                         >
                           <Checkbox checked={allSelected} className="h-5 w-5 rounded-md border-2 pointer-events-none" />
