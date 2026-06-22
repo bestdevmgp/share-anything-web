@@ -13,6 +13,7 @@ import { sanitizeRelativePath } from '../../utils/folderPath';
 import FileThumbnail from '../FileThumbnail';
 import TruncatedFilename from '../TruncatedFilename';
 import ScrollableFileList from './ScrollableFileList';
+import AnimatedHeight from './AnimatedHeight';
 import StatusIcon from '../StatusIcon';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -145,6 +146,15 @@ const BoxDownloadView: React.FC<Props> = ({
   }, [fileList?.files]);
 
   const hasFolders = folders.size > 0;
+
+  // Rows that drive the box-height cap: a collapsed folder is one row; an
+  // expanded folder counts its inner files too (treated as file rows).
+  const effectiveRowCount =
+    looseFiles.length +
+    Array.from(folders.entries()).reduce(
+      (sum, [name, items]) => sum + 1 + (openFolders.has(name) ? items.length : 0),
+      0
+    );
 
   useEffect(() => {
     if (!showError) return;
@@ -425,7 +435,7 @@ const BoxDownloadView: React.FC<Props> = ({
             fileListHeader
           )}
           <ScrollableFileList
-            count={hasFolders ? folders.size + looseFiles.length : files.length}
+            count={hasFolders ? effectiveRowCount : files.length}
             recomputeKey={hasFolders ? Array.from(openFolders).sort().join('|') : undefined}
           >
             {hasFolders ? (
@@ -444,10 +454,17 @@ const BoxDownloadView: React.FC<Props> = ({
                       )}
                     >
                       <div
-                        onClick={() => setFilesSelected(ids, !allSelected)}
+                        data-row
+                        onClick={() => toggleFolder(folderName)}
                         className="flex items-center px-3 py-3 cursor-pointer"
                       >
-                        <Checkbox checked={allSelected} className="h-5 w-5 rounded-md border-2 flex-shrink-0 mr-3" />
+                        <span
+                          onClick={(e) => { e.stopPropagation(); setFilesSelected(ids, !allSelected); }}
+                          className="flex-shrink-0 -my-1.5 -ml-1 mr-2 p-1.5 rounded-md cursor-pointer can-hover:hover:bg-accent active:bg-accent transition-colors"
+                          aria-label={folderName}
+                        >
+                          <Checkbox checked={allSelected} className="h-5 w-5 rounded-md border-2 pointer-events-none" />
+                        </span>
                         <div className="flex-shrink-0 mr-3">
                           <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
                             <FolderIcon className="w-6 h-6 text-muted-foreground" />
@@ -468,11 +485,12 @@ const BoxDownloadView: React.FC<Props> = ({
                           <ChevronDownIcon className={cn('w-5 h-5 text-muted-foreground/60 transition-transform', isOpen && 'rotate-180')} />
                         </button>
                       </div>
-                      {isOpen && (
+                      <AnimatedHeight>
+                        {isOpen && (
                         <div className="px-3 pb-3">
                           <div className="border-t border-foreground/[0.08] pt-2.5 space-y-2">
                             {items.map((it) => (
-                              <div key={it.id} className="flex items-center gap-3 min-w-0 -mx-2 px-2 py-1.5">
+                              <div key={it.id} data-row className="flex items-center gap-3 min-w-0 -mx-2 px-2 py-1.5">
                                 {previews?.[it.id] ? (
                                   <button
                                     type="button"
@@ -493,7 +511,8 @@ const BoxDownloadView: React.FC<Props> = ({
                             ))}
                           </div>
                         </div>
-                      )}
+                        )}
+                      </AnimatedHeight>
                     </div>
                   );
                 })}
@@ -502,6 +521,7 @@ const BoxDownloadView: React.FC<Props> = ({
                   return (
                     <div
                       key={file.id}
+                      data-row
                       onClick={() => toggleFileSelection(file.id)}
                       className={cn(
                         'flex items-center px-3 py-3 bg-muted rounded-lg border border-foreground/[0.09] cursor-pointer transition-opacity',

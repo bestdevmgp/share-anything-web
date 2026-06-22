@@ -2,7 +2,7 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 
 interface Props {
   count: number;
-  // Optional signal that changes when row heights change (e.g. a folder expands/collapses)
+  // Signal that changes when row heights change (e.g. a folder expands/collapses)
   // so the 10-row height cap is re-measured against the current layout.
   recomputeKey?: string | number;
   children: React.ReactNode;
@@ -12,13 +12,17 @@ interface Props {
 // rows and scrolls internally beyond that. Measures real rows so the threshold
 // stays exact regardless of row height (PC and mobile).
 const ScrollableFileList: React.FC<Props> = ({ count, recomputeKey, children }) => {
-  const ref = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const [maxHeight, setMaxHeight] = useState<number | undefined>(undefined);
+
   useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    const content = contentRef.current;
+    if (!content) return;
     const measure = () => {
-      const rows = el.children;
+      // Prefer explicit [data-row] markers so nested folder contents count as
+      // individual rows; fall back to direct children for flat lists.
+      const flat = content.querySelectorAll('[data-row]');
+      const rows: ArrayLike<Element> = flat.length ? flat : content.children;
       if (count > 10 && rows.length >= 10) {
         const first = (rows[0] as HTMLElement).getBoundingClientRect();
         const tenth = (rows[9] as HTMLElement).getBoundingClientRect();
@@ -29,16 +33,26 @@ const ScrollableFileList: React.FC<Props> = ({ count, recomputeKey, children }) 
       }
     };
     measure();
+    // Re-measure as content settles (the inner div is unconstrained, so its
+    // height tracks expanding/collapsing folders even while the outer box is
+    // capped) and on viewport changes.
+    const ro = new ResizeObserver(measure);
+    ro.observe(content);
     window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', measure);
+    };
   }, [count, recomputeKey]);
+
   return (
     <div
-      ref={ref}
-      className="space-y-2 pr-0.5"
+      className="pr-0.5"
       style={maxHeight !== undefined ? { maxHeight, overflowY: 'auto' } : undefined}
     >
-      {children}
+      <div ref={contentRef} className="space-y-2">
+        {children}
+      </div>
     </div>
   );
 };
