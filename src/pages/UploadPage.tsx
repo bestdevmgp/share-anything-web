@@ -192,11 +192,15 @@ const UploadPage: React.FC = () => {
   }, [fromUnifiedBox, initialFiles]);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    if (acceptedFiles.length === 0) {
+      toast.warning(t('upload.emptyFolder'));
+      return;
+    }
     setIsProcessingFiles(true);
     await new Promise(resolve => setTimeout(resolve, 10));
     setFiles(prev => [...prev, ...acceptedFiles]);
     setIsProcessingFiles(false);
-  }, []);
+  }, [t]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -215,10 +219,13 @@ const UploadPage: React.FC = () => {
       const picked = e.target.files ? Array.from(e.target.files) : [];
       const accepted = await getFilesWithPaths({ target: { files: picked } } as any);
       e.target.value = '';
-      if (accepted.length === 0) return;
+      if (accepted.length === 0) {
+        toast.warning(t('upload.emptyFolder'));
+        return;
+      }
       await onDrop(accepted);
     },
-    [onDrop]
+    [onDrop, t]
   );
 
   const removeFile = (index: number) => {

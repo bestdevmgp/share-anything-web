@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Card } from './ui/card';
+import { Skeleton } from './ui/skeleton';
 import { useTranslation } from '../i18n';
 import { useAuth } from '../context/AuthContext';
 import { fileAPI, DailyQuotaResponse } from '../services/api';
@@ -41,7 +42,23 @@ const DailyUploadQuotaWidget: React.FC = () => {
     return () => clearInterval(id);
   }, []);
 
-  if (failed || !quota) return null;
+  if (failed) return null;
+
+  if (!quota) {
+    return (
+      <Card className="p-5 shadow-none border-2 border-foreground/[0.09]">
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <Skeleton className="h-5 w-32" />
+          <Skeleton className="h-5 w-16" />
+        </div>
+        <Skeleton className="h-2 w-full rounded-full" />
+        <div className="flex items-center justify-between gap-2 mt-2">
+          <Skeleton className="h-4 w-20" />
+          {!isAuthenticated && <Skeleton className="h-4 w-40" />}
+        </div>
+      </Card>
+    );
+  }
 
   const { used_bytes, limit_bytes, remaining_bytes } = quota;
   const pct = limit_bytes > 0 ? Math.min(100, (used_bytes / limit_bytes) * 100) : 0;
@@ -56,7 +73,7 @@ const DailyUploadQuotaWidget: React.FC = () => {
     : t('quota.resetsInM', { m: minutesLeft });
 
   return (
-    <Card className="p-5 shadow-none border-[3px] border-foreground/[0.09]">
+    <Card className="p-5 shadow-none border-2 border-foreground/[0.09]">
       <div className="flex items-baseline justify-between gap-2 mb-3">
         <div className="flex items-baseline gap-2 min-w-0">
           <span className="text-sm font-medium text-foreground whitespace-nowrap">
@@ -84,7 +101,7 @@ const DailyUploadQuotaWidget: React.FC = () => {
           })}
         </span>
         {!isAuthenticated && (
-          <span className="text-xs text-muted-foreground whitespace-nowrap">
+          <span className="text-xs text-muted-foreground text-right">
             {t('quota.loginForMore')}
           </span>
         )}

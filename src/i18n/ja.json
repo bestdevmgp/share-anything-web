@@ -87,7 +87,7 @@
     "usedOfLimit": "{{used}} / {{limit}}",
     "resetsInHm": "{{h}}時間{{m}}分後にリセット",
     "resetsInM": "{{m}}分後にリセット",
-    "loginForMore": "ログインで1日1TBまで"
+    "loginForMore": "ログインすると1日あたり最大1TBまで利用できます。"
   },
   "home": {
     "uploadTitle": "ファイルを送る",
@@ -223,6 +223,7 @@
     "selectFolder": "フォルダを選択",
     "addFiles": "ファイルを追加",
     "addFolder": "フォルダを追加",
+    "emptyFolder": "空のフォルダです。ファイルが入ったフォルダを選択してください。",
     "folderItemCount": "{{count}}個"
   },
   "uploadSuccess": {

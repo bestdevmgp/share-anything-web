@@ -87,7 +87,7 @@
     "usedOfLimit": "{{used}} / {{limit}}",
     "resetsInHm": "Resets in {{h}}h {{m}}m",
     "resetsInM": "Resets in {{m}}m",
-    "loginForMore": "Sign in for 1TB/day"
+    "loginForMore": "Sign in to use up to 1TB per day."
   },
   "home": {
     "uploadTitle": "Send Files",
@@ -223,6 +223,7 @@
     "selectFolder": "Select Folder",
     "addFiles": "Add Files",
     "addFolder": "Add Folder",
+    "emptyFolder": "This folder is empty. Choose a folder that contains files.",
     "folderItemCount": "{{count}} files"
   },
   "uploadSuccess": {

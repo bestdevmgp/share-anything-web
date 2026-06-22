@@ -169,7 +169,10 @@ api.interceptors.request.use(async (config) => {
   const url = config.url || '';
   const isExchange = url.includes('/auth/session-token');
   // OAuth callback isn't session-gated, so don't block login on the Turnstile mint.
-  const skipTokenWait = isExchange || url.includes('/auth/callback/');
+  // The daily-quota widget read isn't session-gated either, so don't make it wait
+  // up to 12s for the Turnstile mint — it should render promptly on page load.
+  const skipTokenWait =
+    isExchange || url.includes('/auth/callback/') || url.includes('/file/quota');
 
   if (!skipTokenWait && !currentSessionToken && !authToken && !tokenUnavailable) {
     await waitForToken(STARTUP_TOKEN_WAIT_MS);

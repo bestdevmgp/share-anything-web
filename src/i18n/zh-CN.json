@@ -87,7 +87,7 @@
     "usedOfLimit": "{{used}} / {{limit}}",
     "resetsInHm": "{{h}}小时{{m}}分钟后重置",
     "resetsInM": "{{m}}分钟后重置",
-    "loginForMore": "登录后每日 1TB"
+    "loginForMore": "登录后每日最多可使用 1TB。"
   },
   "home": {
     "uploadTitle": "发送文件",
@@ -223,6 +223,7 @@
     "selectFolder": "选择文件夹",
     "addFiles": "添加文件",
     "addFolder": "添加文件夹",
+    "emptyFolder": "这是空文件夹。请选择包含文件的文件夹。",
     "folderItemCount": "{{count}}个文件"
   },
   "uploadSuccess": {

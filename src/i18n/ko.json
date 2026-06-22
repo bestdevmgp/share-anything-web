@@ -87,7 +87,7 @@
     "usedOfLimit": "{{used}} / {{limit}}",
     "resetsInHm": "{{h}}시간 {{m}}분 후 초기화",
     "resetsInM": "{{m}}분 후 초기화",
-    "loginForMore": "로그인하면 하루 1TB까지"
+    "loginForMore": "로그인 시 하루 최대 1TB까지 사용할 수 있어요."
   },
   "home": {
     "uploadTitle": "파일 보내기",
@@ -223,6 +223,7 @@
     "selectFolder": "폴더 선택",
     "addFiles": "파일 추가",
     "addFolder": "폴더 추가",
+    "emptyFolder": "빈 폴더예요. 파일이 들어있는 폴더를 선택해 주세요.",
     "folderItemCount": "{{count}}개"
   },
   "uploadSuccess": {
