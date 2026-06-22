@@ -380,7 +380,7 @@ const BoxDownloadView: React.FC<Props> = ({
                       >
                         <div className="flex-shrink-0 mr-3">
                           <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
-                            <FolderIcon className="w-6 h-6 text-muted-foreground" />
+                            <FolderIcon className="w-7 h-7 text-muted-foreground" />
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
@@ -402,7 +402,7 @@ const BoxDownloadView: React.FC<Props> = ({
                                 toggleFolder={toggleFolder}
                                 t={t}
                                 renderFile={(file, depth) => (
-                                  <div data-row className="flex items-center py-2 rounded-md" style={{ paddingLeft: treeIndent(depth) }}>
+                                  <div data-row className="flex items-center -mx-2.5 px-2.5 py-2 rounded-lg" style={{ paddingLeft: `calc(0.625rem + ${treeIndent(depth)})` }}>
                                     {p2pRowContent(file.id, file.name, file.size)}
                                   </div>
                                 )}
@@ -571,7 +571,7 @@ const BoxDownloadView: React.FC<Props> = ({
                         </span>
                         <div className="flex-shrink-0 mr-3">
                           <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
-                            <FolderIcon className="w-6 h-6 text-muted-foreground" />
+                            <FolderIcon className="w-7 h-7 text-muted-foreground" />
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
@@ -606,10 +606,10 @@ const BoxDownloadView: React.FC<Props> = ({
                                       data-row
                                       onClick={src ? () => openPreview(file.name, file.size, file.id, src) : undefined}
                                       className={cn(
-                                        'flex items-center gap-3 min-w-0 py-2 rounded-md transition-colors',
+                                        'flex items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2 rounded-lg transition-colors',
                                         src && 'cursor-pointer can-hover:hover:bg-accent active:bg-accent'
                                       )}
-                                      style={{ paddingLeft: treeIndent(depth) }}
+                                      style={{ paddingLeft: `calc(0.625rem + ${treeIndent(depth)})` }}
                                     >
                                       <div className="flex-shrink-0">
                                         <FileThumbnail source={src ?? null} fileName={file.name} size="sm" />

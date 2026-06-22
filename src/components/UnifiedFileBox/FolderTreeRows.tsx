@@ -46,11 +46,11 @@ const FolderTreeRows: React.FC<Props> = ({ nodes, depth, openFolders, toggleFold
           <div
             data-row
             onClick={(e) => { e.stopPropagation(); toggleFolder(node.path); }}
-            className="flex items-center gap-3 py-2 pr-1 cursor-pointer rounded-md can-hover:hover:bg-accent active:bg-accent transition-colors"
-            style={{ paddingLeft: treeIndent(depth) }}
+            className="flex items-center gap-3 -mx-2.5 px-2.5 py-2 cursor-pointer rounded-lg can-hover:hover:bg-accent active:bg-accent transition-colors"
+            style={{ paddingLeft: `calc(0.625rem + ${treeIndent(depth)})` }}
           >
             <div className="flex-shrink-0 w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
-              <FolderIcon className="w-6 h-6 text-muted-foreground" />
+              <FolderIcon className="w-7 h-7 text-muted-foreground" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">{node.name}</p>

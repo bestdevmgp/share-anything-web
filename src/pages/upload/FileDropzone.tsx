@@ -157,7 +157,7 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                         onClick={(e) => { e.stopPropagation(); toggleFolder(node.path); }}
                         className="flex items-center gap-3 p-3.5 cursor-pointer can-hover:hover:bg-accent active:bg-accent transition-colors"
                       >
-                        <div className="w-11 h-11 rounded bg-muted flex items-center justify-center flex-shrink-0">
+                        <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center flex-shrink-0">
                           <FolderIcon className="w-7 h-7 text-muted-foreground" />
                         </div>
                         <div className="min-w-0 flex-1">
@@ -201,8 +201,8 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                                     <div
                                       data-row
                                       onClick={(e) => { e.stopPropagation(); onPreviewFile(file); }}
-                                      className="flex items-center gap-3 min-w-0 py-2 rounded-md cursor-pointer can-hover:hover:bg-accent active:bg-accent transition-colors"
-                                      style={{ paddingLeft: treeIndent(depth) }}
+                                      className="flex items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2 rounded-lg cursor-pointer can-hover:hover:bg-accent active:bg-accent transition-colors"
+                                      style={{ paddingLeft: `calc(0.625rem + ${treeIndent(depth)})` }}
                                     >
                                       <FileThumbnail source={file} fileName={file.name} size="sm" />
                                       <div className="flex-1 min-w-0">

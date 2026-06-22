@@ -273,7 +273,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                           key={`${f.name}-${i}`}
                           type="button"
                           onClick={(e) => { e.stopPropagation(); openPreviewFor(s.code, f.id!, f.name, f.size ?? 0, s.hasPassword); }}
-                          className="w-full flex items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2 rounded-lg can-hover:hover:bg-accent active:bg-accent transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          className="flex w-auto items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2 rounded-lg can-hover:hover:bg-accent active:bg-accent transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                           aria-label={f.name}
                         >
                           {rowInner}
