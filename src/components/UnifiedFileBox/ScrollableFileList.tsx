@@ -1,41 +1,56 @@
 import React, { useLayoutEffect, useRef, useState } from 'react';
 
 interface Props {
+  // Anticipated row count assuming every folder is expanded — the box reserves
+  // this many rows up-front so opening a folder fills the space instead of
+  // growing the box.
   count: number;
-  // Signal that changes when row heights change (e.g. a folder expands/collapses)
-  // so the 10-row height cap is re-measured against the current layout.
+  // Changes when row layout changes (folder expand/collapse) so the reserved
+  // height is re-measured against the current rows.
   recomputeKey?: string | number;
+  // Number of top-level folders. Each one, when expanded, adds wrapper chrome
+  // (border-top + padding) around its rows that the per-row estimate can't see;
+  // reserve a little extra per folder so opening a sparse folder doesn't grow
+  // the box. Only matters for count <= 10 (past that the box is capped + scrolls).
+  expandableFolders?: number;
   children: React.ReactNode;
 }
 
-// Shows all rows (box grows) up to 10 files; caps at the height of exactly 10
-// rows and scrolls internally beyond that. Measures real rows so the threshold
-// stays exact regardless of row height (PC and mobile).
-const ScrollableFileList: React.FC<Props> = ({ count, recomputeKey, children }) => {
+const ROW_GAP = 8; // matches space-y-2 between top-level rows
+const FOLDER_CHROME = 16; // ~border-top + pt-2.5 + pb-3 around an expanded folder
+
+// Reserves the height of up to 10 rows up-front and scrolls past that. The
+// per-row size is estimated from the first top-level row (whose height is stable
+// across expand/collapse), so the box is pre-sized to the fully expanded content
+// and does not jump when a folder opens. Measures real rows so the estimate
+// stays right on PC and mobile.
+const ScrollableFileList: React.FC<Props> = ({ count, recomputeKey, expandableFolders = 0, children }) => {
   const contentRef = useRef<HTMLDivElement>(null);
-  const [maxHeight, setMaxHeight] = useState<number | undefined>(undefined);
+  const [box, setBox] = useState<{ minHeight?: number; maxHeight?: number }>({});
 
   useLayoutEffect(() => {
     const content = contentRef.current;
     if (!content) return;
     const measure = () => {
-      // Prefer explicit [data-row] markers so nested folder contents count as
-      // individual rows; fall back to direct children for flat lists.
       const flat = content.querySelectorAll('[data-row]');
       const rows: ArrayLike<Element> = flat.length ? flat : content.children;
-      if (count > 10 && rows.length >= 10) {
-        const first = (rows[0] as HTMLElement).getBoundingClientRect();
-        const tenth = (rows[9] as HTMLElement).getBoundingClientRect();
-        const h = Math.ceil(tenth.bottom - first.top);
-        setMaxHeight((prev) => (prev !== h ? h : prev));
-      } else {
-        setMaxHeight((prev) => (prev !== undefined ? undefined : prev));
+      if (rows.length === 0) {
+        setBox((p) => (p.minHeight === undefined && p.maxHeight === undefined ? p : {}));
+        return;
       }
+      const target = Math.min(count, 10);
+      const firstH = (rows[0] as HTMLElement).getBoundingClientRect().height;
+      const reserved = Math.ceil((firstH + ROW_GAP) * (target - 1) + firstH);
+      // Past 10 rows the box is fixed and scrolls (no per-folder chrome needed);
+      // at or below, pre-size with a small allowance per folder so a sparse
+      // folder's wrapper chrome doesn't push the box past minHeight when opened.
+      const next =
+        count > 10
+          ? { minHeight: reserved, maxHeight: reserved }
+          : { minHeight: reserved + expandableFolders * FOLDER_CHROME };
+      setBox((p) => (p.minHeight === next.minHeight && p.maxHeight === next.maxHeight ? p : next));
     };
     measure();
-    // Re-measure as content settles (the inner div is unconstrained, so its
-    // height tracks expanding/collapsing folders even while the outer box is
-    // capped) and on viewport changes.
     const ro = new ResizeObserver(measure);
     ro.observe(content);
     window.addEventListener('resize', measure);
@@ -43,13 +58,10 @@ const ScrollableFileList: React.FC<Props> = ({ count, recomputeKey, children }) 
       ro.disconnect();
       window.removeEventListener('resize', measure);
     };
-  }, [count, recomputeKey]);
+  }, [count, recomputeKey, expandableFolders]);
 
   return (
-    <div
-      className="pr-0.5"
-      style={maxHeight !== undefined ? { maxHeight, overflowY: 'auto' } : undefined}
-    >
+    <div className="pr-0.5" style={{ ...box, overflowY: box.maxHeight !== undefined ? 'auto' : undefined }}>
       <div ref={contentRef} className="space-y-2">
         {children}
       </div>

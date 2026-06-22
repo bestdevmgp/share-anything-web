@@ -7,6 +7,8 @@ import { useTranslation } from '../../i18n';
 import FileThumbnail from '../../components/FileThumbnail';
 import TruncatedFilename from '../../components/TruncatedFilename';
 import AnimatedHeight from '../../components/UnifiedFileBox/AnimatedHeight';
+import FolderTreeRows, { treeIndent } from '../../components/UnifiedFileBox/FolderTreeRows';
+import { buildFileTree, collectFileIds, nodeFileCount, nodeSize } from '../../utils/fileTree';
 import { formatFileSize } from '../../utils/format';
 import { getRelativePathSafe } from '../../utils/fileWithPath';
 
@@ -45,23 +47,19 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
 
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
 
-  const { folders, looseIndices } = useMemo(() => {
-    const folders = new Map<string, { index: number; sub: string }[]>();
-    const looseIndices: number[] = [];
-    files.forEach((file, index) => {
-      const rel = getRelativePathSafe(file);
-      const slash = rel.indexOf('/');
-      if (slash === -1) {
-        looseIndices.push(index);
-      } else {
-        const top = rel.slice(0, slash);
-        const arr = folders.get(top) ?? [];
-        arr.push({ index, sub: rel.slice(slash + 1) });
-        folders.set(top, arr);
-      }
-    });
-    return { folders, looseIndices };
-  }, [files]);
+  // Files are keyed by their array index (id) so removal maps back to onRemoveFile.
+  const tree = useMemo(
+    () =>
+      buildFileTree(
+        files.map((f, i) => ({
+          id: String(i),
+          file_name: f.name,
+          file_size: f.size,
+          relative_path: getRelativePathSafe(f),
+        }))
+      ),
+    [files]
+  );
 
   const totalSize = useMemo(() => files.reduce((sum, f) => sum + f.size, 0), [files]);
 
@@ -126,29 +124,51 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                 <h3 className="font-semibold text-foreground">{t('upload.selectedFiles', { count: files.length })}</h3>
                 <span className="text-sm text-muted-foreground whitespace-nowrap">{formatFileSize(totalSize)}</span>
               </div>
-              <div className="flex-1 overflow-y-auto space-y-2 min-h-0">
-                {Array.from(folders.entries()).map(([folderName, items]) => {
-                  const isOpen = openFolders.has(folderName);
-                  const folderSize = items.reduce((s, it) => s + files[it.index].size, 0);
+              <div className="flex-1 overflow-y-auto space-y-2 min-h-0" style={{ containerType: 'inline-size' }}>
+                {tree.map((node) => {
+                  if (node.kind === 'file') {
+                    const index = Number(node.id);
+                    const file = files[index];
+                    return (
+                      <div
+                        key={node.id}
+                        onClick={(e) => { e.stopPropagation(); onPreviewFile(file); }}
+                        className="flex items-center gap-3 p-3.5 bg-muted rounded-lg border border-foreground/[0.09] can-hover:hover:bg-accent active:bg-accent transition-colors cursor-pointer"
+                      >
+                        <FileThumbnail source={file} fileName={file.name} size="sm" />
+                        <div className="min-w-0 flex-1">
+                          <TruncatedFilename name={file.name} className="text-sm font-medium text-foreground" />
+                          <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+                        </div>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onRemoveFile(index); }}
+                          className="ml-1 -mr-1 p-1 can-hover:hover:bg-foreground/10 active:bg-foreground/10 rounded-md transition-colors flex-shrink-0"
+                        >
+                          <XMarkIcon className="w-4 h-4 text-muted-foreground" />
+                        </button>
+                      </div>
+                    );
+                  }
+                  const isOpen = openFolders.has(node.path);
                   return (
-                    <div key={`folder:${folderName}`} className="bg-muted rounded-lg border border-foreground/[0.09] overflow-hidden">
+                    <div key={`folder:${node.path}`} className="bg-muted rounded-lg border border-foreground/[0.09] overflow-hidden">
                       <div
                         role="button"
-                        onClick={(e) => { e.stopPropagation(); toggleFolder(folderName); }}
+                        onClick={(e) => { e.stopPropagation(); toggleFolder(node.path); }}
                         className="flex items-center gap-3 p-3.5 cursor-pointer can-hover:hover:bg-accent active:bg-accent transition-colors"
                       >
                         <div className="w-11 h-11 rounded bg-muted flex items-center justify-center flex-shrink-0">
                           <FolderIcon className="w-7 h-7 text-muted-foreground" />
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-base font-medium text-foreground truncate">{folderName}</p>
-                          <p className="text-xs text-muted-foreground">{t('upload.folderItemCount', { count: items.length })} · {formatFileSize(folderSize)}</p>
+                          <p className="text-base font-medium text-foreground truncate">{node.name}</p>
+                          <p className="text-xs text-muted-foreground">{t('upload.folderItemCount', { count: nodeFileCount(node) })} · {formatFileSize(nodeSize(node))}</p>
                         </div>
                         <div className="flex items-center gap-1 flex-shrink-0">
                           <ChevronDownIcon className={cn('w-5 h-5 text-muted-foreground/50 transition-transform', isOpen && 'rotate-180')} />
                           <button
                             type="button"
-                            onClick={(e) => { e.stopPropagation(); onRemoveFiles(items.map((it) => it.index)); }}
+                            onClick={(e) => { e.stopPropagation(); onRemoveFiles(collectFileIds(node).map(Number)); }}
                             className="-mr-1 p-1 can-hover:hover:bg-foreground/10 active:bg-foreground/10 rounded-md transition-colors"
                           >
                             <XMarkIcon className="w-4 h-4 text-muted-foreground" />
@@ -158,51 +178,51 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                       <AnimatedHeight>
                         {isOpen && (
                           <div className="px-3.5 pb-3">
-                            <div className="border-t border-foreground/[0.08] pt-2.5 space-y-1 -mx-2">
-                              {items.map((it) => {
-                                const file = files[it.index];
-                                return (
+                            <div className="border-t border-foreground/[0.08] pt-2.5 space-y-1">
+                              <FolderTreeRows
+                                nodes={node.children}
+                                depth={1}
+                                openFolders={openFolders}
+                                toggleFolder={toggleFolder}
+                                t={t}
+                                renderFolderTrailing={(folderNode) => (
                                   <button
-                                    key={it.index}
                                     type="button"
-                                    onClick={(e) => { e.stopPropagation(); onPreviewFile(file); }}
-                                    className="w-full flex items-center gap-3 min-w-0 px-2 py-2 rounded-lg can-hover:hover:bg-accent active:bg-accent transition-colors cursor-pointer"
+                                    onClick={(e) => { e.stopPropagation(); onRemoveFiles(collectFileIds(folderNode).map(Number)); }}
+                                    className="-mr-0.5 p-1 can-hover:hover:bg-foreground/10 active:bg-foreground/10 rounded-md transition-colors flex-shrink-0"
                                   >
-                                    <FileThumbnail source={file} fileName={file.name} size="sm" />
-                                    <TruncatedFilename name={it.sub} className="flex-1 text-sm font-medium text-foreground text-left" />
-                                    <span className="flex-shrink-0 text-sm text-muted-foreground">{formatFileSize(file.size)}</span>
+                                    <XMarkIcon className="w-4 h-4 text-muted-foreground" />
                                   </button>
-                                );
-                              })}
+                                )}
+                                renderFile={(fileNode, depth) => {
+                                  const index = Number(fileNode.id);
+                                  const file = files[index];
+                                  return (
+                                    <div
+                                      data-row
+                                      onClick={(e) => { e.stopPropagation(); onPreviewFile(file); }}
+                                      className="flex items-center gap-3 min-w-0 py-2 rounded-md cursor-pointer can-hover:hover:bg-accent active:bg-accent transition-colors"
+                                      style={{ paddingLeft: treeIndent(depth) }}
+                                    >
+                                      <FileThumbnail source={file} fileName={file.name} size="sm" />
+                                      <div className="flex-1 min-w-0">
+                                        <TruncatedFilename name={file.name} className="text-sm font-medium text-foreground" />
+                                        <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+                                      </div>
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); onRemoveFile(index); }}
+                                        className="ml-1 -mr-0.5 p-1 can-hover:hover:bg-foreground/10 active:bg-foreground/10 rounded-md transition-colors flex-shrink-0"
+                                      >
+                                        <XMarkIcon className="w-4 h-4 text-muted-foreground" />
+                                      </button>
+                                    </div>
+                                  );
+                                }}
+                              />
                             </div>
                           </div>
                         )}
                       </AnimatedHeight>
-                    </div>
-                  );
-                })}
-
-                {looseIndices.map((index) => {
-                  const file = files[index];
-                  return (
-                    <div
-                      key={index}
-                      onClick={(e) => { e.stopPropagation(); onPreviewFile(file); }}
-                      className="flex items-center justify-between p-3.5 bg-muted rounded-lg border border-foreground/[0.09] can-hover:hover:bg-accent active:bg-accent transition-colors cursor-pointer"
-                    >
-                      <div className="flex items-center space-x-3 flex-1 min-w-0">
-                        <FileThumbnail source={file} fileName={file.name} size="sm" />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-foreground truncate">{file.name}</p>
-                          <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); onRemoveFile(index); }}
-                        className="ml-1 -mr-1 p-1 can-hover:hover:bg-foreground/10 active:bg-foreground/10 rounded-md transition-colors"
-                      >
-                        <XMarkIcon className="w-4 h-4 text-muted-foreground" />
-                      </button>
                     </div>
                   );
                 })}

@@ -143,9 +143,10 @@ const BoxDownloadView: React.FC<Props> = ({
   const tree = useMemo(() => buildFileTree(fileList?.files ?? []), [fileList?.files]);
   const hasFolders = treeHasFolders(tree);
 
-  // Rows that drive the box-height cap: every folder row counts; its descendants
-  // only while it (and its ancestors) are expanded.
-  const effectiveRowCount = countVisibleRows(tree, (path) => openFolders.has(path));
+  // Box-height target: count every row as if all folders were expanded, so the
+  // box is pre-sized to the full content and opening a folder doesn't grow it.
+  const totalRowCount = countVisibleRows(tree, () => true);
+  const topFolderCount = tree.filter((n) => n.kind === 'folder').length;
 
   // During a P2P receive, auto-expand every folder on the way to the active file
   // so its progress is visible.
@@ -356,7 +357,8 @@ const BoxDownloadView: React.FC<Props> = ({
           <div className="md:flex-1 flex flex-col min-w-0" style={{ containerType: 'inline-size' }}>
             {fileListHeader}
             <ScrollableFileList
-              count={hasFolders ? effectiveRowCount : files.length}
+              count={hasFolders ? totalRowCount : files.length}
+              expandableFolders={hasFolders ? topFolderCount : 0}
               recomputeKey={hasFolders ? Array.from(openFolders).sort().join('|') : undefined}
             >
               {hasFolders ? (
@@ -400,7 +402,7 @@ const BoxDownloadView: React.FC<Props> = ({
                                 toggleFolder={toggleFolder}
                                 t={t}
                                 renderFile={(file, depth) => (
-                                  <div data-row className="flex items-center py-1.5" style={{ paddingLeft: treeIndent(depth) }}>
+                                  <div data-row className="flex items-center py-2 rounded-md" style={{ paddingLeft: treeIndent(depth) }}>
                                     {p2pRowContent(file.id, file.name, file.size)}
                                   </div>
                                 )}
@@ -503,7 +505,8 @@ const BoxDownloadView: React.FC<Props> = ({
             fileListHeader
           )}
           <ScrollableFileList
-            count={hasFolders ? effectiveRowCount : files.length}
+            count={hasFolders ? totalRowCount : files.length}
+            expandableFolders={hasFolders ? topFolderCount : 0}
             recomputeKey={hasFolders ? Array.from(openFolders).sort().join('|') : undefined}
           >
             {hasFolders ? (
@@ -596,26 +599,28 @@ const BoxDownloadView: React.FC<Props> = ({
                                 openFolders={openFolders}
                                 toggleFolder={toggleFolder}
                                 t={t}
-                                renderFile={(file, depth) => (
-                                  <div data-row className="flex items-center gap-3 min-w-0 py-1.5" style={{ paddingLeft: treeIndent(depth) }}>
-                                    {previews?.[file.id] ? (
-                                      <button
-                                        type="button"
-                                        onClick={(e) => { e.stopPropagation(); openPreview(file.name, file.size, file.id, previews[file.id]); }}
-                                        className="flex-shrink-0 rounded-lg overflow-hidden transition-transform can-hover:hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                                        aria-label={file.name}
-                                      >
-                                        <FileThumbnail source={previews[file.id]} fileName={file.name} size="sm" />
-                                      </button>
-                                    ) : (
+                                renderFile={(file, depth) => {
+                                  const src = previews?.[file.id];
+                                  return (
+                                    <div
+                                      data-row
+                                      onClick={src ? () => openPreview(file.name, file.size, file.id, src) : undefined}
+                                      className={cn(
+                                        'flex items-center gap-3 min-w-0 py-2 rounded-md transition-colors',
+                                        src && 'cursor-pointer can-hover:hover:bg-accent active:bg-accent'
+                                      )}
+                                      style={{ paddingLeft: treeIndent(depth) }}
+                                    >
                                       <div className="flex-shrink-0">
-                                        <FileThumbnail source={null} fileName={file.name} size="sm" />
+                                        <FileThumbnail source={src ?? null} fileName={file.name} size="sm" />
                                       </div>
-                                    )}
-                                    <TruncatedFilename name={file.name} className="flex-1 text-sm text-foreground/80 text-left" />
-                                    <span className="flex-shrink-0 text-xs text-muted-foreground">{formatFileSize(file.size)}</span>
-                                  </div>
-                                )}
+                                      <div className="flex-1 min-w-0">
+                                        <TruncatedFilename name={file.name} className="text-sm font-medium text-foreground" />
+                                        <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+                                      </div>
+                                    </div>
+                                  );
+                                }}
                               />
                             </div>
                           </div>
