@@ -162,7 +162,7 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                         className={cn('flex items-center gap-3 p-3.5 transition-colors', !isEmpty && 'cursor-pointer can-hover:hover:bg-accent active:bg-accent')}
                       >
                         <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center flex-shrink-0">
-                          <FolderIcon className="w-9 h-9 text-muted-foreground" />
+                          <FolderIcon className="w-7 h-7 text-muted-foreground" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-base font-medium text-foreground truncate">{node.name}</p>

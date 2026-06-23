@@ -101,7 +101,7 @@ const EmptyFolderCard: React.FC<{
     <div className="flex items-center px-3 py-3">
       <div className="flex-shrink-0 mr-3">
         <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
-          <FolderIcon className="w-9 h-9 text-muted-foreground" />
+          <FolderIcon className="w-7 h-7 text-muted-foreground" />
         </div>
       </div>
       <div className="flex-1 min-w-0">
@@ -405,7 +405,7 @@ const BoxDownloadView: React.FC<Props> = ({
                       >
                         <div className="flex-shrink-0 mr-3">
                           <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
-                            <FolderIcon className="w-9 h-9 text-muted-foreground" />
+                            <FolderIcon className="w-7 h-7 text-muted-foreground" />
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
@@ -599,7 +599,7 @@ const BoxDownloadView: React.FC<Props> = ({
                         </span>
                         <div className="flex-shrink-0 mr-3">
                           <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
-                            <FolderIcon className="w-9 h-9 text-muted-foreground" />
+                            <FolderIcon className="w-7 h-7 text-muted-foreground" />
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">

@@ -55,7 +55,7 @@ const FolderTreeRows: React.FC<Props> = ({ nodes, depth, openFolders, toggleFold
             style={{ marginLeft: `calc(-0.625rem + ${treeIndent(depth)})` }}
           >
             <div className="flex-shrink-0 w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
-              <FolderIcon className="w-9 h-9 text-muted-foreground" />
+              <FolderIcon className="w-7 h-7 text-muted-foreground" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">{node.name}</p>
