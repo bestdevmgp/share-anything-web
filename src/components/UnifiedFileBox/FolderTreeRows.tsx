@@ -74,26 +74,17 @@ const FolderTreeRows: React.FC<Props> = ({ nodes, depth, openFolders, toggleFold
           </div>
           {/* Nested levels render instantly (no per-level AnimatedHeight) so the
               single top-level card animates the whole expansion at once, instead
-              of each ancestor animating in sequence (a domino of openings).
-              A vertical tree guide is drawn down the left of the children (just
-              left of their hover boxes, so it stays visible) to show the level. */}
+              of each ancestor animating in sequence (a domino of openings). */}
           {isOpen && (
-            <div className="relative">
-              <span
-                aria-hidden="true"
-                className="pointer-events-none absolute top-0 bottom-0 w-px bg-foreground/[0.12]"
-                style={{ left: `calc(${treeIndent(depth)} + 0.25rem)` }}
-              />
-              <FolderTreeRows
-                nodes={node.children}
-                depth={depth + 1}
-                openFolders={openFolders}
-                toggleFolder={toggleFolder}
-                renderFile={renderFile}
-                renderFolderTrailing={renderFolderTrailing}
-                t={t}
-              />
-            </div>
+            <FolderTreeRows
+              nodes={node.children}
+              depth={depth + 1}
+              openFolders={openFolders}
+              toggleFolder={toggleFolder}
+              renderFile={renderFile}
+              renderFolderTrailing={renderFolderTrailing}
+              t={t}
+            />
           )}
         </div>
       );
