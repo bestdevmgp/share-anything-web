@@ -567,7 +567,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                                       onClick={(e) => { e.stopPropagation(); toggleFolder(fKey); }}
                                       className="w-full flex items-center gap-3 p-4 text-left can-hover:hover:bg-accent active:bg-accent transition-colors"
                                     >
-                                      <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center flex-shrink-0">
+                                      <div className="w-11 h-11 rounded bg-background flex items-center justify-center flex-shrink-0">
                                         <FolderIcon className="w-6 h-6 text-muted-foreground" />
                                       </div>
                                       <div className="min-w-0 flex-1">

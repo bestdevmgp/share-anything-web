@@ -3,6 +3,7 @@ import { FolderIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { formatFileSize } from '../../utils/format';
 import { TreeNode, TreeFile, TreeFolder, nodeFileCount, nodeSize } from '../../utils/fileTree';
 import { cn } from '../../lib/utils';
+import Collapsible from './Collapsible';
 
 const INDENT_STEP = 16;
 const INDENT_MAX = 80;
@@ -54,7 +55,7 @@ const FolderTreeRows: React.FC<Props> = ({ nodes, depth, openFolders, toggleFold
             )}
             style={{ marginLeft: `calc(-0.625rem + ${treeIndent(depth)})` }}
           >
-            <div className="flex-shrink-0 w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
+            <div className="flex-shrink-0 w-11 h-11 rounded bg-background flex items-center justify-center">
               <FolderIcon className="w-7 h-7 text-muted-foreground" />
             </div>
             <div className="flex-1 min-w-0">
@@ -72,10 +73,10 @@ const FolderTreeRows: React.FC<Props> = ({ nodes, depth, openFolders, toggleFold
               />
             )}
           </div>
-          {/* Nested levels render instantly (no per-level AnimatedHeight) so the
-              single top-level card animates the whole expansion at once, instead
-              of each ancestor animating in sequence (a domino of openings). */}
-          {isOpen && (
+          {/* Each level animates independently via grid-rows; open ancestors track
+              the child's growth in real time, so even deep expansions stay one
+              smooth motion with no per-level domino. */}
+          <Collapsible open={isOpen}>
             <FolderTreeRows
               nodes={node.children}
               depth={depth + 1}
@@ -85,7 +86,7 @@ const FolderTreeRows: React.FC<Props> = ({ nodes, depth, openFolders, toggleFold
               renderFolderTrailing={renderFolderTrailing}
               t={t}
             />
-          )}
+          </Collapsible>
         </div>
       );
     })}

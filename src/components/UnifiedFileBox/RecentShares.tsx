@@ -16,7 +16,7 @@ import FilePreviewModal from '../FilePreviewModal';
 import CopyButton from '../CopyButton';
 import TruncatedFilename from '../TruncatedFilename';
 import FolderTreeRows, { treeIndent } from './FolderTreeRows';
-import AnimatedHeight from './AnimatedHeight';
+import Collapsible from './Collapsible';
 import { buildFileTree } from '../../utils/fileTree';
 import { cn } from '../../lib/utils';
 
@@ -263,8 +263,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
               </div>
 
               {isBundle && (
-                <AnimatedHeight>
-                  {isOpen && (
+                <Collapsible open={isOpen}>
                     <div className="px-3 pb-3">
                       <div className="border-t border-foreground/[0.08] pt-2.5 space-y-2">
                         {bundleFiles[s.code] ? (
@@ -313,8 +312,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                         )}
                       </div>
                     </div>
-                  )}
-                </AnimatedHeight>
+                </Collapsible>
               )}
             </div>
           );

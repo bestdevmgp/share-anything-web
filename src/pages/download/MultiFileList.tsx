@@ -180,7 +180,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                     </div>
 
                     <div className="flex-shrink-0 hidden sm:flex">
-                      <div className="w-12 h-12 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
+                      <div className="w-12 h-12 rounded bg-background flex items-center justify-center">
                         <FolderIcon className="w-6 h-6 text-muted-foreground" />
                       </div>
                     </div>

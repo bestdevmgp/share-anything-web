@@ -6,7 +6,7 @@ import { cn } from 'lib/utils';
 import { useTranslation } from '../../i18n';
 import FileThumbnail from '../../components/FileThumbnail';
 import TruncatedFilename from '../../components/TruncatedFilename';
-import AnimatedHeight from '../../components/UnifiedFileBox/AnimatedHeight';
+import Collapsible from '../../components/UnifiedFileBox/Collapsible';
 import FolderTreeRows, { treeIndent } from '../../components/UnifiedFileBox/FolderTreeRows';
 import { buildFileTree, collectFileIds, nodeFileCount, nodeSize } from '../../utils/fileTree';
 import { formatFileSize } from '../../utils/format';
@@ -161,7 +161,7 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                         onClick={isEmpty ? undefined : (e) => { e.stopPropagation(); toggleFolder(node.path); }}
                         className={cn('flex items-center gap-3 p-3.5 transition-colors', !isEmpty && 'cursor-pointer can-hover:hover:bg-accent active:bg-accent')}
                       >
-                        <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center flex-shrink-0">
+                        <div className="w-11 h-11 rounded bg-background flex items-center justify-center flex-shrink-0">
                           <FolderIcon className="w-7 h-7 text-muted-foreground" />
                         </div>
                         <div className="min-w-0 flex-1">
@@ -181,9 +181,8 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                           </div>
                         )}
                       </div>
-                      <AnimatedHeight>
-                        {isOpen && (
-                          <div className="px-3.5 pb-3">
+                      <Collapsible open={isOpen}>
+                        <div className="px-3.5 pb-3">
                             <div className="border-t border-foreground/[0.08] pt-2.5 space-y-1">
                               <FolderTreeRows
                                 nodes={node.children}
@@ -229,8 +228,7 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                               />
                             </div>
                           </div>
-                        )}
-                      </AnimatedHeight>
+                      </Collapsible>
                     </div>
                   );
                 })}

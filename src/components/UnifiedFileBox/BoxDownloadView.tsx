@@ -21,7 +21,7 @@ import {
 import FileThumbnail from '../FileThumbnail';
 import TruncatedFilename from '../TruncatedFilename';
 import ScrollableFileList from './ScrollableFileList';
-import AnimatedHeight from './AnimatedHeight';
+import Collapsible from './Collapsible';
 import FolderTreeRows, { treeIndent } from './FolderTreeRows';
 import StatusIcon from '../StatusIcon';
 import { Button } from '../ui/button';
@@ -100,7 +100,7 @@ const EmptyFolderCard: React.FC<{
   <div className="bg-muted rounded-lg border border-foreground/[0.09] overflow-hidden">
     <div className="flex items-center px-3 py-3">
       <div className="flex-shrink-0 mr-3">
-        <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
+        <div className="w-11 h-11 rounded bg-background flex items-center justify-center">
           <FolderIcon className="w-7 h-7 text-muted-foreground" />
         </div>
       </div>
@@ -404,7 +404,7 @@ const BoxDownloadView: React.FC<Props> = ({
                         className="flex items-center px-3 py-3 cursor-pointer can-hover:hover:bg-accent active:bg-accent transition-colors"
                       >
                         <div className="flex-shrink-0 mr-3">
-                          <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
+                          <div className="w-11 h-11 rounded bg-background flex items-center justify-center">
                             <FolderIcon className="w-7 h-7 text-muted-foreground" />
                           </div>
                         </div>
@@ -416,9 +416,8 @@ const BoxDownloadView: React.FC<Props> = ({
                         </div>
                         <ChevronDownIcon className={cn('w-5 h-5 text-muted-foreground/60 transition-transform flex-shrink-0', isOpen && 'rotate-180')} />
                       </div>
-                      <AnimatedHeight>
-                        {isOpen && (
-                          <div className="px-3 pb-3">
+                      <Collapsible open={isOpen}>
+                        <div className="px-3 pb-3">
                             <div className="border-t border-foreground/[0.08] pt-2.5 space-y-1">
                               <FolderTreeRows
                                 nodes={node.children}
@@ -434,8 +433,7 @@ const BoxDownloadView: React.FC<Props> = ({
                               />
                             </div>
                           </div>
-                        )}
-                      </AnimatedHeight>
+                      </Collapsible>
                     </div>
                   );
                 })
@@ -598,7 +596,7 @@ const BoxDownloadView: React.FC<Props> = ({
                           <Checkbox checked={allSelected} className="h-5 w-5 rounded-md border-2 pointer-events-none" />
                         </span>
                         <div className="flex-shrink-0 mr-3">
-                          <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
+                          <div className="w-11 h-11 rounded bg-background flex items-center justify-center">
                             <FolderIcon className="w-7 h-7 text-muted-foreground" />
                           </div>
                         </div>
@@ -617,9 +615,8 @@ const BoxDownloadView: React.FC<Props> = ({
                           <ChevronDownIcon className={cn('w-5 h-5 text-muted-foreground/60 transition-transform', isOpen && 'rotate-180')} />
                         </button>
                       </div>
-                      <AnimatedHeight>
-                        {isOpen && (
-                          <div className="px-3 pb-3">
+                      <Collapsible open={isOpen}>
+                        <div className="px-3 pb-3">
                             <div className="border-t border-foreground/[0.08] pt-2.5 space-y-2">
                               <FolderTreeRows
                                 nodes={node.children}
@@ -652,8 +649,7 @@ const BoxDownloadView: React.FC<Props> = ({
                               />
                             </div>
                           </div>
-                        )}
-                      </AnimatedHeight>
+                      </Collapsible>
                     </div>
                   );
                 })}

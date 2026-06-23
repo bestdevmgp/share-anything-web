@@ -13,7 +13,7 @@ import FileDropzone from './upload/FileDropzone';
 import TransferSettings from './upload/TransferSettings';
 import UploadProgressBar from './upload/UploadProgressBar';
 import { storeUploadFiles, restoreUploadFiles, clearUploadFiles } from '../utils/uploadFileStorage';
-import { getFilesWithPaths, consumeEmptyFolders } from '../utils/dropzoneFiles';
+import { getFilesWithPaths, consumeEmptyFolders, supportsDirectoryPicker, pickDirectoryWithEmpties } from '../utils/dropzoneFiles';
 import { getRelativePathSafe } from '../utils/fileWithPath';
 
 const runConcurrent = async <T,>(
@@ -194,8 +194,7 @@ const UploadPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fromUnifiedBox, initialFiles]);
 
-  const onDrop = useCallback(async (acceptedFiles: File[]) => {
-    const captured = consumeEmptyFolders();
+  const addFiles = useCallback(async (acceptedFiles: File[], empties: string[]) => {
     if (acceptedFiles.length === 0) {
       toast.warning(t('upload.emptyFolder'));
       return;
@@ -203,9 +202,14 @@ const UploadPage: React.FC = () => {
     setIsProcessingFiles(true);
     await new Promise(resolve => setTimeout(resolve, 10));
     setFiles(prev => [...prev, ...acceptedFiles]);
-    if (captured.length > 0) setEmptyFolders(prev => [...prev, ...captured]);
+    if (empties.length > 0) setEmptyFolders(prev => [...prev, ...empties]);
     setIsProcessingFiles(false);
   }, [t]);
+
+  // Drag-and-drop captures empty folders via a side-channel (consumeEmptyFolders).
+  const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    await addFiles(acceptedFiles, consumeEmptyFolders());
+  }, [addFiles]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -215,9 +219,16 @@ const UploadPage: React.FC = () => {
 
   const folderInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSelectFolder = useCallback(() => {
+  // Prefer the File System Access API so the button captures empty folders too;
+  // fall back to <input webkitdirectory> (which can't report empty dirs).
+  const handleSelectFolder = useCallback(async () => {
+    if (supportsDirectoryPicker()) {
+      const picked = await pickDirectoryWithEmpties();
+      if (picked) await addFiles(picked.files, picked.emptyFolders);
+      return;
+    }
     folderInputRef.current?.click();
-  }, []);
+  }, [addFiles]);
 
   const handleFolderInputChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
