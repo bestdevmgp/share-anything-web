@@ -402,7 +402,7 @@ const BoxDownloadView: React.FC<Props> = ({
                                 toggleFolder={toggleFolder}
                                 t={t}
                                 renderFile={(file, depth) => (
-                                  <div data-row className="flex items-center -mx-2.5 px-2.5 py-2 rounded-lg" style={{ paddingLeft: `calc(0.625rem + ${treeIndent(depth)})` }}>
+                                  <div data-row className="flex items-center -mx-2.5 px-2.5 py-2 rounded-lg" style={{ marginLeft: `calc(-0.625rem + ${treeIndent(depth)})` }}>
                                     {p2pRowContent(file.id, file.name, file.size)}
                                   </div>
                                 )}
@@ -609,7 +609,7 @@ const BoxDownloadView: React.FC<Props> = ({
                                         'flex items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2 rounded-lg transition-colors',
                                         src && 'cursor-pointer can-hover:hover:bg-accent active:bg-accent'
                                       )}
-                                      style={{ paddingLeft: `calc(0.625rem + ${treeIndent(depth)})` }}
+                                      style={{ marginLeft: `calc(-0.625rem + ${treeIndent(depth)})` }}
                                     >
                                       <div className="flex-shrink-0">
                                         <FileThumbnail source={src ?? null} fileName={file.name} size="sm" />

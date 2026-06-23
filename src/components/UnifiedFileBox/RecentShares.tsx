@@ -15,6 +15,9 @@ import FileThumbnail from '../FileThumbnail';
 import FilePreviewModal from '../FilePreviewModal';
 import CopyButton from '../CopyButton';
 import TruncatedFilename from '../TruncatedFilename';
+import FolderTreeRows, { treeIndent } from './FolderTreeRows';
+import AnimatedHeight from './AnimatedHeight';
+import { buildFileTree } from '../../utils/fileTree';
 import { cn } from '../../lib/utils';
 
 interface Props {
@@ -41,6 +44,19 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
   const [previewFile, setPreviewFile] = useState<
     { fileName: string; fileSize: number; source: string; presignedUrl?: string } | null
   >(null);
+  // Open sub-folders within the currently expanded bundle (reset when switching).
+  const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
+  const toggleFolder = (path: string) =>
+    setOpenFolders((prev) => {
+      const next = new Set(prev);
+      if (next.has(path)) next.delete(path);
+      else next.add(path);
+      return next;
+    });
+
+  useEffect(() => {
+    setOpenFolders(new Set());
+  }, [expanded]);
 
   useEffect(() => {
     if (!expanded || bundleFiles[expanded]) return;
@@ -241,51 +257,58 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                 </div>
               </div>
 
-              {isBundle && isOpen && (
-                <div className="px-3 pb-3">
-                  <div className="border-t border-foreground/[0.08] pt-2.5 space-y-2">
-                    {(bundleFiles[s.code]
-                      ? bundleFiles[s.code].map((f) => ({
-                          name: f.file_name,
-                          size: f.file_size as number | undefined,
-                          id: f.id as string | undefined,
-                        }))
-                      : s.fileNames.map((name) => ({
-                          name,
-                          size: undefined as number | undefined,
-                          id: undefined as string | undefined,
-                        }))
-                    ).map((f, i) => {
-                      const clickable = !!f.id && !s.hasPassword;
-                      const rowInner = (
-                        <>
-                          <FileThumbnail source={f.id ? bundlePreviews[f.id] ?? null : null} fileName={f.name} size="sm" />
-                          <TruncatedFilename name={f.name} className="flex-1 text-sm font-medium text-foreground text-left" />
-                          {f.size != null && (
-                            <span className="flex-shrink-0 text-sm text-muted-foreground">
-                              {formatFileSize(f.size)}
-                            </span>
-                          )}
-                        </>
-                      );
-                      return clickable ? (
-                        <button
-                          key={`${f.name}-${i}`}
-                          type="button"
-                          onClick={(e) => { e.stopPropagation(); openPreviewFor(s.code, f.id!, f.name, f.size ?? 0, s.hasPassword); }}
-                          className="flex w-auto items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2 rounded-lg can-hover:hover:bg-accent active:bg-accent transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          aria-label={f.name}
-                        >
-                          {rowInner}
-                        </button>
-                      ) : (
-                        <div key={`${f.name}-${i}`} className="flex items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2">
-                          {rowInner}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
+              {isBundle && (
+                <AnimatedHeight>
+                  {isOpen && (
+                    <div className="px-3 pb-3">
+                      <div className="border-t border-foreground/[0.08] pt-2.5 space-y-2">
+                        {bundleFiles[s.code] ? (
+                          <FolderTreeRows
+                            nodes={buildFileTree(
+                              bundleFiles[s.code].map((f) => ({
+                                id: f.id,
+                                file_name: f.file_name,
+                                file_size: f.file_size,
+                                relative_path: f.relative_path,
+                              }))
+                            )}
+                            depth={1}
+                            openFolders={openFolders}
+                            toggleFolder={toggleFolder}
+                            t={t}
+                            renderFile={(file, depth) => {
+                              const clickable = !s.hasPassword;
+                              return (
+                                <div
+                                  data-row
+                                  onClick={clickable ? (e) => { e.stopPropagation(); openPreviewFor(s.code, file.id, file.name, file.size, s.hasPassword); } : undefined}
+                                  className={cn(
+                                    'flex items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2 rounded-lg transition-colors',
+                                    clickable && 'cursor-pointer can-hover:hover:bg-accent active:bg-accent'
+                                  )}
+                                  style={{ marginLeft: `calc(-0.625rem + ${treeIndent(depth)})` }}
+                                >
+                                  <FileThumbnail source={bundlePreviews[file.id] ?? null} fileName={file.name} size="sm" />
+                                  <div className="flex-1 min-w-0">
+                                    <TruncatedFilename name={file.name} className="text-sm font-medium text-foreground" />
+                                    <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+                                  </div>
+                                </div>
+                              );
+                            }}
+                          />
+                        ) : (
+                          s.fileNames.map((name, i) => (
+                            <div key={`${name}-${i}`} className="flex items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2">
+                              <FileThumbnail source={null} fileName={name} size="sm" />
+                              <TruncatedFilename name={name} className="flex-1 text-sm font-medium text-foreground text-left" />
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </AnimatedHeight>
               )}
             </div>
           );

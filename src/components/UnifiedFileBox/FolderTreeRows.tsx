@@ -1,6 +1,5 @@
 import React from 'react';
 import { FolderIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
-import AnimatedHeight from './AnimatedHeight';
 import { formatFileSize } from '../../utils/format';
 import { TreeNode, TreeFile, TreeFolder, nodeFileCount, nodeSize } from '../../utils/fileTree';
 import { cn } from '../../lib/utils';
@@ -47,7 +46,7 @@ const FolderTreeRows: React.FC<Props> = ({ nodes, depth, openFolders, toggleFold
             data-row
             onClick={(e) => { e.stopPropagation(); toggleFolder(node.path); }}
             className="flex items-center gap-3 -mx-2.5 px-2.5 py-2 cursor-pointer rounded-lg can-hover:hover:bg-accent active:bg-accent transition-colors"
-            style={{ paddingLeft: `calc(0.625rem + ${treeIndent(depth)})` }}
+            style={{ marginLeft: `calc(-0.625rem + ${treeIndent(depth)})` }}
           >
             <div className="flex-shrink-0 w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
               <FolderIcon className="w-7 h-7 text-muted-foreground" />
@@ -63,19 +62,20 @@ const FolderTreeRows: React.FC<Props> = ({ nodes, depth, openFolders, toggleFold
               className={cn('w-5 h-5 text-muted-foreground/60 transition-transform flex-shrink-0', isOpen && 'rotate-180')}
             />
           </div>
-          <AnimatedHeight>
-            {isOpen && (
-              <FolderTreeRows
-                nodes={node.children}
-                depth={depth + 1}
-                openFolders={openFolders}
-                toggleFolder={toggleFolder}
-                renderFile={renderFile}
-                renderFolderTrailing={renderFolderTrailing}
-                t={t}
-              />
-            )}
-          </AnimatedHeight>
+          {/* Nested levels render instantly (no per-level AnimatedHeight) so the
+              single top-level card animates the whole expansion at once, instead
+              of each ancestor animating in sequence (a domino of openings). */}
+          {isOpen && (
+            <FolderTreeRows
+              nodes={node.children}
+              depth={depth + 1}
+              openFolders={openFolders}
+              toggleFolder={toggleFolder}
+              renderFile={renderFile}
+              renderFolderTrailing={renderFolderTrailing}
+              t={t}
+            />
+          )}
         </div>
       );
     })}
