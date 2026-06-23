@@ -46,7 +46,7 @@ const DailyUploadQuotaWidget: React.FC = () => {
 
   if (!quota) {
     return (
-      <Card className="p-5 shadow-none border-2 border-foreground/[0.09]">
+      <Card className="p-5 shadow-none border-[3px] border-foreground/[0.09]">
         <div className="flex items-center justify-between gap-2 mb-3">
           <Skeleton className="h-5 w-32" />
           <Skeleton className="h-5 w-16" />
