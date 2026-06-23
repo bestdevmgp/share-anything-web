@@ -73,7 +73,7 @@ const DailyUploadQuotaWidget: React.FC = () => {
     : t('quota.resetsInM', { m: minutesLeft });
 
   return (
-    <Card className="p-5 shadow-none border-2 border-foreground/[0.09]">
+    <Card className="p-5 shadow-none border-[3px] border-foreground/[0.09]">
       <div className="flex items-baseline justify-between gap-2 mb-3">
         <div className="flex items-baseline gap-2 min-w-0">
           <span className="text-sm font-medium text-foreground whitespace-nowrap">
