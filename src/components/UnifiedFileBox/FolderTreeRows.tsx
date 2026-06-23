@@ -55,7 +55,7 @@ const FolderTreeRows: React.FC<Props> = ({ nodes, depth, openFolders, toggleFold
             style={{ marginLeft: `calc(-0.625rem + ${treeIndent(depth)})` }}
           >
             <div className="flex-shrink-0 w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
-              <FolderIcon className="w-7 h-7 text-muted-foreground" />
+              <FolderIcon className="w-9 h-9 text-muted-foreground" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">{node.name}</p>
@@ -74,17 +74,26 @@ const FolderTreeRows: React.FC<Props> = ({ nodes, depth, openFolders, toggleFold
           </div>
           {/* Nested levels render instantly (no per-level AnimatedHeight) so the
               single top-level card animates the whole expansion at once, instead
-              of each ancestor animating in sequence (a domino of openings). */}
+              of each ancestor animating in sequence (a domino of openings).
+              A vertical tree guide is drawn down the left of the children (just
+              left of their hover boxes, so it stays visible) to show the level. */}
           {isOpen && (
-            <FolderTreeRows
-              nodes={node.children}
-              depth={depth + 1}
-              openFolders={openFolders}
-              toggleFolder={toggleFolder}
-              renderFile={renderFile}
-              renderFolderTrailing={renderFolderTrailing}
-              t={t}
-            />
+            <div className="relative">
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute top-0 bottom-0 w-px bg-foreground/[0.12]"
+                style={{ left: `calc(${treeIndent(depth)} + 0.25rem)` }}
+              />
+              <FolderTreeRows
+                nodes={node.children}
+                depth={depth + 1}
+                openFolders={openFolders}
+                toggleFolder={toggleFolder}
+                renderFile={renderFile}
+                renderFolderTrailing={renderFolderTrailing}
+                t={t}
+              />
+            </div>
           )}
         </div>
       );

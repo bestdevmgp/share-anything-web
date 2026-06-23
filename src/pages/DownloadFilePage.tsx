@@ -111,7 +111,8 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     // (folders preserved). Otherwise save the file flat.
     const zipMode =
       bulkP2PDownloading &&
-      (fileList?.files ?? []).some((f) => (f.relative_path || '').includes('/'));
+      ((fileList?.files ?? []).some((f) => (f.relative_path || '').includes('/')) ||
+        (fileList?.empty_folders?.length ?? 0) > 0);
 
     if (zipMode) {
       bulkBlobsRef.current.push({
@@ -136,7 +137,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         if (zipMode) {
           const collected = bulkBlobsRef.current;
           bulkBlobsRef.current = [];
-          createZipFromBlobs(collected, `share-${code}.zip`)
+          createZipFromBlobs(collected, `share-${code}.zip`, fileList?.empty_folders)
             .then(() => toast.success(t('download.zipDownloadComplete')))
             .catch(() => toast.error(t('download.downloadFailed')));
         } else {
@@ -607,6 +608,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       try {
         const saved = await createStructuredZip({
           specs,
+          emptyFolders: fileList.empty_folders,
           suggestedName: `share-${code}.zip`,
           getDownloadUrl: async (fileId) => {
             const { download_url } = await fileAPI.getDownloadUrl(code, fileId, password || undefined);

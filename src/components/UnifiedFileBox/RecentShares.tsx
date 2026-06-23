@@ -41,6 +41,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
   const previews = useSharePreviews(items);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [bundleFiles, setBundleFiles] = useState<Record<string, FileListItem[]>>({});
+  const [bundleEmptyFolders, setBundleEmptyFolders] = useState<Record<string, string[]>>({});
   const [previewFile, setPreviewFile] = useState<
     { fileName: string; fileSize: number; source: string; presignedUrl?: string } | null
   >(null);
@@ -63,12 +64,16 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
     const cached = getCachedFileList(expanded);
     if (cached) {
       setBundleFiles((p) => ({ ...p, [expanded]: cached.files }));
+      setBundleEmptyFolders((p) => ({ ...p, [expanded]: cached.empty_folders ?? [] }));
       return;
     }
     let cancelled = false;
     fetchShareFileList(expanded)
       .then((res) => {
-        if (!cancelled) setBundleFiles((p) => ({ ...p, [expanded]: res.files }));
+        if (!cancelled) {
+          setBundleFiles((p) => ({ ...p, [expanded]: res.files }));
+          setBundleEmptyFolders((p) => ({ ...p, [expanded]: res.empty_folders ?? [] }));
+        }
       })
       .catch(() => {});
     return () => {
@@ -270,7 +275,8 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                                 file_name: f.file_name,
                                 file_size: f.file_size,
                                 relative_path: f.relative_path,
-                              }))
+                              })),
+                              bundleEmptyFolders[s.code] ?? []
                             )}
                             depth={1}
                             openFolders={openFolders}

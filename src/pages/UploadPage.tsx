@@ -267,7 +267,8 @@ const UploadPage: React.FC = () => {
             type: file.type || 'application/octet-stream',
             relative_path: getRelativePathSafe(file)
           })),
-          isAuthenticated && password ? password : undefined
+          isAuthenticated && password ? password : undefined,
+          emptyFolders
         );
 
         navigate('/upload/success', {
@@ -436,7 +437,8 @@ const UploadPage: React.FC = () => {
           parts: completedFileParts[fileInit.storage_key],
           image_width: dimensions[i]?.width,
           image_height: dimensions[i]?.height,
-        }))
+        })),
+        empty_folders: emptyFolders.length > 0 ? emptyFolders : undefined,
       });
 
       navigate('/upload/success', {

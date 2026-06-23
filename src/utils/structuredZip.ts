@@ -43,6 +43,20 @@ export class ZipFetchError extends Error {
 
 type GetUrl = (id: string) => Promise<string>;
 
+function normalizeFolderPaths(paths: string[] | undefined): string[] {
+  if (!paths || paths.length === 0) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of paths) {
+    const p = (raw || '').trim().replace(/^\/+|\/+$/g, '');
+    if (p && !seen.has(p)) {
+      seen.add(p);
+      out.push(p);
+    }
+  }
+  return out;
+}
+
 function dedupeEntryNames(specs: ZipFileSpec[]): ZipFileSpec[] {
   const seen = new Map<string, number>();
   return specs.map((spec) => {
@@ -68,16 +82,18 @@ export async function createStructuredZip(opts: {
   onProgress?: (p: ZipProgress) => void;
   signal?: AbortSignal;
   preferFallback?: boolean;
+  emptyFolders?: string[];
 }): Promise<boolean> {
   const specs = dedupeEntryNames(opts.specs);
+  const emptyFolders = normalizeFolderPaths(opts.emptyFolders);
   const total = specs.length;
 
   const useStreaming = canStreamToDisk() && !opts.preferFallback;
 
   if (useStreaming) {
-    return streamToDisk(specs, opts.getDownloadUrl, opts.suggestedName, total, opts.onProgress, opts.signal);
+    return streamToDisk(specs, opts.getDownloadUrl, opts.suggestedName, total, emptyFolders, opts.onProgress, opts.signal);
   }
-  await buildInMemory(specs, opts.getDownloadUrl, opts.suggestedName, total, opts.onProgress, opts.signal);
+  await buildInMemory(specs, opts.getDownloadUrl, opts.suggestedName, total, emptyFolders, opts.onProgress, opts.signal);
   return true;
 }
 
@@ -86,6 +102,7 @@ async function streamToDisk(
   getDownloadUrl: GetUrl,
   suggestedName: string,
   total: number,
+  emptyFolders: string[],
   onProgress?: (p: ZipProgress) => void,
   signal?: AbortSignal
 ): Promise<boolean> {
@@ -104,6 +121,9 @@ async function streamToDisk(
   const writable = await handle.createWritable();
 
   async function* entries() {
+    for (const folder of emptyFolders) {
+      yield { name: folder };
+    }
     for (let i = 0; i < specs.length; i++) {
       if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');
       const spec = specs[i];
@@ -152,13 +172,17 @@ async function streamToDisk(
 // path). Used for P2P, where files arrive as blobs over WebRTC rather than URLs.
 export async function createZipFromBlobs(
   files: { entryName: string; blob: Blob }[],
-  suggestedName: string
+  suggestedName: string,
+  emptyFolders?: string[]
 ): Promise<void> {
   const specs = dedupeEntryNames(
     files.map((f, i) => ({ id: String(i), entryName: f.entryName, fileName: f.entryName, size: f.blob.size }))
   );
   const JSZip = (await import('jszip')).default;
   const zip = new JSZip();
+  for (const folder of normalizeFolderPaths(emptyFolders)) {
+    zip.folder(folder);
+  }
   specs.forEach((spec, i) => zip.file(spec.entryName, files[i].blob));
   const out = await zip.generateAsync({ type: 'blob' });
   downloadFile(out, suggestedName);
@@ -169,11 +193,16 @@ async function buildInMemory(
   getDownloadUrl: GetUrl,
   suggestedName: string,
   total: number,
+  emptyFolders: string[],
   onProgress?: (p: ZipProgress) => void,
   signal?: AbortSignal
 ): Promise<void> {
   const JSZip = (await import('jszip')).default;
   const zip = new JSZip();
+
+  for (const folder of emptyFolders) {
+    zip.folder(folder);
+  }
 
   for (let i = 0; i < specs.length; i++) {
     if (signal?.aborted) throw new DOMException('Aborted', 'AbortError');

@@ -113,6 +113,7 @@ export interface FileListResponse {
   expires_at: string;
   transfer_type: 'server' | 'p2p';
   uploader_online: boolean | null;
+  empty_folders?: string[];
 }
 
 export interface BulkDownloadRequest {
@@ -271,6 +272,7 @@ export interface CompleteMultipartUploadRequest {
   upload_session_id: string;
   share_code: string;
   files: CompleteMultipartFileInfo[];
+  empty_folders?: string[];
 }
 
 export interface IceServer {

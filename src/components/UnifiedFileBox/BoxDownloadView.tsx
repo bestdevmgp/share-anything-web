@@ -93,6 +93,25 @@ const Check: React.FC = () => (
   </svg>
 );
 
+const EmptyFolderCard: React.FC<{
+  name: string;
+  t: (key: string, params?: Record<string, string | number>) => string;
+}> = ({ name, t }) => (
+  <div className="bg-muted rounded-lg border border-foreground/[0.09] overflow-hidden">
+    <div className="flex items-center px-3 py-3">
+      <div className="flex-shrink-0 mr-3">
+        <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
+          <FolderIcon className="w-9 h-9 text-muted-foreground" />
+        </div>
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium text-foreground truncate">{name}</p>
+        <p className="text-xs text-muted-foreground">{t('upload.folderEmpty')}</p>
+      </div>
+    </div>
+  </div>
+);
+
 const BoxDownloadView: React.FC<Props> = ({
   fileList,
   loading,
@@ -140,13 +159,16 @@ const BoxDownloadView: React.FC<Props> = ({
       return next;
     });
 
-  const tree = useMemo(() => buildFileTree(fileList?.files ?? []), [fileList?.files]);
+  const tree = useMemo(
+    () => buildFileTree(fileList?.files ?? [], fileList?.empty_folders ?? []),
+    [fileList?.files, fileList?.empty_folders]
+  );
   const hasFolders = treeHasFolders(tree);
 
   // Box-height target: count every row as if all folders were expanded, so the
   // box is pre-sized to the full content and opening a folder doesn't grow it.
   const totalRowCount = countVisibleRows(tree, () => true);
-  const topFolderCount = tree.filter((n) => n.kind === 'folder').length;
+  const topFolderCount = tree.filter((n) => n.kind === 'folder' && n.children.length > 0).length;
 
   // During a P2P receive, auto-expand every folder on the way to the active file
   // so its progress is visible.
@@ -370,6 +392,9 @@ const BoxDownloadView: React.FC<Props> = ({
                       </div>
                     );
                   }
+                  if (node.children.length === 0) {
+                    return <div key={`folder:${node.path}`} data-row><EmptyFolderCard name={node.name} t={t} /></div>;
+                  }
                   const isOpen = openFolders.has(node.path);
                   return (
                     <div key={`folder:${node.path}`} className="bg-muted rounded-lg border border-foreground/[0.09] overflow-hidden">
@@ -380,7 +405,7 @@ const BoxDownloadView: React.FC<Props> = ({
                       >
                         <div className="flex-shrink-0 mr-3">
                           <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
-                            <FolderIcon className="w-7 h-7 text-muted-foreground" />
+                            <FolderIcon className="w-9 h-9 text-muted-foreground" />
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
@@ -546,6 +571,9 @@ const BoxDownloadView: React.FC<Props> = ({
                       </div>
                     );
                   }
+                  if (node.children.length === 0) {
+                    return <div key={`folder:${node.path}`} data-row><EmptyFolderCard name={node.name} t={t} /></div>;
+                  }
                   const ids = collectFileIds(node);
                   const allSelected = ids.length > 0 && ids.every((id) => selectedFiles.has(id));
                   const isOpen = openFolders.has(node.path);
@@ -571,7 +599,7 @@ const BoxDownloadView: React.FC<Props> = ({
                         </span>
                         <div className="flex-shrink-0 mr-3">
                           <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
-                            <FolderIcon className="w-7 h-7 text-muted-foreground" />
+                            <FolderIcon className="w-9 h-9 text-muted-foreground" />
                           </div>
                         </div>
                         <div className="flex-1 min-w-0">
