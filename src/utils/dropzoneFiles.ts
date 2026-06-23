@@ -38,12 +38,17 @@ const readAllEntries = (reader: FSDirectoryReader): Promise<FSEntry[]> =>
     next();
   });
 
+// Returns whether this entry contributed at least one file. Directories whose
+// entire subtree has no files are recorded in `emptyDirs` (their full path), so
+// the structure can still show the empty folder. Drag-and-drop only — the
+// folder-picker input never exposes empty directories.
 async function walkEntry(
   entry: FSEntry,
   prefix: string,
-  out: { file: File; path: string }[]
-): Promise<void> {
-  if (isJunkPath(entry.name)) return;
+  out: { file: File; path: string }[],
+  emptyDirs: string[]
+): Promise<boolean> {
+  if (isJunkPath(entry.name)) return false;
 
   if (entry.isFile) {
     const fileEntry = entry as FSFileEntry;
@@ -51,12 +56,12 @@ async function walkEntry(
     try {
       file = await readFile(fileEntry);
     } catch {
-      return;
+      return false;
     }
     const path = prefix ? `${prefix}/${file.name}` : file.name;
-    if (isJunkPath(path)) return;
+    if (isJunkPath(path)) return false;
     out.push({ file, path });
-    return;
+    return true;
   }
 
   if (entry.isDirectory) {
@@ -66,13 +71,18 @@ async function walkEntry(
     try {
       entries = await readAllEntries(reader);
     } catch {
-      return;
+      return false;
     }
     const childPrefix = prefix ? `${prefix}/${entry.name}` : entry.name;
+    let anyFile = false;
     for (const child of entries) {
-      await walkEntry(child, childPrefix, out);
+      const contributed = await walkEntry(child, childPrefix, out, emptyDirs);
+      anyFile = anyFile || contributed;
     }
+    if (!anyFile) emptyDirs.push(childPrefix);
+    return anyFile;
   }
+  return false;
 }
 
 type DropLikeEvent = {
@@ -85,6 +95,16 @@ const filterJunkFiles = (files: File[]): File[] =>
     const rel = (f as File & { webkitRelativePath?: string }).webkitRelativePath;
     return !isJunkPath(rel || f.name);
   });
+
+// Empty-folder paths captured during the most recent drag-and-drop. react-dropzone's
+// getFilesFromEvent must return File[], so empty folders ride this side-channel —
+// read it synchronously right after the drop (in onDrop / the folder handler).
+let lastEmptyFolders: string[] = [];
+export function consumeEmptyFolders(): string[] {
+  const ef = lastEmptyFolders;
+  lastEmptyFolders = [];
+  return ef;
+}
 
 export async function getFilesWithPaths(event: unknown): Promise<File[]> {
   const e = event as DropLikeEvent;
@@ -100,9 +120,11 @@ export async function getFilesWithPaths(event: unknown): Promise<File[]> {
 
     if (entries.length > 0) {
       const collected: { file: File; path: string }[] = [];
+      const emptyDirs: string[] = [];
       for (const entry of entries) {
-        await walkEntry(entry, '', collected);
+        await walkEntry(entry, '', collected, emptyDirs);
       }
+      lastEmptyFolders = emptyDirs;
       const files: File[] = [];
       for (const { file, path } of collected) {
         if (path.indexOf('/') !== -1) setRelativePath(file, path);
@@ -112,6 +134,9 @@ export async function getFilesWithPaths(event: unknown): Promise<File[]> {
     }
   }
 
+  // Folder-picker input / plain file list: the browser does not expose empty
+  // directories here, so there are none to capture.
+  lastEmptyFolders = [];
   const fileList = dt?.files ?? e?.target?.files ?? null;
   const files = fileList ? Array.from(fileList) : [];
   return filterJunkFiles(files);

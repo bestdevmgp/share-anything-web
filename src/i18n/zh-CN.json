@@ -225,6 +225,7 @@
     "addFolder": "添加文件夹",
     "emptyFolder": "这是空文件夹。请选择包含文件的文件夹。",
     "folderItemCount": "{{count}}个文件",
+    "folderEmpty": "空文件夹",
     "fileCountLabel": "{{count}} 个文件"
   },
   "uploadSuccess": {

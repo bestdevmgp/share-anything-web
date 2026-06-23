@@ -14,6 +14,7 @@ import { getRelativePathSafe } from '../../utils/fileWithPath';
 
 export interface FileDropzoneProps {
   files: File[];
+  emptyFolders: string[];
   transferType: 'server' | 'p2p';
   isAuthenticated: boolean;
   isDragActive: boolean;
@@ -30,6 +31,7 @@ export interface FileDropzoneProps {
 
 const FileDropzone: React.FC<FileDropzoneProps> = ({
   files,
+  emptyFolders,
   transferType,
   isAuthenticated,
   isDragActive,
@@ -56,9 +58,10 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
           file_name: f.name,
           file_size: f.size,
           relative_path: getRelativePathSafe(f),
-        }))
+        })),
+        emptyFolders
       ),
-    [files]
+    [files, emptyFolders]
   );
 
   const totalSize = useMemo(() => files.reduce((sum, f) => sum + f.size, 0), [files]);
@@ -149,31 +152,34 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                       </div>
                     );
                   }
-                  const isOpen = openFolders.has(node.path);
+                  const isEmpty = node.children.length === 0;
+                  const isOpen = !isEmpty && openFolders.has(node.path);
                   return (
                     <div key={`folder:${node.path}`} className="bg-muted rounded-lg border border-foreground/[0.09] overflow-hidden">
                       <div
                         role="button"
-                        onClick={(e) => { e.stopPropagation(); toggleFolder(node.path); }}
-                        className="flex items-center gap-3 p-3.5 cursor-pointer can-hover:hover:bg-accent active:bg-accent transition-colors"
+                        onClick={isEmpty ? undefined : (e) => { e.stopPropagation(); toggleFolder(node.path); }}
+                        className={cn('flex items-center gap-3 p-3.5 transition-colors', !isEmpty && 'cursor-pointer can-hover:hover:bg-accent active:bg-accent')}
                       >
                         <div className="w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center flex-shrink-0">
                           <FolderIcon className="w-7 h-7 text-muted-foreground" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="text-base font-medium text-foreground truncate">{node.name}</p>
-                          <p className="text-xs text-muted-foreground">{t('upload.folderItemCount', { count: nodeFileCount(node) })} · {formatFileSize(nodeSize(node))}</p>
+                          <p className="text-xs text-muted-foreground">{isEmpty ? t('upload.folderEmpty') : `${t('upload.folderItemCount', { count: nodeFileCount(node) })} · ${formatFileSize(nodeSize(node))}`}</p>
                         </div>
-                        <div className="flex items-center gap-1 flex-shrink-0">
-                          <ChevronDownIcon className={cn('w-5 h-5 text-muted-foreground/50 transition-transform', isOpen && 'rotate-180')} />
-                          <button
-                            type="button"
-                            onClick={(e) => { e.stopPropagation(); onRemoveFiles(collectFileIds(node).map(Number)); }}
-                            className="-mr-1 p-1 can-hover:hover:bg-foreground/10 active:bg-foreground/10 rounded-md transition-colors"
-                          >
-                            <XMarkIcon className="w-4 h-4 text-muted-foreground" />
-                          </button>
-                        </div>
+                        {!isEmpty && (
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            <ChevronDownIcon className={cn('w-5 h-5 text-muted-foreground/50 transition-transform', isOpen && 'rotate-180')} />
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); onRemoveFiles(collectFileIds(node).map(Number)); }}
+                              className="-mr-1 p-1 can-hover:hover:bg-foreground/10 active:bg-foreground/10 rounded-md transition-colors"
+                            >
+                              <XMarkIcon className="w-4 h-4 text-muted-foreground" />
+                            </button>
+                          </div>
+                        )}
                       </div>
                       <AnimatedHeight>
                         {isOpen && (
@@ -185,15 +191,17 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                                 openFolders={openFolders}
                                 toggleFolder={toggleFolder}
                                 t={t}
-                                renderFolderTrailing={(folderNode) => (
-                                  <button
-                                    type="button"
-                                    onClick={(e) => { e.stopPropagation(); onRemoveFiles(collectFileIds(folderNode).map(Number)); }}
-                                    className="-mr-0.5 p-1 can-hover:hover:bg-foreground/10 active:bg-foreground/10 rounded-md transition-colors flex-shrink-0"
-                                  >
-                                    <XMarkIcon className="w-4 h-4 text-muted-foreground" />
-                                  </button>
-                                )}
+                                renderFolderTrailing={(folderNode) =>
+                                  folderNode.children.length === 0 ? null : (
+                                    <button
+                                      type="button"
+                                      onClick={(e) => { e.stopPropagation(); onRemoveFiles(collectFileIds(folderNode).map(Number)); }}
+                                      className="-mr-0.5 p-1 can-hover:hover:bg-foreground/10 active:bg-foreground/10 rounded-md transition-colors flex-shrink-0"
+                                    >
+                                      <XMarkIcon className="w-4 h-4 text-muted-foreground" />
+                                    </button>
+                                  )
+                                }
                                 renderFile={(fileNode, depth) => {
                                   const index = Number(fileNode.id);
                                   const file = files[index];

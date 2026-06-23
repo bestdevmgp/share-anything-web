@@ -39,13 +39,19 @@ const FolderTreeRows: React.FC<Props> = ({ nodes, depth, openFolders, toggleFold
       if (node.kind === 'file') {
         return <React.Fragment key={node.id}>{renderFile(node, depth)}</React.Fragment>;
       }
-      const isOpen = openFolders.has(node.path);
+      // A folder with no files anywhere has no children: show it, but it can't
+      // be expanded (nothing inside).
+      const isEmpty = node.children.length === 0;
+      const isOpen = !isEmpty && openFolders.has(node.path);
       return (
         <div key={`d:${node.path}`}>
           <div
             data-row
-            onClick={(e) => { e.stopPropagation(); toggleFolder(node.path); }}
-            className="flex items-center gap-3 -mx-2.5 px-2.5 py-2 cursor-pointer rounded-lg can-hover:hover:bg-accent active:bg-accent transition-colors"
+            onClick={isEmpty ? undefined : (e) => { e.stopPropagation(); toggleFolder(node.path); }}
+            className={cn(
+              'flex items-center gap-3 -mx-2.5 px-2.5 py-2 rounded-lg transition-colors',
+              !isEmpty && 'cursor-pointer can-hover:hover:bg-accent active:bg-accent'
+            )}
             style={{ marginLeft: `calc(-0.625rem + ${treeIndent(depth)})` }}
           >
             <div className="flex-shrink-0 w-11 h-11 rounded-lg bg-background border border-foreground/[0.09] flex items-center justify-center">
@@ -54,13 +60,17 @@ const FolderTreeRows: React.FC<Props> = ({ nodes, depth, openFolders, toggleFold
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">{node.name}</p>
               <p className="text-xs text-muted-foreground">
-                {t('upload.folderItemCount', { count: nodeFileCount(node) })} · {formatFileSize(nodeSize(node))}
+                {isEmpty
+                  ? t('upload.folderEmpty')
+                  : `${t('upload.folderItemCount', { count: nodeFileCount(node) })} · ${formatFileSize(nodeSize(node))}`}
               </p>
             </div>
             {renderFolderTrailing?.(node, depth)}
-            <ChevronDownIcon
-              className={cn('w-5 h-5 text-muted-foreground/60 transition-transform flex-shrink-0', isOpen && 'rotate-180')}
-            />
+            {!isEmpty && (
+              <ChevronDownIcon
+                className={cn('w-5 h-5 text-muted-foreground/60 transition-transform flex-shrink-0', isOpen && 'rotate-180')}
+              />
+            )}
           </div>
           {/* Nested levels render instantly (no per-level AnimatedHeight) so the
               single top-level card animates the whole expansion at once, instead

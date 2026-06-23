@@ -225,6 +225,7 @@
     "addFolder": "Add Folder",
     "emptyFolder": "This folder is empty. Choose a folder that contains files.",
     "folderItemCount": "{{count}} files",
+    "folderEmpty": "Empty folder",
     "fileCountLabel": "{{count}} files"
   },
   "uploadSuccess": {

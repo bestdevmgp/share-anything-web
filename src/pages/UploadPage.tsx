@@ -13,7 +13,7 @@ import FileDropzone from './upload/FileDropzone';
 import TransferSettings from './upload/TransferSettings';
 import UploadProgressBar from './upload/UploadProgressBar';
 import { storeUploadFiles, restoreUploadFiles, clearUploadFiles } from '../utils/uploadFileStorage';
-import { getFilesWithPaths } from '../utils/dropzoneFiles';
+import { getFilesWithPaths, consumeEmptyFolders } from '../utils/dropzoneFiles';
 import { getRelativePathSafe } from '../utils/fileWithPath';
 
 const runConcurrent = async <T,>(
@@ -51,6 +51,9 @@ const UploadPage: React.FC = () => {
   const initialFilesHandledRef = useRef(false);
 
   const [files, setFiles] = useState<File[]>([]);
+  // Empty folders (no files anywhere) captured from a drag-and-drop, shown in the
+  // tree as non-expandable. The folder-picker input can't report empty folders.
+  const [emptyFolders, setEmptyFolders] = useState<string[]>([]);
   const [isProcessingFiles, setIsProcessingFiles] = useState(false);
   const [description, setDescription] = useState('');
   const [password, setPassword] = useState('');
@@ -192,6 +195,7 @@ const UploadPage: React.FC = () => {
   }, [fromUnifiedBox, initialFiles]);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    const captured = consumeEmptyFolders();
     if (acceptedFiles.length === 0) {
       toast.warning(t('upload.emptyFolder'));
       return;
@@ -199,6 +203,7 @@ const UploadPage: React.FC = () => {
     setIsProcessingFiles(true);
     await new Promise(resolve => setTimeout(resolve, 10));
     setFiles(prev => [...prev, ...acceptedFiles]);
+    if (captured.length > 0) setEmptyFolders(prev => [...prev, ...captured]);
     setIsProcessingFiles(false);
   }, [t]);
 
@@ -564,6 +569,7 @@ const UploadPage: React.FC = () => {
 
         <FileDropzone
           files={files}
+          emptyFolders={emptyFolders}
           transferType={transferType}
           isAuthenticated={isAuthenticated}
           isDragActive={isDragActive}

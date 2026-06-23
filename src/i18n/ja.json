@@ -225,6 +225,7 @@
     "addFolder": "フォルダを追加",
     "emptyFolder": "空のフォルダです。ファイルが入ったフォルダを選択してください。",
     "folderItemCount": "{{count}}個",
+    "folderEmpty": "空のフォルダ",
     "fileCountLabel": "{{count}}個のファイル"
   },
   "uploadSuccess": {

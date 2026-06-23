@@ -34,27 +34,38 @@ function sortNodes(nodes: TreeNode[]): void {
   for (const n of nodes) if (n.kind === 'folder') sortNodes(n.children);
 }
 
-export function buildFileTree(files: FileLike[]): TreeNode[] {
+// Walk/create the folder chain for the given path segments, returning the leaf.
+function ensureFolder(root: TreeFolder, segments: string[]): TreeFolder {
+  let cursor = root;
+  let acc = '';
+  for (const seg of segments) {
+    const path = acc ? `${acc}/${seg}` : seg;
+    acc = path;
+    let next = cursor.children.find(
+      (c): c is TreeFolder => c.kind === 'folder' && c.path === path
+    );
+    if (!next) {
+      next = { kind: 'folder', name: seg, path, children: [] };
+      cursor.children.push(next);
+    }
+    cursor = next;
+  }
+  return cursor;
+}
+
+// `emptyFolders` are full paths of folders that contain no files anywhere; each
+// gets a folder node with no children (so it renders but can't be expanded).
+export function buildFileTree(files: FileLike[], emptyFolders: string[] = []): TreeNode[] {
   const root: TreeFolder = { kind: 'folder', name: '', path: '', children: [] };
   for (const f of files) {
     const rel = sanitizeRelativePath(f.relative_path || '');
     const segs = rel ? rel.split('/') : [];
-    const folderSegs = segs.slice(0, -1); // last segment is the file name
-    let cursor = root;
-    let acc = '';
-    for (const seg of folderSegs) {
-      const path = acc ? `${acc}/${seg}` : seg;
-      acc = path;
-      let next = cursor.children.find(
-        (c): c is TreeFolder => c.kind === 'folder' && c.path === path
-      );
-      if (!next) {
-        next = { kind: 'folder', name: seg, path, children: [] };
-        cursor.children.push(next);
-      }
-      cursor = next;
-    }
-    cursor.children.push({ kind: 'file', id: f.id, name: f.file_name, size: f.file_size });
+    const folder = ensureFolder(root, segs.slice(0, -1)); // last segment is the file name
+    folder.children.push({ kind: 'file', id: f.id, name: f.file_name, size: f.file_size });
+  }
+  for (const ef of emptyFolders) {
+    const segs = sanitizeRelativePath(ef).split('/').filter(Boolean);
+    if (segs.length > 0) ensureFolder(root, segs);
   }
   sortNodes(root.children);
   return root.children;
