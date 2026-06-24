@@ -9,6 +9,10 @@ import TruncatedFilename from '../../components/TruncatedFilename';
 import { Button } from '../../components/ui/button';
 import { Skeleton } from '../../components/ui/skeleton';
 import { Card, CardContent } from '../../components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
+import FolderTreeRows, { treeIndent } from '../../components/UnifiedFileBox/FolderTreeRows';
+import Collapsible from '../../components/UnifiedFileBox/Collapsible';
+import { buildFileTree, nodeFileCount, nodeSize } from '../../utils/fileTree';
 import { cn } from 'lib/utils';
 
 interface PdfPreviewProps {
@@ -130,6 +134,7 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
 }) => {
   const expandRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
+  const [detailUploadId, setDetailUploadId] = useState<string | null>(null);
   const toggleFolder = (key: string) =>
     setOpenFolders((prev) => {
       const next = new Set(prev);
@@ -464,41 +469,92 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                     </div>
                   </div>
                   );
+                  const detailUpload = detailUploadId ? group.files.find((f) => f.id === detailUploadId) : null;
+                  const fileRowDetail = (upload: UploadHistoryItem, compact: boolean, depth = 0) => (
+                    <button
+                      type="button"
+                      data-row={compact ? '' : undefined}
+                      onClick={(e) => { e.stopPropagation(); setDetailUploadId(upload.id); }}
+                      className={cn(
+                        'w-full flex items-center gap-3 min-w-0 text-left can-hover:hover:bg-accent active:bg-accent transition-colors',
+                        compact ? '-mx-2.5 px-2.5 py-2 rounded-lg' : 'p-3 rounded-lg bg-muted border border-foreground/[0.09]'
+                      )}
+                      style={compact ? { marginLeft: `calc(-0.625rem + ${treeIndent(depth)})` } : undefined}
+                    >
+                      <FileThumbnail source={getThumbnailSource(upload)} fileName={upload.file_name} size="sm" />
+                      <div className="flex-1 min-w-0">
+                        <TruncatedFilename name={upload.file_name} className="text-sm font-medium text-foreground" />
+                        <p className="text-xs text-muted-foreground">{formatFileSize(upload.file_size)}</p>
+                      </div>
+                    </button>
+                  );
                   return hasFoldersInGroup ? (
-                    <div className="space-y-3">
-                      {Array.from(folders.entries()).map(([folderName, items]) => {
-                        const fKey = `${group.shareCode}/${folderName}`;
-                        const isOpen = openFolders.has(fKey);
-                        const folderSize = items.reduce((s, it) => s + it.file_size, 0);
+                    <div className="space-y-2" style={{ containerType: 'inline-size' }}>
+                      {buildFileTree(group.files.map((f) => ({ id: f.id, file_name: f.file_name, file_size: f.file_size, relative_path: f.relative_path }))).map((node) => {
+                        if (node.kind === 'file') {
+                          const upload = group.files.find((f) => f.id === node.id);
+                          return upload ? <React.Fragment key={node.id}>{fileRowDetail(upload, false)}</React.Fragment> : null;
+                        }
+                        if (node.children.length === 0) {
+                          return (
+                            <div key={`folder:${node.path}`} className="flex items-center gap-3 p-3 rounded-lg bg-muted border border-foreground/[0.09]">
+                              <div className="w-11 h-11 rounded bg-background flex items-center justify-center flex-shrink-0">
+                                <FolderIcon className="w-6 h-6 text-muted-foreground" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-semibold text-foreground truncate">{node.name}</p>
+                                <p className="text-xs text-muted-foreground">{t('upload.folderEmpty')}</p>
+                              </div>
+                            </div>
+                          );
+                        }
+                        const isOpen = openFolders.has(node.path);
                         return (
-                          <div key={`folder:${folderName}`} className="bg-muted rounded-lg border border-foreground/[0.09] overflow-hidden">
+                          <div key={`folder:${node.path}`} className="bg-muted rounded-lg border border-foreground/[0.09] overflow-hidden">
                             <button
                               type="button"
-                              onClick={(e) => { e.stopPropagation(); toggleFolder(fKey); }}
+                              onClick={(e) => { e.stopPropagation(); toggleFolder(node.path); }}
                               className="w-full flex items-center gap-3 p-3 text-left can-hover:hover:bg-accent active:bg-accent transition-colors"
                             >
                               <div className="w-11 h-11 rounded bg-background flex items-center justify-center flex-shrink-0">
                                 <FolderIcon className="w-6 h-6 text-muted-foreground" />
                               </div>
                               <div className="min-w-0 flex-1">
-                                <p className="text-sm font-semibold text-foreground truncate">{folderName}</p>
-                                <p className="text-xs text-muted-foreground">{t('upload.folderItemCount', { count: items.length })} · {formatFileSize(folderSize)}</p>
+                                <p className="text-sm font-semibold text-foreground truncate">{node.name}</p>
+                                <p className="text-xs text-muted-foreground">{t('upload.folderItemCount', { count: nodeFileCount(node) })} · {formatFileSize(nodeSize(node))}</p>
                               </div>
                               <ChevronDownIcon className={cn('w-5 h-5 text-muted-foreground/50 transition-transform flex-shrink-0', isOpen && 'rotate-180')} />
                             </button>
-                            {isOpen && (
-                              <div className="px-3 pb-3 pt-3 space-y-4 border-t border-foreground/[0.08]">
-                                {items.map((upload) => (
-                                  <React.Fragment key={upload.id}>{renderFileDetail(upload)}</React.Fragment>
-                                ))}
+                            <Collapsible open={isOpen}>
+                              <div className="px-3 pb-3">
+                                <div className="border-t border-foreground/[0.08] pt-2.5 space-y-1">
+                                  <FolderTreeRows
+                                    nodes={node.children}
+                                    depth={1}
+                                    openFolders={openFolders}
+                                    toggleFolder={toggleFolder}
+                                    t={t}
+                                    renderFile={(file, depth) => {
+                                      const upload = group.files.find((f) => f.id === file.id);
+                                      return upload ? fileRowDetail(upload, true, depth) : null;
+                                    }}
+                                  />
+                                </div>
                               </div>
-                            )}
+                            </Collapsible>
                           </div>
                         );
                       })}
-                      {looseFiles.map((upload) => (
-                        <React.Fragment key={upload.id}>{renderFileDetail(upload)}</React.Fragment>
-                      ))}
+                      {detailUpload && (
+                        <Dialog open onOpenChange={(o) => { if (!o) setDetailUploadId(null); }}>
+                          <DialogContent className="max-w-lg w-[calc(100vw-2rem)] max-h-[85vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle className="truncate">{detailUpload.file_name}</DialogTitle>
+                            </DialogHeader>
+                            {renderFileDetail(detailUpload)}
+                          </DialogContent>
+                        </Dialog>
+                      )}
                     </div>
                   ) : (
                     group.files.map((upload) => (
