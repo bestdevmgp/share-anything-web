@@ -64,7 +64,12 @@ const Uploading: React.FC<Props> = ({ items, onCancel, onCancelAll }) => {
           </div>
           <button
             onClick={onCancelAll}
-            className="flex-shrink-0 -mr-1 p-1 rounded-md text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
+            disabled={allCompleted}
+            className={`flex-shrink-0 -mr-1 p-1 rounded-md transition-colors ${
+              allCompleted
+                ? 'text-muted-foreground/30 cursor-not-allowed'
+                : 'text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10'
+            }`}
             title={t('common.cancel')}
           >
             <XMarkIcon className="w-4 h-4" />
