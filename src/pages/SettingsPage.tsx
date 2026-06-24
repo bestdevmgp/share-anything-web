@@ -236,6 +236,7 @@ const SettingsPage: React.FC = () => {
   const [sessionsLoaded, setSessionsLoaded] = useState(false);
   const [terminatingJti, setTerminatingJti] = useState<string | null>(null);
   const [deletingTrustedId, setDeletingTrustedId] = useState<string | null>(null);
+  const [deletingAllTrusted, setDeletingAllTrusted] = useState(false);
   const [showTerminateOthersConfirm, setShowTerminateOthersConfirm] = useState(false);
   const [terminatingOthers, setTerminatingOthers] = useState(false);
 
@@ -375,6 +376,27 @@ const SettingsPage: React.FC = () => {
       toast.error(t('settings.deleteTrustedDeviceFailed'));
     } finally {
       setDeletingTrustedId(null);
+    }
+  };
+
+  const handleDeleteAllTrustedDevices = async () => {
+    if (trustedDevices.length === 0) return;
+    if (!window.confirm(t('settings.deleteAllTrustedDevicesConfirm'))) return;
+    setDeletingAllTrusted(true);
+    try {
+      await Promise.all(trustedDevices.map((d) => sessionAPI.deleteTrusted(d.id)));
+      setTrustedDevices([]);
+      toast.success(t('settings.deleteAllTrustedDevicesSuccess'));
+    } catch {
+      toast.error(t('settings.deleteTrustedDeviceFailed'));
+      try {
+        const list = await sessionAPI.listTrusted();
+        setTrustedDevices(list);
+      } catch {
+        // ignore refresh failure
+      }
+    } finally {
+      setDeletingAllTrusted(false);
     }
   };
 
@@ -1300,13 +1322,25 @@ const SettingsPage: React.FC = () => {
               <Separator />
 
               <div className="mt-8">
-                <div className="mb-4">
+                <div className="mb-4 flex items-center justify-between gap-3">
                   <Label className="text-sm font-medium">
                     {t('settings.trustedDevices')}
                     {sessionsLoaded && (
                       <span className="ml-1.5 text-muted-foreground">({trustedDevices.length})</span>
                     )}
                   </Label>
+                  {sessionsLoaded && trustedDevices.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleDeleteAllTrustedDevices}
+                      disabled={deletingAllTrusted}
+                      className="relative text-red-600 dark:text-red-400 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 flex-shrink-0"
+                    >
+                      <span className={deletingAllTrusted ? 'invisible' : ''}>{t('settings.deleteAllTrustedDevices')}</span>
+                      {deletingAllTrusted && <Spinner size="sm" className="absolute" />}
+                    </Button>
+                  )}
                 </div>
 
                 {sessionsLoading && !sessionsLoaded ? (
