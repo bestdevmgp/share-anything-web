@@ -74,8 +74,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   const [zipError, setZipError] = useState(false);
   const zipAbortRef = useRef<AbortController | null>(null);
 
-  const [previewFile, setPreviewFile] = useState<{ fileName: string; fileSize: number; source: string; presignedUrl?: string } | null>(null);
-  const previewObjectUrlRef = useRef<string | null>(null);
+  const [previewFile, setPreviewFile] = useState<{ fileName: string; fileSize: number; source?: string; code?: string; fileId?: string; password?: string; presignedUrl?: string } | null>(null);
   const [singleFilePreviewUrl, setSingleFilePreviewUrl] = useState<string | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
 
@@ -435,45 +434,29 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
 
   // Revoke a still-open preview's object URL if the component unmounts (route change,
   // back button, embedded box closing) without the modal's close handler firing.
-  useEffect(() => () => {
-    if (previewObjectUrlRef.current) URL.revokeObjectURL(previewObjectUrlRef.current);
-  }, []);
-
-  const closePreview = () => {
-    if (previewObjectUrlRef.current) {
-      URL.revokeObjectURL(previewObjectUrlRef.current);
-      previewObjectUrlRef.current = null;
-    }
-    setPreviewFile(null);
-  };
+  const closePreview = () => setPreviewFile(null);
 
   // Open the full preview for ANY file type. PPTX uses the Office web viewer (needs a
-  // public URL); every other type is fetched as the real file (server-proxied blob, so
-  // it's CORS-safe and the actual content) and rendered by FilePreviewModal — not the
-  // small thumbnail URL, which only exists for image/pdf/video.
+  // public URL). The single-file view already has the blob (preloadedSource) so it's
+  // reused with no re-fetch. Everything else opens the modal immediately with code+fileId
+  // — FilePreviewModal fetches the real file through the proxy itself and shows a spinner
+  // while loading, so there's no blank delay before the modal appears.
   const openPreview = async (fileName: string, fileSize: number, fileId: string, preloadedSource?: string) => {
     if (!code) return;
-    try {
-      if (isPptxFile(fileName)) {
+    if (isPptxFile(fileName)) {
+      try {
         const { download_url } = await fileAPI.getDownloadUrl(code, fileId, password || undefined, true);
         setPreviewFile({ fileName, fileSize, source: download_url, presignedUrl: download_url });
-        return;
+      } catch {
+        toast.error(t('download.downloadFailed'));
       }
-      // Single-file view already downloaded the whole blob into singleFilePreviewUrl —
-      // reuse it instead of fetching the same file a second time. (That URL is owned and
-      // revoked by the single-file effect, so it isn't tracked in previewObjectUrlRef.)
-      if (preloadedSource) {
-        setPreviewFile({ fileName, fileSize, source: preloadedSource });
-        return;
-      }
-      const blob = await fileAPI.previewFile(code, fileId, password || undefined);
-      if (previewObjectUrlRef.current) URL.revokeObjectURL(previewObjectUrlRef.current);
-      const objectUrl = URL.createObjectURL(blob);
-      previewObjectUrlRef.current = objectUrl;
-      setPreviewFile({ fileName, fileSize, source: objectUrl });
-    } catch {
-      toast.error(t('download.downloadFailed'));
+      return;
     }
+    if (preloadedSource) {
+      setPreviewFile({ fileName, fileSize, source: preloadedSource });
+      return;
+    }
+    setPreviewFile({ fileName, fileSize, code, fileId, password: password || undefined });
   };
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {

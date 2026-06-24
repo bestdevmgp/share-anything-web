@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronDownIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../i18n';
@@ -43,14 +43,8 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
   const [bundleFiles, setBundleFiles] = useState<Record<string, FileListItem[]>>({});
   const [bundleEmptyFolders, setBundleEmptyFolders] = useState<Record<string, string[]>>({});
   const [previewFile, setPreviewFile] = useState<
-    { fileName: string; fileSize: number; source: string; presignedUrl?: string } | null
+    { fileName: string; fileSize: number; source?: string; code?: string; fileId?: string; presignedUrl?: string } | null
   >(null);
-  const previewObjectUrlRef = useRef<string | null>(null);
-  // Revoke a still-open preview's object URL if this component unmounts (e.g. browser
-  // back / route change) without the modal's close handler firing.
-  useEffect(() => () => {
-    if (previewObjectUrlRef.current) URL.revokeObjectURL(previewObjectUrlRef.current);
-  }, []);
   // Open sub-folders within the currently expanded bundle (reset when switching).
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
   const toggleFolder = (path: string) =>
@@ -105,23 +99,20 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
       navigate(`/download/${code}`);
       return;
     }
-    try {
-      // PPTX uses the Office web viewer (needs a public URL); every other type is fetched
-      // as the real file (server-proxied blob -> CORS-safe, renders any type) rather than
-      // the preview URL, which only exists for image/pdf/video.
-      if (isPptxFile(fileName)) {
+    // PPTX uses the Office web viewer (needs a public URL), so fetch that first.
+    if (isPptxFile(fileName)) {
+      try {
         const { download_url } = await fileAPI.getDownloadUrl(code, fileId, undefined, true);
         setPreviewFile({ fileName, fileSize, source: download_url, presignedUrl: download_url });
-        return;
+      } catch {
+        navigate(`/download/${code}`);
       }
-      const blob = await fileAPI.previewFile(code, fileId);
-      if (previewObjectUrlRef.current) URL.revokeObjectURL(previewObjectUrlRef.current);
-      const objectUrl = URL.createObjectURL(blob);
-      previewObjectUrlRef.current = objectUrl;
-      setPreviewFile({ fileName, fileSize, source: objectUrl });
-    } catch {
-      navigate(`/download/${code}`);
+      return;
     }
+    // Everything else: open the modal IMMEDIATELY with the code+fileId — the modal fetches
+    // the real file through the proxy itself and shows a spinner while loading, so there's
+    // no blank delay before it appears.
+    setPreviewFile({ fileName, fileSize, code, fileId });
   };
 
   const openSharePreview = async (s: MergedShare) => {
@@ -344,7 +335,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
       </div>
     </div>
     {previewFile && (
-      <FilePreviewModal file={previewFile} onClose={() => { if (previewObjectUrlRef.current) { URL.revokeObjectURL(previewObjectUrlRef.current); previewObjectUrlRef.current = null; } setPreviewFile(null); }} />
+      <FilePreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />
     )}
     </>
   );

@@ -5,6 +5,7 @@ import 'react-pdf/dist/Page/TextLayer.css';
 import { DocumentIcon, ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/outline';
 import { formatFileSize, isImageFile, isVideoFile, isAudioFile, isTextFile, isPdfFile, isCsvFile, isExcelFile, isDocxFile, isPptxFile, isHwpFile } from '../utils/format';
 import { readTextContent, getMediaUrl, getArrayBuffer, generatePptxThumbnail, generateHwpThumbnail } from '../utils/filePreview';
+import { fileAPI } from '../services/api';
 import { useTranslation } from '../i18n';
 import { GlobalWorkerOptions } from 'pdfjs-dist';
 import { PDF_WORKER_SRC } from '../utils/pdfWorkerSetup';
@@ -31,15 +32,39 @@ interface FilePreviewModalProps {
   file: {
     fileName: string;
     fileSize: number;
-    source: File | string;
+    // Either a ready source (File / object URL / public URL)…
+    source?: File | string;
+    // …or a share code + file id, in which case the modal fetches the file itself
+    // (through the proxy) so it can open instantly and show a spinner while loading.
+    code?: string;
+    fileId?: string;
+    password?: string;
     presignedUrl?: string;
   };
   onClose: () => void;
 }
 
+// A render crash in a preview (e.g. react-pdf choking on a malformed PDF) must never
+// take down the whole app. This boundary contains it and shows a graceful message.
+class PreviewErrorBoundary extends React.Component<
+  { fallback: React.ReactNode; children: React.ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  componentDidCatch(error: unknown) {
+    console.error('Preview render crashed:', error);
+  }
+  render() {
+    return this.state.hasError ? this.props.fallback : this.props.children;
+  }
+}
+
 const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) => {
   const { t } = useTranslation();
-  const { fileName, fileSize, source, presignedUrl } = file;
+  const { fileName, fileSize, source, presignedUrl, code, fileId, password } = file;
   const [textContent, setTextContent] = useState<string | null>(null);
   const [csvData, setCsvData] = useState<string[][] | null>(null);
   const [excelData, setExcelData] = useState<string[][] | null>(null);
@@ -57,33 +82,45 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
 
   useEffect(() => {
     let objectUrl: string | null = null;
+    let fetchedUrl: string | null = null;
     let cancelled = false;
 
     const load = async () => {
       setLoading(true);
       try {
+        // Resolve the file content. When given a code+fileId (instead of a ready
+        // source), fetch it through the proxy HERE so the modal opens instantly and
+        // shows a spinner while loading — rather than the caller blocking first.
+        let src: File | string = (source ?? '') as File | string;
+        if (code && fileId) {
+          const blob = await fileAPI.previewFile(code, fileId, password);
+          if (cancelled) return;
+          fetchedUrl = URL.createObjectURL(blob);
+          src = fetchedUrl;
+        }
+
         if (isImageFile(fileName)) {
-          objectUrl = getMediaUrl(source);
+          objectUrl = getMediaUrl(src);
           if (!cancelled) setMediaUrl(objectUrl);
         } else if (isVideoFile(fileName) || isAudioFile(fileName)) {
-          if (source instanceof File) {
-            objectUrl = URL.createObjectURL(source);
-          } else if (typeof source === 'string' && source.startsWith('blob:')) {
-            objectUrl = source;
+          if (src instanceof File) {
+            objectUrl = URL.createObjectURL(src);
+          } else if (typeof src === 'string' && src.startsWith('blob:')) {
+            objectUrl = src;
           } else {
-            const res = await fetch(source as string);
+            const res = await fetch(src as string);
             const blob = await res.blob();
             objectUrl = URL.createObjectURL(blob);
           }
           if (!cancelled) setMediaUrl(objectUrl);
         } else if (isPdfFile(fileName)) {
-          if (source instanceof File) {
-            if (!cancelled) setPdfSource(source);
+          if (src instanceof File) {
+            if (!cancelled) setPdfSource(src);
           } else {
-            if (!cancelled) setPdfSource({ url: source });
+            if (!cancelled) setPdfSource({ url: src });
           }
         } else if (isCsvFile(fileName)) {
-          const text = await readTextContent(source, 100000);
+          const text = await readTextContent(src, 100000);
           if (!cancelled) {
             const rows = text.split('\n').filter(r => r.trim()).map(row => {
               const result: string[] = [];
@@ -107,14 +144,14 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
           }
         } else if (isExcelFile(fileName)) {
           const XLSX = await import('xlsx');
-          const data = await getArrayBuffer(source);
+          const data = await getArrayBuffer(src);
           const wb = XLSX.read(data, { type: 'array' });
           const ws = wb.Sheets[wb.SheetNames[0]];
           const json = XLSX.utils.sheet_to_json<string[]>(ws, { header: 1 });
           if (!cancelled) setExcelData((json as string[][]).slice(0, 1000));
         } else if (isPptxFile(fileName)) {
-          if (source instanceof File) {
-            const thumbUrl = await generatePptxThumbnail(source);
+          if (src instanceof File) {
+            const thumbUrl = await generatePptxThumbnail(src);
             if (!cancelled && thumbUrl) {
               objectUrl = thumbUrl;
               setMediaUrl(thumbUrl);
@@ -122,7 +159,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
           }
         } else if (isDocxFile(fileName)) {
           const { renderAsync } = await import('docx-preview');
-          const data = await getArrayBuffer(source);
+          const data = await getArrayBuffer(src);
           if (!cancelled && docxContainerRef.current) {
             await renderAsync(data, docxContainerRef.current, undefined, {
               inWrapper: false,
@@ -138,9 +175,9 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
             setDocxReady(true);
           }
         } else if (isHwpFile(fileName)) {
-          const data = await getArrayBuffer(source);
+          const data = await getArrayBuffer(src);
           if (cancelled) return;
-          const previewUrl = await generateHwpThumbnail(source);
+          const previewUrl = await generateHwpThumbnail(src);
           if (!cancelled && previewUrl) setHwpPreviewImg(previewUrl);
           let text = '';
           if (fileName.toLowerCase().endsWith('.hwpx')) {
@@ -166,7 +203,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
           }
           if (!cancelled && text.trim()) setHwpText(text.trim());
         } else if (isTextFile(fileName)) {
-          const text = await readTextContent(source, 50000);
+          const text = await readTextContent(src, 50000);
           if (!cancelled) setTextContent(text);
         }
       } catch (err) {
@@ -183,8 +220,11 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
       if (objectUrl && objectUrl.startsWith('blob:')) {
         URL.revokeObjectURL(objectUrl);
       }
+      if (fetchedUrl && fetchedUrl !== objectUrl) {
+        URL.revokeObjectURL(fetchedUrl);
+      }
     };
-  }, [source, fileName]);
+  }, [source, fileName, code, fileId, password]);
 
   const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
@@ -412,7 +452,17 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
           )}
           {!(isDocxFile(fileName) && docxReady) && (
             <div className="m-auto max-w-full">
-              {renderContent()}
+              <PreviewErrorBoundary
+                key={`${fileId ?? ''}:${fileName}`}
+                fallback={
+                  <div className="flex flex-col items-center py-12 text-muted-foreground">
+                    <DocumentIcon className="w-16 h-16 mb-3" />
+                    <p className="text-sm">{t('preview.unsupported')}</p>
+                  </div>
+                }
+              >
+                {renderContent()}
+              </PreviewErrorBoundary>
             </div>
           )}
         </div>

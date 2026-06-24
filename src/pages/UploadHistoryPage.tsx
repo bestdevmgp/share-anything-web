@@ -104,8 +104,7 @@ const UploadHistoryPage: React.FC = () => {
   const [failedPreviews, setFailedPreviews] = useState<Set<string>>(new Set());
   const presignedUrlsFetchedAt = useRef<number>(0);
   const [closingRow, setClosingRow] = useState<string | null>(null);
-  const [previewModalFile, setPreviewModalFile] = useState<{ fileName: string; fileSize: number; source: string; presignedUrl?: string } | null>(null);
-  const previewObjectUrlRef = useRef<string | null>(null);
+  const [previewModalFile, setPreviewModalFile] = useState<{ fileName: string; fileSize: number; source?: string; code?: string; fileId?: string; presignedUrl?: string } | null>(null);
   const [showQRModal, setShowQRModal] = useState(false);
   const [selectedShareCode, setSelectedShareCode] = useState<string | null>(null);
   const [showScrollHint, setShowScrollHint] = useState(false);
@@ -289,32 +288,22 @@ const UploadHistoryPage: React.FC = () => {
     }
   };
 
-  // Revoke a still-open preview's object URL if the page unmounts without the modal's
-  // close handler firing (route change / back button).
-  useEffect(() => () => {
-    if (previewObjectUrlRef.current) URL.revokeObjectURL(previewObjectUrlRef.current);
-  }, []);
-
   const openPreviewModal = async (upload: UploadHistoryItem) => {
     if (upload.id.startsWith('local:')) return;
     if (isExpired(upload.expires_at)) return;
-    try {
-      // PPTX uses the Office web viewer (needs a public URL); every other type is fetched
-      // as the real file (server-proxied blob -> CORS-safe, renders any type) instead of
-      // the preview URL, which only exists for image/pdf/video.
-      if (isPptxFile(upload.file_name)) {
+    // PPTX uses the Office web viewer (needs a public URL), so fetch that first.
+    if (isPptxFile(upload.file_name)) {
+      try {
         const result = await fileAPI.getDownloadUrl(upload.share_code, upload.id, undefined, true);
         setPreviewModalFile({ fileName: upload.file_name, fileSize: upload.file_size, source: result.download_url, presignedUrl: result.download_url });
-        return;
+      } catch {
+        // Preview unavailable — leave the modal closed.
       }
-      const blob = await fileAPI.previewFile(upload.share_code, upload.id);
-      if (previewObjectUrlRef.current) URL.revokeObjectURL(previewObjectUrlRef.current);
-      const objectUrl = URL.createObjectURL(blob);
-      previewObjectUrlRef.current = objectUrl;
-      setPreviewModalFile({ fileName: upload.file_name, fileSize: upload.file_size, source: objectUrl });
-    } catch {
-      // Preview unavailable (network/permission) — leave the modal closed.
+      return;
     }
+    // Everything else: open immediately; FilePreviewModal fetches the file through the
+    // proxy itself and shows a spinner while loading (no blank delay before it appears).
+    setPreviewModalFile({ fileName: upload.file_name, fileSize: upload.file_size, code: upload.share_code, fileId: upload.id });
   };
 
   const handleDeleteGroup = (shareCode: string, e: React.MouseEvent) => {
@@ -693,7 +682,7 @@ const UploadHistoryPage: React.FC = () => {
       {previewModalFile && (
         <FilePreviewModal
           file={previewModalFile}
-          onClose={() => { if (previewObjectUrlRef.current) { URL.revokeObjectURL(previewObjectUrlRef.current); previewObjectUrlRef.current = null; } setPreviewModalFile(null); }}
+          onClose={() => setPreviewModalFile(null)}
         />
       )}
 
