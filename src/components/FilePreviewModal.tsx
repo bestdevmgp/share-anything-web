@@ -78,6 +78,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   const [pdfSource, setPdfSource] = useState<File | { url: string } | null>(null);
   const [pdfPageSize, setPdfPageSize] = useState<{ width: number; height: number } | null>(null);
   const [pageRendered, setPageRendered] = useState(false);
+  const [mediaImgLoaded, setMediaImgLoaded] = useState(false);
 
   useEffect(() => {
     let objectUrl: string | null = null;
@@ -85,6 +86,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
 
     const load = async () => {
       setLoading(true);
+      setMediaImgLoaded(false);
       try {
         // Resolve the source. When given a code+fileId, resolve to the raw-file INLINE
         // URL (not a downloaded blob): react-pdf streams it page-by-page and other types
@@ -288,7 +290,21 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
     }
 
     if (isImageFile(fileName) && mediaUrl) {
-      return <img src={mediaUrl} alt={fileName} draggable={false} className="max-w-full max-h-[calc(100vh-10rem)] object-contain rounded pointer-events-none" />;
+      return (
+        <>
+          {!mediaImgLoaded && (
+            <div className="py-16 text-muted-foreground text-sm">{t('preview.loading')}</div>
+          )}
+          <img
+            src={mediaUrl}
+            alt={fileName}
+            draggable={false}
+            onLoad={() => setMediaImgLoaded(true)}
+            onError={() => setMediaImgLoaded(true)}
+            className={`max-w-full max-h-[calc(100vh-10rem)] object-contain rounded pointer-events-none${mediaImgLoaded ? '' : ' hidden'}`}
+          />
+        </>
+      );
     }
 
     if (isVideoFile(fileName) && mediaUrl) {
