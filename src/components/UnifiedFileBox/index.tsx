@@ -261,7 +261,7 @@ const UnifiedFileBox: React.FC = () => {
         onSwitchMode={(m) => dispatch({ type: 'switchMode', mode: m })}
         onDrillDownToUpload={onDrillDown}
       />
-      <AnimatedHeight>
+      <AnimatedHeight transitionKey={`${state.mode}:${state.state}`}>
       <div
         className={cn(
           'border-t border-foreground/[0.09]',
