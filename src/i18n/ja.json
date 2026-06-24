@@ -441,7 +441,7 @@
     "updateFailed": "設定の保存に失敗しました",
     "fetchFailed": "設定の読み込みに失敗しました",
     "developerSection": "開発者",
-    "personalTokens": "Personal Token",
+    "personalTokens": "Personal Tokens",
     "personalTokensDescription": "CLIアクセス用のトークンを管理します。",
     "createPersonalToken": "作成",
     "personalTokenNamePlaceholder": "トークン名（例：My Server）",

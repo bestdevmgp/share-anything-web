@@ -445,7 +445,7 @@
     "updateFailed": "Failed to save settings",
     "fetchFailed": "Failed to load settings",
     "developerSection": "Developer",
-    "personalTokens": "Personal Token",
+    "personalTokens": "Personal Tokens",
     "personalTokensDescription": "Manage tokens for CLI access.",
     "createPersonalToken": "Create",
     "personalTokenNamePlaceholder": "Token name (e.g. My Server)",

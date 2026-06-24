@@ -441,7 +441,7 @@
     "updateFailed": "設定儲存失敗",
     "fetchFailed": "設定載入失敗",
     "developerSection": "開發者",
-    "personalTokens": "Personal Token",
+    "personalTokens": "Personal Tokens",
     "personalTokensDescription": "管理用於 CLI 存取的令牌。",
     "createPersonalToken": "建立",
     "personalTokenNamePlaceholder": "令牌名稱（例如：My Server）",

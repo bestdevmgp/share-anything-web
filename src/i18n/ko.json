@@ -445,7 +445,7 @@
     "updateFailed": "설정 저장에 실패했어요",
     "fetchFailed": "설정을 불러오는데 실패했어요",
     "developerSection": "개발자 설정",
-    "personalTokens": "Personal Token",
+    "personalTokens": "Personal Tokens",
     "personalTokensDescription": "CLI 접근을 위한 토큰을 관리할 수 있어요.",
     "createPersonalToken": "생성",
     "personalTokenNamePlaceholder": "토큰 이름 (예: My Server)",
