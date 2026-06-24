@@ -211,15 +211,16 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                   )}
                 >
                   <div
-                    onClick={() => setFilesSelected(ids, !allSelected)}
-                    className={cn(
-                      'flex items-center gap-3 px-3 py-3 cursor-pointer transition-colors',
-                      !allSelected && 'can-hover:hover:bg-accent active:bg-accent'
-                    )}
+                    onClick={() => toggleFolder(node.path)}
+                    className="flex items-center gap-3 px-3 py-3 cursor-pointer transition-colors can-hover:hover:bg-accent active:bg-accent"
                   >
-                    <div className="flex-shrink-0">
-                      <Checkbox checked={allSelected} className="h-6 w-6 rounded-md border-2" />
-                    </div>
+                    <span
+                      onClick={(e) => { e.stopPropagation(); setFilesSelected(ids, !allSelected); }}
+                      className="flex-shrink-0 -m-1.5 p-1.5 rounded-md cursor-pointer can-hover:hover:bg-foreground/10 active:bg-foreground/10"
+                      aria-label={node.name}
+                    >
+                      <Checkbox checked={allSelected} className="h-6 w-6 rounded-md border-2 pointer-events-none" />
+                    </span>
                     <div className="flex-shrink-0">
                       <div className="w-12 h-12 rounded bg-background flex items-center justify-center">
                         <FolderIcon className="w-6 h-6 text-muted-foreground" />
