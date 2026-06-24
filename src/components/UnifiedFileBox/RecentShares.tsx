@@ -220,7 +220,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                 </div>
                 <div className="flex-1 min-w-0 mr-3">
                   <div className="flex items-baseline min-w-0">
-                    <TruncatedFilename name={s.fileNames[0]} className="text-sm font-medium text-foreground" />
+                    <TruncatedFilename name={s.fileNames[0]} className="flex-1 min-w-0 text-sm font-medium text-foreground" />
                     {isBundle && (
                       <span className="text-sm text-muted-foreground font-normal flex-shrink-0 ml-1">
                         {t('unifiedBox.bundleExtraCount', { count: s.fileNames.length - 1 })}
