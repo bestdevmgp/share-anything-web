@@ -16,7 +16,7 @@ import CopyButton from './CopyButton';
 import { Hint } from './ui/Hint';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Popover, PopoverContent, PopoverAnchor } from './ui/popover';
 import { cn } from 'lib/utils';
 import { useQuickAccessUpload } from '../context/QuickAccessUploadContext';
 import { pushSession } from '../utils/recentSessions';
@@ -378,16 +378,18 @@ const QuickAccess: React.FC = () => {
                       open={sharedCode?.fileId === file.id}
                       onOpenChange={(open) => { if (!open) setSharedCode(null); }}
                     >
-                      <PopoverTrigger asChild>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleShare(file); }}
-                          disabled={sharingFileId === file.id}
-                          className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10 disabled:opacity-50"
-                          aria-label={t('quickAccess.share')}
-                        >
-                          <ArrowUpTrayIcon className="w-5 h-5" />
-                        </button>
-                      </PopoverTrigger>
+                      <PopoverAnchor className="inline-flex">
+                        <Hint label={t('quickAccess.share')}>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleShare(file); }}
+                            disabled={sharingFileId === file.id}
+                            className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10 disabled:opacity-50"
+                            aria-label={t('quickAccess.share')}
+                          >
+                            <ArrowUpTrayIcon className="w-5 h-5" />
+                          </button>
+                        </Hint>
+                      </PopoverAnchor>
                       <PopoverContent
                         side="left"
                         align="center"
