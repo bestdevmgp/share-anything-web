@@ -576,66 +576,33 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                             </button>
                           );
                           return (isBundle || hasFoldersInGroup) ? (
-                            <div className="space-y-6" style={{ containerType: 'inline-size' }}>
-                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                                <Card className="rounded-lg shadow-none">
-                                  <CardContent className="p-4 grid grid-cols-2 gap-x-6 gap-y-3">
-                                    <div>
-                                      <span className="text-sm font-medium text-muted-foreground">{t('history.shareCodeLabel')}</span>
-                                      <p className="text-sm text-foreground break-all">{group.shareCode}</p>
-                                    </div>
-                                    <div>
-                                      <span className="text-sm font-medium text-muted-foreground">{t('history.bundleSize')}</span>
-                                      <p className="text-sm text-foreground">{formatFileSize(group.totalSize)}</p>
-                                    </div>
-                                    <div>
-                                      <span className="text-sm font-medium text-muted-foreground">{t('history.passwordLabel')}</span>
-                                      <p className="text-sm text-foreground">{group.hasPassword ? t('common.exists') : t('common.none')}</p>
-                                    </div>
-                                    <div>
-                                      <span className="text-sm font-medium text-muted-foreground">{t('history.oneTimeShareLabel')}</span>
-                                      <p className="text-sm text-foreground">{group.isOneTime ? t('common.yes') : t('common.no')}</p>
-                                    </div>
-                                  </CardContent>
-                                </Card>
-                                <div className="flex flex-col">
-                                  <h3 className="text-lg font-semibold text-foreground mb-4">{t('history.downloadHistory')}</h3>
-                                  <Card className="rounded-lg shadow-none">
-                                    <CardContent className="p-4">
-                                      {sessionLogsLoading ? (
-                                        <div className="space-y-4">
-                                          {[0, 1, 2].map((i) => (
-                                            <div key={i} className="border-b border-border pb-4 last:border-0 last:pb-0">
-                                              <Skeleton className="h-4 w-24" />
-                                              <Skeleton className="h-3 w-32 mt-2" />
-                                              <Skeleton className="h-3 w-28 mt-1" />
-                                            </div>
-                                          ))}
-                                        </div>
-                                      ) : sessionLogs.length > 0 ? (
-                                        <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
-                                          {sessionLogs.map((log) => (
-                                            <div key={log.id} className="text-sm border-b border-border pb-4 last:border-0 last:pb-0">
-                                              <div className="flex justify-between items-start gap-4">
-                                                <div className="min-w-0 flex-1">
-                                                  <p className="font-medium text-foreground">{log.downloader_name || t('common.anonymousUser')}</p>
-                                                  <p className="text-muted-foreground text-xs mt-2">{log.device_platform}</p>
-                                                  <p className="text-muted-foreground text-xs">{log.ip_address}</p>
-                                                </div>
-                                                <p className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">{formatDateTime(log.downloaded_at, language)}</p>
-                                              </div>
-                                            </div>
-                                          ))}
-                                        </div>
-                                      ) : (
-                                        <div className="text-sm text-muted-foreground text-center py-4">{t('history.noDownloadLogs')}</div>
-                                      )}
-                                    </CardContent>
-                                  </Card>
-                                </div>
-                              </div>
-                              <h3 className="text-lg font-semibold text-foreground">{t('history.filesInBundle')}</h3>
-                              <div className="space-y-2">
+                            <div className="space-y-6">
+                              <Card className="rounded-lg shadow-none">
+                                <CardContent className="p-4 grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-3">
+                                  <div>
+                                    <span className="text-sm font-medium text-muted-foreground">{t('history.shareCodeLabel')}</span>
+                                    <p className="text-sm text-foreground break-all">{group.shareCode}</p>
+                                  </div>
+                                  <div>
+                                    <span className="text-sm font-medium text-muted-foreground">{t('history.bundleSize')}</span>
+                                    <p className="text-sm text-foreground">{formatFileSize(group.totalSize)}</p>
+                                  </div>
+                                  <div>
+                                    <span className="text-sm font-medium text-muted-foreground">{t('history.passwordLabel')}</span>
+                                    <p className="text-sm text-foreground">{group.hasPassword ? t('common.exists') : t('common.none')}</p>
+                                  </div>
+                                  <div>
+                                    <span className="text-sm font-medium text-muted-foreground">{t('history.oneTimeShareLabel')}</span>
+                                    <p className="text-sm text-foreground">{group.isOneTime ? t('common.yes') : t('common.no')}</p>
+                                  </div>
+                                </CardContent>
+                              </Card>
+                              {/* Files (left) + session download log (right), equal heights: the tree drives
+                                  the height and the log box stretches to match, but never below min-h. */}
+                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:min-h-[400px]">
+                                <div className="flex flex-col min-w-0">
+                                  <h3 className="text-lg font-semibold text-foreground mb-4 flex-shrink-0">{t('history.filesInBundle')}</h3>
+                                  <div className="space-y-2 flex-1" style={{ containerType: 'inline-size' }}>
                               {buildFileTree(group.files.map((f) => ({ id: f.id, file_name: f.file_name, file_size: f.file_size, relative_path: f.relative_path }))).map((node) => {
                                 if (node.kind === 'file') {
                                   const upload = group.files.find((f) => f.id === node.id);
@@ -691,6 +658,45 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                                   </div>
                                 );
                               })}
+                                  </div>
+                                </div>
+                                <div className="flex flex-col min-w-0">
+                                  <h3 className="text-lg font-semibold text-foreground mb-4 flex-shrink-0">{t('history.downloadHistory')}</h3>
+                                  <div className="relative flex-1 min-h-0">
+                                    <Card className="absolute inset-0 rounded-lg shadow-none flex flex-col overflow-hidden">
+                                      <CardContent className="p-4 flex-1 overflow-y-auto">
+                                        {sessionLogsLoading ? (
+                                          <div className="space-y-4">
+                                            {[0, 1, 2].map((i) => (
+                                              <div key={i} className="border-b border-border pb-4 last:border-0 last:pb-0">
+                                                <Skeleton className="h-4 w-24" />
+                                                <Skeleton className="h-3 w-32 mt-2" />
+                                                <Skeleton className="h-3 w-28 mt-1" />
+                                              </div>
+                                            ))}
+                                          </div>
+                                        ) : sessionLogs.length > 0 ? (
+                                          <div className="space-y-4">
+                                            {sessionLogs.map((log) => (
+                                              <div key={log.id} className="text-sm border-b border-border pb-4 last:border-0 last:pb-0">
+                                                <div className="flex justify-between items-start gap-4">
+                                                  <div className="min-w-0 flex-1">
+                                                    <p className="font-medium text-foreground">{log.downloader_name || t('common.anonymousUser')}</p>
+                                                    <p className="text-muted-foreground text-xs mt-2">{log.device_platform}</p>
+                                                    <p className="text-muted-foreground text-xs">{log.ip_address}</p>
+                                                  </div>
+                                                  <p className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">{formatDateTime(log.downloaded_at, language)}</p>
+                                                </div>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        ) : (
+                                          <div className="text-sm text-muted-foreground text-center py-8">{t('history.noDownloadLogs')}</div>
+                                        )}
+                                      </CardContent>
+                                    </Card>
+                                  </div>
+                                </div>
                               </div>
                               {detailUpload && (
                                 <Dialog open onOpenChange={(o) => { if (!o) setDetailUploadId(null); }}>
