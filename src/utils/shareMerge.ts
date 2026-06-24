@@ -69,6 +69,23 @@ export const mergeShares = (
     const existing = byCode.get(s.code);
     if (existing) {
       existing.source = 'both';
+      // The local session preserves the order the user uploaded the files in; the server
+      // (getUploads) returns its own order. mergeShares runs first with local-only data
+      // (sync) then again once server data arrives (async), so without this the title's
+      // first filename would flip on that swap. Reorder the server file list to match the
+      // local (upload) order so the title, thumbnail, and tree stay stable.
+      if (existing.files && existing.files.length) {
+        const rank = new Map<string, number>();
+        s.fileNames.forEach((n, i) => { if (!rank.has(n)) rank.set(n, i); });
+        const ordered = [...existing.files].sort(
+          (a, b) =>
+            (rank.has(a.file_name) ? (rank.get(a.file_name) as number) : Number.MAX_SAFE_INTEGER) -
+            (rank.has(b.file_name) ? (rank.get(b.file_name) as number) : Number.MAX_SAFE_INTEGER)
+        );
+        existing.files = ordered;
+        existing.fileNames = ordered.map((f) => f.file_name);
+        existing.firstFileId = ordered[0]?.id;
+      }
     } else {
       byCode.set(s.code, {
         code: s.code,
