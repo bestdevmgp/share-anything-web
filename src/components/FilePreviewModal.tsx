@@ -82,21 +82,21 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
 
   useEffect(() => {
     let objectUrl: string | null = null;
-    let fetchedUrl: string | null = null;
     let cancelled = false;
 
     const load = async () => {
       setLoading(true);
       try {
-        // Resolve the file content. When given a code+fileId (instead of a ready
-        // source), fetch it through the proxy HERE so the modal opens instantly and
-        // shows a spinner while loading — rather than the caller blocking first.
+        // Resolve the source. When given a code+fileId, resolve to the raw-file INLINE
+        // URL (not a downloaded blob): react-pdf streams it page-by-page and other types
+        // fetch it directly. This is fast (no full pre-download) and renders the ORIGINAL
+        // bytes — loading a PDF from a proxied blob/object URL made some PDFs render black.
+        // The caller still opens the modal instantly; this resolve is a quick API call.
         let src: File | string = (source ?? '') as File | string;
         if (code && fileId) {
-          const blob = await fileAPI.previewFile(code, fileId, password);
+          const { download_url } = await fileAPI.getDownloadUrl(code, fileId, password, true);
           if (cancelled) return;
-          fetchedUrl = URL.createObjectURL(blob);
-          src = fetchedUrl;
+          src = download_url;
         }
 
         if (isImageFile(fileName)) {
@@ -220,9 +220,6 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
       if (objectUrl && objectUrl.startsWith('blob:')) {
         URL.revokeObjectURL(objectUrl);
       }
-      if (fetchedUrl && fetchedUrl !== objectUrl) {
-        URL.revokeObjectURL(fetchedUrl);
-      }
     };
   }, [source, fileName, code, fileId, password]);
 
@@ -230,12 +227,16 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
     setNumPages(numPages);
   }, []);
 
-  const onPageLoadSuccess = useCallback((page: { width: number; height: number }) => {
-    setPdfPageSize(prev =>
-      prev && prev.width === page.width && prev.height === page.height
-        ? prev
-        : { width: page.width, height: page.height }
-    );
+  const onPageLoadSuccess = useCallback((page: { width: number; height: number; originalWidth?: number; originalHeight?: number }) => {
+    // Capture the page size ONCE, from the intrinsic (scale-independent) dimensions.
+    // Using the scaled width/height here fed back into getPdfPageWidth() → re-render →
+    // new scaled size → ... an infinite loop ("Maximum update depth exceeded") that froze
+    // the whole page (black screen) for PDFs whose dimensions never settled to an exact
+    // float match. Setting it once, from the original dims, breaks that feedback entirely.
+    setPdfPageSize(prev => prev ?? {
+      width: page.originalWidth ?? page.width,
+      height: page.originalHeight ?? page.height,
+    });
   }, []);
 
   const getPdfPageWidth = () => {
