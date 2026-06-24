@@ -165,10 +165,10 @@ const BoxDownloadView: React.FC<Props> = ({
   );
   const hasFolders = treeHasFolders(tree);
 
-  // Box-height target: count every row as if all folders were expanded, so the
-  // box is pre-sized to the full content and opening a folder doesn't grow it.
-  const totalRowCount = countVisibleRows(tree, () => true);
-  const topFolderCount = tree.filter((n) => n.kind === 'folder' && n.children.length > 0).length;
+  // Rows currently visible: a collapsed folder counts as a single row, an expanded
+  // folder adds its revealed descendants. The box sizes to this (capped at 10 rows)
+  // and grows/shrinks live as folders toggle — collapsed folders keep it compact.
+  const visibleRowCount = countVisibleRows(tree, (path) => openFolders.has(path));
 
   // During a P2P receive, auto-expand every folder on the way to the active file
   // so its progress is visible.
@@ -379,8 +379,7 @@ const BoxDownloadView: React.FC<Props> = ({
           <div className="md:flex-1 flex flex-col min-w-0" style={{ containerType: 'inline-size' }}>
             {fileListHeader}
             <ScrollableFileList
-              count={hasFolders ? totalRowCount : files.length}
-              expandableFolders={hasFolders ? topFolderCount : 0}
+              count={hasFolders ? visibleRowCount : files.length}
               recomputeKey={hasFolders ? Array.from(openFolders).sort().join('|') : undefined}
             >
               {hasFolders ? (
@@ -528,8 +527,7 @@ const BoxDownloadView: React.FC<Props> = ({
             fileListHeader
           )}
           <ScrollableFileList
-            count={hasFolders ? totalRowCount : files.length}
-            expandableFolders={hasFolders ? topFolderCount : 0}
+            count={hasFolders ? visibleRowCount : files.length}
             recomputeKey={hasFolders ? Array.from(openFolders).sort().join('|') : undefined}
           >
             {hasFolders ? (
