@@ -11,6 +11,8 @@ export interface UploadingFile {
   progress: number;
   timeRemaining: string;
   completed: boolean;
+  /** The local File, used to render a client-side thumbnail while uploading. */
+  file?: File;
 }
 
 interface SpeedSample {
@@ -158,6 +160,7 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
       progress: 0,
       timeRemaining: '',
       completed: false,
+      file,
     }));
     setUploadingFiles(newUploadingFiles);
 

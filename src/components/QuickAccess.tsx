@@ -343,6 +343,7 @@ const QuickAccess: React.FC = () => {
                   key={uf.id}
                   fileName={uf.fileName}
                   fileSize={uf.fileSize}
+                  file={uf.file}
                   progress={uf.progress}
                   timeRemaining={uf.timeRemaining}
                   statusText={uf.completed ? t('upload.pleaseWait') : undefined}

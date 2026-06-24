@@ -105,6 +105,7 @@ const UnifiedFileBox: React.FC = () => {
           fileSize: f.size,
           loadedBytes: 0,
           completed: false,
+          file: f,
         }))
       );
       const handle = uploader.startUpload({ files });

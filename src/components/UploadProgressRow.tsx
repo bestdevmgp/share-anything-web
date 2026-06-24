@@ -10,6 +10,8 @@ import { Hint } from './ui/Hint';
 interface Props {
   fileName: string;
   fileSize: number;
+  /** The local File (or a URL), used to show a client-side thumbnail while uploading. */
+  file?: File | string;
   progress: number;
   timeRemaining?: string;
   statusText?: string;
@@ -21,6 +23,7 @@ interface Props {
 const UploadProgressRow: React.FC<Props> = ({
   fileName,
   fileSize,
+  file,
   progress,
   timeRemaining,
   statusText,
@@ -36,7 +39,7 @@ const UploadProgressRow: React.FC<Props> = ({
     >
       {!hideThumbnail && (
         <div className="flex-shrink-0 mr-3">
-          <FileThumbnail source={null} fileName={fileName} size="sm" />
+          <FileThumbnail source={file ?? null} fileName={fileName} size="sm" />
         </div>
       )}
       <div className="flex-1 min-w-0 mr-2">
