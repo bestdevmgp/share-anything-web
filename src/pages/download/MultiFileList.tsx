@@ -9,7 +9,9 @@ import { Button } from '../../components/ui/button';
 import { Checkbox } from '../../components/ui/checkbox';
 import FileThumbnail from '../../components/FileThumbnail';
 import TruncatedFilename from '../../components/TruncatedFilename';
-import { sanitizeRelativePath } from '../../utils/folderPath';
+import FolderTreeRows, { treeIndent } from '../../components/UnifiedFileBox/FolderTreeRows';
+import Collapsible from '../../components/UnifiedFileBox/Collapsible';
+import { buildFileTree, collectFileIds, nodeFileCount, nodeSize } from '../../utils/fileTree';
 import { cn } from 'lib/utils';
 
 export interface MultiFileListProps {
@@ -72,25 +74,21 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
       return next;
     });
 
-  const { folders, looseFiles } = useMemo(() => {
-    const folders = new Map<string, { id: string; name: string; size: number; sub: string }[]>();
-    const looseFiles: FileListResponse['files'] = [];
-    fileList.files.forEach((f) => {
-      const rel = sanitizeRelativePath(f.relative_path || '');
-      const slash = rel.indexOf('/');
-      if (slash === -1) {
-        looseFiles.push(f);
-      } else {
-        const top = rel.slice(0, slash);
-        const arr = folders.get(top) ?? [];
-        arr.push({ id: f.id, name: f.file_name, size: f.file_size, sub: rel.slice(slash + 1) });
-        folders.set(top, arr);
-      }
-    });
-    return { folders, looseFiles };
-  }, [fileList.files]);
+  const tree = useMemo(
+    () =>
+      buildFileTree(
+        fileList.files.map((f) => ({
+          id: f.id,
+          file_name: f.file_name,
+          file_size: f.file_size,
+          relative_path: f.relative_path,
+        })),
+        fileList.empty_folders ?? []
+      ),
+    [fileList.files, fileList.empty_folders]
+  );
 
-  const isFolderShare = folders.size > 0;
+  const isFolderShare = tree.some((n) => n.kind === 'folder');
 
   const selectedTotalSize = fileList.files
     .filter((f) => selectedFiles.has(f.id))
@@ -153,19 +151,63 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
           </div>
 
           <div className="mb-6 sm:mb-8 space-y-2 sm:space-y-2.5">
-            {Array.from(folders.entries()).map(([folderName, items]) => {
-              const ids = items.map((it) => it.id);
-              const allSelected = ids.every((id) => selectedFiles.has(id));
-              const folderSize = items.reduce((s, it) => s + it.size, 0);
-              const isOpen = openFolders.has(folderName);
+            {tree.map((node) => {
+              // Loose file (no folder) — individually selectable.
+              if (node.kind === 'file') {
+                const selected = selectedFiles.has(node.id);
+                return (
+                  <div
+                    key={node.id}
+                    onClick={() => toggleFileSelection(node.id)}
+                    className={cn(
+                      'flex items-center gap-3 px-3 py-3 rounded-lg cursor-pointer transition-all',
+                      selected
+                        ? 'bg-accent border border-primary'
+                        : 'bg-muted border border-foreground/[0.09] can-hover:hover:bg-accent active:bg-accent'
+                    )}
+                  >
+                    <div className="flex-shrink-0">
+                      <Checkbox checked={selected} className="h-6 w-6 rounded-md border-2" />
+                    </div>
+                    <div className="flex-shrink-0">
+                      <FileThumbnail source={previews?.[node.id] ?? null} fileName={node.name} size="md" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <TruncatedFilename name={node.name} className="text-sm font-semibold text-foreground" />
+                      <p className="text-xs text-muted-foreground">{formatFileSize(node.size)}</p>
+                    </div>
+                  </div>
+                );
+              }
+              // Empty folder — shown but not selectable (no files inside).
+              if (node.children.length === 0) {
+                return (
+                  <div
+                    key={`folder:${node.path}`}
+                    className="flex items-center gap-3 px-3 py-3 rounded-lg bg-muted border border-foreground/[0.09]"
+                  >
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 rounded bg-background flex items-center justify-center">
+                        <FolderIcon className="w-6 h-6 text-muted-foreground" />
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">{node.name}</p>
+                      <p className="text-xs text-muted-foreground">{t('upload.folderEmpty')}</p>
+                    </div>
+                  </div>
+                );
+              }
+              // Folder — one selection unit (its whole subtree); nested tree shown via FolderTreeRows.
+              const ids = collectFileIds(node);
+              const allSelected = ids.length > 0 && ids.every((id) => selectedFiles.has(id));
+              const isOpen = openFolders.has(node.path);
               return (
                 <div
-                  key={`folder:${folderName}`}
+                  key={`folder:${node.path}`}
                   className={cn(
                     'rounded-lg border overflow-hidden transition-all',
-                    allSelected
-                      ? 'bg-accent border-primary'
-                      : 'bg-muted border-foreground/[0.09]'
+                    allSelected ? 'bg-accent border-primary' : 'bg-muted border-foreground/[0.09]'
                   )}
                 >
                   <div
@@ -178,74 +220,55 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                     <div className="flex-shrink-0">
                       <Checkbox checked={allSelected} className="h-6 w-6 rounded-md border-2" />
                     </div>
-
-                    <div className="flex-shrink-0 hidden sm:flex">
+                    <div className="flex-shrink-0">
                       <div className="w-12 h-12 rounded bg-background flex items-center justify-center">
                         <FolderIcon className="w-6 h-6 text-muted-foreground" />
                       </div>
                     </div>
-
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-foreground truncate">{folderName}</p>
+                      <p className="text-sm font-semibold text-foreground truncate">{node.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {t('upload.folderItemCount', { count: items.length })} · {formatFileSize(folderSize)}
+                        {t('upload.folderItemCount', { count: nodeFileCount(node) })} · {formatFileSize(nodeSize(node))}
                       </p>
                     </div>
-
                     <button
                       type="button"
-                      onClick={(e) => { e.stopPropagation(); toggleFolder(folderName); }}
+                      onClick={(e) => { e.stopPropagation(); toggleFolder(node.path); }}
                       className="p-1 rounded-md flex-shrink-0 can-hover:hover:bg-foreground/10 active:bg-foreground/10 transition-colors"
-                      aria-label={folderName}
+                      aria-label={node.name}
                     >
                       <ChevronDownIcon className={cn('w-5 h-5 text-muted-foreground/60 transition-transform', isOpen && 'rotate-180')} />
                     </button>
                   </div>
-
-                  {isOpen && (
+                  <Collapsible open={isOpen}>
                     <div className="px-3 pb-3">
-                      <div className="border-t border-foreground/[0.08] pt-2.5 space-y-2">
-                        {items.map((it) => (
-                          <div key={it.id} className="flex items-center gap-3 min-w-0 -mx-2 px-2 py-1.5">
-                            <div className="flex-shrink-0 hidden sm:flex">
-                              <FileThumbnail source={previews?.[it.id] ?? null} fileName={it.name} size="sm" />
+                      <div className="border-t border-foreground/[0.08] pt-2.5 space-y-1">
+                        <FolderTreeRows
+                          nodes={node.children}
+                          depth={1}
+                          openFolders={openFolders}
+                          toggleFolder={toggleFolder}
+                          t={t}
+                          renderFile={(file, depth) => (
+                            <div
+                              data-row
+                              className="flex items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2 rounded-lg"
+                              style={{ marginLeft: `calc(-0.625rem + ${treeIndent(depth)})` }}
+                            >
+                              <FileThumbnail source={previews?.[file.id] ?? null} fileName={file.name} size="sm" />
+                              <div className="flex-1 min-w-0">
+                                <TruncatedFilename name={file.name} className="text-sm text-foreground/80" />
+                                <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+                              </div>
                             </div>
-                            <TruncatedFilename name={it.sub} className="flex-1 text-sm text-foreground/80 text-left" />
-                            <span className="flex-shrink-0 text-xs text-muted-foreground">{formatFileSize(it.size)}</span>
-                          </div>
-                        ))}
+                          )}
+                        />
                       </div>
                     </div>
-                  )}
+                  </Collapsible>
                 </div>
               );
             })}
-
-            {looseFiles.map((file) => (
-              <div
-                key={file.id}
-                onClick={() => toggleFileSelection(file.id)}
-                className={cn(
-                  'flex items-center space-x-3 px-3 py-3 rounded-lg cursor-pointer transition-all',
-                  selectedFiles.has(file.id)
-                    ? 'bg-accent border border-primary'
-                    : 'bg-muted border border-foreground/[0.09] can-hover:hover:bg-accent active:bg-accent'
-                )}
-              >
-                <div className="flex-shrink-0">
-                  <Checkbox checked={selectedFiles.has(file.id)} className="h-6 w-6 rounded-md border-2" />
-                </div>
-
-                <div className="flex-shrink-0 hidden sm:flex">
-                  <FileThumbnail source={previews?.[file.id] ?? null} fileName={file.file_name} size="md" />
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <TruncatedFilename name={file.file_name} className="text-sm font-semibold text-foreground" />
-                  <p className="text-xs text-muted-foreground">{formatFileSize(file.file_size)}</p>
-                </div>
-              </div>
-            ))}
           </div>
 
           <div className="">
