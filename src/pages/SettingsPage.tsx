@@ -1565,7 +1565,14 @@ const SettingsPage: React.FC = () => {
               </div>
 
               <div>
-                <h3 className="text-base font-medium text-foreground mb-3">{t('settings.apiKeys.keysTitle')}</h3>
+                <h3 className="text-base font-medium text-foreground mb-3">
+                  {t('settings.apiKeys.keysTitle')}
+                  {!apiKeysLoading && (
+                    <span className="ml-2 text-sm font-normal text-muted-foreground">
+                      {t('settings.apiKeys.keysCount', { count: apiKeys.length })}
+                    </span>
+                  )}
+                </h3>
 
                 {apiKeysLoading ? (
                   <div className="animate-pulse">

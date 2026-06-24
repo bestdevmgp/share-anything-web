@@ -280,9 +280,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                 ...Array.from(folders.keys()).map((name) => `${name}/`),
                 ...looseFiles.map((f) => f.file_name),
               ];
-              const bundleTitle = topLevelNames.length > 1
-                ? `${topLevelNames[0]} ${t('unifiedBox.bundleExtraCount', { count: topLevelNames.length - 1 })}`
-                : (topLevelNames[0] ?? group.shareCode);
+              const bundleTitle = topLevelNames[0] ?? group.shareCode;
               return (
               <React.Fragment key={group.shareCode}>
                 <TableRow
@@ -312,8 +310,13 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                         {folders.size === 0 && looseFiles.length === 1 ? (
                           <TruncatedFilename name={bundleTitle} className="text-sm font-medium text-foreground" />
                         ) : (
-                          <div className="text-sm font-medium text-foreground truncate">
-                            {bundleTitle}
+                          <div className="flex items-baseline min-w-0">
+                            <span className="text-sm font-medium text-foreground truncate">{bundleTitle}</span>
+                            {topLevelNames.length > 1 && (
+                              <span className="text-sm text-muted-foreground font-normal flex-shrink-0 ml-1">
+                                {t('unifiedBox.bundleExtraCount', { count: topLevelNames.length - 1 })}
+                              </span>
+                            )}
                           </div>
                         )}
                         <div className="text-xs text-muted-foreground truncate mt-0.5">

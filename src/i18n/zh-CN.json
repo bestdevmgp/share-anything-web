@@ -498,6 +498,7 @@
     "apiKeys.applyButton": "申请",
     "apiKeys.applicationsTitle": "申请记录",
     "apiKeys.keysTitle": "已发放的密钥",
+    "apiKeys.keysCount": "{{count}}个",
     "apiKeys.emptyApplications": "暂无申请记录",
     "apiKeys.emptyKeys": "暂无已发放的 API Key。",
     "apiKeys.detail.close": "关闭",

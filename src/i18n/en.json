@@ -502,6 +502,7 @@
     "apiKeys.applyButton": "Apply",
     "apiKeys.applicationsTitle": "Applications",
     "apiKeys.keysTitle": "Issued Keys",
+    "apiKeys.keysCount": "{{count}}",
     "apiKeys.emptyApplications": "No applications yet",
     "apiKeys.emptyKeys": "No issued API Keys.",
     "apiKeys.detail.close": "Close",

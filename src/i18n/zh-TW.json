@@ -498,6 +498,7 @@
     "apiKeys.applyButton": "申請",
     "apiKeys.applicationsTitle": "申請紀錄",
     "apiKeys.keysTitle": "已發放的金鑰",
+    "apiKeys.keysCount": "{{count}}個",
     "apiKeys.emptyApplications": "暫無申請紀錄",
     "apiKeys.emptyKeys": "暫無已發放的 API Key。",
     "apiKeys.detail.close": "關閉",

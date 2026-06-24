@@ -498,6 +498,7 @@
     "apiKeys.applyButton": "申請する",
     "apiKeys.applicationsTitle": "申請履歴",
     "apiKeys.keysTitle": "発行済みキー",
+    "apiKeys.keysCount": "{{count}}個",
     "apiKeys.emptyApplications": "申請履歴がありません",
     "apiKeys.emptyKeys": "発行済みのAPI Keyがありません。",
     "apiKeys.detail.close": "閉じる",

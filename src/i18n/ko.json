@@ -502,6 +502,7 @@
     "apiKeys.applyButton": "신청하기",
     "apiKeys.applicationsTitle": "신청 내역",
     "apiKeys.keysTitle": "발급된 키",
+    "apiKeys.keysCount": "{{count}}개",
     "apiKeys.emptyApplications": "신청 내역이 없어요",
     "apiKeys.emptyKeys": "발급된 API Key가 없어요.",
     "apiKeys.detail.close": "확인",
