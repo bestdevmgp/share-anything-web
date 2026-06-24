@@ -31,7 +31,7 @@ export interface SingleFileViewProps {
   handleCancelP2PDownload: () => void;
   closeP2PSession?: () => void;
   setP2pEnabled: (value: boolean) => void;
-  openPreview: (fileName: string, fileSize: number, fileId: string, blobSource: string) => void;
+  openPreview: (fileName: string, fileSize: number, fileId: string, preloadedSource?: string) => void;
   navigate: NavigateFunction;
   t: (key: string, params?: Record<string, string | number>) => string;
   language: Language;

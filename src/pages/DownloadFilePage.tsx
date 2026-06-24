@@ -433,6 +433,12 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     };
   }, [fileList, code, password, isP2PDownload, embedded]);
 
+  // Revoke a still-open preview's object URL if the component unmounts (route change,
+  // back button, embedded box closing) without the modal's close handler firing.
+  useEffect(() => () => {
+    if (previewObjectUrlRef.current) URL.revokeObjectURL(previewObjectUrlRef.current);
+  }, []);
+
   const closePreview = () => {
     if (previewObjectUrlRef.current) {
       URL.revokeObjectURL(previewObjectUrlRef.current);
@@ -445,12 +451,19 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   // public URL); every other type is fetched as the real file (server-proxied blob, so
   // it's CORS-safe and the actual content) and rendered by FilePreviewModal — not the
   // small thumbnail URL, which only exists for image/pdf/video.
-  const openPreview = async (fileName: string, fileSize: number, fileId: string) => {
+  const openPreview = async (fileName: string, fileSize: number, fileId: string, preloadedSource?: string) => {
     if (!code) return;
     try {
       if (isPptxFile(fileName)) {
         const { download_url } = await fileAPI.getDownloadUrl(code, fileId, password || undefined, true);
         setPreviewFile({ fileName, fileSize, source: download_url, presignedUrl: download_url });
+        return;
+      }
+      // Single-file view already downloaded the whole blob into singleFilePreviewUrl —
+      // reuse it instead of fetching the same file a second time. (That URL is owned and
+      // revoked by the single-file effect, so it isn't tracked in previewObjectUrlRef.)
+      if (preloadedSource) {
+        setPreviewFile({ fileName, fileSize, source: preloadedSource });
         return;
       }
       const blob = await fileAPI.previewFile(code, fileId, password || undefined);

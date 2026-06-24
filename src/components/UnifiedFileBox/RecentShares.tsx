@@ -46,6 +46,11 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
     { fileName: string; fileSize: number; source: string; presignedUrl?: string } | null
   >(null);
   const previewObjectUrlRef = useRef<string | null>(null);
+  // Revoke a still-open preview's object URL if this component unmounts (e.g. browser
+  // back / route change) without the modal's close handler firing.
+  useEffect(() => () => {
+    if (previewObjectUrlRef.current) URL.revokeObjectURL(previewObjectUrlRef.current);
+  }, []);
   // Open sub-folders within the currently expanded bundle (reset when switching).
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
   const toggleFolder = (path: string) =>

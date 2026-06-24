@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronDownIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../i18n';
@@ -34,6 +34,12 @@ const RecentDownloads: React.FC = () => {
   const [previewFile, setPreviewFile] = useState<
     { fileName: string; fileSize: number; source: string; presignedUrl?: string } | null
   >(null);
+  const previewObjectUrlRef = useRef<string | null>(null);
+  // Revoke a still-open preview's object URL if this component unmounts without the
+  // modal's close handler firing (back button / route change).
+  useEffect(() => () => {
+    if (previewObjectUrlRef.current) URL.revokeObjectURL(previewObjectUrlRef.current);
+  }, []);
 
   const mergedItems: MergedShare[] = downloads.map((d) => ({
     code: d.code,
@@ -77,13 +83,19 @@ const RecentDownloads: React.FC = () => {
 
   const openPreviewFor = async (code: string, fileId: string, fileName: string, fileSize: number) => {
     try {
-      const { download_url } = await fileAPI.getDownloadUrl(code, fileId, undefined, true, true);
-      setPreviewFile({
-        fileName,
-        fileSize,
-        source: download_url,
-        presignedUrl: isPptxFile(fileName) ? download_url : undefined,
-      });
+      // PPTX uses the Office web viewer (needs a public URL); every other type is fetched
+      // as the real file (server-proxied blob -> CORS-safe, renders any type) instead of
+      // the preview URL, which only exists for image/pdf/video.
+      if (isPptxFile(fileName)) {
+        const { download_url } = await fileAPI.getDownloadUrl(code, fileId, undefined, true);
+        setPreviewFile({ fileName, fileSize, source: download_url, presignedUrl: download_url });
+        return;
+      }
+      const blob = await fileAPI.previewFile(code, fileId);
+      if (previewObjectUrlRef.current) URL.revokeObjectURL(previewObjectUrlRef.current);
+      const objectUrl = URL.createObjectURL(blob);
+      previewObjectUrlRef.current = objectUrl;
+      setPreviewFile({ fileName, fileSize, source: objectUrl });
     } catch {
       navigate(`/download/${code}`);
     }
@@ -278,7 +290,7 @@ const RecentDownloads: React.FC = () => {
       </div>
     </div>
     {previewFile && (
-      <FilePreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />
+      <FilePreviewModal file={previewFile} onClose={() => { if (previewObjectUrlRef.current) { URL.revokeObjectURL(previewObjectUrlRef.current); previewObjectUrlRef.current = null; } setPreviewFile(null); }} />
     )}
     </>
   );
