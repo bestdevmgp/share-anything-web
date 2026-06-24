@@ -75,7 +75,7 @@ const TransferSettings: React.FC<TransferSettingsProps> = ({
                   id="one-time-download"
                   checked={isOneTime}
                   onCheckedChange={(checked) => onIsOneTimeChange(checked === true)}
-                  className="h-6 w-6 rounded border-2"
+                  className="h-6 w-6 rounded-[5px] border-2"
                 />
                 <label
                   htmlFor="one-time-download"

@@ -167,7 +167,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                     )}
                   >
                     <div className="flex-shrink-0">
-                      <Checkbox checked={selected} className="h-5 w-5 rounded border-2" />
+                      <Checkbox checked={selected} className="h-5 w-5 rounded-[5px] border-2" />
                     </div>
                     {previews?.[node.id] ? (
                       <button
@@ -230,7 +230,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                       className="flex-shrink-0 -m-1.5 p-1.5 rounded-md cursor-pointer can-hover:hover:bg-foreground/10 active:bg-foreground/10"
                       aria-label={node.name}
                     >
-                      <Checkbox checked={allSelected} className="h-5 w-5 rounded border-2 pointer-events-none" />
+                      <Checkbox checked={allSelected} className="h-5 w-5 rounded-[5px] border-2 pointer-events-none" />
                     </span>
                     <div className="flex-shrink-0">
                       <div className="w-12 h-12 rounded bg-background flex items-center justify-center">
