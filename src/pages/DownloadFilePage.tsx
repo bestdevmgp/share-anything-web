@@ -75,6 +75,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   const zipAbortRef = useRef<AbortController | null>(null);
 
   const [previewFile, setPreviewFile] = useState<{ fileName: string; fileSize: number; source: string; presignedUrl?: string } | null>(null);
+  const previewObjectUrlRef = useRef<string | null>(null);
   const [singleFilePreviewUrl, setSingleFilePreviewUrl] = useState<string | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
 
@@ -432,11 +433,34 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     };
   }, [fileList, code, password, isP2PDownload, embedded]);
 
-  const openPreview = async (fileName: string, fileSize: number, fileId: string, blobSource: string) => {
-    const presignedUrl = isPptxFile(fileName) && code
-      ? await fileAPI.getDownloadUrl(code, fileId, password || undefined, true).then(r => r.download_url).catch(() => undefined)
-      : undefined;
-    setPreviewFile({ fileName, fileSize, source: blobSource, presignedUrl });
+  const closePreview = () => {
+    if (previewObjectUrlRef.current) {
+      URL.revokeObjectURL(previewObjectUrlRef.current);
+      previewObjectUrlRef.current = null;
+    }
+    setPreviewFile(null);
+  };
+
+  // Open the full preview for ANY file type. PPTX uses the Office web viewer (needs a
+  // public URL); every other type is fetched as the real file (server-proxied blob, so
+  // it's CORS-safe and the actual content) and rendered by FilePreviewModal — not the
+  // small thumbnail URL, which only exists for image/pdf/video.
+  const openPreview = async (fileName: string, fileSize: number, fileId: string) => {
+    if (!code) return;
+    try {
+      if (isPptxFile(fileName)) {
+        const { download_url } = await fileAPI.getDownloadUrl(code, fileId, password || undefined, true);
+        setPreviewFile({ fileName, fileSize, source: download_url, presignedUrl: download_url });
+        return;
+      }
+      const blob = await fileAPI.previewFile(code, fileId, password || undefined);
+      if (previewObjectUrlRef.current) URL.revokeObjectURL(previewObjectUrlRef.current);
+      const objectUrl = URL.createObjectURL(blob);
+      previewObjectUrlRef.current = objectUrl;
+      setPreviewFile({ fileName, fileSize, source: objectUrl });
+    } catch {
+      toast.error(t('download.downloadFailed'));
+    }
   };
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
@@ -731,7 +755,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       {previewFile && (
         <FilePreviewModal
           file={previewFile}
-          onClose={() => setPreviewFile(null)}
+          onClose={closePreview}
         />
       )}
       </>
@@ -809,7 +833,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         {previewFile && (
           <FilePreviewModal
             file={previewFile}
-            onClose={() => setPreviewFile(null)}
+            onClose={closePreview}
           />
         )}
       </>
@@ -1024,7 +1048,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       {previewFile && (
         <FilePreviewModal
           file={previewFile}
-          onClose={() => setPreviewFile(null)}
+          onClose={closePreview}
         />
       )}
     </>

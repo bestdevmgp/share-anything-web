@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronDownIcon, TrashIcon } from '@heroicons/react/24/outline';
 import { useTranslation } from '../../i18n';
@@ -45,6 +45,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
   const [previewFile, setPreviewFile] = useState<
     { fileName: string; fileSize: number; source: string; presignedUrl?: string } | null
   >(null);
+  const previewObjectUrlRef = useRef<string | null>(null);
   // Open sub-folders within the currently expanded bundle (reset when switching).
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
   const toggleFolder = (path: string) =>
@@ -99,13 +100,19 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
       return;
     }
     try {
-      const { download_url } = await fileAPI.getDownloadUrl(code, fileId, undefined, true, true);
-      setPreviewFile({
-        fileName,
-        fileSize,
-        source: download_url,
-        presignedUrl: isPptxFile(fileName) ? download_url : undefined,
-      });
+      // PPTX uses the Office web viewer (needs a public URL); every other type is fetched
+      // as the real file (server-proxied blob -> CORS-safe, renders any type) rather than
+      // the preview URL, which only exists for image/pdf/video.
+      if (isPptxFile(fileName)) {
+        const { download_url } = await fileAPI.getDownloadUrl(code, fileId, undefined, true);
+        setPreviewFile({ fileName, fileSize, source: download_url, presignedUrl: download_url });
+        return;
+      }
+      const blob = await fileAPI.previewFile(code, fileId);
+      if (previewObjectUrlRef.current) URL.revokeObjectURL(previewObjectUrlRef.current);
+      const objectUrl = URL.createObjectURL(blob);
+      previewObjectUrlRef.current = objectUrl;
+      setPreviewFile({ fileName, fileSize, source: objectUrl });
     } catch {
       navigate(`/download/${code}`);
     }
@@ -320,7 +327,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
       </div>
     </div>
     {previewFile && (
-      <FilePreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />
+      <FilePreviewModal file={previewFile} onClose={() => { if (previewObjectUrlRef.current) { URL.revokeObjectURL(previewObjectUrlRef.current); previewObjectUrlRef.current = null; } setPreviewFile(null); }} />
     )}
     </>
   );
