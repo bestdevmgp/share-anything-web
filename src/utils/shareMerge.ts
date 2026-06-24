@@ -69,6 +69,11 @@ export const mergeShares = (
     const existing = byCode.get(s.code);
     if (existing) {
       existing.source = 'both';
+      // The server's created_at is second-precision (MySQL DATETIME), so shares uploaded in
+      // the same second tie and fall back to the server's oldest-first order — stacking the
+      // newest share at the bottom. The local session's createdAt is millisecond-precision
+      // and monotonic per upload, so sort by it instead to keep the newest share on top.
+      existing.createdAt = s.createdAt;
       // The local session preserves the order the user uploaded the files in; the server
       // (getUploads) returns its own order. mergeShares runs first with local-only data
       // (sync) then again once server data arrives (async), so without this the title's
