@@ -9,6 +9,7 @@ import { Button } from '../../components/ui/button';
 import { Spinner } from '../../components/ui/spinner';
 import FileThumbnail from '../../components/FileThumbnail';
 import TruncatedFilename from '../../components/TruncatedFilename';
+import { Hint } from '../../components/ui/Hint';
 import { cn } from 'lib/utils';
 import { Language } from '../../context/LanguageContext';
 
@@ -150,18 +151,19 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
               )}
             </div>
             {isP2PDownload && (p2pStatus === 'downloading' || p2pStatus === 'connecting' || p2pStatus === 'processing') && (
-              <button
-                onClick={handleCancelP2PDownload}
-                disabled={p2pStatus === 'processing'}
-                className={cn(
-                  'flex-shrink-0 self-center -mr-1 p-1 rounded-md transition-colors',
-                  p2pStatus === 'processing' ? 'cursor-not-allowed' : 'can-hover:hover:bg-accent active:bg-accent'
-                )}
-                title={t('download.cancelDownload')}
-                aria-label={t('download.cancelDownload')}
-              >
-                <XMarkIcon className={cn('w-4 h-4', p2pStatus === 'processing' ? 'text-muted-foreground/30' : 'text-muted-foreground')} />
-              </button>
+              <Hint label={t('download.cancelDownload')}>
+                <button
+                  onClick={handleCancelP2PDownload}
+                  disabled={p2pStatus === 'processing'}
+                  className={cn(
+                    'flex-shrink-0 self-center -mr-1 p-1 rounded-md transition-colors',
+                    p2pStatus === 'processing' ? 'cursor-not-allowed' : 'can-hover:hover:bg-accent active:bg-accent'
+                  )}
+                  aria-label={t('download.cancelDownload')}
+                >
+                  <XMarkIcon className={cn('w-4 h-4', p2pStatus === 'processing' ? 'text-muted-foreground/30' : 'text-muted-foreground')} />
+                </button>
+              </Hint>
             )}
           </div>
 

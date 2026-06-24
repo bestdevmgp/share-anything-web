@@ -13,6 +13,7 @@ import FileThumbnail from './FileThumbnail';
 import FilePreviewModal from './FilePreviewModal';
 import TruncatedFilename from './TruncatedFilename';
 import CopyButton from './CopyButton';
+import { Hint } from './ui/Hint';
 import { Button } from './ui/button';
 import { Skeleton } from './ui/skeleton';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
@@ -382,7 +383,7 @@ const QuickAccess: React.FC = () => {
                           onClick={(e) => { e.stopPropagation(); handleShare(file); }}
                           disabled={sharingFileId === file.id}
                           className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10 disabled:opacity-50"
-                          title={t('quickAccess.share')}
+                          aria-label={t('quickAccess.share')}
                         >
                           <ArrowUpTrayIcon className="w-5 h-5" />
                         </button>
@@ -462,20 +463,24 @@ const QuickAccess: React.FC = () => {
                         </span>
                       </PopoverContent>
                     </Popover>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleDownload(file); }}
-                      className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
-                      title={t('common.download')}
-                    >
-                      <ArrowDownTrayIcon className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleDelete(file.id); }}
-                      className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 active:text-red-600 dark:active:text-red-400 active:bg-red-100/50 dark:active:bg-red-500/15"
-                      title={t('common.delete')}
-                    >
-                      <TrashIcon className="w-5 h-5" />
-                    </button>
+                    <Hint label={t('common.download')}>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDownload(file); }}
+                        className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
+                        aria-label={t('common.download')}
+                      >
+                        <ArrowDownTrayIcon className="w-5 h-5" />
+                      </button>
+                    </Hint>
+                    <Hint label={t('common.delete')}>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDelete(file.id); }}
+                        className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 active:text-red-600 dark:active:text-red-400 active:bg-red-100/50 dark:active:bg-red-500/15"
+                        aria-label={t('common.delete')}
+                      >
+                        <TrashIcon className="w-5 h-5" />
+                      </button>
+                    </Hint>
                   </div>
                 </div>
               ))}

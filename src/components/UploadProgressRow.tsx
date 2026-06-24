@@ -5,6 +5,7 @@ import TruncatedFilename from './TruncatedFilename';
 import { formatFileSize } from '../utils/format';
 import { useTranslation } from '../i18n';
 import { cn } from 'lib/utils';
+import { Hint } from './ui/Hint';
 
 interface Props {
   fileName: string;
@@ -64,19 +65,21 @@ const UploadProgressRow: React.FC<Props> = ({
       </div>
       {onCancel && (
         <div className="flex-shrink-0">
-          <button
-            onClick={onCancel}
-            disabled={cancelDisabled}
-            className={cn(
-              '-mr-1 p-1 rounded-md transition-colors',
-              cancelDisabled
-                ? 'text-muted-foreground/30 cursor-not-allowed'
-                : 'text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10'
-            )}
-            title={t('common.cancel')}
-          >
-            <XMarkIcon className="w-4 h-4" />
-          </button>
+          <Hint label={t('common.cancel')}>
+            <button
+              onClick={onCancel}
+              disabled={cancelDisabled}
+              className={cn(
+                '-mr-1 p-1 rounded-md transition-colors',
+                cancelDisabled
+                  ? 'text-muted-foreground/30 cursor-not-allowed'
+                  : 'text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10'
+              )}
+              aria-label={t('common.cancel')}
+            >
+              <XMarkIcon className="w-4 h-4" />
+            </button>
+          </Hint>
         </div>
       )}
     </div>

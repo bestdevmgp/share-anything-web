@@ -4,6 +4,7 @@ import UploadProgressRow from '../UploadProgressRow';
 import { useTranslation } from '../../i18n';
 import { formatFileSize } from '../../utils/format';
 import { useUploadProgress, ProgressInput } from './useUploadProgress';
+import { Hint } from '../ui/Hint';
 
 export type UploadingItem = ProgressInput;
 
@@ -62,18 +63,20 @@ const Uploading: React.FC<Props> = ({ items, onCancel, onCancelAll }) => {
               </div>
             </div>
           </div>
-          <button
-            onClick={onCancelAll}
-            disabled={allCompleted}
-            className={`flex-shrink-0 -mr-1 p-1 rounded-md transition-colors ${
-              allCompleted
-                ? 'text-muted-foreground/30 cursor-not-allowed'
-                : 'text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10'
-            }`}
-            title={t('common.cancel')}
-          >
-            <XMarkIcon className="w-4 h-4" />
-          </button>
+          <Hint label={t('common.cancel')}>
+            <button
+              onClick={onCancelAll}
+              disabled={allCompleted}
+              className={`flex-shrink-0 -mr-1 p-1 rounded-md transition-colors ${
+                allCompleted
+                  ? 'text-muted-foreground/30 cursor-not-allowed'
+                  : 'text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10'
+              }`}
+              aria-label={t('common.cancel')}
+            >
+              <XMarkIcon className="w-4 h-4" />
+            </button>
+          </Hint>
         </div>
       )}
       {rows.map((uf) => (

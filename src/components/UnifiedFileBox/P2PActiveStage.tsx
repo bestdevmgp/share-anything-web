@@ -3,6 +3,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import PauseBarsIcon from '../PauseBarsIcon';
 import { useTranslation } from '../../i18n';
 import { Button } from '../ui/button';
+import { Hint } from '../ui/Hint';
 import { Spinner } from '../ui/spinner';
 import FileThumbnail from '../FileThumbnail';
 import TruncatedFilename from '../TruncatedFilename';
@@ -184,14 +185,15 @@ const P2PActiveStage: React.FC<Props> = ({
                     </div>
                   </div>
                   {!isDone && (isTransferring || st === 'waiting') ? (
-                    <button
-                      onClick={() => onCancelFile(fileKey(file))}
-                      className="flex-shrink-0 self-center ml-1 -mr-1 p-1 rounded-md transition-colors text-muted-foreground can-hover:hover:bg-accent active:bg-accent"
-                      title={t('common.cancel')}
-                      aria-label={t('common.cancel')}
-                    >
-                      <XMarkIcon className="w-4 h-4" />
-                    </button>
+                    <Hint label={t('common.cancel')}>
+                      <button
+                        onClick={() => onCancelFile(fileKey(file))}
+                        className="flex-shrink-0 self-center ml-1 -mr-1 p-1 rounded-md transition-colors text-muted-foreground can-hover:hover:bg-accent active:bg-accent"
+                        aria-label={t('common.cancel')}
+                      >
+                        <XMarkIcon className="w-4 h-4" />
+                      </button>
+                    </Hint>
                   ) : null}
                 </div>
               );

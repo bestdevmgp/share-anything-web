@@ -23,6 +23,7 @@ import {
 } from '../utils/structuredZip';
 import { Button } from '../components/ui/button';
 import { Card } from '../components/ui/card';
+import { Hint } from '../components/ui/Hint';
 
 import { Spinner } from '../components/ui/spinner';
 import { cn } from 'lib/utils';
@@ -950,25 +951,27 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                           ✓ {t('common.done')}
                         </span>
                       ) : isDownloading ? (
-                        <button
-                          onClick={handleCancelP2PDownload}
-                          className="flex-shrink-0 self-center ml-1 -mr-2 p-1 can-hover:hover:bg-accent active:bg-accent rounded-md transition-colors"
-                          title={t('download.cancelDownload')}
-                          aria-label={t('download.cancelDownload')}
-                        >
-                          <XMarkIcon className="w-4 h-4 text-muted-foreground" />
-                        </button>
+                        <Hint label={t('download.cancelDownload')}>
+                          <button
+                            onClick={handleCancelP2PDownload}
+                            className="flex-shrink-0 self-center ml-1 -mr-2 p-1 can-hover:hover:bg-accent active:bg-accent rounded-md transition-colors"
+                            aria-label={t('download.cancelDownload')}
+                          >
+                            <XMarkIcon className="w-4 h-4 text-muted-foreground" />
+                          </button>
+                        </Hint>
                       ) : (
-                        <Button
-                          onClick={() => startP2PDownload(file.id)}
-                          disabled={bulkP2PDownloading || Boolean(anyP2PDownloading)}
-                          size="icon"
-                          title={t('common.download')}
-                          aria-label={t('common.download')}
-                          className="flex-shrink-0 ml-2"
-                        >
-                          <ArrowDownTrayIcon />
-                        </Button>
+                        <Hint label={t('common.download')}>
+                          <Button
+                            onClick={() => startP2PDownload(file.id)}
+                            disabled={bulkP2PDownloading || Boolean(anyP2PDownloading)}
+                            size="icon"
+                            aria-label={t('common.download')}
+                            className="flex-shrink-0 ml-2"
+                          >
+                            <ArrowDownTrayIcon />
+                          </Button>
+                        </Hint>
                       )}
                     </div>
                   </div>

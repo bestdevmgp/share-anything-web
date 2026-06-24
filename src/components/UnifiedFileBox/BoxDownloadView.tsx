@@ -26,6 +26,7 @@ import Collapsible from './Collapsible';
 import FolderTreeRows, { treeIndent } from './FolderTreeRows';
 import StatusIcon from '../StatusIcon';
 import { Button } from '../ui/button';
+import { Hint } from '../ui/Hint';
 import { Input } from '../ui/input';
 import { Spinner } from '../ui/spinner';
 import { Checkbox } from '../ui/checkbox';
@@ -344,25 +345,28 @@ const BoxDownloadView: React.FC<Props> = ({
             </div>
           </div>
           {isActive ? (
-            <button
-              onClick={handleCancelP2PDownload}
-              disabled={p2pStatus === 'processing'}
-              className={cn(
-                'flex-shrink-0 self-center ml-1 -mr-1 p-1 rounded-md transition-colors',
-                p2pStatus === 'processing'
-                  ? 'text-muted-foreground/30 cursor-not-allowed'
-                  : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
-              )}
-              title={t('download.cancelDownload')}
-              aria-label={t('download.cancelDownload')}
-            >
-              <XMarkIcon className="w-4 h-4" />
-            </button>
+            <Hint label={t('download.cancelDownload')}>
+              <button
+                onClick={handleCancelP2PDownload}
+                disabled={p2pStatus === 'processing'}
+                className={cn(
+                  'flex-shrink-0 self-center ml-1 -mr-1 p-1 rounded-md transition-colors',
+                  p2pStatus === 'processing'
+                    ? 'text-muted-foreground/30 cursor-not-allowed'
+                    : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
+                )}
+                aria-label={t('download.cancelDownload')}
+              >
+                <XMarkIcon className="w-4 h-4" />
+              </button>
+            </Hint>
           ) : (
             files.length > 1 && !done && (
-              <Button onClick={() => startP2PDownload(fileId)} disabled={active} size="icon" title={t('common.download')} aria-label={t('common.download')} className="flex-shrink-0 ml-2">
-                <ArrowDownTrayIcon />
-              </Button>
+              <Hint label={t('common.download')}>
+                <Button onClick={() => startP2PDownload(fileId)} disabled={active} size="icon" aria-label={t('common.download')} className="flex-shrink-0 ml-2">
+                  <ArrowDownTrayIcon />
+                </Button>
+              </Hint>
             )
           )}
         </>

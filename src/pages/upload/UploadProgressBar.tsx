@@ -1,6 +1,7 @@
 import React from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { Button } from '../../components/ui/button';
+import { Hint } from '../../components/ui/Hint';
 import { Spinner } from '../../components/ui/spinner';
 import { useTranslation } from '../../i18n';
 import { cn } from '../../lib/utils';
@@ -59,17 +60,19 @@ const UploadProgressBar: React.FC<UploadProgressBarProps> = ({
                   </div>
                 </div>
               </div>
-              <button
-                onClick={onCancelUpload}
-                disabled={isCompleting}
-                className={cn(
-                  'p-1 rounded transition-colors flex-shrink-0',
-                  isCompleting ? 'cursor-not-allowed' : 'can-hover:hover:bg-accent active:bg-accent'
-                )}
-                title={t('upload.cancelUpload')}
-              >
-                <XMarkIcon className={cn('w-6 h-6', isCompleting ? 'text-muted-foreground/30' : 'text-muted-foreground')} />
-              </button>
+              <Hint label={t('upload.cancelUpload')}>
+                <button
+                  onClick={onCancelUpload}
+                  disabled={isCompleting}
+                  className={cn(
+                    'p-1 rounded transition-colors flex-shrink-0',
+                    isCompleting ? 'cursor-not-allowed' : 'can-hover:hover:bg-accent active:bg-accent'
+                  )}
+                  aria-label={t('upload.cancelUpload')}
+                >
+                  <XMarkIcon className={cn('w-6 h-6', isCompleting ? 'text-muted-foreground/30' : 'text-muted-foreground')} />
+                </button>
+              </Hint>
             </div>
           </div>
         ) : (

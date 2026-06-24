@@ -13,6 +13,7 @@ import FolderTreeRows, { treeIndent } from '../../components/UnifiedFileBox/Fold
 import Collapsible from '../../components/UnifiedFileBox/Collapsible';
 import { buildFileTree, collectFileIds, nodeFileCount, nodeSize } from '../../utils/fileTree';
 import { cn } from 'lib/utils';
+import { Hint } from '../../components/ui/Hint';
 
 export interface MultiFileListProps {
   fileList: FileListResponse;
@@ -310,17 +311,19 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                       </div>
                     </div>
                   </div>
-                  <button
-                    onClick={handleCancelDownload}
-                    disabled={downloadProgress === 100}
-                    className={cn(
-                      'p-1 rounded transition-colors flex-shrink-0',
-                      downloadProgress === 100 ? 'cursor-not-allowed' : 'can-hover:hover:bg-accent active:bg-accent'
-                    )}
-                    title={t('download.cancelDownload')}
-                  >
-                    <XMarkIcon className={cn('w-6 h-6', downloadProgress === 100 ? 'text-muted-foreground/30' : 'text-muted-foreground')} />
-                  </button>
+                  <Hint label={t('download.cancelDownload')}>
+                    <button
+                      onClick={handleCancelDownload}
+                      disabled={downloadProgress === 100}
+                      className={cn(
+                        'p-1 rounded transition-colors flex-shrink-0',
+                        downloadProgress === 100 ? 'cursor-not-allowed' : 'can-hover:hover:bg-accent active:bg-accent'
+                      )}
+                      aria-label={t('download.cancelDownload')}
+                    >
+                      <XMarkIcon className={cn('w-6 h-6', downloadProgress === 100 ? 'text-muted-foreground/30' : 'text-muted-foreground')} />
+                    </button>
+                  </Hint>
                 </div>
               </div>
             ) : zipping ? (
@@ -342,13 +345,15 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                       </div>
                     </div>
                   </div>
-                  <button
-                    onClick={handleCancelZip}
-                    className="p-1 rounded transition-colors flex-shrink-0 can-hover:hover:bg-accent active:bg-accent"
-                    title={t('download.cancelDownload')}
-                  >
-                    <XMarkIcon className="w-6 h-6 text-muted-foreground" />
-                  </button>
+                  <Hint label={t('download.cancelDownload')}>
+                    <button
+                      onClick={handleCancelZip}
+                      className="p-1 rounded transition-colors flex-shrink-0 can-hover:hover:bg-accent active:bg-accent"
+                      aria-label={t('download.cancelDownload')}
+                    >
+                      <XMarkIcon className="w-6 h-6 text-muted-foreground" />
+                    </button>
+                  </Hint>
                 </div>
               </div>
             ) : zipError ? (

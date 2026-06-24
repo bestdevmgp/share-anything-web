@@ -19,6 +19,7 @@ import { Input } from '../components/ui/input';
 
 import { Spinner } from '../components/ui/spinner';
 import { Tooltip, TooltipTrigger, TooltipContent } from '../components/ui/tooltip';
+import { Hint } from '../components/ui/Hint';
 import { cn } from 'lib/utils';
 
 const UploadSuccessPage: React.FC = () => {
@@ -304,14 +305,15 @@ const UploadSuccessPage: React.FC = () => {
                                 </div>
                               </div>
                             </div>
-                            <button
-                              onClick={() => cancelTransfer(fileKey(file))}
-                              className="flex-shrink-0 self-center ml-1 -mr-1 p-1 rounded-md transition-colors can-hover:hover:bg-accent active:bg-accent"
-                              title={t('uploadSuccess.cancelTransfer')}
-                              aria-label={t('uploadSuccess.cancelTransfer')}
-                            >
-                              <XMarkIcon className="w-4 h-4 text-muted-foreground" />
-                            </button>
+                            <Hint label={t('uploadSuccess.cancelTransfer')}>
+                              <button
+                                onClick={() => cancelTransfer(fileKey(file))}
+                                className="flex-shrink-0 self-center ml-1 -mr-1 p-1 rounded-md transition-colors can-hover:hover:bg-accent active:bg-accent"
+                                aria-label={t('uploadSuccess.cancelTransfer')}
+                              >
+                                <XMarkIcon className="w-4 h-4 text-muted-foreground" />
+                              </button>
+                            </Hint>
                           </div>
                         </div>
                       </>
@@ -402,14 +404,15 @@ const UploadSuccessPage: React.FC = () => {
                             {isCompleted ? (
                               <span className="flex-shrink-0 self-center ml-3 text-sm text-green-600 font-medium whitespace-nowrap">{t('uploadSuccess.completed')}</span>
                             ) : isTransferring ? (
-                              <button
-                                onClick={(e) => { e.stopPropagation(); cancelTransfer(fileKey(file)); }}
-                                className="flex-shrink-0 self-center ml-1 -mr-2 p-1 rounded-md transition-colors can-hover:hover:bg-accent active:bg-accent"
-                                title={t('uploadSuccess.cancelTransfer')}
-                                aria-label={t('uploadSuccess.cancelTransfer')}
-                              >
-                                <XMarkIcon className="w-4 h-4 text-muted-foreground" />
-                              </button>
+                              <Hint label={t('uploadSuccess.cancelTransfer')}>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); cancelTransfer(fileKey(file)); }}
+                                  className="flex-shrink-0 self-center ml-1 -mr-2 p-1 rounded-md transition-colors can-hover:hover:bg-accent active:bg-accent"
+                                  aria-label={t('uploadSuccess.cancelTransfer')}
+                                >
+                                  <XMarkIcon className="w-4 h-4 text-muted-foreground" />
+                                </button>
+                              </Hint>
                             ) : null}
                           </div>
                         </div>
