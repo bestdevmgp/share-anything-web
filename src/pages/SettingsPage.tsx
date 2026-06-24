@@ -464,6 +464,24 @@ const SettingsPage: React.FC = () => {
     }
   };
 
+  const handleRevokeAllPersonalTokens = async () => {
+    if (personalTokens.length === 0) return;
+    if (!window.confirm(t('settings.revokeAllPersonalTokensConfirm'))) return;
+    try {
+      await Promise.all(personalTokens.map((tk) => personalTokenAPI.revoke(tk.id)));
+      setPersonalTokens([]);
+      toast.success(t('settings.personalTokensAllRevoked'));
+    } catch {
+      toast.error(t('settings.personalTokenRevokeFailed'));
+      try {
+        const tokens = await personalTokenAPI.list();
+        setPersonalTokens(tokens);
+      } catch {
+        // ignore refresh failure
+      }
+    }
+  };
+
   const computeExpiresAt = (opt: ExpirationOption, customDate: string): string | null => {
     if (opt === 'none') return null;
     if (opt === 'custom') {
@@ -1415,6 +1433,21 @@ const SettingsPage: React.FC = () => {
                 )}
               </div>
 
+              {!personalTokensLoading && personalTokens.length > 0 && (
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-muted-foreground">
+                    {t('settings.personalTokenCount', { count: personalTokens.length })}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleRevokeAllPersonalTokens}
+                    className="text-red-600 dark:text-red-400 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 flex-shrink-0"
+                  >
+                    {t('settings.revokeAllPersonalTokens')}
+                  </Button>
+                </div>
+              )}
               <div>
                 {personalTokensLoading ? (
                   <div className="animate-pulse space-y-3">
