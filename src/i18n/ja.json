@@ -432,7 +432,7 @@
     "securityNotificationDisableWarning": "セキュリティ通知をオフにすると、アカウントの不審なアクティビティを確認できなくなります。本当にオフにしますか？",
     "notifyLanguage": "通知言語",
     "notifyLanguageDescription": "メール通知に使用する言語を選択します。",
-    "generalDescription": "サイトの言語やテーマを設定します。",
+    "generalDescription": "サイトの利用に必要な基本設定を管理できます。",
     "siteLanguage": "サイト言語",
     "siteLanguageDescription": "ウェブサイトの表示言語を変更します。",
     "siteTheme": "テーマ",

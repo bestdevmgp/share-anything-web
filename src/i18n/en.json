@@ -436,7 +436,7 @@
     "securityNotificationDisableWarning": "If you turn off security alerts, you won't be able to detect suspicious activity on your account. Are you sure you want to turn it off?",
     "notifyLanguage": "Notification Language",
     "notifyLanguageDescription": "Choose the language for email notifications.",
-    "generalDescription": "Configure site language and theme.",
+    "generalDescription": "Manage general preferences for using the site.",
     "siteLanguage": "Site Language",
     "siteLanguageDescription": "Change the language displayed on the website.",
     "siteTheme": "Theme",

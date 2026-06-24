@@ -436,7 +436,7 @@
     "securityNotificationDisableWarning": "보안 알림을 끄면 계정의 의심스러운 활동을 확인할 수 없어요. 정말 끄시겠어요?",
     "notifyLanguage": "알림 언어",
     "notifyLanguageDescription": "이메일 알림에 사용할 언어를 선택할 수 있어요.",
-    "generalDescription": "사이트의 언어 및 테마를 설정할 수 있어요.",
+    "generalDescription": "사이트 이용에 필요한 기본 설정을 관리할 수 있어요.",
     "siteLanguage": "사이트 언어",
     "siteLanguageDescription": "웹 사이트에 표시되는 언어를 변경할 수 있어요.",
     "siteTheme": "테마",

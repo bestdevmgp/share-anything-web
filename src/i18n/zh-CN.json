@@ -432,7 +432,7 @@
     "securityNotificationDisableWarning": "关闭安全通知后，将无法察觉账户的可疑活动。确定要关闭吗？",
     "notifyLanguage": "通知语言",
     "notifyLanguageDescription": "选择邮件通知使用的语言。",
-    "generalDescription": "设置网站的语言和主题。",
+    "generalDescription": "管理使用网站所需的基本设置。",
     "siteLanguage": "网站语言",
     "siteLanguageDescription": "更改网站显示的语言。",
     "siteTheme": "主题",
