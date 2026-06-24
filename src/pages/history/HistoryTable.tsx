@@ -392,36 +392,9 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                         else expandRefs.current.delete(group.shareCode);
                       }}>
                         <div className="px-6 py-6 space-y-6">
-                          {isBundle && (
-                            <Card className="rounded-lg shadow-none">
-                              <CardContent className="p-4 grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-3">
-                                <div>
-                                  <span className="text-sm font-medium text-muted-foreground">{t('history.shareCodeLabel')}</span>
-                                  <p className="text-sm text-foreground">{group.shareCode}</p>
-                                </div>
-                                <div>
-                                  <span className="text-sm font-medium text-muted-foreground">{t('history.bundleSize')}</span>
-                                  <p className="text-sm text-foreground">{formatFileSize(group.totalSize)}</p>
-                                </div>
-                                <div>
-                                  <span className="text-sm font-medium text-muted-foreground">{t('history.passwordLabel')}</span>
-                                  <p className="text-sm text-foreground">{group.hasPassword ? t('common.exists') : t('common.none')}</p>
-                                </div>
-                                <div>
-                                  <span className="text-sm font-medium text-muted-foreground">{t('history.oneTimeShareLabel')}</span>
-                                  <p className="text-sm text-foreground">{group.isOneTime ? t('common.yes') : t('common.no')}</p>
-                                </div>
-                              </CardContent>
-                            </Card>
-                          )}
-
-                          {isBundle && (
-                            <h3 className="text-lg font-semibold text-foreground">{t('history.filesInBundle')}</h3>
-                          )}
-
                           {(() => {
-                          const renderFileDetail = (upload: UploadHistoryItem) => (
-                            <div className="grid grid-cols-3 gap-4">
+                          const renderFileDetail = (upload: UploadHistoryItem, withLogs = true) => (
+                            <div className={cn('grid gap-4', withLogs ? 'grid-cols-3' : 'grid-cols-2')}>
                               <div className="h-0 min-h-full flex flex-col overflow-hidden">
                                 <h3 className="text-lg font-semibold text-foreground mb-4 flex-shrink-0">{t('history.preview')}</h3>
                                 <Card
@@ -442,7 +415,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                                 </Card>
                               </div>
 
-                              <div className="col-span-2 grid grid-cols-2 gap-4">
+                              <div className={cn(withLogs ? 'col-span-2 grid grid-cols-2 gap-4' : 'contents')}>
                                 <div className="flex flex-col">
                                   <h3 className="text-lg font-semibold text-foreground mb-4">{t('history.detailInfo')}</h3>
                                   <Card className="rounded-lg shadow-none">
@@ -495,6 +468,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                                   </Card>
                                 </div>
 
+                                {withLogs && (
                                 <div className="h-0 min-h-full flex flex-col overflow-hidden">
                                   <div className="flex items-center justify-between mb-4 flex-shrink-0">
                                     <h3 className="text-lg font-semibold text-foreground">{t('history.downloadHistory')}</h3>
@@ -560,9 +534,28 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                                     </CardContent>
                                   </Card>
                                 </div>
+                                )}
                               </div>
                             </div>
                           );
+                          // Session-level download logs: distinct people who downloaded ANY file in
+                          // this share, deduped by account name (if signed in) else IP, newest first.
+                          const sessionLogs = (() => {
+                            const byPerson = new Map<string, DownloadLog>();
+                            for (const f of group.files) {
+                              for (const log of (downloadLogs[f.id] || [])) {
+                                const key = log.downloader_name ? `u:${log.downloader_name}` : `ip:${log.ip_address}`;
+                                const prev = byPerson.get(key);
+                                if (!prev || new Date(log.downloaded_at) > new Date(prev.downloaded_at)) {
+                                  byPerson.set(key, log);
+                                }
+                              }
+                            }
+                            return Array.from(byPerson.values()).sort(
+                              (a, b) => new Date(b.downloaded_at).getTime() - new Date(a.downloaded_at).getTime()
+                            );
+                          })();
+                          const sessionLogsLoading = group.files.some((f) => loadingLogs[f.id]) && sessionLogs.length === 0;
                           const detailUpload = detailUploadId ? group.files.find((f) => f.id === detailUploadId) : null;
                           const fileRowDetail = (upload: UploadHistoryItem, compact: boolean, depth = 0) => (
                             <button
@@ -583,7 +576,66 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                             </button>
                           );
                           return (isBundle || hasFoldersInGroup) ? (
-                            <div className="space-y-2" style={{ containerType: 'inline-size' }}>
+                            <div className="space-y-6" style={{ containerType: 'inline-size' }}>
+                              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                                <Card className="rounded-lg shadow-none">
+                                  <CardContent className="p-4 grid grid-cols-2 gap-x-6 gap-y-3">
+                                    <div>
+                                      <span className="text-sm font-medium text-muted-foreground">{t('history.shareCodeLabel')}</span>
+                                      <p className="text-sm text-foreground break-all">{group.shareCode}</p>
+                                    </div>
+                                    <div>
+                                      <span className="text-sm font-medium text-muted-foreground">{t('history.bundleSize')}</span>
+                                      <p className="text-sm text-foreground">{formatFileSize(group.totalSize)}</p>
+                                    </div>
+                                    <div>
+                                      <span className="text-sm font-medium text-muted-foreground">{t('history.passwordLabel')}</span>
+                                      <p className="text-sm text-foreground">{group.hasPassword ? t('common.exists') : t('common.none')}</p>
+                                    </div>
+                                    <div>
+                                      <span className="text-sm font-medium text-muted-foreground">{t('history.oneTimeShareLabel')}</span>
+                                      <p className="text-sm text-foreground">{group.isOneTime ? t('common.yes') : t('common.no')}</p>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                                <div className="flex flex-col">
+                                  <h3 className="text-lg font-semibold text-foreground mb-4">{t('history.downloadHistory')}</h3>
+                                  <Card className="rounded-lg shadow-none">
+                                    <CardContent className="p-4">
+                                      {sessionLogsLoading ? (
+                                        <div className="space-y-4">
+                                          {[0, 1, 2].map((i) => (
+                                            <div key={i} className="border-b border-border pb-4 last:border-0 last:pb-0">
+                                              <Skeleton className="h-4 w-24" />
+                                              <Skeleton className="h-3 w-32 mt-2" />
+                                              <Skeleton className="h-3 w-28 mt-1" />
+                                            </div>
+                                          ))}
+                                        </div>
+                                      ) : sessionLogs.length > 0 ? (
+                                        <div className="space-y-4 max-h-80 overflow-y-auto pr-2">
+                                          {sessionLogs.map((log) => (
+                                            <div key={log.id} className="text-sm border-b border-border pb-4 last:border-0 last:pb-0">
+                                              <div className="flex justify-between items-start gap-4">
+                                                <div className="min-w-0 flex-1">
+                                                  <p className="font-medium text-foreground">{log.downloader_name || t('common.anonymousUser')}</p>
+                                                  <p className="text-muted-foreground text-xs mt-2">{log.device_platform}</p>
+                                                  <p className="text-muted-foreground text-xs">{log.ip_address}</p>
+                                                </div>
+                                                <p className="text-xs text-muted-foreground whitespace-nowrap flex-shrink-0">{formatDateTime(log.downloaded_at, language)}</p>
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      ) : (
+                                        <div className="text-sm text-muted-foreground text-center py-4">{t('history.noDownloadLogs')}</div>
+                                      )}
+                                    </CardContent>
+                                  </Card>
+                                </div>
+                              </div>
+                              <h3 className="text-lg font-semibold text-foreground">{t('history.filesInBundle')}</h3>
+                              <div className="space-y-2">
                               {buildFileTree(group.files.map((f) => ({ id: f.id, file_name: f.file_name, file_size: f.file_size, relative_path: f.relative_path }))).map((node) => {
                                 if (node.kind === 'file') {
                                   const upload = group.files.find((f) => f.id === node.id);
@@ -639,13 +691,14 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                                   </div>
                                 );
                               })}
+                              </div>
                               {detailUpload && (
                                 <Dialog open onOpenChange={(o) => { if (!o) setDetailUploadId(null); }}>
                                   <DialogContent className="max-w-5xl w-[calc(100vw-2rem)] max-h-[85vh] overflow-y-auto">
                                     <DialogHeader>
                                       <DialogTitle className="truncate">{detailUpload.file_name}</DialogTitle>
                                     </DialogHeader>
-                                    {renderFileDetail(detailUpload)}
+                                    {renderFileDetail(detailUpload, false)}
                                   </DialogContent>
                                 </Dialog>
                               )}

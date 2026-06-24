@@ -301,39 +301,8 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
               else expandRefs.current.delete(group.shareCode);
             }}>
               <div className="border-t border-border p-4 bg-background space-y-4">
-                {isBundle && (
-                  <Card className="rounded-lg shadow-none">
-                    <CardContent className="p-3 space-y-2 text-xs">
-                      <div>
-                        <span className="text-muted-foreground">{t('history.shareCodeLabel')}:</span>
-                        <span className="ml-2 text-foreground">{group.shareCode}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">{t('history.bundleSize')}:</span>
-                        <span className="ml-2 text-foreground">{formatFileSize(group.totalSize)}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">{t('history.passwordLabel')}:</span>
-                        <span className="ml-2 text-foreground">{group.hasPassword ? t('common.exists') : t('common.none')}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">{t('history.oneTimeShareLabel')}:</span>
-                        <span className="ml-2 text-foreground">{group.isOneTime ? t('common.yes') : t('common.no')}</span>
-                      </div>
-                      <div>
-                        <span className="text-muted-foreground">{t('history.expirationDateLabel')}:</span>
-                        <span className="ml-2 text-foreground">{formatDateTime(group.expiresAt, language)}</span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {isBundle && (
-                  <h4 className="text-sm font-semibold text-foreground">{t('history.filesInBundle')}</h4>
-                )}
-
                 {(() => {
-                const renderFileDetail = (upload: UploadHistoryItem) => (
+                const renderFileDetail = (upload: UploadHistoryItem, withLogs = true) => (
                   <div className="space-y-4">
                     <div>
                       <h4 className="text-sm font-semibold text-foreground mb-2">{t('history.preview')}</h4>
@@ -413,6 +382,7 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                       </Card>
                     </div>
 
+                    {withLogs && (
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="text-sm font-semibold text-foreground">{t('history.downloadHistory')}</h4>
@@ -461,8 +431,24 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                         </CardContent>
                       </Card>
                     </div>
+                    )}
                   </div>
                   );
+                  // Session-level logs: distinct downloaders across all files (account name, else IP).
+                  const sessionLogs = (() => {
+                    const byPerson = new Map<string, DownloadLog>();
+                    for (const f of group.files) {
+                      for (const log of (downloadLogs[f.id] || [])) {
+                        const key = log.downloader_name ? `u:${log.downloader_name}` : `ip:${log.ip_address}`;
+                        const prev = byPerson.get(key);
+                        if (!prev || new Date(log.downloaded_at) > new Date(prev.downloaded_at)) byPerson.set(key, log);
+                      }
+                    }
+                    return Array.from(byPerson.values()).sort(
+                      (a, b) => new Date(b.downloaded_at).getTime() - new Date(a.downloaded_at).getTime()
+                    );
+                  })();
+                  const sessionLogsLoading = group.files.some((f) => loadingLogs[f.id]) && sessionLogs.length === 0;
                   const detailUpload = detailUploadId ? group.files.find((f) => f.id === detailUploadId) : null;
                   const fileRowDetail = (upload: UploadHistoryItem, compact: boolean, depth = 0) => (
                     <button
@@ -483,7 +469,46 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                     </button>
                   );
                   return (isBundle || hasFoldersInGroup) ? (
-                    <div className="space-y-2" style={{ containerType: 'inline-size' }}>
+                    <div className="space-y-4" style={{ containerType: 'inline-size' }}>
+                      <Card className="rounded-lg shadow-none">
+                        <CardContent className="p-3 space-y-2 text-xs">
+                          <div><span className="text-muted-foreground">{t('history.shareCodeLabel')}:</span><span className="ml-2 text-foreground break-all">{group.shareCode}</span></div>
+                          <div><span className="text-muted-foreground">{t('history.bundleSize')}:</span><span className="ml-2 text-foreground">{formatFileSize(group.totalSize)}</span></div>
+                          <div><span className="text-muted-foreground">{t('history.passwordLabel')}:</span><span className="ml-2 text-foreground">{group.hasPassword ? t('common.exists') : t('common.none')}</span></div>
+                          <div><span className="text-muted-foreground">{t('history.oneTimeShareLabel')}:</span><span className="ml-2 text-foreground">{group.isOneTime ? t('common.yes') : t('common.no')}</span></div>
+                        </CardContent>
+                      </Card>
+                      <div>
+                        <h4 className="text-sm font-semibold text-foreground mb-2">{t('history.downloadHistory')}</h4>
+                        <Card className="rounded-lg shadow-none">
+                          <CardContent className="p-4">
+                            {sessionLogsLoading ? (
+                              <div className="space-y-4">
+                                {[0, 1].map((i) => (
+                                  <div key={i} className="border-b border-border pb-4 last:border-0 last:pb-0">
+                                    <Skeleton className="h-3.5 w-20" />
+                                    <Skeleton className="h-3 w-36 mt-2" />
+                                  </div>
+                                ))}
+                              </div>
+                            ) : sessionLogs.length > 0 ? (
+                              <div className="space-y-4 overflow-y-auto pr-1" style={{ maxHeight: sessionLogs.length <= 2 ? 'none' : '240px' }}>
+                                {sessionLogs.map((log) => (
+                                  <div key={log.id} className="text-xs border-b border-border pb-4 last:border-0 last:pb-0">
+                                    <p className="font-medium text-foreground">{log.downloader_name || t('common.anonymousUser')}</p>
+                                    <p className="text-muted-foreground mt-2">{log.device_platform} • {log.ip_address}</p>
+                                    <p className="text-muted-foreground mt-2">{formatDateTime(log.downloaded_at, language)}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="h-20 flex items-center justify-center text-xs text-muted-foreground text-center">{t('history.noDownloadLogs')}</div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      </div>
+                      <h4 className="text-sm font-semibold text-foreground">{t('history.filesInBundle')}</h4>
+                      <div className="space-y-2">
                       {buildFileTree(group.files.map((f) => ({ id: f.id, file_name: f.file_name, file_size: f.file_size, relative_path: f.relative_path }))).map((node) => {
                         if (node.kind === 'file') {
                           const upload = group.files.find((f) => f.id === node.id);
@@ -539,13 +564,14 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                           </div>
                         );
                       })}
+                      </div>
                       {detailUpload && (
                         <Dialog open onOpenChange={(o) => { if (!o) setDetailUploadId(null); }}>
                           <DialogContent className="max-w-lg w-[calc(100vw-2rem)] max-h-[85vh] overflow-y-auto">
                             <DialogHeader>
                               <DialogTitle className="truncate">{detailUpload.file_name}</DialogTitle>
                             </DialogHeader>
-                            {renderFileDetail(detailUpload)}
+                            {renderFileDetail(detailUpload, false)}
                           </DialogContent>
                         </Dialog>
                       )}

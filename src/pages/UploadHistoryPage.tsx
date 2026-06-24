@@ -227,14 +227,17 @@ const UploadHistoryPage: React.FC = () => {
     }
 
     try {
-      setLoadingLogs({ ...loadingLogs, [fileId]: true });
+      // Functional updates: several files' logs are fetched in parallel on expand, so each
+      // must merge into the latest state — the object-spread form captured a stale value and
+      // the fetches clobbered each other (only one file's logs survived).
+      setLoadingLogs(prev => ({ ...prev, [fileId]: true }));
       const logs = await userAPI.getDownloadLogs(fileId);
-      setDownloadLogs({ ...downloadLogs, [fileId]: logs });
+      setDownloadLogs(prev => ({ ...prev, [fileId]: logs }));
     } catch (error: any) {
       console.error('Failed to fetch download logs:', error);
       toast.error(t('history.downloadLogFetchError'));
     } finally {
-      setLoadingLogs({ ...loadingLogs, [fileId]: false });
+      setLoadingLogs(prev => ({ ...prev, [fileId]: false }));
     }
   };
 
