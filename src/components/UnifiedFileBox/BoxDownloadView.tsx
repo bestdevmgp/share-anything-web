@@ -550,7 +550,7 @@ const BoxDownloadView: React.FC<Props> = ({
                         <button
                           type="button"
                           onClick={(e) => { e.stopPropagation(); openPreview(node.name, node.size, node.id); }}
-                          className="flex-shrink-0 mr-3 rounded-lg overflow-hidden transition-transform can-hover:hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                          className="flex-shrink-0 mr-3 rounded overflow-hidden transition-transform can-hover:hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                           aria-label={node.name}
                         >
                           <FileThumbnail source={previews?.[node.id] ?? null} fileName={node.name} size="sm" />
@@ -662,7 +662,7 @@ const BoxDownloadView: React.FC<Props> = ({
                     <button
                       type="button"
                       onClick={(e) => { e.stopPropagation(); openPreview(file.file_name, file.file_size, file.id); }}
-                      className="flex-shrink-0 mr-3 rounded-lg overflow-hidden transition-transform can-hover:hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="flex-shrink-0 mr-3 rounded overflow-hidden transition-transform can-hover:hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       aria-label={file.file_name}
                     >
                       <FileThumbnail source={previews?.[file.id] ?? null} fileName={file.file_name} size="sm" />
