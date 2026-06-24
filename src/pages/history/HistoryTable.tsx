@@ -1,4 +1,4 @@
-import React, { useRef, useState, useLayoutEffect } from 'react';
+import React, { useRef, useState, useLayoutEffect, useEffect } from 'react';
 import { FolderIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { UploadHistoryItem, UploadGroup, DownloadLog } from '../../types';
 import { isPdfFile, isVideoFile, formatFileSize, formatDateTime } from '../../utils/format';
@@ -149,6 +149,17 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
   const expandRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
   const [detailUploadId, setDetailUploadId] = useState<string | null>(null);
+  // Open the file preview only AFTER the detail modal has fully closed — opening it
+  // while the detail Dialog is still mounted nests two Radix Dialogs (black overlay,
+  // dead Escape). The effect runs after the close commit, so they never coexist.
+  const [pendingPreview, setPendingPreview] = useState<UploadHistoryItem | null>(null);
+  useEffect(() => {
+    if (pendingPreview && !detailUploadId) {
+      openPreviewModal(pendingPreview);
+      setPendingPreview(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingPreview, detailUploadId]);
   const toggleFolder = (key: string) =>
     setOpenFolders((prev) => {
       const next = new Set(prev);
@@ -424,7 +435,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                                 <h3 className="text-lg font-semibold text-foreground mb-4 flex-shrink-0">{t('history.preview')}</h3>
                                 <Card
                                   className="rounded-lg shadow-none overflow-hidden w-full flex-1 max-w-md cursor-pointer can-hover:hover:border-primary/50 active:border-primary/50 transition-colors"
-                                  onClick={(e) => { e.stopPropagation(); setDetailUploadId(null); openPreviewModal(upload); }}
+                                  onClick={(e) => { e.stopPropagation(); setPendingPreview(upload); setDetailUploadId(null); }}
                                 >
                                   {renderFilePreview(
                                     upload,

@@ -1,4 +1,4 @@
-import React, { useRef, useState, useLayoutEffect } from 'react';
+import React, { useRef, useState, useLayoutEffect, useEffect } from 'react';
 import { FolderIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { UploadHistoryItem, UploadGroup, DownloadLog } from '../../types';
 import { isPdfFile, isVideoFile, formatFileSize, formatDateTime } from '../../utils/format';
@@ -135,6 +135,16 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
   const expandRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
   const [detailUploadId, setDetailUploadId] = useState<string | null>(null);
+  // Open the preview only after the detail modal has closed (avoids nesting two
+  // Radix Dialogs -> black overlay + dead Escape).
+  const [pendingPreview, setPendingPreview] = useState<UploadHistoryItem | null>(null);
+  useEffect(() => {
+    if (pendingPreview && !detailUploadId) {
+      openPreviewModal(pendingPreview);
+      setPendingPreview(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingPreview, detailUploadId]);
   const toggleFolder = (key: string) =>
     setOpenFolders((prev) => {
       const next = new Set(prev);
@@ -351,7 +361,7 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                           isExpired(upload.expires_at) ? 'h-28' :
                           (isImageFileByType(upload.file_type) || isVideoFile(upload.file_name)) ? 'aspect-square' : 'h-32'
                         )}
-                        onClick={() => { setDetailUploadId(null); openPreviewModal(upload); }}
+                        onClick={() => { setPendingPreview(upload); setDetailUploadId(null); }}
                       >
                         {renderMobilePreview(
                           upload,
