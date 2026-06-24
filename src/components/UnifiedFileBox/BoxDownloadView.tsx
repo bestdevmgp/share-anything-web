@@ -547,7 +547,7 @@ const BoxDownloadView: React.FC<Props> = ({
                           !selected && 'opacity-50'
                         )}
                       >
-                        <Checkbox checked={selected} className="h-5 w-5 rounded-md border-2 flex-shrink-0 mr-3" />
+                        <Checkbox checked={selected} className="h-5 w-5 rounded border-2 flex-shrink-0 mr-3" />
                         {previews?.[node.id] ? (
                           <button
                             type="button"
@@ -593,7 +593,7 @@ const BoxDownloadView: React.FC<Props> = ({
                           className="flex-shrink-0 -my-1.5 -ml-1 mr-2 p-1.5 rounded-md cursor-pointer"
                           aria-label={node.name}
                         >
-                          <Checkbox checked={allSelected} className="h-5 w-5 rounded-md border-2 pointer-events-none" />
+                          <Checkbox checked={allSelected} className="h-5 w-5 rounded border-2 pointer-events-none" />
                         </span>
                         <div className="flex-shrink-0 mr-3">
                           <div className="w-11 h-11 rounded bg-background flex items-center justify-center">
@@ -668,7 +668,7 @@ const BoxDownloadView: React.FC<Props> = ({
                     )}
                   >
                     {multi && (
-                      <Checkbox checked={selected} className="h-5 w-5 rounded-md border-2 flex-shrink-0 mr-3" />
+                      <Checkbox checked={selected} className="h-5 w-5 rounded border-2 flex-shrink-0 mr-3" />
                     )}
                     {previews?.[file.id] ? (
                       <button
