@@ -68,8 +68,8 @@
     "apiDocs": "OpenAPI"
   },
   "preview": {
-    "loading": "로드 중...",
-    "pdfLoading": "PDF 로드 중...",
+    "loading": "미리보기 로드 중...",
+    "pdfLoading": "미리보기 로드 중...",
     "unsupported": "미리보기를 지원하지 않는 파일이에요."
   },
   "downloadLogs": {

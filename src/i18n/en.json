@@ -68,8 +68,8 @@
     "apiDocs": "OpenAPI"
   },
   "preview": {
-    "loading": "Loading...",
-    "pdfLoading": "Loading PDF...",
+    "loading": "Loading preview...",
+    "pdfLoading": "Loading preview...",
     "unsupported": "Preview is not available for this file type."
   },
   "downloadLogs": {

@@ -17,7 +17,6 @@ import {
   DialogDescription,
 } from './ui/dialog';
 import { Button } from './ui/button';
-import { Spinner } from './ui/spinner';
 import {
   Table,
   TableHeader,
@@ -284,10 +283,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   const renderContent = () => {
     if (loading) {
       return (
-        <div className="flex flex-col items-center py-16 text-muted-foreground">
-          <Spinner size="xl" className="mb-3" />
-          <p className="text-sm">{t('preview.loading')}</p>
-        </div>
+        <div className="py-16 text-muted-foreground text-sm">{t('preview.loading')}</div>
       );
     }
 
@@ -311,7 +307,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
             file={pdfSource}
             onLoadSuccess={onDocumentLoadSuccess}
             loading={
-              <div className="py-16 text-muted-foreground text-sm">{t('preview.pdfLoading')}</div>
+              <div className="py-16 text-muted-foreground text-sm">{t('preview.loading')}</div>
             }
           >
             <div

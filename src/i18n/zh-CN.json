@@ -68,8 +68,8 @@
     "apiDocs": "OpenAPI"
   },
   "preview": {
-    "loading": "加载中...",
-    "pdfLoading": "PDF 加载中...",
+    "loading": "正在加载预览...",
+    "pdfLoading": "正在加载预览...",
     "unsupported": "该文件不支持预览。"
   },
   "downloadLogs": {
