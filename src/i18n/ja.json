@@ -214,7 +214,7 @@
     "transfer": "転送",
     "selectFilesError": "ファイルを選択してください",
     "verifyNotRobot": "ロボットでないことを確認してください",
-    "uploadCancelled": "アップロードがキャンセルされました",
+    "uploadCancelled": "アップロードを中断しました",
     "securityRequired": "セキュリティ確認が必要です",
     "securityFailed": "セキュリティ確認に失敗しました。もう一度お試しください",
     "uploadFailed": "アップロードに失敗しました",

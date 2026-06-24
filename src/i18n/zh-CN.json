@@ -214,7 +214,7 @@
     "transfer": "传输",
     "selectFilesError": "请选择文件",
     "verifyNotRobot": "请确认您不是机器人",
-    "uploadCancelled": "上传已取消",
+    "uploadCancelled": "上传已中断",
     "securityRequired": "需要进行安全验证",
     "securityFailed": "安全验证失败，请重试",
     "uploadFailed": "上传失败",

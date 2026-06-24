@@ -186,7 +186,8 @@ const UnifiedFileBox: React.FC = () => {
     handleRef.current = null;
     dispatch({ type: 'cancelUpload' });
     setItems([]);
-  }, [dispatch]);
+    toast.info(t('upload.uploadCancelled'));
+  }, [dispatch, t]);
 
   const onCancelUploadFile = useCallback((id: string) => {
     const cur = itemsRef.current;
@@ -199,10 +200,11 @@ const UnifiedFileBox: React.FC = () => {
       handleRef.current = null;
       dispatch({ type: 'cancelUpload' });
       setItems([]);
+      toast.info(t('upload.uploadCancelled'));
       return;
     }
     setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, canceled: true } : it)));
-  }, [dispatch]);
+  }, [dispatch, t]);
 
   const onP2PCancel = useCallback(() => {
     dispatch({ type: 'p2pCancel' });

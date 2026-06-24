@@ -214,7 +214,7 @@
     "transfer": "Transfer",
     "selectFilesError": "Please select files",
     "verifyNotRobot": "Please verify you are not a robot",
-    "uploadCancelled": "Upload has been cancelled",
+    "uploadCancelled": "Upload stopped",
     "securityRequired": "Security verification required",
     "securityFailed": "Security verification failed. Please try again",
     "uploadFailed": "Upload failed",

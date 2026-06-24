@@ -214,7 +214,7 @@
     "transfer": "전송",
     "selectFilesError": "파일을 선택해주세요",
     "verifyNotRobot": "로봇이 아닌지 확인해주세요",
-    "uploadCancelled": "업로드가 취소되었어요",
+    "uploadCancelled": "업로드가 중단되었어요",
     "securityRequired": "보안 확인이 필요해요",
     "securityFailed": "보안 확인에 실패했어요. 다시 시도해주세요",
     "uploadFailed": "업로드에 실패했어요",

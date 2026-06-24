@@ -214,7 +214,7 @@
     "transfer": "傳送",
     "selectFilesError": "請選擇檔案",
     "verifyNotRobot": "請確認您不是機器人",
-    "uploadCancelled": "上傳已取消",
+    "uploadCancelled": "上傳已中斷",
     "securityRequired": "需要進行安全驗證",
     "securityFailed": "安全驗證失敗，請重試",
     "uploadFailed": "上傳失敗",
