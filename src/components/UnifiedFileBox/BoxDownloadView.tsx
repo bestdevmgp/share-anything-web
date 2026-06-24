@@ -6,6 +6,7 @@ import {
   XMarkIcon,
   FolderIcon,
   ChevronDownIcon,
+  ArrowDownTrayIcon,
 } from '@heroicons/react/24/outline';
 import { FileListResponse } from '../../types';
 import { formatFileSize } from '../../utils/format';
@@ -359,8 +360,8 @@ const BoxDownloadView: React.FC<Props> = ({
             </button>
           ) : (
             files.length > 1 && !done && (
-              <Button onClick={() => startP2PDownload(fileId)} disabled={active} size="sm" className="flex-shrink-0 ml-2">
-                {t('common.download')}
+              <Button onClick={() => startP2PDownload(fileId)} disabled={active} size="icon" title={t('common.download')} aria-label={t('common.download')} className="flex-shrink-0 ml-2">
+                <ArrowDownTrayIcon />
               </Button>
             )
           )}

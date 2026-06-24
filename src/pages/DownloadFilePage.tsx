@@ -4,7 +4,7 @@ import { fileAPI } from '../services/api';
 import { FileListResponse } from '../types';
 import { downloadFile, isPptxFile, formatTimeRemaining, calculateTimeRemaining, getDeviceInfo, isImageFile, formatFileSize } from '../utils/format';
 import TruncatedFilename from '../components/TruncatedFilename';
-import { XMarkIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
 import PauseBarsIcon from '../components/PauseBarsIcon';
 import { toast } from '../context/ToastContext';
 import { useTranslation, translateApiError } from '../i18n';
@@ -962,10 +962,12 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                         <Button
                           onClick={() => startP2PDownload(file.id)}
                           disabled={bulkP2PDownloading || Boolean(anyP2PDownloading)}
-                          size="sm"
+                          size="icon"
+                          title={t('common.download')}
+                          aria-label={t('common.download')}
                           className="flex-shrink-0 ml-2"
                         >
-                          {t('common.download')}
+                          <ArrowDownTrayIcon />
                         </Button>
                       )}
                     </div>
