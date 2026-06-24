@@ -326,7 +326,7 @@
     "downloadAll": "全てダウンロード",
     "bulkProgress": "{{done}} / {{total}} 件受信中…",
     "zipDownloadFailed": "ZIP作成失敗",
-    "zipDownloadFolder": "ZIPでダウンロード（フォルダ構造を維持）",
+    "zipDownloadFolder": "ZIPでダウンロード",
     "zipFallbackWarning": "このブラウザはZIPをメモリ上で作成するため、非常に大きいフォルダは遅くなったり失敗したりする場合があります。個別ダウンロードをご検討ください。"
   },
   "history": {

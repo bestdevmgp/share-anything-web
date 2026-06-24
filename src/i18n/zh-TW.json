@@ -326,7 +326,7 @@
     "downloadAll": "全部下載",
     "bulkProgress": "正在接收 {{done}} / {{total}} 個檔案…",
     "zipDownloadFailed": "ZIP 建立失敗",
-    "zipDownloadFolder": "下載為 ZIP（保留資料夾結構）",
+    "zipDownloadFolder": "下載為 ZIP",
     "zipFallbackWarning": "此瀏覽器在記憶體中建立 ZIP，因此非常大的資料夾可能會很慢或失敗。建議逐個下載檔案。"
   },
   "history": {

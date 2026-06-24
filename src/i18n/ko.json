@@ -326,7 +326,7 @@
     "downloadAll": "전체 다운로드",
     "bulkProgress": "{{done}} / {{total}} 파일 받는 중…",
     "zipDownloadFailed": "ZIP 생성 실패",
-    "zipDownloadFolder": "ZIP으로 받기 (폴더 구조 유지)",
+    "zipDownloadFolder": "ZIP으로 받기",
     "zipFallbackWarning": "이 브라우저는 ZIP을 메모리에서 생성하므로 매우 큰 폴더는 느리거나 실패할 수 있어요. 개별 다운로드를 고려해 주세요."
   },
   "history": {

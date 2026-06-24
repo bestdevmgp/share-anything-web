@@ -142,14 +142,13 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
             <h3 className="text-base sm:text-lg font-semibold text-foreground">
               {t('download.fileListSelected', { selected: selectedFiles.size, total: fileList.total_count })}
             </h3>
-            <Button
-              variant="ghost"
+            <button
+              type="button"
               onClick={selectedFiles.size === fileList.files.length ? deselectAllFiles : selectAllFiles}
-              size="sm"
-              className="text-primary can-hover:hover:bg-primary/10 active:bg-primary/10"
+              className="text-sm text-muted-foreground underline underline-offset-4 can-hover:hover:text-foreground active:text-foreground transition-colors"
             >
               {selectedFiles.size === fileList.files.length ? t('download.deselectAll') : t('download.selectAll')}
-            </Button>
+            </button>
           </div>
 
           <div className="mb-6 sm:mb-8 space-y-2 sm:space-y-2.5">
@@ -221,7 +220,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                   >
                     <span
                       onClick={(e) => { e.stopPropagation(); setFilesSelected(ids, !allSelected); }}
-                      className="flex-shrink-0 -m-1.5 p-1.5 rounded-md cursor-pointer can-hover:hover:bg-foreground/10 active:bg-foreground/10"
+                      className="flex-shrink-0 -m-1.5 p-1.5 cursor-pointer"
                       aria-label={node.name}
                     >
                       <Checkbox checked={allSelected} className="h-5 w-5 rounded-[5px] border-2 pointer-events-none" />

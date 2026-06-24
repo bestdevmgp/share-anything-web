@@ -326,7 +326,7 @@
     "downloadAll": "Download all",
     "bulkProgress": "Downloading {{done}} / {{total}} files…",
     "zipDownloadFailed": "ZIP creation failed",
-    "zipDownloadFolder": "Download as ZIP (keeps folders)",
+    "zipDownloadFolder": "Download as ZIP",
     "zipFallbackWarning": "This browser builds the ZIP in memory, so a very large folder may be slow or fail. Consider downloading files individually."
   },
   "history": {
