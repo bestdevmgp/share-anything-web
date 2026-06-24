@@ -1010,6 +1010,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         handleCancelDownload={handleCancelDownload}
         navigate={navigate}
         previews={filePreviews}
+        openPreview={openPreview}
         zipping={zipping}
         zipDone={zipDone}
         zipTotal={zipTotal}

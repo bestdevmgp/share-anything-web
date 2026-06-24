@@ -29,6 +29,7 @@ export interface MultiFileListProps {
   handleCancelDownload: () => void;
   navigate: NavigateFunction;
   previews?: Record<string, string>;
+  openPreview?: (fileName: string, fileSize: number, fileId: string, source: string) => void;
   zipping: boolean;
   zipDone: number;
   zipTotal: number;
@@ -55,6 +56,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
   handleCancelDownload,
   navigate,
   previews,
+  openPreview,
   zipping,
   zipDone,
   zipTotal,
@@ -169,9 +171,20 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                     <div className="flex-shrink-0">
                       <Checkbox checked={selected} className="h-6 w-6 rounded-md border-2" />
                     </div>
-                    <div className="flex-shrink-0">
-                      <FileThumbnail source={previews?.[node.id] ?? null} fileName={node.name} size="md" />
-                    </div>
+                    {previews?.[node.id] ? (
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); openPreview?.(node.name, node.size, node.id, previews[node.id]); }}
+                        className="flex-shrink-0 rounded overflow-hidden transition-transform can-hover:hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        aria-label={node.name}
+                      >
+                        <FileThumbnail source={previews[node.id]} fileName={node.name} size="md" />
+                      </button>
+                    ) : (
+                      <div className="flex-shrink-0">
+                        <FileThumbnail source={null} fileName={node.name} size="md" />
+                      </div>
+                    )}
                     <div className="flex-1 min-w-0">
                       <TruncatedFilename name={node.name} className="text-sm font-semibold text-foreground" />
                       <p className="text-xs text-muted-foreground">{formatFileSize(node.size)}</p>
@@ -243,27 +256,36 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                   </div>
                   <Collapsible open={isOpen}>
                     <div className="px-3 pb-3">
-                      <div className="border-t border-foreground/[0.08] pt-2.5 space-y-1">
-                        <FolderTreeRows
-                          nodes={node.children}
-                          depth={1}
-                          openFolders={openFolders}
-                          toggleFolder={toggleFolder}
-                          t={t}
-                          renderFile={(file, depth) => (
-                            <div
-                              data-row
-                              className="flex items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2 rounded-lg"
-                              style={{ marginLeft: `calc(-0.625rem + ${treeIndent(depth)})` }}
-                            >
-                              <FileThumbnail source={previews?.[file.id] ?? null} fileName={file.name} size="sm" />
-                              <div className="flex-1 min-w-0">
-                                <TruncatedFilename name={file.name} className="text-sm text-foreground/80" />
-                                <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
-                              </div>
-                            </div>
-                          )}
-                        />
+                      <div className="border-t border-foreground/[0.08] pt-2.5">
+                        <div className="space-y-1 pl-3">
+                          <FolderTreeRows
+                            nodes={node.children}
+                            depth={1}
+                            openFolders={openFolders}
+                            toggleFolder={toggleFolder}
+                            t={t}
+                            renderFile={(file, depth) => {
+                              const src = previews?.[file.id];
+                              return (
+                                <div
+                                  data-row
+                                  onClick={src ? (e) => { e.stopPropagation(); openPreview?.(file.name, file.size, file.id, src); } : undefined}
+                                  className={cn(
+                                    'flex items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2 rounded-lg transition-colors',
+                                    src && 'cursor-pointer can-hover:hover:bg-accent active:bg-accent'
+                                  )}
+                                  style={{ marginLeft: `calc(-0.625rem + ${treeIndent(depth)})` }}
+                                >
+                                  <FileThumbnail source={src ?? null} fileName={file.name} size="sm" />
+                                  <div className="flex-1 min-w-0">
+                                    <TruncatedFilename name={file.name} className="text-sm text-foreground/80" />
+                                    <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+                                  </div>
+                                </div>
+                              );
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
                   </Collapsible>
