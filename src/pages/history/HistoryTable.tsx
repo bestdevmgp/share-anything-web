@@ -269,6 +269,9 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                 ...Array.from(folders.keys()).map((name) => `${name}/`),
                 ...looseFiles.map((f) => f.file_name),
               ];
+              const bundleTitle = topLevelNames.length > 1
+                ? `${topLevelNames[0]} ${t('unifiedBox.bundleExtraCount', { count: topLevelNames.length - 1 })}`
+                : (topLevelNames[0] ?? group.shareCode);
               return (
               <React.Fragment key={group.shareCode}>
                 <TableRow
@@ -297,12 +300,11 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                       <div className="min-w-0 flex-1 h-12 overflow-hidden flex flex-col justify-center">
                         {isBundle ? (
                           <>
-                            <div className="text-sm font-semibold text-foreground tracking-wide truncate">
-                              {group.shareCode}
+                            <div className="text-sm font-medium text-foreground truncate">
+                              {bundleTitle}
                             </div>
                             <div className="text-xs text-muted-foreground truncate mt-0.5">
-                              {topLevelNames.slice(0, 3).join(', ')}
-                              {topLevelNames.length > 3 && ` +${topLevelNames.length - 3}`}
+                              {group.shareCode}
                             </div>
                           </>
                         ) : (
@@ -422,7 +424,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                                 <h3 className="text-lg font-semibold text-foreground mb-4 flex-shrink-0">{t('history.preview')}</h3>
                                 <Card
                                   className="rounded-lg shadow-none overflow-hidden w-full flex-1 max-w-md cursor-pointer can-hover:hover:border-primary/50 active:border-primary/50 transition-colors"
-                                  onClick={(e) => { e.stopPropagation(); openPreviewModal(upload); }}
+                                  onClick={(e) => { e.stopPropagation(); setDetailUploadId(null); openPreviewModal(upload); }}
                                 >
                                   {renderFilePreview(
                                     upload,
@@ -578,7 +580,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                               </div>
                             </button>
                           );
-                          return hasFoldersInGroup ? (
+                          return (isBundle || hasFoldersInGroup) ? (
                             <div className="space-y-2" style={{ containerType: 'inline-size' }}>
                               {buildFileTree(group.files.map((f) => ({ id: f.id, file_name: f.file_name, file_size: f.file_size, relative_path: f.relative_path }))).map((node) => {
                                 if (node.kind === 'file') {

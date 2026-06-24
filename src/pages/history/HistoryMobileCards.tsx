@@ -207,6 +207,9 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
           ...Array.from(folders.keys()).map((name) => `${name}/`),
           ...looseFiles.map((f) => f.file_name),
         ];
+        const bundleTitle = topLevelNames.length > 1
+          ? `${topLevelNames[0]} ${t('unifiedBox.bundleExtraCount', { count: topLevelNames.length - 1 })}`
+          : (topLevelNames[0] ?? group.shareCode);
         return (
         <Card key={group.shareCode} className="rounded-xl border-2 border-border shadow-none overflow-hidden">
           <div className="relative">
@@ -258,12 +261,11 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                 <div className="flex-1 min-w-0 h-12 overflow-hidden flex flex-col justify-center">
                   {isBundle ? (
                     <>
-                      <h3 className="text-sm font-semibold text-foreground tracking-wide leading-4 truncate">
-                        {group.shareCode}
+                      <h3 className="text-sm font-medium text-foreground leading-4 truncate">
+                        {bundleTitle}
                       </h3>
                       <p className="text-xs text-muted-foreground truncate leading-4 mt-0.5">
-                        {topLevelNames.slice(0, 2).join(', ')}
-                        {topLevelNames.length > 2 && ` +${topLevelNames.length - 2}`}
+                        {group.shareCode}
                       </p>
                       <div className="flex items-center space-x-2 text-xs text-muted-foreground leading-4 mt-0.5">
                         <span>{formatFileSize(group.totalSize)}</span>
@@ -349,7 +351,7 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                           isExpired(upload.expires_at) ? 'h-28' :
                           (isImageFileByType(upload.file_type) || isVideoFile(upload.file_name)) ? 'aspect-square' : 'h-32'
                         )}
-                        onClick={() => openPreviewModal(upload)}
+                        onClick={() => { setDetailUploadId(null); openPreviewModal(upload); }}
                       >
                         {renderMobilePreview(
                           upload,
@@ -488,7 +490,7 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                       </div>
                     </button>
                   );
-                  return hasFoldersInGroup ? (
+                  return (isBundle || hasFoldersInGroup) ? (
                     <div className="space-y-2" style={{ containerType: 'inline-size' }}>
                       {buildFileTree(group.files.map((f) => ({ id: f.id, file_name: f.file_name, file_size: f.file_size, relative_path: f.relative_path }))).map((node) => {
                         if (node.kind === 'file') {
