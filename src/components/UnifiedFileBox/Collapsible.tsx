@@ -37,7 +37,7 @@ const Collapsible: React.FC<Props> = ({ open, children, className }) => {
         className
       )}
     >
-      <div className="overflow-hidden min-h-0">{mounted ? children : null}</div>
+      <div className="overflow-hidden min-h-0">{open || mounted ? children : null}</div>
     </div>
   );
 };

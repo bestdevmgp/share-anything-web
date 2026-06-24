@@ -88,8 +88,9 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
   }, [expanded, bundleFiles]);
 
   const expandedShare = expanded ? items.find((i) => i.code === expanded) : undefined;
-  const expandedFiles = expanded && bundleFiles[expanded]
-    ? bundleFiles[expanded].map((f) => ({ id: f.id, name: f.file_name }))
+  const expandedFileList = expanded ? (bundleFiles[expanded] ?? expandedShare?.files) : undefined;
+  const expandedFiles = expandedFileList
+    ? expandedFileList.map((f) => ({ id: f.id, name: f.file_name }))
     : undefined;
   const bundlePreviews = useBundlePreviews(expanded, expandedFiles, expandedShare?.hasPassword);
 
@@ -187,6 +188,10 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
           const { text: remainText, expired } = remainingLabel(s.expiresAt);
           const isBundle = s.fileNames.length > 1;
           const isOpen = expanded === s.code;
+          // Server shares carry their full file list (with relative_path) in s.files, so the
+          // folder tree renders instantly on expand. bundleFiles (fetched) supersedes it once
+          // loaded (it also carries empty folders). Local-only shares fall back to a fetch.
+          const treeFiles = bundleFiles[s.code] ?? s.files;
           const url = `${window.location.origin}/download/${s.code}`;
 
           return (
@@ -278,10 +283,10 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                 <Collapsible open={isOpen}>
                     <div className="px-3 pb-3">
                       <div className="border-t border-foreground/[0.08] pt-2.5 space-y-2">
-                        {bundleFiles[s.code] ? (
+                        {treeFiles ? (
                           <FolderTreeRows
                             nodes={buildFileTree(
-                              bundleFiles[s.code].map((f) => ({
+                              treeFiles.map((f) => ({
                                 id: f.id,
                                 file_name: f.file_name,
                                 file_size: f.file_size,
@@ -315,12 +320,19 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                             }}
                           />
                         ) : (
-                          s.fileNames.map((name, i) => (
-                            <div key={`${name}-${i}`} className="flex items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2">
-                              <FileThumbnail source={null} fileName={name} size="sm" />
-                              <TruncatedFilename name={name} className="flex-1 text-sm font-medium text-foreground text-left" />
-                            </div>
-                          ))
+                          // Local-only shares (no in-memory file list) briefly load — show a
+                          // neutral skeleton, never a flat list that would then regroup.
+                          <div className="space-y-1">
+                            {[0, 1].map((i) => (
+                              <div key={i} className="flex items-center gap-3 -mx-2.5 px-2.5 py-2">
+                                <div className="w-10 h-10 rounded bg-foreground/[0.06] animate-pulse flex-shrink-0" />
+                                <div className="flex-1 min-w-0 space-y-1.5">
+                                  <div className="h-3 w-2/5 rounded bg-foreground/[0.06] animate-pulse" />
+                                  <div className="h-2.5 w-1/5 rounded bg-foreground/[0.06] animate-pulse" />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         )}
                       </div>
                     </div>

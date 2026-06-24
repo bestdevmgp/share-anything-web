@@ -10,6 +10,9 @@ export interface MergedShare {
   source: 'local' | 'server' | 'both';
   firstFileId?: string;
   hasPassword?: boolean;
+  // Full file list (with relative_path) for server-sourced shares, so the recent-shares
+  // box can build the folder tree instantly on expand — no fetch, no flat-then-grouped flash.
+  files?: { id: string; file_name: string; file_size: number; relative_path?: string }[];
 }
 
 export const groupUploads = (items: UploadHistoryItem[]): UploadGroup[] => {
@@ -54,6 +57,12 @@ export const mergeShares = (
       source: 'server',
       firstFileId: g.files[0]?.id,
       hasPassword: g.hasPassword,
+      files: g.files.map((f) => ({
+        id: f.id,
+        file_name: f.file_name,
+        file_size: f.file_size,
+        relative_path: f.relative_path,
+      })),
     });
   }
   for (const s of local) {
