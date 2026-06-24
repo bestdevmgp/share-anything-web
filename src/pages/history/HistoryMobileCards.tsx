@@ -269,45 +269,27 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                   <FileThumbnail source={getThumbnailSource(firstFile)} fileName={firstFile.file_name} size="md" />
                 )}
                 <div className="flex-1 min-w-0 h-12 overflow-hidden flex flex-col justify-center">
-                  {isBundle ? (
-                    <>
-                      <h3 className="text-sm font-medium text-foreground leading-4 truncate">
-                        {bundleTitle}
-                      </h3>
-                      <p className="text-xs text-muted-foreground truncate leading-4 mt-0.5">
-                        {group.shareCode}
-                      </p>
-                      <div className="flex items-center space-x-2 text-xs text-muted-foreground leading-4 mt-0.5">
-                        <span>{formatFileSize(group.totalSize)}</span>
-                        <span>•</span>
-                        {expired ? (
-                          <span className="text-red-600 dark:text-red-400 font-medium">{t('history.expired')}</span>
-                        ) : (
-                          <span className="text-green-600 dark:text-green-400 font-medium">{t('history.active')}</span>
-                        )}
-                      </div>
-                    </>
+                  {folders.size === 0 && looseFiles.length === 1 ? (
+                    <TruncatedFilename name={bundleTitle} className="text-sm font-medium text-foreground leading-4" />
                   ) : (
-                    <>
-                      <TruncatedFilename name={firstFile.file_name} className="text-sm font-medium text-foreground leading-4" />
-                      <div className={cn("flex items-center space-x-2 text-xs text-muted-foreground leading-4", firstFile.description ? "mt-0.5" : "mt-1")}>
-                        <span>{formatFileSize(group.totalSize)}</span>
-                        <span>•</span>
-                        <span>{t('common.downloadCount', { count: group.downloadCount })}</span>
-                        <span>•</span>
-                        {expired ? (
-                          <span className="text-red-600 dark:text-red-400 font-medium">{t('history.expired')}</span>
-                        ) : (
-                          <span className="text-green-600 dark:text-green-400 font-medium">{t('history.active')}</span>
-                        )}
-                      </div>
-                      {firstFile.description && (
-                        <p className="text-xs text-muted-foreground truncate leading-4 mt-0.5">
-                          {firstFile.description}
-                        </p>
-                      )}
-                    </>
+                    <h3 className="text-sm font-medium text-foreground leading-4 truncate">
+                      {bundleTitle}
+                    </h3>
                   )}
+                  <p className="text-xs text-muted-foreground truncate leading-4 mt-0.5">
+                    {group.shareCode}
+                  </p>
+                  <div className="flex items-center space-x-2 text-xs text-muted-foreground leading-4 mt-0.5">
+                    <span>{formatFileSize(group.totalSize)}</span>
+                    <span>•</span>
+                    <span>{t('common.downloadCount', { count: group.downloadCount })}</span>
+                    <span>•</span>
+                    {expired ? (
+                      <span className="text-red-600 dark:text-red-400 font-medium">{t('history.expired')}</span>
+                    ) : (
+                      <span className="text-green-600 dark:text-green-400 font-medium">{t('history.active')}</span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

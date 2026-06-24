@@ -309,25 +309,16 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                         <FileThumbnail source={getThumbnailSource(firstFile)} fileName={firstFile.file_name} size="md" />
                       )}
                       <div className="min-w-0 flex-1 h-12 overflow-hidden flex flex-col justify-center">
-                        {isBundle ? (
-                          <>
-                            <div className="text-sm font-medium text-foreground truncate">
-                              {bundleTitle}
-                            </div>
-                            <div className="text-xs text-muted-foreground truncate mt-0.5">
-                              {group.shareCode}
-                            </div>
-                          </>
+                        {folders.size === 0 && looseFiles.length === 1 ? (
+                          <TruncatedFilename name={bundleTitle} className="text-sm font-medium text-foreground" />
                         ) : (
-                          <>
-                            <TruncatedFilename name={firstFile.file_name} className="text-sm font-medium text-foreground" />
-                            {firstFile.description && (
-                              <div className="text-sm text-muted-foreground truncate">
-                                {firstFile.description}
-                              </div>
-                            )}
-                          </>
+                          <div className="text-sm font-medium text-foreground truncate">
+                            {bundleTitle}
+                          </div>
                         )}
+                        <div className="text-xs text-muted-foreground truncate mt-0.5">
+                          {group.shareCode}
+                        </div>
                       </div>
                     </div>
                   </TableCell>
