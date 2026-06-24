@@ -18,6 +18,9 @@ const Uploading: React.FC<Props> = ({ items, onCancel, onCancelAll }) => {
   const { rows, overall } = useUploadProgress(items);
   const multi = rows.length > 1;
   const totalSize = items.reduce((sum, it) => sum + (it.fileSize || 0), 0);
+  // When every file has finished sending its bytes (overall 100%) but the server is
+  // still finalizing, mirror the per-file rows: show "please wait" instead of 100%.
+  const allCompleted = rows.length > 0 && rows.every((r) => r.completed);
 
   return (
     <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
@@ -32,14 +35,22 @@ const Uploading: React.FC<Props> = ({ items, onCancel, onCancelAll }) => {
                 <span className="text-muted-foreground ml-1.5">{formatFileSize(totalSize)}</span>
               </span>
               <div className="flex items-center gap-2 flex-shrink-0">
-                {overall.timeRemaining && (
+                {allCompleted ? (
                   <span className="text-sm text-muted-foreground whitespace-nowrap">
-                    {overall.timeRemaining}
+                    {t('upload.pleaseWait')}
                   </span>
+                ) : (
+                  <>
+                    {overall.timeRemaining && (
+                      <span className="text-sm text-muted-foreground whitespace-nowrap">
+                        {overall.timeRemaining}
+                      </span>
+                    )}
+                    <span className="text-sm font-semibold text-primary whitespace-nowrap">
+                      {overall.progress}%
+                    </span>
+                  </>
                 )}
-                <span className="text-sm font-semibold text-primary whitespace-nowrap">
-                  {overall.progress}%
-                </span>
               </div>
             </div>
             <div className="pl-1.5">
