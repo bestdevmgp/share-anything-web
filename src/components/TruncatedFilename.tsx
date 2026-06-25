@@ -13,6 +13,14 @@ const textWidth = (text: string, font: string): number => {
 interface Props {
   name: string;
   className?: string;
+  /**
+   * Optional trailing content kept attached right after the (possibly truncated)
+   * name — e.g. "외 1개" for a multi-file bundle. Its rendered width is reserved
+   * so the NAME truncates to leave room for it, instead of the suffix being
+   * clipped or pushed away.
+   */
+  suffix?: React.ReactNode;
+  suffixClassName?: string;
 }
 
 /**
@@ -20,9 +28,13 @@ interface Props {
  * ALWAYS keeping the extension visible: "verylongname...png" (literal "...",
  * no space, extension's own dot absorbed). Measures the real rendered width so
  * it adapts to the container on every device.
+ *
+ * Must live in a block/flex-column context where the parent sets its width — in
+ * a flex ROW its width would track its own (shrinking) content and collapse.
  */
-const TruncatedFilename: React.FC<Props> = ({ name, className }) => {
+const TruncatedFilename: React.FC<Props> = ({ name, className, suffix, suffixClassName }) => {
   const ref = useRef<HTMLSpanElement>(null);
+  const suffixRef = useRef<HTMLSpanElement>(null);
   const [display, setDisplay] = useState(name);
 
   useLayoutEffect(() => {
@@ -32,10 +44,21 @@ const TruncatedFilename: React.FC<Props> = ({ name, className }) => {
     const compute = () => {
       const avail = el.clientWidth;
       if (!avail) return;
+
+      // Reserve the suffix's footprint (its width + its left margin) so the name
+      // truncates to leave room for it.
+      let reserve = 0;
+      const sfx = suffixRef.current;
+      if (sfx) {
+        const scs = getComputedStyle(sfx);
+        reserve = sfx.offsetWidth + (parseFloat(scs.marginLeft) || 0);
+      }
+      const usable = Math.max(0, avail - reserve);
+
       const cs = getComputedStyle(el);
       const font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
 
-      if (textWidth(name, font) <= avail) {
+      if (textWidth(name, font) <= usable) {
         setDisplay((d) => (d !== name ? name : d));
         return;
       }
@@ -43,21 +66,21 @@ const TruncatedFilename: React.FC<Props> = ({ name, className }) => {
       const dot = name.lastIndexOf('.');
       const hasExt = dot > 0 && dot < name.length - 1;
       const base = hasExt ? name.slice(0, dot) : name;
-      const suffix = hasExt ? '...' + name.slice(dot + 1) : '...';
+      const suf = hasExt ? '...' + name.slice(dot + 1) : '...';
 
       let lo = 0;
       let hi = base.length;
       let best = 0;
       while (lo <= hi) {
         const mid = (lo + hi) >> 1;
-        if (textWidth(base.slice(0, mid) + suffix, font) <= avail) {
+        if (textWidth(base.slice(0, mid) + suf, font) <= usable) {
           best = mid;
           lo = mid + 1;
         } else {
           hi = mid - 1;
         }
       }
-      const next = base.slice(0, best) + suffix;
+      const next = base.slice(0, best) + suf;
       setDisplay((d) => (d !== next ? next : d));
     };
 
@@ -65,7 +88,7 @@ const TruncatedFilename: React.FC<Props> = ({ name, className }) => {
     const ro = new ResizeObserver(compute);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [name]);
+  }, [name, suffix]);
 
   return (
     <span
@@ -74,6 +97,11 @@ const TruncatedFilename: React.FC<Props> = ({ name, className }) => {
       title={name}
     >
       {display}
+      {suffix != null && (
+        <span ref={suffixRef} className={cn('whitespace-nowrap', suffixClassName)}>
+          {suffix}
+        </span>
+      )}
     </span>
   );
 };

@@ -187,14 +187,12 @@ const RecentDownloads: React.FC = () => {
                   )}
                 </div>
                 <div className="flex-1 min-w-0 mr-3">
-                  <div className="flex items-baseline min-w-0">
-                    <span className="truncate min-w-0 text-sm font-medium text-foreground" title={d.fileNames[0]}>{d.fileNames[0]}</span>
-                    {isBundle && (
-                      <span className="text-sm text-muted-foreground font-normal flex-shrink-0 ml-1">
-                        {t('unifiedBox.bundleExtraCount', { count: d.fileNames.length - 1 })}
-                      </span>
-                    )}
-                  </div>
+                  <TruncatedFilename
+                    name={d.fileNames[0]}
+                    className="text-sm font-medium text-foreground"
+                    suffix={isBundle ? t('unifiedBox.bundleExtraCount', { count: d.fileNames.length - 1 }) : undefined}
+                    suffixClassName="ml-1 text-sm text-muted-foreground font-normal"
+                  />
                   <p className="text-xs text-muted-foreground truncate">
                     {formatFileSize(d.totalSize)} · {remainText}
                   </p>

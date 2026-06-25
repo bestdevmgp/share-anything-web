@@ -310,14 +310,12 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                         {folders.size === 0 && looseFiles.length === 1 ? (
                           <TruncatedFilename name={bundleTitle} className="text-sm font-medium text-foreground" />
                         ) : (
-                          <div className="flex items-baseline min-w-0">
-                            <span className="text-sm font-medium text-foreground truncate">{bundleTitle}</span>
-                            {topLevelNames.length > 1 && (
-                              <span className="text-sm text-muted-foreground font-normal flex-shrink-0 ml-1">
-                                {t('unifiedBox.bundleExtraCount', { count: topLevelNames.length - 1 })}
-                              </span>
-                            )}
-                          </div>
+                          <TruncatedFilename
+                            name={bundleTitle}
+                            className="text-sm font-medium text-foreground"
+                            suffix={topLevelNames.length > 1 ? t('unifiedBox.bundleExtraCount', { count: topLevelNames.length - 1 }) : undefined}
+                            suffixClassName="ml-1 text-sm text-muted-foreground font-normal"
+                          />
                         )}
                         <div className="text-xs text-muted-foreground truncate mt-0.5">
                           {group.shareCode}
