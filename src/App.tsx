@@ -37,7 +37,7 @@ const AppContent: React.FC = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
       <ToastContainer />
-      <div className="flex-1">
+      <div className="flex-1 min-h-[calc(100dvh-4rem)]">
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<HomePage />} />
