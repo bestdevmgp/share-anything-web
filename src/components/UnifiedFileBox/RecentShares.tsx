@@ -18,7 +18,7 @@ import { Hint } from '../ui/Hint';
 import TruncatedFilename from '../TruncatedFilename';
 import FolderTreeRows, { treeIndent } from './FolderTreeRows';
 import Collapsible from './Collapsible';
-import { buildFileTree } from '../../utils/fileTree';
+import { buildFileTree, toggleFolderOpen } from '../../utils/fileTree';
 import { cn } from '../../lib/utils';
 
 interface Props {
@@ -49,12 +49,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
   // Open sub-folders within the currently expanded bundle (reset when switching).
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
   const toggleFolder = (path: string) =>
-    setOpenFolders((prev) => {
-      const next = new Set(prev);
-      if (next.has(path)) next.delete(path);
-      else next.add(path);
-      return next;
-    });
+    setOpenFolders((prev) => toggleFolderOpen(prev, path));
 
   useEffect(() => {
     setOpenFolders(new Set());

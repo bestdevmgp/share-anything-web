@@ -11,7 +11,7 @@ import FileThumbnail from '../../components/FileThumbnail';
 import TruncatedFilename from '../../components/TruncatedFilename';
 import FolderTreeRows, { treeIndent } from '../../components/UnifiedFileBox/FolderTreeRows';
 import Collapsible from '../../components/UnifiedFileBox/Collapsible';
-import { buildFileTree, collectFileIds, nodeFileCount, nodeSize } from '../../utils/fileTree';
+import { buildFileTree, collectFileIds, nodeFileCount, nodeSize, toggleFolderOpen } from '../../utils/fileTree';
 import { cn } from 'lib/utils';
 import { Hint } from '../../components/ui/Hint';
 
@@ -70,12 +70,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
 }) => {
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
   const toggleFolder = (name: string) =>
-    setOpenFolders((prev) => {
-      const next = new Set(prev);
-      if (next.has(name)) next.delete(name);
-      else next.add(name);
-      return next;
-    });
+    setOpenFolders((prev) => toggleFolderOpen(prev, name));
 
   const tree = useMemo(
     () =>

@@ -8,7 +8,7 @@ import FileThumbnail from '../../components/FileThumbnail';
 import TruncatedFilename from '../../components/TruncatedFilename';
 import Collapsible from '../../components/UnifiedFileBox/Collapsible';
 import FolderTreeRows, { treeIndent } from '../../components/UnifiedFileBox/FolderTreeRows';
-import { buildFileTree, collectFileIds, nodeFileCount, nodeSize } from '../../utils/fileTree';
+import { buildFileTree, collectFileIds, nodeFileCount, nodeSize, toggleFolderOpen } from '../../utils/fileTree';
 import { formatFileSize } from '../../utils/format';
 import { getRelativePathSafe } from '../../utils/fileWithPath';
 
@@ -67,12 +67,7 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
   const totalSize = useMemo(() => files.reduce((sum, f) => sum + f.size, 0), [files]);
 
   const toggleFolder = (name: string) =>
-    setOpenFolders((prev) => {
-      const next = new Set(prev);
-      if (next.has(name)) next.delete(name);
-      else next.add(name);
-      return next;
-    });
+    setOpenFolders((prev) => toggleFolderOpen(prev, name));
 
   return (
     <>

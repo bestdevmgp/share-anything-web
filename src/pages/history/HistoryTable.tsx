@@ -13,7 +13,7 @@ import { Card, CardContent } from '../../components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../components/ui/dialog';
 import FolderTreeRows, { treeIndent } from '../../components/UnifiedFileBox/FolderTreeRows';
 import Collapsible from '../../components/UnifiedFileBox/Collapsible';
-import { buildFileTree, nodeFileCount, nodeSize } from '../../utils/fileTree';
+import { buildFileTree, nodeFileCount, nodeSize, toggleFolderOpen } from '../../utils/fileTree';
 import {
   TableHeader,
   TableBody,
@@ -161,12 +161,7 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingPreview, detailUploadId]);
   const toggleFolder = (key: string) =>
-    setOpenFolders((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
+    setOpenFolders((prev) => toggleFolderOpen(prev, key));
 
   const groupFiles = (files: UploadHistoryItem[]) => {
     const folders = new Map<string, UploadHistoryItem[]>();

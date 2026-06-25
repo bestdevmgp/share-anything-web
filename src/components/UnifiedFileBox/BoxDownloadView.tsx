@@ -13,6 +13,7 @@ import { formatFileSize } from '../../utils/format';
 import {
   buildFileTree,
   collectFileIds,
+  toggleFolderOpen,
   nodeSize,
   nodeFileCount,
   countVisibleRows,
@@ -154,12 +155,7 @@ const BoxDownloadView: React.FC<Props> = ({
 
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
   const toggleFolder = (name: string) =>
-    setOpenFolders((prev) => {
-      const next = new Set(prev);
-      if (next.has(name)) next.delete(name);
-      else next.add(name);
-      return next;
-    });
+    setOpenFolders((prev) => toggleFolderOpen(prev, name));
 
   const tree = useMemo(
     () => buildFileTree(fileList?.files ?? [], fileList?.empty_folders ?? []),

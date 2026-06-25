@@ -53,6 +53,24 @@ function ensureFolder(root: TreeFolder, segments: string[]): TreeFolder {
   return cursor;
 }
 
+/**
+ * Toggle a folder's open state within an open-paths set. Closing a folder also
+ * collapses every descendant (paths under "<path>/"), so re-opening a parent
+ * always shows its sub-folders closed again instead of restoring their old
+ * open state.
+ */
+export function toggleFolderOpen(open: Set<string>, path: string): Set<string> {
+  const next = new Set(open);
+  if (next.has(path)) {
+    for (const p of Array.from(next)) {
+      if (p === path || p.startsWith(path + '/')) next.delete(p);
+    }
+  } else {
+    next.add(path);
+  }
+  return next;
+}
+
 // `emptyFolders` are full paths of folders that contain no files anywhere; each
 // gets a folder node with no children (so it renders but can't be expanded).
 export function buildFileTree(files: FileLike[], emptyFolders: string[] = []): TreeNode[] {
