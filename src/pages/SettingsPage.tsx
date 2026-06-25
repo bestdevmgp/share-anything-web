@@ -1886,15 +1886,17 @@ const SettingsPage: React.FC = () => {
                           return (
                             <>
                               {before}
+                              {/* Text + external-link arrow (same icon as the header OpenAPI button, opens a new
+                                  tab) underlined together via border-b — text-decoration underline isn't drawn
+                                  under an SVG (an atomic inline), so the border carries the line across both. */}
                               <a
                                 href="/api-terms-of-use"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="group text-muted-foreground inline-flex items-center gap-0.5 align-baseline transition-colors"
+                                className="text-muted-foreground inline-flex items-center leading-tight border-b border-muted-foreground can-hover:hover:border-foreground transition-colors"
                                 onClick={(e) => e.stopPropagation()}
                               >
-                                <span className="underline underline-offset-2 decoration-muted-foreground can-hover:group-hover:decoration-foreground transition-colors">{linkText}</span>
-                                {/* External-link arrow (same icon as the header OpenAPI button) — opens in a new tab. */}
+                                {linkText}
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true">
                                   <path fillRule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clipRule="evenodd" />
                                 </svg>
