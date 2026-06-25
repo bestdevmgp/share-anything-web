@@ -26,7 +26,8 @@ interface Props {
   toggleFolder: (path: string) => void;
   // Renders one file row in full (caller owns layout; indent via treeIndent(depth)).
   renderFile: (file: TreeFile, depth: number) => React.ReactNode;
-  // Optional action shown on each folder row, before the chevron (e.g. remove).
+  // Optional action shown on each folder row, after the chevron (e.g. remove) —
+  // matching the top-level folder row's [collapse/expand][remove] order.
   renderFolderTrailing?: (folder: TreeFolder, depth: number) => React.ReactNode;
   t: (key: string, params?: Record<string, string | number>) => string;
 }
@@ -66,11 +67,13 @@ const FolderTreeRows: React.FC<Props> = ({ nodes, depth, openFolders, toggleFold
                   : `${t('upload.folderItemCount', { count: nodeFileCount(node) })} · ${formatFileSize(nodeSize(node))}`}
               </p>
             </div>
-            {renderFolderTrailing?.(node, depth)}
             {!isEmpty && (
-              <ChevronDownIcon
-                className={cn('w-5 h-5 text-muted-foreground/60 transition-transform flex-shrink-0', isOpen && 'rotate-180')}
-              />
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <ChevronDownIcon
+                  className={cn('w-5 h-5 text-muted-foreground/60 transition-transform', isOpen && 'rotate-180')}
+                />
+                {renderFolderTrailing?.(node, depth)}
+              </div>
             )}
           </div>
           {/* Each level animates independently via grid-rows; open ancestors track
