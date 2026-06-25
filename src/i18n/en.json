@@ -120,6 +120,7 @@
   },
   "login": {
     "title": "Sign in",
+    "loggedOutByRequest": "You were signed out at your request",
     "welcome": "Welcome!",
     "subtitle": "Choose an account to sign in.",
     "continueWithGoogle": "Continue with Google",

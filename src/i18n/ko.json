@@ -120,6 +120,7 @@
   },
   "login": {
     "title": "로그인",
+    "loggedOutByRequest": "사용자의 요청으로 인해 로그아웃 되었어요",
     "welcome": "환영합니다!",
     "subtitle": "계정을 선택해주세요.",
     "continueWithGoogle": "Google로 계속하기",

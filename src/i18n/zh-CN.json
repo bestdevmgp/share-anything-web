@@ -120,6 +120,7 @@
   },
   "login": {
     "title": "登录",
+    "loggedOutByRequest": "已应您的请求退出登录",
     "welcome": "欢迎！",
     "subtitle": "请选择账号登录。",
     "continueWithGoogle": "使用 Google 继续",

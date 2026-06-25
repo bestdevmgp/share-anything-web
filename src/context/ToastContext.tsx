@@ -18,6 +18,14 @@ export interface Toast extends ToastOptions {
 
 const MAX_TOASTS = 3;
 
+// When a forced logout (e.g. a user-initiated remote sign-out) should show only
+// its own notice, briefly drop error toasts so the failed request's generic error
+// message doesn't also appear.
+let errorSuppressUntil = 0;
+export const suppressErrorToasts = (durationMs = 4000) => {
+  errorSuppressUntil = Date.now() + durationMs;
+};
+
 interface ToastContextType {
   toasts: Toast[];
   addToast: (type: ToastType, message: string, options?: ToastOptions) => void;
@@ -35,6 +43,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   const addToast = useCallback((type: ToastType, message: string, options?: ToastOptions) => {
+    if (type === 'error' && Date.now() < errorSuppressUntil) return;
     const id = `toast-${++toastIdRef.current}`;
     const newToast: Toast = { id, type, message, ...options };
 

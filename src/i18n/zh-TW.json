@@ -120,6 +120,7 @@
   },
   "login": {
     "title": "登入",
+    "loggedOutByRequest": "已依您的要求登出",
     "welcome": "歡迎！",
     "subtitle": "請選擇帳號。",
     "continueWithGoogle": "使用 Google 繼續",

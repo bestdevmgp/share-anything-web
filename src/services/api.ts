@@ -184,6 +184,21 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
+// A 401 on a request that still carried an unexpired auth JWT means the session
+// was terminated server-side — e.g. the user signed this device out from another
+// device — rather than the token simply expiring.
+function isJwtUnexpired(token: string): boolean {
+  try {
+    const part = token.split('.')[1];
+    if (!part) return false;
+    const b64 = part.replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(atob(b64 + '==='.slice((b64.length + 3) % 4)));
+    return typeof payload.exp === 'number' && payload.exp * 1000 > Date.now();
+  } catch {
+    return false;
+  }
+}
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -216,9 +231,13 @@ api.interceptors.response.use(
         url.includes('/download') ||
         url.includes('/preview');
       if (!isPasswordEndpoint) {
+        const authToken = localStorage.getItem('auth_token');
+        const revoked = !!authToken && isJwtUnexpired(authToken);
         localStorage.removeItem('auth_token');
         localStorage.removeItem('user');
-        window.dispatchEvent(new Event('auth:logout'));
+        window.dispatchEvent(
+          new CustomEvent('auth:logout', { detail: { reason: revoked ? 'revoked' : 'expired' } })
+        );
       }
     }
     return Promise.reject(error);

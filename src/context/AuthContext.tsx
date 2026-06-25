@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { User } from '../types';
 import { authAPI } from '../services/api';
+import { useTranslation } from '../i18n';
+import { toast, suppressErrorToasts } from './ToastContext';
 
 interface AuthContextType {
   user: User | null;
@@ -29,6 +31,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { t } = useTranslation();
+  const revokeNotifiedRef = useRef(false);
 
   useEffect(() => {
     const currentUser = authAPI.getCurrentUser();
@@ -44,19 +48,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    const handleForcedLogout = () => {
+    const handleForcedLogout = (e: Event) => {
       setUser(null);
       setIsAuthenticated(false);
+      const reason = (e as CustomEvent<{ reason?: string }>).detail?.reason;
+      if (reason === 'revoked') {
+        // The session was terminated server-side at the user's request (a remote
+        // sign-out). Show only this notice and mute the failed request's own
+        // token-expiry error toast.
+        suppressErrorToasts();
+        if (!revokeNotifiedRef.current) {
+          revokeNotifiedRef.current = true;
+          toast.warning(t('login.loggedOutByRequest'));
+        }
+      }
     };
     window.addEventListener('auth:logout', handleForcedLogout);
     return () => window.removeEventListener('auth:logout', handleForcedLogout);
-  }, []);
+  }, [t]);
 
   const login = (token: string, userData: User) => {
     localStorage.setItem('auth_token', token);
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
     setIsAuthenticated(true);
+    revokeNotifiedRef.current = false;
   };
 
   const logout = () => {
