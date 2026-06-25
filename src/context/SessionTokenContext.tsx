@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile';
 import { authAPI, setSessionToken, markTokenUnavailable } from '../services/api';
 import TurnstileBlockedOverlay from '../components/TurnstileBlockedOverlay';
@@ -6,19 +6,6 @@ import { useTranslation } from '../i18n';
 import { toast } from './ToastContext';
 
 type Status = 'idle' | 'minting' | 'ready' | 'failed';
-
-interface Ctx {
-  status: Status;
-  expiresAt: string | null;
-  retry: () => void;
-}
-
-const SessionTokenContext = createContext<Ctx | null>(null);
-
-export const useSessionToken = (): Ctx => {
-  const ctx = useContext(SessionTokenContext);
-  return ctx ?? { status: 'idle', expiresAt: null, retry: () => {} };
-};
 
 const SITE_KEY = process.env.REACT_APP_TURNSTILE_SITE_KEY;
 const REFRESH_LEAD_MS = 60_000;
@@ -210,7 +197,7 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }
 
   return (
-    <SessionTokenContext.Provider value={{ status, expiresAt, retry }}>
+    <>
       <div
         style={{ position: 'fixed', left: -9999, top: -9999, width: 1, height: 1, overflow: 'hidden' }}
         aria-hidden
@@ -236,6 +223,6 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
           />
         </TurnstileBlockedOverlay>
       )}
-    </SessionTokenContext.Provider>
+    </>
   );
 };
