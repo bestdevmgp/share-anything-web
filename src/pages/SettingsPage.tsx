@@ -25,7 +25,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from 'components/ui/dialog';
-import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, KeyIcon, ExclamationTriangleIcon, EnvelopeIcon, CommandLineIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { GlobeAltIcon, SunIcon, MoonIcon, ComputerDesktopIcon, CheckIcon, ChevronDownIcon, KeyIcon, EnvelopeIcon, CommandLineIcon, ClockIcon } from '@heroicons/react/24/outline';
 import { providerLogoMap } from 'utils/providerLogos';
 
 type Tab = 'notifications' | 'general' | 'account' | 'sessions' | 'personal-tokens' | 'api-keys';
@@ -1146,7 +1146,7 @@ const SettingsPage: React.FC = () => {
                   ) : (
                     <div className="p-4 border border-border rounded-lg bg-muted/50">
                       <div className="flex items-start gap-3">
-                        <ExclamationTriangleIcon className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                        <div className="w-5 h-5 rounded-full bg-destructive flex items-center justify-center flex-shrink-0 mt-0.5"><span className="text-destructive-foreground text-sm font-bold leading-none">!</span></div>
                         <div className="flex-1">
                           <p className="text-sm font-medium text-foreground">
                             {t('settings.accountDeleteConfirmTitle')}
@@ -1287,7 +1287,7 @@ const SettingsPage: React.FC = () => {
                         ) : (
                           <div className="p-4 border border-border rounded-lg bg-muted/50">
                             <div className="flex items-start gap-3">
-                              <ExclamationTriangleIcon className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                              <div className="w-5 h-5 rounded-full bg-destructive flex items-center justify-center flex-shrink-0 mt-0.5"><span className="text-destructive-foreground text-sm font-bold leading-none">!</span></div>
                               <div className="flex-1">
                                 <p className="text-sm font-medium text-foreground">
                                   {t('settings.terminateOthersConfirmTitle')}
