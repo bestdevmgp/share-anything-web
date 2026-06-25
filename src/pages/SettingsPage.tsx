@@ -1890,10 +1890,14 @@ const SettingsPage: React.FC = () => {
                                 href="/api-terms-of-use"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-muted-foreground underline underline-offset-2 decoration-muted-foreground can-hover:hover:decoration-foreground transition-colors"
+                                className="group text-muted-foreground inline-flex items-center gap-0.5 align-baseline transition-colors"
                                 onClick={(e) => e.stopPropagation()}
                               >
-                                {linkText}
+                                <span className="underline underline-offset-2 decoration-muted-foreground can-hover:group-hover:decoration-foreground transition-colors">{linkText}</span>
+                                {/* External-link arrow (same icon as the header OpenAPI button) — opens in a new tab. */}
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true">
+                                  <path fillRule="evenodd" d="M5.22 14.78a.75.75 0 0 0 1.06 0l7.22-7.22v5.69a.75.75 0 0 0 1.5 0v-7.5a.75.75 0 0 0-.75-.75h-7.5a.75.75 0 0 0 0 1.5h5.69l-7.22 7.22a.75.75 0 0 0 0 1.06Z" clipRule="evenodd" />
+                                </svg>
                               </a>
                               {after}
                             </>
