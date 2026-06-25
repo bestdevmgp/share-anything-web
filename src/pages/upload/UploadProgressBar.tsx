@@ -33,7 +33,7 @@ const UploadProgressBar: React.FC<UploadProgressBarProps> = ({
     <div className="mt-7">
       <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-[22px] md:gap-4">
         {isUploading && transferType !== 'p2p' ? (
-          <div className="flex-1 min-h-10 md:min-h-[65px] md:flex md:items-center animate-in fade-in-0 duration-300">
+          <div key="progress" className="flex-1 min-h-10 md:min-h-[65px] md:flex md:items-center animate-in fade-in-0 duration-300">
             <div className="flex items-center gap-2 w-full pl-1.5">
               <div className="flex-1">
                 <div className="flex items-start justify-between gap-2">
@@ -76,7 +76,7 @@ const UploadProgressBar: React.FC<UploadProgressBarProps> = ({
             </div>
           </div>
         ) : (
-          <div className="flex justify-center md:justify-end">
+          <div key="idle" className="flex justify-center md:justify-end">
             <Button
               onClick={onUpload}
               disabled={files.length === 0 || (isUploading && transferType === 'p2p')}
