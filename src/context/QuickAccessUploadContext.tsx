@@ -34,6 +34,9 @@ interface QuickAccessUploadContextType {
   handleUpload: (files: File[]) => Promise<void>;
   handleCancelUpload: (fileId: string) => void;
   completedCounter: number;
+  /** Drop the finished (progress 100%) rows — called by the page once it has refetched
+   *  the server list, so a completed file never blinks out before its real row appears. */
+  clearCompleted: () => void;
 }
 
 const QuickAccessUploadContext = createContext<QuickAccessUploadContextType | null>(null);
@@ -184,6 +187,7 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
 
     startProgressUpdates();
 
+    let awaitingServerSync = false;
     try {
       const deviceInfo = getDeviceInfo();
 
@@ -333,6 +337,9 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
         });
 
         toast.success(tRef.current('quickAccess.uploadComplete'));
+        // Keep the finished rows on screen; the page clears them (clearCompleted) right
+        // after it refetches the server list, so a file never blinks out and back in.
+        awaitingServerSync = true;
         setCompletedCounter(prev => prev + 1);
       }
     } catch (err: any) {
@@ -341,10 +348,12 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
       }
     } finally {
       stopProgressUpdates();
-      setUploadingFiles([]);
       fileTrackingRef.current.clear();
       fileAbortControllersRef.current.clear();
       cancelledFileIdsRef.current.clear();
+      // On success the finished rows stay until the page refetches + clears them; on
+      // failure/cancel there's nothing to sync, so drop them now.
+      if (!awaitingServerSync) setUploadingFiles([]);
     }
   }, [startProgressUpdates, stopProgressUpdates]);
 
@@ -359,8 +368,12 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
     fileAbortControllersRef.current.delete(fileId);
   }, []);
 
+  const clearCompleted = useCallback(() => {
+    setUploadingFiles(prev => prev.filter(uf => !uf.completed));
+  }, []);
+
   return (
-    <QuickAccessUploadContext.Provider value={{ uploadingFiles, isUploading, handleUpload, handleCancelUpload, completedCounter }}>
+    <QuickAccessUploadContext.Provider value={{ uploadingFiles, isUploading, handleUpload, handleCancelUpload, completedCounter, clearCompleted }}>
       {children}
     </QuickAccessUploadContext.Provider>
   );

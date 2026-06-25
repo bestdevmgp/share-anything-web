@@ -35,7 +35,7 @@ const QuickAccess: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { uploadingFiles, isUploading, handleUpload, handleCancelUpload, completedCounter } = useQuickAccessUpload();
+  const { uploadingFiles, isUploading, handleUpload, handleCancelUpload, completedCounter, clearCompleted } = useQuickAccessUpload();
 
   const [files, setFiles] = useState<QuickAccessFile[]>([]);
   const [pendingDelete, setPendingDelete] = useState<Set<string>>(new Set());
@@ -57,9 +57,12 @@ const QuickAccess: React.FC = () => {
     } catch {
       toast.error(tRef.current('quickAccess.fetchError'));
     } finally {
+      // Swap finished upload placeholders for the real rows in the SAME render (React 18
+      // batches these with setFiles above), so a just-uploaded file never blinks out.
       setIsLoading(false);
+      clearCompleted();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, clearCompleted]);
 
   useEffect(() => {
     fetchFiles();
