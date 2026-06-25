@@ -17,9 +17,6 @@ export function getRelativePathSafe(file: File): string {
   return sanitizeRelativePath(getRelativePath(file));
 }
 
-// Stable identity for a file across the P2P protocol: its full relative path
-// (folder files) or bare name (root files). Folder files sharing a leaf name
-// stay distinct. Mirrors the receiver's key (relative_path || file_name).
 export function fileKey(file: File): string {
   const rp = getRelativePathSafe(file);
   return rp.length > 0 ? rp : file.name;

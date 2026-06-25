@@ -46,7 +46,6 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
   const [previewFile, setPreviewFile] = useState<
     { fileName: string; fileSize: number; source?: string; code?: string; fileId?: string; presignedUrl?: string } | null
   >(null);
-  // Open sub-folders within the currently expanded bundle (reset when switching).
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
   const toggleFolder = (path: string) =>
     setOpenFolders((prev) => toggleFolderOpen(prev, path));
@@ -96,8 +95,6 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
       navigate(`/download/${code}`);
       return;
     }
-    // PPTX uses the Office web viewer (needs a public URL). Reuse the list-supplied inline
-    // URL when present, otherwise fetch one.
     if (isPptxFile(fileName)) {
       try {
         const url = previewUrl || (await fileAPI.getDownloadUrl(code, fileId, undefined, true)).download_url;
@@ -107,10 +104,6 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
       }
       return;
     }
-    // Everything else: open the modal IMMEDIATELY. When the file list already supplied an
-    // inline preview URL, pass it as `source` so there's no per-click round-trip; otherwise
-    // keep code+fileId and let the modal mint one. code+fileId are kept either way so the
-    // modal can refetch a fresh URL if a pre-supplied one expired.
     setPreviewFile({ fileName, fileSize, code, fileId, source: previewUrl || undefined });
   };
 
@@ -158,8 +151,6 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
 
   return (
     <>
-    {/* Animate the recent-shares list open (instead of popping in) once the data
-        loads: an empty 0-height grid row that expands to the content height. */}
     <div
       className={cn(
         'grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none',
@@ -189,9 +180,6 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
           const { text: remainText, expired } = remainingLabel(s.expiresAt);
           const isBundle = s.fileNames.length > 1;
           const isOpen = expanded === s.code;
-          // Server shares carry their full file list (with relative_path) in s.files, so the
-          // folder tree renders instantly on expand. bundleFiles (fetched) supersedes it once
-          // loaded (it also carries empty folders). Local-only shares fall back to a fetch.
           const treeFiles = bundleFiles[s.code] ?? s.files;
           const url = `${window.location.origin}/download/${s.code}`;
 
@@ -324,8 +312,6 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                             }}
                           />
                         ) : (
-                          // Local-only shares (no in-memory file list) briefly load — show a
-                          // neutral skeleton, never a flat list that would then regroup.
                           <div className="space-y-1">
                             {[0, 1].map((i) => (
                               <div key={i} className="flex items-center gap-3 -mx-2.5 px-2.5 py-2">

@@ -62,8 +62,6 @@ const ToastItem: React.FC<{ toast: ToastType; onRemove: (id: string) => void; is
   const mountTimeRef = useRef(Date.now());
   const undoneRef = useRef(false);
   const committedRef = useRef(false);
-  // Longer messages — the ones that wrap to multiple lines — get more reading time, scaled by
-  // length and capped so they never linger. Short toasts keep the snappy default.
   const DURATION = toast.duration ?? Math.min(7000, 2700 + Math.max(0, toast.message.length - 30) * 50);
 
   const finalizeRemove = useCallback(() => {

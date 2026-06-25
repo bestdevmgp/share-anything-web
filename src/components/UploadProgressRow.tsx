@@ -10,7 +10,6 @@ import { Hint } from './ui/Hint';
 interface Props {
   fileName: string;
   fileSize: number;
-  /** The local File (or a URL), used to show a client-side thumbnail while uploading. */
   file?: File | string;
   progress: number;
   timeRemaining?: string;

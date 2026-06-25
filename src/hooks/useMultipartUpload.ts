@@ -75,8 +75,6 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
     const files = input.files;
     const perFileAbort = files.map(() => new AbortController());
     const canceled = new Set<number>();
-    // abort() ends the whole session — no share finalized, even for already-
-    // uploaded files. cancelFile() only drops one file and lets the rest finish.
     let sessionAborted = false;
 
     const trackingPerFile = files.map((f) => ({

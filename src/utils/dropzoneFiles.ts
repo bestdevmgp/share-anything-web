@@ -38,10 +38,6 @@ const readAllEntries = (reader: FSDirectoryReader): Promise<FSEntry[]> =>
     next();
   });
 
-// Returns whether this entry contributed at least one file. Directories whose
-// entire subtree has no files are recorded in `emptyDirs` (their full path), so
-// the structure can still show the empty folder. Drag-and-drop only — the
-// folder-picker input never exposes empty directories.
 async function walkEntry(
   entry: FSEntry,
   prefix: string,
@@ -96,9 +92,6 @@ const filterJunkFiles = (files: File[]): File[] =>
     return !isJunkPath(rel || f.name);
   });
 
-// Empty-folder paths captured during the most recent drag-and-drop. react-dropzone's
-// getFilesFromEvent must return File[], so empty folders ride this side-channel —
-// read it synchronously right after the drop (in onDrop / the folder handler).
 let lastEmptyFolders: string[] = [];
 export function consumeEmptyFolders(): string[] {
   const ef = lastEmptyFolders;
@@ -134,19 +127,11 @@ export async function getFilesWithPaths(event: unknown): Promise<File[]> {
     }
   }
 
-  // Folder-picker input / plain file list: the browser does not expose empty
-  // directories here, so there are none to capture.
   lastEmptyFolders = [];
   const fileList = dt?.files ?? e?.target?.files ?? null;
   const files = fileList ? Array.from(fileList) : [];
   return filterJunkFiles(files);
 }
-
-// --- File System Access API directory picker (for the "select folder" button) ---
-// Unlike the <input webkitdirectory> picker, showDirectoryPicker() can enumerate
-// EMPTY subdirectories, so empty folders are preserved on a button pick too
-// (Chromium-based browsers). Browsers without it fall back to the input, which
-// cannot report empty dirs — there, drag-and-drop is the only way to keep them.
 
 type DirEntry = FSDirHandle | FSFileHandle;
 interface FSDirHandle {
@@ -164,8 +149,6 @@ export function supportsDirectoryPicker(): boolean {
   return typeof (window as unknown as { showDirectoryPicker?: unknown }).showDirectoryPicker === 'function';
 }
 
-// Mirrors walkEntry: records full paths of files and of directories whose whole
-// subtree has no files (so empty folders still render).
 async function walkDirHandle(
   dir: FSDirHandle,
   prefix: string,
@@ -200,8 +183,6 @@ async function walkDirHandle(
   return anyFile;
 }
 
-// Returns the picked directory's files (with relative paths set) and its empty-folder
-// paths, or null if the API is unavailable or the user cancelled the picker.
 export async function pickDirectoryWithEmpties(): Promise<{ files: File[]; emptyFolders: string[] } | null> {
   const w = window as unknown as { showDirectoryPicker?: () => Promise<FSDirHandle> };
   if (typeof w.showDirectoryPicker !== 'function') return null;
@@ -209,7 +190,7 @@ export async function pickDirectoryWithEmpties(): Promise<{ files: File[]; empty
   try {
     dirHandle = await w.showDirectoryPicker();
   } catch {
-    return null; // user cancelled or denied permission
+    return null;
   }
   const collected: { file: File; path: string }[] = [];
   const emptyDirs: string[] = [];

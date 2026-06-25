@@ -162,14 +162,11 @@ async function streamToDisk(
     try {
       await writable.abort?.();
     } catch {
-      /* ignore */
     }
     throw err;
   }
 }
 
-// Zip already-fetched blobs preserving folder structure (entryName = relative
-// path). Used for P2P, where files arrive as blobs over WebRTC rather than URLs.
 export async function createZipFromBlobs(
   files: { entryName: string; blob: Blob }[],
   suggestedName: string,

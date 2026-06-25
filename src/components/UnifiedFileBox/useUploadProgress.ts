@@ -9,7 +9,6 @@ export interface ProgressInput {
   loadedBytes: number;
   completed: boolean;
   canceled?: boolean;
-  /** The local File, used to render a client-side thumbnail while uploading. */
   file?: File;
 }
 

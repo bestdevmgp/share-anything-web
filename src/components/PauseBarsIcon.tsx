@@ -2,8 +2,6 @@ interface PauseBarsIconProps {
   className?: string;
 }
 
-// Pause icon drawn as two filled bars so bar thickness and the gap between
-// them can be tuned independently (Heroicons' stroked PauseIcon couples them).
 export default function PauseBarsIcon({ className }: PauseBarsIconProps) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

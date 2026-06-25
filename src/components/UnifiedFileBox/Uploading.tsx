@@ -19,8 +19,6 @@ const Uploading: React.FC<Props> = ({ items, onCancel, onCancelAll }) => {
   const { rows, overall } = useUploadProgress(items);
   const multi = rows.length > 1;
   const totalSize = items.reduce((sum, it) => sum + (it.fileSize || 0), 0);
-  // When every file has finished sending its bytes (overall 100%) but the server is
-  // still finalizing, mirror the per-file rows: show "please wait" instead of 100%.
   const allCompleted = rows.length > 0 && rows.every((r) => r.completed);
 
   return (

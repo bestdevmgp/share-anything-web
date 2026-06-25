@@ -31,10 +31,7 @@ interface FilePreviewModalProps {
   file: {
     fileName: string;
     fileSize: number;
-    // Either a ready source (File / object URL / public URL)…
     source?: File | string;
-    // …or a share code + file id, in which case the modal fetches the file itself
-    // (through the proxy) so it can open instantly and show a spinner while loading.
     code?: string;
     fileId?: string;
     password?: string;
@@ -43,8 +40,6 @@ interface FilePreviewModalProps {
   onClose: () => void;
 }
 
-// A render crash in a preview (e.g. react-pdf choking on a malformed PDF) must never
-// take down the whole app. This boundary contains it and shows a graceful message.
 class PreviewErrorBoundary extends React.Component<
   { fallback: React.ReactNode; children: React.ReactNode },
   { hasError: boolean }
@@ -79,8 +74,6 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   const [pdfPageSize, setPdfPageSize] = useState<{ width: number; height: number } | null>(null);
   const [pageRendered, setPageRendered] = useState(false);
   const [mediaImgLoaded, setMediaImgLoaded] = useState(false);
-  // Guards the one-shot fallback: if a pre-supplied preview URL fails to load (e.g. it
-  // expired), refetch a fresh one via code+fileId exactly once per file.
   const triedRefetchRef = useRef(false);
   useEffect(() => { triedRefetchRef.current = false; }, [source, code, fileId, fileName]);
 
@@ -92,12 +85,6 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
       setLoading(true);
       setMediaImgLoaded(false);
       try {
-        // Resolve the source. Prefer a ready `source` (e.g. an inline preview URL the file
-        // list already supplied) so there's NO per-open round-trip. Only when we have no
-        // source do we mint one from code+fileId. Either way it resolves to the raw-file
-        // INLINE URL (not a downloaded blob): react-pdf streams it page-by-page and other
-        // types load it directly — fast, and renders the ORIGINAL bytes (loading a PDF from
-        // a proxied blob/object URL made some PDFs render black).
         let src: File | string = (source ?? '') as File | string;
         if (!src && code && fileId) {
           const { download_url } = await fileAPI.getDownloadUrl(code, fileId, password, true);
@@ -113,9 +100,6 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
             objectUrl = URL.createObjectURL(src);
             if (!cancelled) setMediaUrl(objectUrl);
           } else if (!cancelled) {
-            // Hand the URL straight to <video>/<audio> so the browser streams it via range
-            // requests — playback starts almost instantly instead of waiting for the whole
-            // file to download into a blob first.
             setMediaUrl(src as string);
           }
         } else if (isPdfFile(fileName)) {
@@ -228,8 +212,6 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
     };
   }, [source, fileName, code, fileId, password]);
 
-  // Fallback for an expired/failed pre-supplied preview URL: mint a fresh inline URL via
-  // code+fileId, at most once per file. Returns null when there's nothing to retry with.
   const refetchFreshUrl = useCallback(async (): Promise<string | null> => {
     if (triedRefetchRef.current || !code || !fileId) return null;
     triedRefetchRef.current = true;
@@ -256,11 +238,6 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   }, []);
 
   const onPageLoadSuccess = useCallback((page: { width: number; height: number; originalWidth?: number; originalHeight?: number }) => {
-    // Capture the page size ONCE, from the intrinsic (scale-independent) dimensions.
-    // Using the scaled width/height here fed back into getPdfPageWidth() → re-render →
-    // new scaled size → ... an infinite loop ("Maximum update depth exceeded") that froze
-    // the whole page (black screen) for PDFs whose dimensions never settled to an exact
-    // float match. Setting it once, from the original dims, breaks that feedback entirely.
     setPdfPageSize(prev => prev ?? {
       width: page.originalWidth ?? page.width,
       height: page.originalHeight ?? page.height,

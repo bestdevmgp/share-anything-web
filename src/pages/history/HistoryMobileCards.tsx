@@ -135,8 +135,6 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
   const expandRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
   const [detailUploadId, setDetailUploadId] = useState<string | null>(null);
-  // Open the preview only after the detail modal has closed (avoids nesting two
-  // Radix Dialogs -> black overlay + dead Escape).
   const [pendingPreview, setPendingPreview] = useState<UploadHistoryItem | null>(null);
   useEffect(() => {
     if (pendingPreview && !detailUploadId) {
@@ -430,7 +428,6 @@ const HistoryMobileCards: React.FC<HistoryMobileCardsProps> = ({
                     )}
                   </div>
                   );
-                  // Session-level logs: distinct downloaders across all files (account name, else IP).
                   const sessionLogs = (() => {
                     const byPerson = new Map<string, DownloadLog>();
                     for (const f of group.files) {

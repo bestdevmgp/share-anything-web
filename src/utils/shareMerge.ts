@@ -10,8 +10,6 @@ export interface MergedShare {
   source: 'local' | 'server' | 'both';
   firstFileId?: string;
   hasPassword?: boolean;
-  // Full file list (with relative_path) for server-sourced shares, so the recent-shares
-  // box can build the folder tree instantly on expand — no fetch, no flat-then-grouped flash.
   files?: { id: string; file_name: string; file_size: number; relative_path?: string }[];
 }
 
@@ -69,16 +67,7 @@ export const mergeShares = (
     const existing = byCode.get(s.code);
     if (existing) {
       existing.source = 'both';
-      // The server's created_at is second-precision (MySQL DATETIME), so shares uploaded in
-      // the same second tie and fall back to the server's oldest-first order — stacking the
-      // newest share at the bottom. The local session's createdAt is millisecond-precision
-      // and monotonic per upload, so sort by it instead to keep the newest share on top.
       existing.createdAt = s.createdAt;
-      // The local session preserves the order the user uploaded the files in; the server
-      // (getUploads) returns its own order. mergeShares runs first with local-only data
-      // (sync) then again once server data arrives (async), so without this the title's
-      // first filename would flip on that swap. Reorder the server file list to match the
-      // local (upload) order so the title, thumbnail, and tree stay stable.
       if (existing.files && existing.files.length) {
         const rank = new Map<string, number>();
         s.fileNames.forEach((n, i) => { if (!rank.has(n)) rank.set(n, i); });

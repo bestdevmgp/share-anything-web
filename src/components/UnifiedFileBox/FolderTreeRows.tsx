@@ -7,42 +7,27 @@ import Collapsible from './Collapsible';
 
 const INDENT_STEP = 16;
 const INDENT_MAX = 80;
-const INDENT_RESERVE = 210; // px kept for thumbnail + name + size + padding
+const INDENT_RESERVE = 210;
 
-// Left padding for a row at the given nesting depth, as a CSS expression. It
-// grows per level but is capped two ways so the file name never gets pushed
-// off-screen: the absolute max above, AND — via the container-query unit cqw —
-// never more than (container width − reserved content). On a narrow mobile box
-// the reserve term wins and indentation shrinks automatically. Requires an
-// ancestor with container-type: inline-size.
 export const treeIndent = (depth: number): string =>
   `min(${(depth - 1) * INDENT_STEP}px, max(0px, 100cqw - ${INDENT_RESERVE}px), ${INDENT_MAX}px)`;
 
 interface Props {
   nodes: TreeNode[];
-  // 1 for the direct children of a top-level folder card; grows with depth.
   depth: number;
   openFolders: Set<string>;
   toggleFolder: (path: string) => void;
-  // Renders one file row in full (caller owns layout; indent via treeIndent(depth)).
   renderFile: (file: TreeFile, depth: number) => React.ReactNode;
-  // Optional action shown on each folder row, after the chevron (e.g. remove) —
-  // matching the top-level folder row's [collapse/expand][remove] order.
   renderFolderTrailing?: (folder: TreeFolder, depth: number) => React.ReactNode;
   t: (key: string, params?: Record<string, string | number>) => string;
 }
 
-// Renders folder + file rows recursively, indenting each level. Folder rows are
-// uniform here (same 44px leading + padding as file rows); file rows come from
-// the caller's renderFile.
 const FolderTreeRows: React.FC<Props> = ({ nodes, depth, openFolders, toggleFolder, renderFile, renderFolderTrailing, t }) => (
   <>
     {nodes.map((node) => {
       if (node.kind === 'file') {
         return <React.Fragment key={node.id}>{renderFile(node, depth)}</React.Fragment>;
       }
-      // A folder with no files anywhere has no children: show it, but it can't
-      // be expanded (nothing inside).
       const isEmpty = node.children.length === 0;
       const isOpen = !isEmpty && openFolders.has(node.path);
       return (
@@ -76,9 +61,6 @@ const FolderTreeRows: React.FC<Props> = ({ nodes, depth, openFolders, toggleFold
               </div>
             )}
           </div>
-          {/* Each level animates independently via grid-rows; open ancestors track
-              the child's growth in real time, so even deep expansions stay one
-              smooth motion with no per-level domino. */}
           <Collapsible open={isOpen}>
             <FolderTreeRows
               nodes={node.children}

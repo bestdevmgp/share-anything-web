@@ -13,25 +13,10 @@ const textWidth = (text: string, font: string): number => {
 interface Props {
   name: string;
   className?: string;
-  /**
-   * Optional trailing content kept attached right after the (possibly truncated)
-   * name — e.g. "외 1개" for a multi-file bundle. Its rendered width is reserved
-   * so the NAME truncates to leave room for it, instead of the suffix being
-   * clipped or pushed away.
-   */
   suffix?: React.ReactNode;
   suffixClassName?: string;
 }
 
-/**
- * Renders a filename, truncating the base to fit the available width while
- * ALWAYS keeping the extension visible: "verylongname...png" (literal "...",
- * no space, extension's own dot absorbed). Measures the real rendered width so
- * it adapts to the container on every device.
- *
- * Must live in a block/flex-column context where the parent sets its width — in
- * a flex ROW its width would track its own (shrinking) content and collapse.
- */
 const TruncatedFilename: React.FC<Props> = ({ name, className, suffix, suffixClassName }) => {
   const ref = useRef<HTMLSpanElement>(null);
   const suffixRef = useRef<HTMLSpanElement>(null);
@@ -45,8 +30,6 @@ const TruncatedFilename: React.FC<Props> = ({ name, className, suffix, suffixCla
       const avail = el.clientWidth;
       if (!avail) return;
 
-      // Reserve the suffix's footprint (its width + its left margin) so the name
-      // truncates to leave room for it.
       let reserve = 0;
       const sfx = suffixRef.current;
       if (sfx) {

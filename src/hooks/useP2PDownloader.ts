@@ -14,9 +14,6 @@ interface UseP2PDownloaderProps {
   password?: string;
 }
 
-// P2P transfer identifies each file by its full relative path (falling back to
-// the bare name for root files), so files sharing a leaf name across folders
-// stay distinct.
 const fileKey = (info: { relative_path?: string; file_name: string }): string =>
   info.relative_path && info.relative_path.length > 0 ? info.relative_path : info.file_name;
 
@@ -36,8 +33,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
   const isCleaningUpRef = useRef<boolean>(false);
   const keepaliveIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pendingErrorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Bounded retry of downloader_join when the receiver joins before the sender
-  // has registered (backend "Uploader is not online"); re-joins the same socket.
   const joinRetryCountRef = useRef<number>(0);
   const joinRetryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -360,9 +355,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
       const ws = wsRef.current;
       if (!ws) return;
 
-      // Handle 'error' before requiring pc: pc may still be awaiting TURN creds
-      // when the early "Uploader is not online" reply arrives, so gating behind
-      // pc would drop it and skip the retry.
       if (message.type === 'error') {
         const isUploaderNotReady =
           typeof message.message === 'string' &&

@@ -150,7 +150,6 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
 
           <div className="mb-6 sm:mb-8 space-y-2 sm:space-y-2.5">
             {tree.map((node) => {
-              // Loose file (no folder) — individually selectable.
               if (node.kind === 'file') {
                 const selected = selectedFiles.has(node.id);
                 return (
@@ -180,7 +179,6 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                   </div>
                 );
               }
-              // Empty folder — shown but not selectable (no files inside).
               if (node.children.length === 0) {
                 return (
                   <div
@@ -199,7 +197,6 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                   </div>
                 );
               }
-              // Folder — one selection unit (its whole subtree); nested tree shown via FolderTreeRows.
               const ids = collectFileIds(node);
               const allSelected = ids.length > 0 && ids.every((id) => selectedFiles.has(id));
               const isOpen = openFolders.has(node.path);

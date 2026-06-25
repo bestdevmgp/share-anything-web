@@ -77,8 +77,6 @@ const RecentDownloads: React.FC = () => {
   };
 
   const openPreviewFor = async (code: string, fileId: string, fileName: string, fileSize: number, previewUrl?: string) => {
-    // PPTX uses the Office web viewer (needs a public URL). Reuse the list-supplied inline
-    // URL when present, otherwise fetch one.
     if (isPptxFile(fileName)) {
       try {
         const url = previewUrl || (await fileAPI.getDownloadUrl(code, fileId, undefined, true)).download_url;
@@ -88,9 +86,6 @@ const RecentDownloads: React.FC = () => {
       }
       return;
     }
-    // Everything else: open the modal immediately. Pass the list-supplied inline URL as
-    // `source` (no per-click round-trip) when available; keep code+fileId so the modal can
-    // refetch a fresh URL if a pre-supplied one expired.
     setPreviewFile({ fileName, fileSize, code, fileId, source: previewUrl || undefined });
   };
 
@@ -132,8 +127,6 @@ const RecentDownloads: React.FC = () => {
 
   return (
     <>
-    {/* Animate the recent-downloads list open (instead of popping in) once the data
-        loads: an empty 0-height grid row that expands to the content height. */}
     <div
       className={cn(
         'grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none',

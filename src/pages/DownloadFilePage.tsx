@@ -88,7 +88,6 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   const [bulkRemaining, setBulkRemaining] = useState(0);
   const bulkQueueRef = useRef<string[]>([]);
   const bulkTotalRef = useRef<number>(0);
-  // For P2P folder shares, accumulate received blobs and emit one structured ZIP.
   const bulkBlobsRef = useRef<{ entryName: string; blob: Blob }[]>([]);
 
   const recordDownloadRef = useRef<() => void>(() => {});
@@ -108,8 +107,6 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   const handleP2PDownloadComplete = useCallback((blob: Blob, fileName: string) => {
     const completedId = p2pActiveFileId || '';
     const completedFile = fileList?.files.find((f) => f.id === completedId);
-    // Folder share received in bulk: collect blobs into one structured ZIP
-    // (folders preserved). Otherwise save the file flat.
     const zipMode =
       bulkP2PDownloading &&
       ((fileList?.files ?? []).some((f) => (f.relative_path || '').includes('/')) ||
@@ -191,15 +188,12 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     enabled: p2pEnabled && !!p2pActiveFile,
     onComplete: (blob) => handleP2PDownloadComplete(blob, p2pActiveFile?.file_name || 'file'),
     onPeerFileRemoved: (removedKey) => {
-      // The sender identifies the removed file by its path key (relative_path ||
-      // file_name); match the same way so a same-leaf sibling isn't also dropped.
       const removed = fileList?.files.find((f) => (f.relative_path || f.file_name) === removedKey);
       setFileList((prev) => {
         if (!prev) return prev;
         const files = prev.files.filter((f) => (f.relative_path || f.file_name) !== removedKey);
         return { ...prev, files, total_count: files.length };
       });
-      // Drop it from an in-flight bulk queue so the run can't stall on a gone id.
       if (removed && bulkQueueRef.current.includes(removed.id)) {
         bulkQueueRef.current = bulkQueueRef.current.filter((id) => id !== removed.id);
         setBulkRemaining(bulkQueueRef.current.length);
@@ -207,8 +201,6 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     }
   });
 
-  // Report active-transfer state to an embedding container (e.g. the home box,
-  // which locks its Send/Receive tabs while a download is in progress).
   const downloadBusy =
     downloading ||
     bulkP2PDownloading ||
@@ -373,10 +365,6 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   }, [code, navigate]);
 
   const onRetry = useCallback(() => {
-    // A missing/expired share never resolves by retrying the same code, so
-    // "retry" must lead back to entering a different code (box) or home (full
-    // page). Only transient/connection errors (sender offline, rate limit,
-    // unknown) re-fetch the same code.
     if (errorTitleKey === 'download.invalidCode') {
       if (embedded) onReset?.();
       else navigate('/');
@@ -433,15 +421,8 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     };
   }, [fileList, code, password, isP2PDownload, embedded]);
 
-  // Revoke a still-open preview's object URL if the component unmounts (route change,
-  // back button, embedded box closing) without the modal's close handler firing.
   const closePreview = () => setPreviewFile(null);
 
-  // Open the full preview for ANY file type. PPTX uses the Office web viewer (needs a
-  // public URL). The single-file view already has the blob (preloadedSource) so it's
-  // reused with no re-fetch. Everything else opens the modal immediately with code+fileId
-  // — FilePreviewModal fetches the real file through the proxy itself and shows a spinner
-  // while loading, so there's no blank delay before the modal appears.
   const openPreview = async (
     fileName: string,
     fileSize: number,
@@ -459,13 +440,10 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       }
       return;
     }
-    // The single-file view already holds a ready blob — use it directly (no fallback).
     if (preloadedSource) {
       setPreviewFile({ fileName, fileSize, source: preloadedSource });
       return;
     }
-    // Prefer a list-supplied inline URL (no per-click round-trip); keep code+fileId so the
-    // modal can refetch a fresh URL if a pre-supplied one expired.
     setPreviewFile({ fileName, fileSize, code, fileId, password: password || undefined, source: previewUrl || undefined });
   };
 
@@ -935,7 +913,6 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                   >
                     <div className="flex items-center">
                       <div className="flex-1 min-w-0">
-                        {/* text slides up as the bar fades in; bar slot is always reserved so row height never changes */}
                         <div className={cn('transition-transform duration-300 ease-out', !isDownloading && 'translate-y-[7px]')}>
                           <TruncatedFilename name={file.file_name} className="text-sm font-semibold text-foreground" />
                           <div className="flex items-center justify-between gap-2 mt-0.5 leading-none">

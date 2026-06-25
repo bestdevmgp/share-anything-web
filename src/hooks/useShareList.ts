@@ -49,9 +49,6 @@ export const useShareList = (refreshKey?: number) => {
   const requestDelete = useCallback((code: string) => {
     const saved = local.find((s) => s.code === code);
 
-    // Hide the row and clear the local entry immediately, so the deletion
-    // sticks regardless of how the deferred server call resolves (a logout,
-    // navigation, or 401 must not leave a stale entry to resurface).
     setPending((prev) => new Set(prev).add(code));
     removeSession(code);
     setLocal((prev) => prev.filter((s) => s.code !== code));

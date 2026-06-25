@@ -338,10 +338,6 @@ const UnifiedFileBox: React.FC = () => {
         )}
       </div>
       </AnimatedHeight>
-      {/* Recent shares sit OUTSIDE AnimatedHeight: their list expands via its own
-          Collapsible animation, so the card must grow in lockstep with it. Inside
-          AnimatedHeight, the wrapper would chase the height with a second 300ms
-          transition (and clip via overflow-hidden), making the outer box lag. */}
       {showRecent && (
         <div className="border-t border-foreground/[0.09]">
           {state.mode === 'download' ? (

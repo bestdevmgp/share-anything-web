@@ -13,7 +13,6 @@ import { savePostLoginRedirect } from '../utils/postLoginRedirect';
 
 type ErrorKind = 'alreadyRevealed' | 'expired' | 'notYours' | 'notFound' | 'generic';
 
-// Canonical scope display order (read → upload → delete → p2p) so 'delete' isn't shown first.
 const SCOPE_ORDER = ['read', 'upload', 'delete', 'p2p_transfer'];
 const scopeRank = (s: string): number => {
   const i = SCOPE_ORDER.indexOf(s);

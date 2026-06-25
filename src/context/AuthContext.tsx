@@ -53,9 +53,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsAuthenticated(false);
       const reason = (e as CustomEvent<{ reason?: string }>).detail?.reason;
       if (reason === 'revoked') {
-        // The session was terminated server-side at the user's request (a remote
-        // sign-out). Show only this notice and mute the failed request's own
-        // token-expiry error toast.
         suppressErrorToasts();
         if (!revokeNotifiedRef.current) {
           revokeNotifiedRef.current = true;

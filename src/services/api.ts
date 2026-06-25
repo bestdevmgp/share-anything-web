@@ -168,9 +168,6 @@ api.interceptors.request.use(async (config) => {
 
   const url = config.url || '';
   const isExchange = url.includes('/auth/session-token');
-  // OAuth callback isn't session-gated, so don't block login on the Turnstile mint.
-  // The daily-quota widget read isn't session-gated either, so don't make it wait
-  // up to 12s for the Turnstile mint — it should render promptly on page load.
   const skipTokenWait =
     isExchange || url.includes('/auth/callback/') || url.includes('/file/quota');
 
@@ -184,9 +181,6 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
-// A 401 on a request that still carried an unexpired auth JWT means the session
-// was terminated server-side — e.g. the user signed this device out from another
-// device — rather than the token simply expiring.
 function isJwtUnexpired(token: string): boolean {
   try {
     const part = token.split('.')[1];

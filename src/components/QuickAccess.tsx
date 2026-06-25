@@ -28,7 +28,6 @@ interface PreviewModalFile {
   presignedUrl?: string;
 }
 
-// Public share grants expire 30 min after creation on the backend.
 const SHARE_GRANT_TTL_MS = 30 * 60 * 1000;
 
 const QuickAccess: React.FC = () => {
@@ -57,8 +56,6 @@ const QuickAccess: React.FC = () => {
     } catch {
       toast.error(tRef.current('quickAccess.fetchError'));
     } finally {
-      // Swap finished upload placeholders for the real rows in the SAME render (React 18
-      // batches these with setFiles above), so a just-uploaded file never blinks out.
       setIsLoading(false);
       clearCompleted();
     }

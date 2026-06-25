@@ -1,23 +1,17 @@
 import { sanitizeRelativePath } from './folderPath';
 
-// A download share's files, grouped into a folder tree from their relative_path.
-// A file's relative_path is its full path INCLUDING the leaf name (e.g.
-// "docs/2024/report.pdf"); the leading segments are folders, the last is the
-// file. Files with no folder segment are root ("loose") files.
-
 export interface TreeFile {
   kind: 'file';
   id: string;
   name: string;
   size: number;
-  // Pre-supplied inline preview URL (from the file list), if available.
   previewUrl?: string;
 }
 
 export interface TreeFolder {
   kind: 'folder';
   name: string;
-  path: string; // full path from the root, e.g. "docs/2024"
+  path: string;
   children: TreeNode[];
 }
 
@@ -31,13 +25,11 @@ interface FileLike {
   preview_url?: string;
 }
 
-// Folders before files at every level; insertion order preserved within a kind.
 function sortNodes(nodes: TreeNode[]): void {
   nodes.sort((a, b) => (a.kind === b.kind ? 0 : a.kind === 'folder' ? -1 : 1));
   for (const n of nodes) if (n.kind === 'folder') sortNodes(n.children);
 }
 
-// Walk/create the folder chain for the given path segments, returning the leaf.
 function ensureFolder(root: TreeFolder, segments: string[]): TreeFolder {
   let cursor = root;
   let acc = '';
@@ -56,12 +48,6 @@ function ensureFolder(root: TreeFolder, segments: string[]): TreeFolder {
   return cursor;
 }
 
-/**
- * Toggle a folder's open state within an open-paths set. Closing a folder also
- * collapses every descendant (paths under "<path>/"), so re-opening a parent
- * always shows its sub-folders closed again instead of restoring their old
- * open state.
- */
 export function toggleFolderOpen(open: Set<string>, path: string): Set<string> {
   const next = new Set(open);
   if (next.has(path)) {
@@ -74,14 +60,12 @@ export function toggleFolderOpen(open: Set<string>, path: string): Set<string> {
   return next;
 }
 
-// `emptyFolders` are full paths of folders that contain no files anywhere; each
-// gets a folder node with no children (so it renders but can't be expanded).
 export function buildFileTree(files: FileLike[], emptyFolders: string[] = []): TreeNode[] {
   const root: TreeFolder = { kind: 'folder', name: '', path: '', children: [] };
   for (const f of files) {
     const rel = sanitizeRelativePath(f.relative_path || '');
     const segs = rel ? rel.split('/') : [];
-    const folder = ensureFolder(root, segs.slice(0, -1)); // last segment is the file name
+    const folder = ensureFolder(root, segs.slice(0, -1));
     folder.children.push({ kind: 'file', id: f.id, name: f.file_name, size: f.file_size, previewUrl: f.preview_url });
   }
   for (const ef of emptyFolders) {
@@ -104,8 +88,6 @@ export function nodeFileCount(node: TreeNode): number {
   return node.kind === 'file' ? 1 : node.children.reduce((s, c) => s + nodeFileCount(c), 0);
 }
 
-// Number of rows that would actually render given which folders are open — a
-// folder row is always counted; its descendants only while it is open.
 export function countVisibleRows(nodes: TreeNode[], isOpen: (path: string) => boolean): number {
   let n = 0;
   for (const node of nodes) {
@@ -117,7 +99,6 @@ export function countVisibleRows(nodes: TreeNode[], isOpen: (path: string) => bo
   return n;
 }
 
-// Paths of every folder on the way down to a file id (so they can be expanded).
 export function ancestorPaths(nodes: TreeNode[], fileId: string, trail: string[] = []): string[] | null {
   for (const node of nodes) {
     if (node.kind === 'file') {

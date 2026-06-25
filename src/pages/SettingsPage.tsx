@@ -395,7 +395,6 @@ const SettingsPage: React.FC = () => {
         const list = await sessionAPI.listTrusted();
         setTrustedDevices(list);
       } catch {
-        // ignore refresh failure
       }
     } finally {
       setDeletingAllTrusted(false);
@@ -505,7 +504,6 @@ const SettingsPage: React.FC = () => {
         const tokens = await personalTokenAPI.list();
         setPersonalTokens(tokens);
       } catch {
-        // ignore refresh failure
       }
     } finally {
       setRevokingAllTokens(false);
@@ -1886,9 +1884,6 @@ const SettingsPage: React.FC = () => {
                           return (
                             <>
                               {before}
-                              {/* Text + external-link arrow (same icon as the header OpenAPI button, opens a new
-                                  tab) underlined together via border-b — text-decoration underline isn't drawn
-                                  under an SVG (an atomic inline), so the border carries the line across both. */}
                               <a
                                 href="/api-terms-of-use"
                                 target="_blank"

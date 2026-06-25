@@ -51,8 +51,6 @@ const UploadPage: React.FC = () => {
   const initialFilesHandledRef = useRef(false);
 
   const [files, setFiles] = useState<File[]>([]);
-  // Empty folders (no files anywhere) captured from a drag-and-drop, shown in the
-  // tree as non-expandable. The folder-picker input can't report empty folders.
   const [emptyFolders, setEmptyFolders] = useState<string[]>([]);
   const [isProcessingFiles, setIsProcessingFiles] = useState(false);
   const [description, setDescription] = useState('');
@@ -206,7 +204,6 @@ const UploadPage: React.FC = () => {
     setIsProcessingFiles(false);
   }, [t]);
 
-  // Drag-and-drop captures empty folders via a side-channel (consumeEmptyFolders).
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     await addFiles(acceptedFiles, consumeEmptyFolders());
   }, [addFiles]);
@@ -219,8 +216,6 @@ const UploadPage: React.FC = () => {
 
   const folderInputRef = useRef<HTMLInputElement>(null);
 
-  // Prefer the File System Access API so the button captures empty folders too;
-  // fall back to <input webkitdirectory> (which can't report empty dirs).
   const handleSelectFolder = useCallback(async () => {
     if (supportsDirectoryPicker()) {
       const picked = await pickDirectoryWithEmpties();

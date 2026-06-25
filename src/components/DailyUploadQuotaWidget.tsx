@@ -62,7 +62,6 @@ const DailyUploadQuotaWidget: React.FC = () => {
 
   const { used_bytes, limit_bytes, remaining_bytes } = quota;
   const pct = limit_bytes > 0 ? Math.min(100, (used_bytes / limit_bytes) * 100) : 0;
-  // Warning/danger tiers use the toast colors (Toast.tsx): amber-500, then red-500.
   const barColor = pct >= 90 ? 'bg-red-500' : pct >= 70 ? 'bg-amber-500' : 'bg-primary';
 
   const resetMs = new Date(quota.resets_at).getTime();

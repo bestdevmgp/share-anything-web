@@ -157,7 +157,6 @@ const P2PActiveStage: React.FC<Props> = ({
                     <FileThumbnail source={file} fileName={file.name} size="sm" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    {/* text slides up as the bar fades in; bar slot is always reserved so row height never changes */}
                     <div className={cn('transition-transform duration-300 ease-out', !isTransferring && 'translate-y-[7px]')}>
                       <TruncatedFilename name={file.name} className="text-sm font-medium text-foreground" />
                       <div className="flex items-center justify-between gap-2 mt-0.5 leading-none">

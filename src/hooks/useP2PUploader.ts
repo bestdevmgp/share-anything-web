@@ -28,10 +28,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
   const [connectionFailed, setConnectionFailed] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
 
-  // A new session (new share code) must start clean. Otherwise a stale
-  // connectionFailed left from the previous receiver (ICE goes to 'failed'
-  // when the receiver disconnects after the last transfer) would immediately
-  // trigger "connection failed" on the next secure transfer.
   const [prevShareCode, setPrevShareCode] = useState(shareCode);
   if (shareCode !== prevShareCode) {
     setPrevShareCode(shareCode);
@@ -57,8 +53,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
 
   useEffect(() => {
     filesRef.current = files;
-    // Preserve existing per-file progress so removing one file (state.files
-    // change) doesn't reset transferring/completed files back to 'waiting'.
     setFileProgresses(prev => {
       const next = new Map<string, FileProgress>();
       files.forEach(file => {
@@ -585,9 +579,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     return () => {
       clearInterval(keepaliveInterval);
       isCleaningUpRef.current = true;
-      // Halt any in-progress send loop and reset session state so a later
-      // session (after cancel + reselect) doesn't inherit a stale "connected"
-      // status or a same-named file's leftover progress.
       cancelledRef.current = true;
       isTransferringRef.current = false;
       if (dataChannelRef.current) {
@@ -670,9 +661,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shareCode]);
 
-  // Drops a single file from the offer WITHOUT tearing down the session. If the
-  // data channel is open (a transfer is active), the receiver is told to remove
-  // it from its list in real time; otherwise it just leaves the sender's offer.
   const removeFile = useCallback((fileName: string) => {
     const dc = dataChannelRef.current;
     if (dc && dc.readyState === 'open') {

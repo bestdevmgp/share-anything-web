@@ -11,7 +11,6 @@ export interface UploadingFile {
   progress: number;
   timeRemaining: string;
   completed: boolean;
-  /** The local File, used to render a client-side thumbnail while uploading. */
   file?: File;
 }
 
@@ -34,8 +33,6 @@ interface QuickAccessUploadContextType {
   handleUpload: (files: File[]) => Promise<void>;
   handleCancelUpload: (fileId: string) => void;
   completedCounter: number;
-  /** Drop the finished (progress 100%) rows — called by the page once it has refetched
-   *  the server list, so a completed file never blinks out before its real row appears. */
   clearCompleted: () => void;
 }
 
@@ -337,8 +334,6 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
         });
 
         toast.success(tRef.current('quickAccess.uploadComplete'));
-        // Keep the finished rows on screen; the page clears them (clearCompleted) right
-        // after it refetches the server list, so a file never blinks out and back in.
         awaitingServerSync = true;
         setCompletedCounter(prev => prev + 1);
       }
@@ -351,8 +346,6 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
       fileTrackingRef.current.clear();
       fileAbortControllersRef.current.clear();
       cancelledFileIdsRef.current.clear();
-      // On success the finished rows stay until the page refetches + clears them; on
-      // failure/cancel there's nothing to sync, so drop them now.
       if (!awaitingServerSync) setUploadingFiles([]);
     }
   }, [startProgressUpdates, stopProgressUpdates]);

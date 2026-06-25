@@ -163,13 +163,8 @@ const BoxDownloadView: React.FC<Props> = ({
   );
   const hasFolders = treeHasFolders(tree);
 
-  // Rows currently visible: a collapsed folder counts as a single row, an expanded
-  // folder adds its revealed descendants. The box sizes to this (capped at 10 rows)
-  // and grows/shrinks live as folders toggle — collapsed folders keep it compact.
   const visibleRowCount = countVisibleRows(tree, (path) => openFolders.has(path));
 
-  // During a P2P receive, auto-expand every folder on the way to the active file
-  // so its progress is visible.
   useEffect(() => {
     if (!p2pActiveFileId) return;
     const paths = ancestorPaths(tree, p2pActiveFileId);
@@ -487,8 +482,6 @@ const BoxDownloadView: React.FC<Props> = ({
   }
 
   const multi = files.length > 1;
-  // A folder share with exactly one file is still a multi-style selection surface
-  // (the folder has its own checkbox), so show the selection header + footer for it too.
   const showSelection = multi || hasFolders;
   return wrap(
     <>

@@ -49,7 +49,6 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
 
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
 
-  // Files are keyed by their array index (id) so removal maps back to onRemoveFile.
   const tree = useMemo(
     () =>
       buildFileTree(

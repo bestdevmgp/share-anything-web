@@ -227,9 +227,6 @@ const UploadHistoryPage: React.FC = () => {
     }
 
     try {
-      // Functional updates: several files' logs are fetched in parallel on expand, so each
-      // must merge into the latest state — the object-spread form captured a stale value and
-      // the fetches clobbered each other (only one file's logs survived).
       setLoadingLogs(prev => ({ ...prev, [fileId]: true }));
       const logs = await userAPI.getDownloadLogs(fileId);
       setDownloadLogs(prev => ({ ...prev, [fileId]: logs }));
@@ -294,20 +291,14 @@ const UploadHistoryPage: React.FC = () => {
   const openPreviewModal = async (upload: UploadHistoryItem) => {
     if (upload.id.startsWith('local:')) return;
     if (isExpired(upload.expires_at)) return;
-    // PPTX uses the Office web viewer (needs a public URL). Reuse the list-supplied inline
-    // URL when present, otherwise fetch one.
     if (isPptxFile(upload.file_name)) {
       try {
         const url = upload.preview_url || (await fileAPI.getDownloadUrl(upload.share_code, upload.id, undefined, true)).download_url;
         setPreviewModalFile({ fileName: upload.file_name, fileSize: upload.file_size, source: url, presignedUrl: url });
       } catch {
-        // Preview unavailable — leave the modal closed.
       }
       return;
     }
-    // Everything else: open immediately. Pass the list-supplied inline URL as `source` (no
-    // per-click round-trip) when available; keep code+fileId so the modal can refetch a
-    // fresh URL if a pre-supplied one expired.
     setPreviewModalFile({ fileName: upload.file_name, fileSize: upload.file_size, code: upload.share_code, fileId: upload.id, source: upload.preview_url || undefined });
   };
 
@@ -315,8 +306,6 @@ const UploadHistoryPage: React.FC = () => {
     e.stopPropagation();
     const saved = listSessions().find((s) => s.code === shareCode);
 
-    // Clear the local entry immediately so the deletion sticks even if the
-    // deferred server call is interrupted (logout, navigation, 401).
     setPendingDeleted((prev) => new Set(prev).add(shareCode));
     if (expandedRow === shareCode) setExpandedRow(null);
     removeSession(shareCode);

@@ -149,9 +149,6 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
   const expandRefs = useRef<Map<string, HTMLDivElement>>(new Map());
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
   const [detailUploadId, setDetailUploadId] = useState<string | null>(null);
-  // Open the file preview only AFTER the detail modal has fully closed — opening it
-  // while the detail Dialog is still mounted nests two Radix Dialogs (black overlay,
-  // dead Escape). The effect runs after the close commit, so they never coexist.
   const [pendingPreview, setPendingPreview] = useState<UploadHistoryItem | null>(null);
   useEffect(() => {
     if (pendingPreview && !detailUploadId) {
@@ -534,8 +531,6 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                               </div>
                             </div>
                           );
-                          // Session-level download logs: distinct people who downloaded ANY file in
-                          // this share, deduped by account name (if signed in) else IP, newest first.
                           const sessionLogs = (() => {
                             const byPerson = new Map<string, DownloadLog>();
                             for (const f of group.files) {
@@ -593,8 +588,6 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
                                   </div>
                                 </CardContent>
                               </Card>
-                              {/* Files (left) + session download log (right), equal heights: the tree drives
-                                  the height and the log box stretches to match, but never below min-h. */}
                               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:min-h-[400px]">
                                 <div className="flex flex-col min-w-0">
                                   <h3 className="text-lg font-semibold text-foreground mb-4 flex-shrink-0">{t('history.filesInBundle')}</h3>
