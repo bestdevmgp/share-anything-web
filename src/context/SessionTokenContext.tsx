@@ -2,6 +2,8 @@ import React, { createContext, useCallback, useContext, useEffect, useRef, useSt
 import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile';
 import { authAPI, setSessionToken, markTokenUnavailable } from '../services/api';
 import TurnstileBlockedOverlay from '../components/TurnstileBlockedOverlay';
+import { useTranslation } from '../i18n';
+import { toast } from './ToastContext';
 
 type Status = 'idle' | 'minting' | 'ready' | 'failed';
 
@@ -29,6 +31,7 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [overlayMounted, setOverlayMounted] = useState(false);
   const [overlayClosing, setOverlayClosing] = useState(false);
+  const [retrying, setRetrying] = useState(false);
   const widgetRef = useRef<TurnstileInstance>(null);
   const interactiveRef = useRef<TurnstileInstance>(null);
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -38,6 +41,34 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const lastResetRef = useRef(0);
   const statusRef = useRef<Status>('idle');
   statusRef.current = status;
+  // Whether the blocking modal was ever shown this round — toasts only fire if it was, so a
+  // silent background mint never produces one. retryingRef tracks an in-flight retry-button
+  // attempt; retryTimerRef is its watchdog.
+  const modalShownRef = useRef(false);
+  const retryingRef = useRef(false);
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { t } = useTranslation();
+  const tRef = useRef(t);
+  tRef.current = t;
+
+  // A retry-button attempt finished. On failure, close the modal (the close effect shows the
+  // fail toast and reopens it); on success, just clear the spinner (success toast fires when
+  // the modal closes on 'ready'). No-ops unless a retry is actually in flight.
+  const failRetry = useCallback(() => {
+    if (!retryingRef.current) return;
+    retryingRef.current = false;
+    setRetrying(false);
+    if (retryTimerRef.current) { clearTimeout(retryTimerRef.current); retryTimerRef.current = null; }
+    // Keep the modal open (so the user can disable an ad blocker and retry); surface the
+    // failure as a toast shown above it. Only ever after the modal was actually shown.
+    if (modalShownRef.current) toast.error(tRef.current('botCheck.failToast'));
+  }, []);
+
+  const finishRetrySuccess = useCallback(() => {
+    retryingRef.current = false;
+    setRetrying(false);
+    if (retryTimerRef.current) { clearTimeout(retryTimerRef.current); retryTimerRef.current = null; }
+  }, []);
 
   const markFailed = useCallback(() => {
     setStatus('failed');
@@ -72,8 +103,12 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
     markTokenUnavailable(false);
     attemptsRef.current = 0;
     lastResetRef.current = Date.now();
+    retryingRef.current = true;
+    setRetrying(true);
+    if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
+    retryTimerRef.current = setTimeout(() => failRetry(), 20_000);
     interactiveRef.current?.reset();
-  }, []);
+  }, [failRetry]);
 
   const scheduleRefresh = useCallback((expIso: string) => {
     if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
@@ -96,6 +131,7 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
       attemptsRef.current = 0;
       if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
       scheduleRefresh(expires_at);
+      finishRetrySuccess();
     } catch (err: any) {
       console.warn('[SessionToken] exchange failed', err);
       attemptsRef.current += 1;
@@ -110,8 +146,9 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
       } else {
         markUnreachable();
       }
+      failRetry();
     }
-  }, [scheduleRefresh, forceRefresh, markFailed, markUnreachable]);
+  }, [scheduleRefresh, forceRefresh, markFailed, markUnreachable, finishRetrySuccess, failRetry]);
 
   const onTurnstileError = useCallback(() => {
     attemptsRef.current += 1;
@@ -121,7 +158,8 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const onInteractiveError = useCallback(() => {
     console.warn('[SessionToken] interactive Turnstile error');
-  }, []);
+    failRetry();
+  }, [failRetry]);
 
   useEffect(() => {
     armLoadTimeout();
@@ -157,13 +195,21 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
     if (status === 'failed') {
       setOverlayClosing(false);
       setOverlayMounted(true);
+      modalShownRef.current = true;
       return;
     }
+    // Animate the modal out on success ('ready') or backend-unreachable ('idle') — staying
+    // during the transitional 'minting'. After it animates out, show the success toast, but
+    // only if the modal was actually shown (never on a silent background mint).
     if ((status === 'ready' || status === 'idle') && overlayMounted) {
       setOverlayClosing(true);
+      const succeeded = status === 'ready';
+      const wasShown = modalShownRef.current;
       const timer = setTimeout(() => {
         setOverlayMounted(false);
         setOverlayClosing(false);
+        if (wasShown && succeeded) toast.success(tRef.current('botCheck.successToast'));
+        modalShownRef.current = false;
       }, 200);
       return () => clearTimeout(timer);
     }
@@ -191,7 +237,7 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
       </div>
       {children}
       {overlayMounted && (
-        <TurnstileBlockedOverlay onRetry={retry} closing={overlayClosing}>
+        <TurnstileBlockedOverlay onRetry={retry} closing={overlayClosing} loading={retrying}>
           <Turnstile
             ref={interactiveRef}
             siteKey={SITE_KEY}

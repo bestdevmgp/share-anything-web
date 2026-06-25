@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from '../i18n';
 import { Button } from './ui/button';
+import { Spinner } from './ui/spinner';
 import StatusIcon from './StatusIcon';
 import { cn } from 'lib/utils';
 
@@ -8,9 +9,10 @@ interface Props {
   onRetry: () => void;
   children?: React.ReactNode;
   closing?: boolean;
+  loading?: boolean;
 }
 
-const TurnstileBlockedOverlay: React.FC<Props> = ({ onRetry, children, closing = false }) => {
+const TurnstileBlockedOverlay: React.FC<Props> = ({ onRetry, children, closing = false, loading = false }) => {
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -40,8 +42,9 @@ const TurnstileBlockedOverlay: React.FC<Props> = ({ onRetry, children, closing =
         {children && (
           <div className="mb-6 flex justify-center">{children}</div>
         )}
-        <Button onClick={onRetry} size="lg" className="w-full">
-          {t('common.retry')}
+        <Button onClick={onRetry} size="lg" className="relative w-full" disabled={loading}>
+          <span className={loading ? 'invisible' : ''}>{t('common.retry')}</span>
+          {loading && <Spinner size="sm" className="text-primary-foreground absolute" />}
         </Button>
       </div>
     </div>

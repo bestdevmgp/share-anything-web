@@ -269,7 +269,7 @@ export const ToastContainer: React.FC = () => {
   }, [addToast]);
 
   return (
-    <div className="fixed top-5 left-4 right-4 z-[60] flex flex-col items-center pointer-events-none">
+    <div className="fixed top-5 left-4 right-4 z-[110] flex flex-col items-center pointer-events-none">
       {toasts.map((toast, index) => (
         <ToastItem key={toast.id} toast={toast} onRemove={removeToast} isFirst={index === 0} />
       ))}

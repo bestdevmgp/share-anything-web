@@ -754,6 +754,8 @@
   },
   "botCheck": {
     "title": "Security check required",
-    "desc": "Please complete the security check below. If it keeps failing, disable any ad blocker or allow challenges.cloudflare.com, then try again."
+    "desc": "Please complete the security check below. If it keeps failing, disable any ad blocker or allow challenges.cloudflare.com, then try again.",
+    "successToast": "Security check complete.",
+    "failToast": "Security check failed. Please try again."
   }
 }
