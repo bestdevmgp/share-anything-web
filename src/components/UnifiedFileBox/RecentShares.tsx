@@ -145,7 +145,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
 
   const visibleItems = items.filter((i) => new Date(i.expiresAt).getTime() > Date.now());
 
-  if (visibleItems.length === 0) return null;
+  const hasItems = visibleItems.length > 0;
 
   const remainingLabel = (expiresAt: string): { text: string; expired: boolean } => {
     const diff = new Date(expiresAt).getTime() - Date.now();
@@ -158,6 +158,15 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
 
   return (
     <>
+    {/* Animate the recent-shares list open (instead of popping in) once the data
+        loads: an empty 0-height grid row that expands to the content height. */}
+    <div
+      className={cn(
+        'grid transition-[grid-template-rows] duration-300 ease-out motion-reduce:transition-none',
+        hasItems ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+      )}
+    >
+    <div className="min-h-0 overflow-hidden">
     <div className="flex flex-col">
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
         <h4 className="text-xs font-semibold text-foreground/70">
@@ -338,6 +347,8 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
           );
         })}
       </div>
+    </div>
+    </div>
     </div>
     {previewFile && (
       <FilePreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />
