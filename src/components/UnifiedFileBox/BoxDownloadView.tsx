@@ -66,7 +66,7 @@ interface Props {
   setFilesSelected: (fileIds: string[], selected: boolean) => void;
   selectAllFiles: () => void;
   deselectAllFiles: () => void;
-  openPreview: (fileName: string, fileSize: number, fileId: string) => void;
+  openPreview: (fileName: string, fileSize: number, fileId: string, opts?: { previewUrl?: string; preloadedSource?: string }) => void;
   t: (key: string, params?: Record<string, string | number>) => string;
 }
 
@@ -549,7 +549,7 @@ const BoxDownloadView: React.FC<Props> = ({
                         <Checkbox checked={selected} className="h-5 w-5 rounded-[5px] border-2 flex-shrink-0 mr-3" />
                         <button
                           type="button"
-                          onClick={(e) => { e.stopPropagation(); openPreview(node.name, node.size, node.id); }}
+                          onClick={(e) => { e.stopPropagation(); openPreview(node.name, node.size, node.id, { previewUrl: node.previewUrl }); }}
                           className="flex-shrink-0 mr-3 rounded overflow-hidden transition-transform can-hover:hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                           aria-label={node.name}
                         >
@@ -621,7 +621,7 @@ const BoxDownloadView: React.FC<Props> = ({
                                   return (
                                     <div
                                       data-row
-                                      onClick={() => openPreview(file.name, file.size, file.id)}
+                                      onClick={() => openPreview(file.name, file.size, file.id, { previewUrl: file.previewUrl })}
                                       className="flex items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2 rounded-lg transition-colors cursor-pointer can-hover:hover:bg-accent active:bg-accent"
                                       style={{ marginLeft: `calc(-0.625rem + ${treeIndent(depth)})` }}
                                     >
@@ -661,7 +661,7 @@ const BoxDownloadView: React.FC<Props> = ({
                     )}
                     <button
                       type="button"
-                      onClick={(e) => { e.stopPropagation(); openPreview(file.file_name, file.file_size, file.id); }}
+                      onClick={(e) => { e.stopPropagation(); openPreview(file.file_name, file.file_size, file.id, { previewUrl: file.preview_url }); }}
                       className="flex-shrink-0 mr-3 rounded overflow-hidden transition-transform can-hover:hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       aria-label={file.file_name}
                     >

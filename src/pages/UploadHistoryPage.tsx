@@ -294,19 +294,21 @@ const UploadHistoryPage: React.FC = () => {
   const openPreviewModal = async (upload: UploadHistoryItem) => {
     if (upload.id.startsWith('local:')) return;
     if (isExpired(upload.expires_at)) return;
-    // PPTX uses the Office web viewer (needs a public URL), so fetch that first.
+    // PPTX uses the Office web viewer (needs a public URL). Reuse the list-supplied inline
+    // URL when present, otherwise fetch one.
     if (isPptxFile(upload.file_name)) {
       try {
-        const result = await fileAPI.getDownloadUrl(upload.share_code, upload.id, undefined, true);
-        setPreviewModalFile({ fileName: upload.file_name, fileSize: upload.file_size, source: result.download_url, presignedUrl: result.download_url });
+        const url = upload.preview_url || (await fileAPI.getDownloadUrl(upload.share_code, upload.id, undefined, true)).download_url;
+        setPreviewModalFile({ fileName: upload.file_name, fileSize: upload.file_size, source: url, presignedUrl: url });
       } catch {
         // Preview unavailable — leave the modal closed.
       }
       return;
     }
-    // Everything else: open immediately; FilePreviewModal fetches the file through the
-    // proxy itself and shows a spinner while loading (no blank delay before it appears).
-    setPreviewModalFile({ fileName: upload.file_name, fileSize: upload.file_size, code: upload.share_code, fileId: upload.id });
+    // Everything else: open immediately. Pass the list-supplied inline URL as `source` (no
+    // per-click round-trip) when available; keep code+fileId so the modal can refetch a
+    // fresh URL if a pre-supplied one expired.
+    setPreviewModalFile({ fileName: upload.file_name, fileSize: upload.file_size, code: upload.share_code, fileId: upload.id, source: upload.preview_url || undefined });
   };
 
   const handleDeleteGroup = (shareCode: string, e: React.MouseEvent) => {

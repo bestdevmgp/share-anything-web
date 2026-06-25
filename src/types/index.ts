@@ -72,6 +72,8 @@ export interface UploadHistoryItem {
   download_url: string;
   qr_code: string;
   download_count: number;
+  // Short-lived presigned INLINE URL for instant preview (absent for password/p2p).
+  preview_url?: string;
 }
 
 export interface UploadHistoryResponse {

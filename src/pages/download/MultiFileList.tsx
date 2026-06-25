@@ -30,7 +30,7 @@ export interface MultiFileListProps {
   handleCancelDownload: () => void;
   navigate: NavigateFunction;
   previews?: Record<string, string>;
-  openPreview?: (fileName: string, fileSize: number, fileId: string) => void;
+  openPreview?: (fileName: string, fileSize: number, fileId: string, opts?: { previewUrl?: string; preloadedSource?: string }) => void;
   zipping: boolean;
   zipDone: number;
   zipTotal: number;
@@ -80,6 +80,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
           file_name: f.file_name,
           file_size: f.file_size,
           relative_path: f.relative_path,
+          preview_url: f.preview_url,
         })),
         fileList.empty_folders ?? []
       ),
@@ -166,7 +167,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                     </div>
                     <button
                       type="button"
-                      onClick={(e) => { e.stopPropagation(); openPreview?.(node.name, node.size, node.id); }}
+                      onClick={(e) => { e.stopPropagation(); openPreview?.(node.name, node.size, node.id, { previewUrl: node.previewUrl }); }}
                       className="flex-shrink-0 rounded overflow-hidden transition-transform can-hover:hover:scale-[1.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       aria-label={node.name}
                     >
@@ -255,7 +256,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
                               return (
                                 <div
                                   data-row
-                                  onClick={(e) => { e.stopPropagation(); openPreview?.(file.name, file.size, file.id); }}
+                                  onClick={(e) => { e.stopPropagation(); openPreview?.(file.name, file.size, file.id, { previewUrl: file.previewUrl }); }}
                                   className="flex items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2 rounded-lg transition-colors cursor-pointer can-hover:hover:bg-accent active:bg-accent"
                                   style={{ marginLeft: `calc(-0.625rem + ${treeIndent(depth)})` }}
                                 >

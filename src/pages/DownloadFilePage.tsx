@@ -442,22 +442,31 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   // reused with no re-fetch. Everything else opens the modal immediately with code+fileId
   // — FilePreviewModal fetches the real file through the proxy itself and shows a spinner
   // while loading, so there's no blank delay before the modal appears.
-  const openPreview = async (fileName: string, fileSize: number, fileId: string, preloadedSource?: string) => {
+  const openPreview = async (
+    fileName: string,
+    fileSize: number,
+    fileId: string,
+    opts: { previewUrl?: string; preloadedSource?: string } = {}
+  ) => {
     if (!code) return;
+    const { previewUrl, preloadedSource } = opts;
     if (isPptxFile(fileName)) {
       try {
-        const { download_url } = await fileAPI.getDownloadUrl(code, fileId, password || undefined, true);
-        setPreviewFile({ fileName, fileSize, source: download_url, presignedUrl: download_url });
+        const url = previewUrl || (await fileAPI.getDownloadUrl(code, fileId, password || undefined, true)).download_url;
+        setPreviewFile({ fileName, fileSize, source: url, presignedUrl: url });
       } catch {
         toast.error(t('download.downloadFailed'));
       }
       return;
     }
+    // The single-file view already holds a ready blob — use it directly (no fallback).
     if (preloadedSource) {
       setPreviewFile({ fileName, fileSize, source: preloadedSource });
       return;
     }
-    setPreviewFile({ fileName, fileSize, code, fileId, password: password || undefined });
+    // Prefer a list-supplied inline URL (no per-click round-trip); keep code+fileId so the
+    // modal can refetch a fresh URL if a pre-supplied one expired.
+    setPreviewFile({ fileName, fileSize, code, fileId, password: password || undefined, source: previewUrl || undefined });
   };
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
