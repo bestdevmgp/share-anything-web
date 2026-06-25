@@ -54,7 +54,7 @@ const Header: React.FC = () => {
                 href={process.env.REACT_APP_DOCS_URL || 'https://share-api.mingyu.dev/reference'}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 pl-3 pr-2.5 py-2 text-sm font-medium text-muted-foreground rounded-sm can-hover:hover:bg-accent active:bg-accent transition-colors"
+                className="inline-flex items-center gap-1 pl-3 pr-2 py-2 text-sm font-medium text-muted-foreground rounded-sm can-hover:hover:bg-accent active:bg-accent transition-colors"
               >
                 OpenAPI
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
@@ -65,7 +65,7 @@ const Header: React.FC = () => {
                 href="https://status.share.mingyu.dev"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 pl-3 pr-2.5 py-2 text-sm font-medium text-muted-foreground rounded-sm can-hover:hover:bg-accent active:bg-accent transition-colors"
+                className="inline-flex items-center gap-1 pl-3 pr-2 py-2 text-sm font-medium text-muted-foreground rounded-sm can-hover:hover:bg-accent active:bg-accent transition-colors"
               >
                 Status
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
