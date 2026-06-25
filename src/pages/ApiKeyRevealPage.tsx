@@ -9,10 +9,16 @@ import { Spinner } from '../components/ui/spinner';
 import StatusIcon from '../components/StatusIcon';
 import CopyButton from '../components/CopyButton';
 import { formatDateTime } from '../utils/format';
-import { toast } from '../context/ToastContext';
 import { savePostLoginRedirect } from '../utils/postLoginRedirect';
 
 type ErrorKind = 'alreadyRevealed' | 'expired' | 'notYours' | 'notFound' | 'generic';
+
+// Canonical scope display order (read → upload → delete → p2p) so 'delete' isn't shown first.
+const SCOPE_ORDER = ['read', 'upload', 'delete', 'p2p_transfer'];
+const scopeRank = (s: string): number => {
+  const i = SCOPE_ORDER.indexOf(s);
+  return i === -1 ? SCOPE_ORDER.length : i;
+};
 
 const errorKindFromResponse = (status: number | undefined, reason: string | undefined): ErrorKind => {
   if (status === 410) {
@@ -131,7 +137,6 @@ const ApiKeyRevealPage: React.FC = () => {
                 aria-label={t('apiKeyReveal.copy')}
                 className="absolute top-1 right-1 w-7 h-7 text-muted-foreground can-hover:hover:text-foreground"
                 iconClassName="w-4 h-4"
-                onCopied={() => toast.success(t('apiKeyReveal.copied'))}
               />
             </div>
             <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
@@ -146,9 +151,17 @@ const ApiKeyRevealPage: React.FC = () => {
             </div>
             <div>
               <p className="text-xs text-muted-foreground mb-1">{t('apiKeyReveal.scopesLabel')}</p>
-              <p className="text-foreground font-medium">
-                {data.scopes.length > 0 ? data.scopes.map((s) => t(`settings.apiKeys.scope.${s}`)).join(', ') : '-'}
-              </p>
+              {data.scopes.length > 0 ? (
+                <div className="flex flex-wrap gap-1">
+                  {[...data.scopes].sort((a, b) => scopeRank(a) - scopeRank(b)).map((s) => (
+                    <span key={s} className="text-xs bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
+                      {t(`settings.apiKeys.scope.${s}`)}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-foreground font-medium">-</p>
+              )}
             </div>
             <div>
               <p className="text-xs text-muted-foreground mb-1">{t('apiKeyReveal.createdLabel')}</p>
