@@ -33,7 +33,7 @@ const UploadProgressBar: React.FC<UploadProgressBarProps> = ({
     <div className="mt-7">
       <div className="flex flex-col md:flex-row md:items-center md:justify-end gap-[22px] md:gap-4">
         {isUploading && transferType !== 'p2p' ? (
-          <div className="flex-1 min-h-10 md:min-h-[65px] md:flex md:items-center">
+          <div className="flex-1 min-h-10 md:min-h-[65px] md:flex md:items-center animate-in fade-in-0 slide-in-from-bottom-2 duration-300 ease-out">
             <div className="flex items-center gap-2 w-full pl-1.5">
               <div className="flex-1">
                 <div className="flex items-start justify-between gap-2">
