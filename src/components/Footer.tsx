@@ -35,7 +35,7 @@ const Footer: React.FC = () => {
   const currentLang = langOptions.find((o) => o.key === lang)!;
 
   return (
-    <footer className="bg-card dark:bg-background border-t border-border/80 py-8">
+    <footer className="bg-card dark:bg-background border-t border-border/80 py-8 mt-12">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-center items-center gap-8 mb-6">
           <a
