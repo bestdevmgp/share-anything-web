@@ -76,26 +76,29 @@ const RecentDownloads: React.FC = () => {
     if (expanded === code) setExpanded(null);
   };
 
-  const openPreviewFor = async (code: string, fileId: string, fileName: string, fileSize: number) => {
-    // PPTX uses the Office web viewer (needs a public URL), so fetch that first.
+  const openPreviewFor = async (code: string, fileId: string, fileName: string, fileSize: number, previewUrl?: string) => {
+    // PPTX uses the Office web viewer (needs a public URL). Reuse the list-supplied inline
+    // URL when present, otherwise fetch one.
     if (isPptxFile(fileName)) {
       try {
-        const { download_url } = await fileAPI.getDownloadUrl(code, fileId, undefined, true);
-        setPreviewFile({ fileName, fileSize, source: download_url, presignedUrl: download_url });
+        const url = previewUrl || (await fileAPI.getDownloadUrl(code, fileId, undefined, true)).download_url;
+        setPreviewFile({ fileName, fileSize, source: url, presignedUrl: url });
       } catch {
         navigate(`/download/${code}`);
       }
       return;
     }
-    // Everything else: open the modal immediately; it fetches the file through the proxy
-    // itself and shows a spinner while loading (no blank delay before it appears).
-    setPreviewFile({ fileName, fileSize, code, fileId });
+    // Everything else: open the modal immediately. Pass the list-supplied inline URL as
+    // `source` (no per-click round-trip) when available; keep code+fileId so the modal can
+    // refetch a fresh URL if a pre-supplied one expired.
+    setPreviewFile({ fileName, fileSize, code, fileId, source: previewUrl || undefined });
   };
 
   const openDownloadPreview = async (d: RecentDownload) => {
     let fileId = d.firstFileId;
     let fileName = d.fileNames[0] || 'file';
     let fileSize = d.totalSize;
+    let previewUrl: string | undefined;
     if (!fileId) {
       try {
         const list = await fetchShareFileList(d.code);
@@ -107,12 +110,13 @@ const RecentDownloads: React.FC = () => {
         fileId = f.id;
         fileName = f.file_name;
         fileSize = f.file_size;
+        previewUrl = f.preview_url;
       } catch {
         navigate(`/download/${d.code}`);
         return;
       }
     }
-    openPreviewFor(d.code, fileId, fileName, fileSize);
+    openPreviewFor(d.code, fileId, fileName, fileSize, previewUrl);
   };
 
   const hasItems = downloads.length > 0;
@@ -248,11 +252,13 @@ const RecentDownloads: React.FC = () => {
                           name: f.file_name,
                           size: f.file_size as number | undefined,
                           id: f.id as string | undefined,
+                          previewUrl: f.preview_url as string | undefined,
                         }))
                       : d.fileNames.map((name) => ({
                           name,
                           size: undefined as number | undefined,
                           id: undefined as string | undefined,
+                          previewUrl: undefined as string | undefined,
                         }))
                     ).map((f, i) => {
                       const clickable = !!f.id;
@@ -271,7 +277,7 @@ const RecentDownloads: React.FC = () => {
                         <button
                           key={`${f.name}-${i}`}
                           type="button"
-                          onClick={(e) => { e.stopPropagation(); openPreviewFor(d.code, f.id!, f.name, f.size ?? 0); }}
+                          onClick={(e) => { e.stopPropagation(); openPreviewFor(d.code, f.id!, f.name, f.size ?? 0, f.previewUrl); }}
                           className="w-full flex items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2 rounded-lg can-hover:hover:bg-accent active:bg-accent transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                           aria-label={f.name}
                         >

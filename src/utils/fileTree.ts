@@ -10,6 +10,8 @@ export interface TreeFile {
   id: string;
   name: string;
   size: number;
+  // Pre-supplied inline preview URL (from the file list), if available.
+  previewUrl?: string;
 }
 
 export interface TreeFolder {
@@ -26,6 +28,7 @@ interface FileLike {
   file_name: string;
   file_size: number;
   relative_path?: string;
+  preview_url?: string;
 }
 
 // Folders before files at every level; insertion order preserved within a kind.
@@ -79,7 +82,7 @@ export function buildFileTree(files: FileLike[], emptyFolders: string[] = []): T
     const rel = sanitizeRelativePath(f.relative_path || '');
     const segs = rel ? rel.split('/') : [];
     const folder = ensureFolder(root, segs.slice(0, -1)); // last segment is the file name
-    folder.children.push({ kind: 'file', id: f.id, name: f.file_name, size: f.file_size });
+    folder.children.push({ kind: 'file', id: f.id, name: f.file_name, size: f.file_size, previewUrl: f.preview_url });
   }
   for (const ef of emptyFolders) {
     const segs = sanitizeRelativePath(ef).split('/').filter(Boolean);

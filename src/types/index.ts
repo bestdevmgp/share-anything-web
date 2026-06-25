@@ -102,6 +102,9 @@ export interface FileListItem {
   image_width?: number;
   image_height?: number;
   relative_path?: string;
+  // Short-lived presigned INLINE URL for instant preview (no per-click round-trip).
+  // Absent for password-protected / p2p shares — fall back to code+fileId then.
+  preview_url?: string;
 }
 
 export interface FileListResponse {

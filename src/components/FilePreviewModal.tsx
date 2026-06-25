@@ -79,6 +79,10 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
   const [pdfPageSize, setPdfPageSize] = useState<{ width: number; height: number } | null>(null);
   const [pageRendered, setPageRendered] = useState(false);
   const [mediaImgLoaded, setMediaImgLoaded] = useState(false);
+  // Guards the one-shot fallback: if a pre-supplied preview URL fails to load (e.g. it
+  // expired), refetch a fresh one via code+fileId exactly once per file.
+  const triedRefetchRef = useRef(false);
+  useEffect(() => { triedRefetchRef.current = false; }, [source, code, fileId, fileName]);
 
   useEffect(() => {
     let objectUrl: string | null = null;
@@ -88,13 +92,14 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
       setLoading(true);
       setMediaImgLoaded(false);
       try {
-        // Resolve the source. When given a code+fileId, resolve to the raw-file INLINE
-        // URL (not a downloaded blob): react-pdf streams it page-by-page and other types
-        // fetch it directly. This is fast (no full pre-download) and renders the ORIGINAL
-        // bytes — loading a PDF from a proxied blob/object URL made some PDFs render black.
-        // The caller still opens the modal instantly; this resolve is a quick API call.
+        // Resolve the source. Prefer a ready `source` (e.g. an inline preview URL the file
+        // list already supplied) so there's NO per-open round-trip. Only when we have no
+        // source do we mint one from code+fileId. Either way it resolves to the raw-file
+        // INLINE URL (not a downloaded blob): react-pdf streams it page-by-page and other
+        // types load it directly — fast, and renders the ORIGINAL bytes (loading a PDF from
+        // a proxied blob/object URL made some PDFs render black).
         let src: File | string = (source ?? '') as File | string;
-        if (code && fileId) {
+        if (!src && code && fileId) {
           const { download_url } = await fileAPI.getDownloadUrl(code, fileId, password, true);
           if (cancelled) return;
           src = download_url;
@@ -106,14 +111,13 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
         } else if (isVideoFile(fileName) || isAudioFile(fileName)) {
           if (src instanceof File) {
             objectUrl = URL.createObjectURL(src);
-          } else if (typeof src === 'string' && src.startsWith('blob:')) {
-            objectUrl = src;
-          } else {
-            const res = await fetch(src as string);
-            const blob = await res.blob();
-            objectUrl = URL.createObjectURL(blob);
+            if (!cancelled) setMediaUrl(objectUrl);
+          } else if (!cancelled) {
+            // Hand the URL straight to <video>/<audio> so the browser streams it via range
+            // requests — playback starts almost instantly instead of waiting for the whole
+            // file to download into a blob first.
+            setMediaUrl(src as string);
           }
-          if (!cancelled) setMediaUrl(objectUrl);
         } else if (isPdfFile(fileName)) {
           if (src instanceof File) {
             if (!cancelled) setPdfSource(src);
@@ -224,6 +228,29 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
     };
   }, [source, fileName, code, fileId, password]);
 
+  // Fallback for an expired/failed pre-supplied preview URL: mint a fresh inline URL via
+  // code+fileId, at most once per file. Returns null when there's nothing to retry with.
+  const refetchFreshUrl = useCallback(async (): Promise<string | null> => {
+    if (triedRefetchRef.current || !code || !fileId) return null;
+    triedRefetchRef.current = true;
+    try {
+      const { download_url } = await fileAPI.getDownloadUrl(code, fileId, password, true);
+      return download_url;
+    } catch {
+      return null;
+    }
+  }, [code, fileId, password]);
+
+  const handleMediaError = useCallback(async () => {
+    const fresh = await refetchFreshUrl();
+    if (fresh) {
+      setMediaImgLoaded(false);
+      setMediaUrl(fresh);
+    } else {
+      setMediaImgLoaded(true);
+    }
+  }, [refetchFreshUrl]);
+
   const onDocumentLoadSuccess = useCallback(({ numPages }: { numPages: number }) => {
     setNumPages(numPages);
   }, []);
@@ -300,7 +327,7 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
             alt={fileName}
             draggable={false}
             onLoad={() => setMediaImgLoaded(true)}
-            onError={() => setMediaImgLoaded(true)}
+            onError={handleMediaError}
             className={`max-w-full max-h-[calc(100vh-10rem)] object-contain rounded pointer-events-none${mediaImgLoaded ? '' : ' hidden'}`}
           />
         </>
@@ -308,11 +335,11 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
     }
 
     if (isVideoFile(fileName) && mediaUrl) {
-      return <video src={mediaUrl} controls autoPlay playsInline controlsList="nodownload" className="max-w-full max-h-[calc(100vh-10rem)] rounded" onContextMenu={e => e.preventDefault()} />;
+      return <video src={mediaUrl} controls autoPlay playsInline controlsList="nodownload" className="max-w-full max-h-[calc(100vh-10rem)] rounded" onContextMenu={e => e.preventDefault()} onError={handleMediaError} />;
     }
 
     if (isAudioFile(fileName) && mediaUrl) {
-      return <audio src={mediaUrl} controls className="w-full" />;
+      return <audio src={mediaUrl} controls className="w-full" onError={handleMediaError} />;
     }
 
     if (isPdfFile(fileName) && pdfSource) {
@@ -322,6 +349,10 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
           <Document
             file={pdfSource}
             onLoadSuccess={onDocumentLoadSuccess}
+            onLoadError={async () => {
+              const fresh = await refetchFreshUrl();
+              if (fresh) setPdfSource({ url: fresh });
+            }}
             loading={
               <div className="py-16 text-muted-foreground text-sm">{t('preview.loading')}</div>
             }

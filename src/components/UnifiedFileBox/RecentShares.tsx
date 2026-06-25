@@ -89,26 +89,29 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
     fileId: string,
     fileName: string,
     fileSize: number,
-    hasPassword?: boolean
+    hasPassword?: boolean,
+    previewUrl?: string
   ) => {
     if (hasPassword) {
       navigate(`/download/${code}`);
       return;
     }
-    // PPTX uses the Office web viewer (needs a public URL), so fetch that first.
+    // PPTX uses the Office web viewer (needs a public URL). Reuse the list-supplied inline
+    // URL when present, otherwise fetch one.
     if (isPptxFile(fileName)) {
       try {
-        const { download_url } = await fileAPI.getDownloadUrl(code, fileId, undefined, true);
-        setPreviewFile({ fileName, fileSize, source: download_url, presignedUrl: download_url });
+        const url = previewUrl || (await fileAPI.getDownloadUrl(code, fileId, undefined, true)).download_url;
+        setPreviewFile({ fileName, fileSize, source: url, presignedUrl: url });
       } catch {
         navigate(`/download/${code}`);
       }
       return;
     }
-    // Everything else: open the modal IMMEDIATELY with the code+fileId — the modal fetches
-    // the real file through the proxy itself and shows a spinner while loading, so there's
-    // no blank delay before it appears.
-    setPreviewFile({ fileName, fileSize, code, fileId });
+    // Everything else: open the modal IMMEDIATELY. When the file list already supplied an
+    // inline preview URL, pass it as `source` so there's no per-click round-trip; otherwise
+    // keep code+fileId and let the modal mint one. code+fileId are kept either way so the
+    // modal can refetch a fresh URL if a pre-supplied one expired.
+    setPreviewFile({ fileName, fileSize, code, fileId, source: previewUrl || undefined });
   };
 
   const openSharePreview = async (s: MergedShare) => {
@@ -119,6 +122,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
     let fileId = s.firstFileId;
     let fileName = s.fileNames[0] || 'file';
     let fileSize = s.totalSize;
+    let previewUrl: string | undefined;
     if (!fileId) {
       try {
         const list = await fetchShareFileList(s.code);
@@ -130,12 +134,13 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
         fileId = f.id;
         fileName = f.file_name;
         fileSize = f.file_size;
+        previewUrl = f.preview_url;
       } catch {
         navigate(`/download/${s.code}`);
         return;
       }
     }
-    openPreviewFor(s.code, fileId, fileName, fileSize, s.hasPassword);
+    openPreviewFor(s.code, fileId, fileName, fileSize, s.hasPassword, previewUrl);
   };
 
   const visibleItems = items.filter((i) => new Date(i.expiresAt).getTime() > Date.now());
@@ -289,6 +294,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                                 file_name: f.file_name,
                                 file_size: f.file_size,
                                 relative_path: f.relative_path,
+                                preview_url: f.preview_url,
                               })),
                               bundleEmptyFolders[s.code] ?? []
                             )}
@@ -301,7 +307,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                               return (
                                 <div
                                   data-row
-                                  onClick={clickable ? (e) => { e.stopPropagation(); openPreviewFor(s.code, file.id, file.name, file.size, s.hasPassword); } : undefined}
+                                  onClick={clickable ? (e) => { e.stopPropagation(); openPreviewFor(s.code, file.id, file.name, file.size, s.hasPassword, file.previewUrl); } : undefined}
                                   className={cn(
                                     'flex items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2 rounded-lg transition-colors',
                                     clickable && 'cursor-pointer can-hover:hover:bg-accent active:bg-accent'
