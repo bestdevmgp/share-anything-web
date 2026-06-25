@@ -224,6 +224,8 @@ const SettingsPage: React.FC = () => {
 
   const [selectedApplication, setSelectedApplication] = useState<ApiKeyApplicationResponse | null>(null);
   const [revokingKeyId, setRevokingKeyId] = useState<string | null>(null);
+  const [revokingTokenId, setRevokingTokenId] = useState<string | null>(null);
+  const [revokingAllTokens, setRevokingAllTokens] = useState(false);
 
   const [editName, setEditName] = useState('');
   const [savingName, setSavingName] = useState(false);
@@ -477,18 +479,22 @@ const SettingsPage: React.FC = () => {
   };
 
   const handleRevokePersonalToken = async (tokenId: string) => {
+    setRevokingTokenId(tokenId);
     try {
       await personalTokenAPI.revoke(tokenId);
       setPersonalTokens(personalTokens.filter(t => t.id !== tokenId));
       toast.success(t('settings.personalTokenRevoked'));
     } catch {
       toast.error(t('settings.personalTokenRevokeFailed'));
+    } finally {
+      setRevokingTokenId(null);
     }
   };
 
   const handleRevokeAllPersonalTokens = async () => {
     if (personalTokens.length === 0) return;
     if (!window.confirm(t('settings.revokeAllPersonalTokensConfirm'))) return;
+    setRevokingAllTokens(true);
     try {
       await Promise.all(personalTokens.map((tk) => personalTokenAPI.revoke(tk.id)));
       setPersonalTokens([]);
@@ -501,6 +507,8 @@ const SettingsPage: React.FC = () => {
       } catch {
         // ignore refresh failure
       }
+    } finally {
+      setRevokingAllTokens(false);
     }
   };
 
@@ -1260,7 +1268,7 @@ const SettingsPage: React.FC = () => {
                               <span className={terminatingJti === session.jti ? 'invisible' : ''}>
                                 {t('settings.terminateSession')}
                               </span>
-                              {terminatingJti === session.jti && <Spinner size="sm" className="absolute" />}
+                              {terminatingJti === session.jti && <Spinner size="sm" className="text-red-600 dark:text-red-400 absolute" />}
                             </Button>
                           )}
                         </div>
@@ -1339,7 +1347,7 @@ const SettingsPage: React.FC = () => {
                       className="relative text-red-600 dark:text-red-400 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 flex-shrink-0"
                     >
                       <span className={deletingAllTrusted ? 'invisible' : ''}>{t('settings.deleteAllTrustedDevices')}</span>
-                      {deletingAllTrusted && <Spinner size="sm" className="absolute" />}
+                      {deletingAllTrusted && <Spinner size="sm" className="text-red-600 dark:text-red-400 absolute" />}
                     </Button>
                   )}
                 </div>
@@ -1402,7 +1410,7 @@ const SettingsPage: React.FC = () => {
                           <span className={deletingTrustedId === device.id ? 'invisible' : ''}>
                             {t('settings.deleteTrustedDevice')}
                           </span>
-                          {deletingTrustedId === device.id && <Spinner size="sm" className="absolute" />}
+                          {deletingTrustedId === device.id && <Spinner size="sm" className="text-red-600 dark:text-red-400 absolute" />}
                         </Button>
                       </div>
                     </div>
@@ -1477,9 +1485,11 @@ const SettingsPage: React.FC = () => {
                     variant="ghost"
                     size="sm"
                     onClick={handleRevokeAllPersonalTokens}
-                    className="text-red-600 dark:text-red-400 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 flex-shrink-0"
+                    disabled={revokingAllTokens}
+                    className="relative text-red-600 dark:text-red-400 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 flex-shrink-0"
                   >
-                    {t('settings.revokeAllPersonalTokens')}
+                    <span className={revokingAllTokens ? 'invisible' : ''}>{t('settings.revokeAllPersonalTokens')}</span>
+                    {revokingAllTokens && <Spinner size="sm" className="text-red-600 dark:text-red-400 absolute" />}
                   </Button>
                 </div>
               )}
@@ -1491,7 +1501,7 @@ const SettingsPage: React.FC = () => {
                     ))}
                   </div>
                 ) : personalTokens.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className="text-center py-8 text-muted-foreground border border-border rounded-lg">
                     <KeyIcon className="w-8 h-8 mx-auto mb-3 opacity-50" />
                     <p className="text-sm">{t('settings.noPersonalTokens')}</p>
                   </div>
@@ -1522,9 +1532,11 @@ const SettingsPage: React.FC = () => {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleRevokePersonalToken(token.id)}
-                        className="text-red-600 dark:text-red-400 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 flex-shrink-0"
+                        disabled={revokingTokenId === token.id}
+                        className="relative text-red-600 dark:text-red-400 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15 flex-shrink-0"
                       >
-                        {t('settings.revokePersonalToken')}
+                        <span className={revokingTokenId === token.id ? 'invisible' : ''}>{t('settings.revokePersonalToken')}</span>
+                        {revokingTokenId === token.id && <Spinner size="sm" className="text-red-600 dark:text-red-400 absolute" />}
                       </Button>
                       </div>
                     </div>
@@ -1723,9 +1735,10 @@ const SettingsPage: React.FC = () => {
                                   }
                                 }}
                                 disabled={revokingKeyId === key.id}
-                                className="text-red-600 dark:text-red-400 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15"
+                                className="relative text-red-600 dark:text-red-400 can-hover:hover:text-red-600 dark:can-hover:hover:text-red-400 can-hover:hover:bg-red-100/50 dark:can-hover:hover:bg-red-500/15"
                               >
-                                {t('settings.apiKeys.revoke.button')}
+                                <span className={revokingKeyId === key.id ? 'invisible' : ''}>{t('settings.apiKeys.revoke.button')}</span>
+                                {revokingKeyId === key.id && <Spinner size="sm" className="text-red-600 dark:text-red-400 absolute" />}
                               </Button>
                             </div>
                           </div>
