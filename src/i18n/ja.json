@@ -577,7 +577,7 @@
     "uploadComplete": "アップロード完了",
     "fileCountSummary": "{{count}}個のファイル · {{duration}}後に期限切れ",
     "confirmButton": "完了",
-    "normalDescription": "共有リンクでファイルをすばやく送信できます。",
+    "normalDescription": "ファイルをアップロードしてすばやく共有できます。",
     "secureDescription": "受信者と直接接続して安全に送れます。ファイルはサーバーに保存されません。",
     "qrAndDetails": "QR · 詳細",
     "recentTitle": "最近の共有",

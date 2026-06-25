@@ -577,7 +577,7 @@
     "uploadComplete": "上传完成",
     "fileCountSummary": "{{count}}个文件 · {{duration}}后过期",
     "confirmButton": "完成",
-    "normalDescription": "通过共享链接快速发送文件。",
+    "normalDescription": "上传文件即可快速分享。",
     "secureDescription": "与接收方直接连接安全发送。文件不会存储在服务器上。",
     "qrAndDetails": "二维码 · 详情",
     "recentTitle": "最近的分享",
