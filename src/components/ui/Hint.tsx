@@ -13,5 +13,3 @@ export const Hint: React.FC<Props> = ({ label, side = 'top', children }) => (
     <TooltipContent side={side}>{label}</TooltipContent>
   </Tooltip>
 );
-
-export default Hint;
