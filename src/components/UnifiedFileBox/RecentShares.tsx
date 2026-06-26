@@ -10,7 +10,7 @@ import { fetchShareFileList, getCachedFileList } from './shareFileList';
 import { fileAPI } from '../../services/api';
 import { FileListItem } from '../../types';
 import { MergedShare } from '../../utils/shareMerge';
-import { formatFileSize, isPptxFile } from '../../utils/format';
+import { formatFileSize, isPptxFile, formatCompactDateTime } from '../../utils/format';
 import FileThumbnail from '../FileThumbnail';
 import FilePreviewModal from '../FilePreviewModal';
 import CopyButton from '../CopyButton';
@@ -25,17 +25,8 @@ interface Props {
   refreshKey: number;
 }
 
-const formatCompactDate = (dateStr: string): string => {
-  const date = new Date(dateStr);
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  const hours = date.getHours().toString().padStart(2, '0');
-  const mins = date.getMinutes().toString().padStart(2, '0');
-  return `${month}.${day} ${hours}:${mins}`;
-};
-
 const RecentShares: React.FC<Props> = ({ refreshKey }) => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const { items, requestDelete } = useShareList(refreshKey);
@@ -227,7 +218,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                     {formatFileSize(s.totalSize)} · {remainText}
                   </p>
                   <p className="text-xs text-muted-foreground/50 truncate mt-0.5">
-                    <span>{s.code}</span> · {formatCompactDate(s.createdAt)}
+                    <span>{s.code}</span> · {formatCompactDateTime(s.createdAt, language)}
                   </p>
                 </div>
                 <div className="flex items-center gap-0.5 flex-shrink-0">

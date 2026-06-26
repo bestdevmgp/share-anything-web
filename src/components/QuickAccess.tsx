@@ -3,7 +3,7 @@ import { useDropzone } from 'react-dropzone';
 import { useAuth } from '../context/AuthContext';
 import { quickAccessAPI } from '../services/api';
 import { QuickAccessFile } from '../types';
-import { formatFileSize, copyToClipboard } from '../utils/format';
+import { formatFileSize, copyToClipboard, formatCompactDateTime } from '../utils/format';
 import { PlusIcon, TrashIcon, ArrowDownTrayIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 import UploadProgressRow from './UploadProgressRow';
 import { toast } from '../context/ToastContext';
@@ -32,7 +32,7 @@ const SHARE_GRANT_TTL_MS = 30 * 60 * 1000;
 
 const QuickAccess: React.FC = () => {
   const { isAuthenticated } = useAuth();
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const navigate = useNavigate();
   const { uploadingFiles, isUploading, handleUpload, handleCancelUpload, completedCounter, clearCompleted } = useQuickAccessUpload();
 
@@ -107,15 +107,6 @@ const QuickAccess: React.FC = () => {
       return t('quickAccess.hoursRemaining', { hours });
     }
     return t('quickAccess.minutesRemaining', { minutes: Math.max(1, minutes) });
-  };
-
-  const formatCompactDate = (dateStr: string): string => {
-    const date = new Date(dateStr);
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const mins = date.getMinutes().toString().padStart(2, '0');
-    return `${month}.${day} ${hours}:${mins}`;
   };
 
   useEffect(() => {
@@ -370,7 +361,7 @@ const QuickAccess: React.FC = () => {
                       {formatFileSize(file.file_size)} · {getRemainingTime(file.expires_at)}
                     </p>
                     <p className="text-xs text-muted-foreground/50 truncate mt-0.5">
-                      {formatCompactDate(file.created_at)}
+                      {formatCompactDateTime(file.created_at, language)}
                       {file.uploaded_from && <> · {t('quickAccess.uploadedFrom', { device: file.uploaded_from })}</>}
                     </p>
                   </div>

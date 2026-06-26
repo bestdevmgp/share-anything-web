@@ -35,6 +35,16 @@ export const formatDateTime = (dateString: string, language: Language = 'ko'): s
   return translate(language, 'format.dateTime', { year, month, day, hours, minutes, seconds });
 };
 
+export const formatCompactDateTime = (dateString: string, language: Language = 'ko'): string => {
+  return new Intl.DateTimeFormat(language, {
+    month: 'numeric',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(new Date(dateString));
+};
+
 export const formatDateOnly = (dateString: string, language: Language = 'ko'): string => {
   const date = new Date(dateString);
 

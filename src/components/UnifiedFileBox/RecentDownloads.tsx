@@ -9,7 +9,7 @@ import { fileAPI } from '../../services/api';
 import { FileListItem } from '../../types';
 import { listDownloads, removeDownload, RecentDownload } from '../../utils/recentDownloads';
 import { MergedShare } from '../../utils/shareMerge';
-import { formatFileSize, isPptxFile } from '../../utils/format';
+import { formatFileSize, isPptxFile, formatCompactDateTime } from '../../utils/format';
 import FileThumbnail from '../FileThumbnail';
 import FilePreviewModal from '../FilePreviewModal';
 import TruncatedFilename from '../TruncatedFilename';
@@ -17,17 +17,8 @@ import CopyButton from '../CopyButton';
 import { Hint } from '../ui/Hint';
 import { cn } from '../../lib/utils';
 
-const formatCompactDate = (dateStr: string): string => {
-  const date = new Date(dateStr);
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  const hours = date.getHours().toString().padStart(2, '0');
-  const mins = date.getMinutes().toString().padStart(2, '0');
-  return `${month}.${day} ${hours}:${mins}`;
-};
-
 const RecentDownloads: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const navigate = useNavigate();
   const [downloads, setDownloads] = useState<RecentDownload[]>(() => listDownloads());
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -194,7 +185,7 @@ const RecentDownloads: React.FC = () => {
                     {formatFileSize(d.totalSize)} · {remainText}
                   </p>
                   <p className="text-xs text-muted-foreground/50 truncate mt-0.5">
-                    <span>{d.code}</span> · {formatCompactDate(d.downloadedAt)}
+                    <span>{d.code}</span> · {formatCompactDateTime(d.downloadedAt, language)}
                   </p>
                 </div>
                 <div className="flex items-center gap-0.5 flex-shrink-0">
