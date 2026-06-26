@@ -57,6 +57,7 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
   t,
   language,
 }) => {
+  const p2pActive = p2pStatus === 'downloading' || p2pStatus === 'connecting' || p2pStatus === 'processing';
   return (
     <div className="flex items-center justify-center px-4 pt-12 pb-20">
       <div className="max-w-2xl w-full">
@@ -183,7 +184,7 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
 
           <div className="mt-6">
             {isP2PDownload ? (
-              p2pStatus === 'downloading' || p2pStatus === 'connecting' || p2pStatus === 'processing' ? null : p2pStatus === 'completed' ? (
+              p2pStatus === 'completed' ? (
                 <div className="flex flex-col items-center gap-3">
                   <div className="text-center text-green-600 font-semibold">
                     ✓ {t('download.receiveCompleteMark')}
@@ -200,19 +201,31 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
                 <div className="flex gap-2">
                   <Button
                     onClick={() => setP2pEnabled(true)}
+                    disabled={p2pActive}
                     size="lg"
                     className="flex-1"
                   >
                     <span>{t('download.startDownload')}</span>
                   </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate('/')}
-                    size="lg"
-                    className="flex-1"
-                  >
-                    {t('common.back')}
-                  </Button>
+                  {p2pActive ? (
+                    <Button
+                      variant="outline"
+                      disabled
+                      size="lg"
+                      className="flex-1"
+                    >
+                      {t('common.done')}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      onClick={() => navigate('/')}
+                      size="lg"
+                      className="flex-1"
+                    >
+                      {t('common.back')}
+                    </Button>
+                  )}
                 </div>
               )
             ) : downloading ? (

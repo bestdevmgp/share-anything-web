@@ -454,29 +454,21 @@ const BoxDownloadView: React.FC<Props> = ({
             <Button onClick={() => { closeP2PSession(); onReset(); }} size="lg" className="w-full">
               {t('common.done')}
             </Button>
-          ) : active ? (
-            <Button
-              onClick={handleCancelP2PDownload}
-              disabled={p2pStatus === 'processing'}
-              variant="secondary"
-              size="lg"
-              className="w-full"
-            >
-              {t('download.cancelReceive')}
-            </Button>
           ) : (
             <div className="flex gap-2">
               <Button
                 onClick={() => (files.length > 1 ? startBulkP2PDownload() : startP2PDownload(files[0].id))}
+                disabled={active}
                 size="lg"
                 className="flex-1"
               >
                 <span>{files.length > 1 ? t('download.downloadAll') : t('download.downloadFile')}</span>
               </Button>
-              {p2pCompletedFileIds.size > 0 ? (
+              {active || p2pCompletedFileIds.size > 0 ? (
                 <Button
                   variant="outline"
                   onClick={() => { closeP2PSession(); onReset(); }}
+                  disabled={active}
                   size="lg"
                   className="flex-1"
                 >

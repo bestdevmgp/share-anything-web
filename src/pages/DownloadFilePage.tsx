@@ -982,10 +982,11 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                   >
                     {t('download.downloadAll') || '전체 다운로드'}
                   </Button>
-                  {p2pCompletedFileIds.size > 0 ? (
+                  {anyP2PDownloading || p2pCompletedFileIds.size > 0 ? (
                     <Button
                       variant="outline"
                       onClick={() => { closeP2PSession(); navigate('/'); }}
+                      disabled={!!anyP2PDownloading}
                       className="w-full"
                     >
                       {t('common.done')}
