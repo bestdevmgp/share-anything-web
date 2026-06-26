@@ -954,9 +954,9 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                             disabled={bulkP2PDownloading || Boolean(anyP2PDownloading)}
                             size="icon"
                             aria-label={t('common.download')}
-                            className="flex-shrink-0 ml-2"
+                            className="flex-shrink-0 ml-2 md:h-8 md:w-8"
                           >
-                            <ArrowDownTrayIcon />
+                            <ArrowDownTrayIcon strokeWidth={2} />
                           </Button>
                         </Hint>
                       )}
