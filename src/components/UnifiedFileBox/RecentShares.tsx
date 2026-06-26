@@ -10,7 +10,7 @@ import { fetchShareFileList, getCachedFileList } from './shareFileList';
 import { fileAPI } from '../../services/api';
 import { FileListItem } from '../../types';
 import { MergedShare } from '../../utils/shareMerge';
-import { formatFileSize, isPptxFile, formatCompactDateTime } from '../../utils/format';
+import { formatFileSize, isPptxFile, formatCompactDateTime, copyToClipboard } from '../../utils/format';
 import FileThumbnail from '../FileThumbnail';
 import FilePreviewModal from '../FilePreviewModal';
 import CopyButton from '../CopyButton';
@@ -140,6 +140,12 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
     return { text: t('unifiedBox.remainingMinutes', { minutes }), expired: false };
   };
 
+  const copyCode = async (code: string) => {
+    if (await copyToClipboard(code)) {
+      toast.success(t('unifiedBox.codeCopied'));
+    }
+  };
+
   return (
     <>
     <div
@@ -218,7 +224,15 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                     {formatFileSize(s.totalSize)} · {remainText}
                   </p>
                   <p className="text-xs text-muted-foreground/50 truncate mt-0.5">
-                    <span>{s.code}</span> · {formatCompactDateTime(s.createdAt, language)}
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      onClick={(e) => { e.stopPropagation(); copyCode(s.code); }}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); copyCode(s.code); } }}
+                      className="cursor-pointer underline-offset-2 transition-colors can-hover:hover:text-foreground can-hover:hover:underline"
+                    >
+                      {s.code}
+                    </span> · {formatCompactDateTime(s.createdAt, language)}
                   </p>
                 </div>
                 <div className="flex items-center gap-0.5 flex-shrink-0">

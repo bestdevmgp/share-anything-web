@@ -594,6 +594,7 @@
     "retry": "重试",
     "partialFailure": "{{count}}个文件上传失败",
     "expiredCodeToast": "此代码已过期",
+    "codeCopied": "已复制分享代码",
     "sessionTokenFailed": "安全验证失败,请刷新页面",
     "transferNormal": "普通传输",
     "transferSecure": "安全传输",

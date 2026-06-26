@@ -598,6 +598,7 @@
     "retry": "Retry",
     "partialFailure": "{{count}} file(s) failed to upload",
     "expiredCodeToast": "This code has expired",
+    "codeCopied": "Share code copied",
     "sessionTokenFailed": "Security check failed. Please refresh.",
     "transferNormal": "Normal transfer",
     "transferSecure": "Secure transfer",

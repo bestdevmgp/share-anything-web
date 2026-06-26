@@ -594,6 +594,7 @@
     "retry": "重試",
     "partialFailure": "{{count}}個檔案上傳失敗",
     "expiredCodeToast": "此代碼已過期",
+    "codeCopied": "已複製分享代碼",
     "sessionTokenFailed": "安全驗證失敗,請重新整理",
     "transferNormal": "一般傳輸",
     "transferSecure": "安全傳輸",

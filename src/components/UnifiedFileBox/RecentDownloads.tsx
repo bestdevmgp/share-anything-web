@@ -9,7 +9,7 @@ import { fileAPI } from '../../services/api';
 import { FileListItem } from '../../types';
 import { listDownloads, removeDownload, RecentDownload } from '../../utils/recentDownloads';
 import { MergedShare } from '../../utils/shareMerge';
-import { formatFileSize, isPptxFile, formatCompactDateTime } from '../../utils/format';
+import { formatFileSize, isPptxFile, formatCompactDateTime, copyToClipboard } from '../../utils/format';
 import FileThumbnail from '../FileThumbnail';
 import FilePreviewModal from '../FilePreviewModal';
 import TruncatedFilename from '../TruncatedFilename';
@@ -116,6 +116,12 @@ const RecentDownloads: React.FC = () => {
     return { text: t('unifiedBox.remainingMinutes', { minutes }), expired: false };
   };
 
+  const copyCode = async (code: string) => {
+    if (await copyToClipboard(code)) {
+      toast.success(t('unifiedBox.codeCopied'));
+    }
+  };
+
   return (
     <>
     <div
@@ -185,7 +191,15 @@ const RecentDownloads: React.FC = () => {
                     {formatFileSize(d.totalSize)} · {remainText}
                   </p>
                   <p className="text-xs text-muted-foreground/50 truncate mt-0.5">
-                    <span>{d.code}</span> · {formatCompactDateTime(d.downloadedAt, language)}
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      onClick={(e) => { e.stopPropagation(); copyCode(d.code); }}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); copyCode(d.code); } }}
+                      className="cursor-pointer underline-offset-2 transition-colors can-hover:hover:text-foreground can-hover:hover:underline"
+                    >
+                      {d.code}
+                    </span> · {formatCompactDateTime(d.downloadedAt, language)}
                   </p>
                 </div>
                 <div className="flex items-center gap-0.5 flex-shrink-0">

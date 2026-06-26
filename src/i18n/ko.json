@@ -598,6 +598,7 @@
     "retry": "재시도",
     "partialFailure": "{{count}}개 파일 업로드 실패",
     "expiredCodeToast": "만료된 코드예요",
+    "codeCopied": "공유 코드가 복사되었어요",
     "sessionTokenFailed": "보안 검증에 실패했어요. 새로고침해 주세요",
     "transferNormal": "일반 전송",
     "transferSecure": "보안 전송",

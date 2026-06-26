@@ -594,6 +594,7 @@
     "retry": "再試行",
     "partialFailure": "{{count}}個のファイルがアップロードに失敗",
     "expiredCodeToast": "このコードは期限切れです",
+    "codeCopied": "共有コードをコピーしました",
     "sessionTokenFailed": "セキュリティ確認に失敗しました。再読み込みしてください。",
     "transferNormal": "通常転送",
     "transferSecure": "セキュア転送",
