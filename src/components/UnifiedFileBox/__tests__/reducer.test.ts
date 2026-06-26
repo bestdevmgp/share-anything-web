@@ -86,6 +86,16 @@ describe('UnifiedFileBox reducer', () => {
     const after = reducer(before, { type: 'close' });
     expect(after.state).toBe('idleUpload');
     expect(after.files).toEqual([]);
+    expect(after.lastResult).toBeNull();
+    expect(after.uploadFailures).toEqual([]);
+  });
+
+  it('close then switching tabs away and back does not restore the success view', () => {
+    const success: State = { ...initialState, state: 'success', lastResult: mkResult() };
+    const closed = reducer(success, { type: 'close' });
+    const toDownload = reducer(closed, { type: 'switchMode', mode: 'download' });
+    const backToUpload = reducer(toDownload, { type: 'switchMode', mode: 'upload' });
+    expect(backToUpload.state).toBe('idleUpload');
   });
 
   it('dropNormal in success state → uploading (replaces)', () => {

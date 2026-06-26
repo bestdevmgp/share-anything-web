@@ -93,7 +93,7 @@ export const reducer = (s: State, a: Action): State => {
     case 'failAll':
       return { ...s, state: 'idleUpload', files: [], uploadFailures: [] };
     case 'close':
-      return { ...s, state: 'idleUpload', files: [] };
+      return { ...s, state: 'idleUpload', files: [], lastResult: null, uploadFailures: [] };
     case 'switchMode':
       if (isUploadActive(s.state)) return s;
       if (a.mode === 'download') {
