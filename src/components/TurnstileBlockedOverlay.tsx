@@ -50,7 +50,7 @@ const TurnstileBlockedOverlay: React.FC<Props> = ({ onRetry, children, closing =
             <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center px-3">
               <p
                 className={cn(
-                  'max-w-[18rem] text-center text-sm font-medium leading-snug text-destructive transition-opacity duration-300',
+                  'max-w-[18rem] text-center text-xs font-medium leading-snug text-destructive transition-opacity duration-300',
                   showFallback ? 'opacity-100' : 'opacity-0'
                 )}
               >
