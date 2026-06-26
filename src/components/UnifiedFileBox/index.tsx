@@ -5,6 +5,7 @@ import { useMultipartUpload, UploadProgressEvent } from '../../hooks/useMultipar
 import { useP2PUploader } from '../../hooks/useP2PUploader';
 import { pushSession } from '../../utils/recentSessions';
 import { getRelativePathSafe, fileKey } from '../../utils/fileWithPath';
+import { consumeEmptyFolders } from '../../utils/dropzoneFiles';
 import { useUnifiedFileBoxState } from './useUnifiedFileBoxState';
 import ModeHeader from './ModeHeader';
 import IdleUpload from './IdleUpload';
@@ -137,7 +138,7 @@ const UnifiedFileBox: React.FC = () => {
   );
 
   const createP2PSession = useCallback(
-    async (files: File[]) => {
+    async (files: File[], emptyFolders: string[]) => {
       try {
         const fileInfo = files.map((f) => ({
           name: f.name,
@@ -145,7 +146,7 @@ const UnifiedFileBox: React.FC = () => {
           type: f.type || 'application/octet-stream',
           relative_path: getRelativePathSafe(f),
         }));
-        const res = await fileAPI.createP2PSession(fileInfo);
+        const res = await fileAPI.createP2PSession(fileInfo, undefined, emptyFolders);
         const expiresAt =
           res.files[0]?.expires_at ||
           new Date(Date.now() + 30 * 60_000).toISOString();
@@ -176,8 +177,9 @@ const UnifiedFileBox: React.FC = () => {
     (files: File[]) => {
       if (files.length === 0) return;
       handleRef.current?.abort();
+      const emptyFolders = consumeEmptyFolders();
       dispatch({ type: 'dropSecure', files });
-      createP2PSession(files);
+      createP2PSession(files, emptyFolders);
     },
     [dispatch, createP2PSession]
   );

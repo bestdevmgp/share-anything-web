@@ -102,6 +102,13 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   const bulkTotalRef = useRef<number>(0);
   const bulkBlobsRef = useRef<{ entryName: string; blob: Blob }[]>([]);
   const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Current bulk job: 'zip' accumulates blobs into one named zip (folder / download-all);
+  // 'individual' saves each file flat (loose files / all-flat download-all).
+  const bulkJobRef = useRef<{ mode: 'zip' | 'individual'; zipName: string; emptyFolders: string[] }>({
+    mode: 'individual',
+    zipName: '',
+    emptyFolders: [],
+  });
 
   const recordDownloadRef = useRef<() => void>(() => {});
   recordDownloadRef.current = () => {
@@ -120,10 +127,8 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   const handleP2PDownloadComplete = useCallback((blob: Blob, fileName: string) => {
     const completedId = p2pActiveFileId || '';
     const completedFile = fileList?.files.find((f) => f.id === completedId);
-    const zipMode =
-      bulkP2PDownloading &&
-      ((fileList?.files ?? []).some((f) => (f.relative_path || '').includes('/')) ||
-        (fileList?.empty_folders?.length ?? 0) > 0);
+    const job = bulkJobRef.current;
+    const zipMode = bulkP2PDownloading && job.mode === 'zip';
 
     if (zipMode) {
       bulkBlobsRef.current.push({
@@ -153,7 +158,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         if (zipMode) {
           const collected = bulkBlobsRef.current;
           bulkBlobsRef.current = [];
-          createZipFromBlobs(collected, `share-${code}.zip`, fileList?.empty_folders)
+          createZipFromBlobs(collected, job.zipName, job.emptyFolders)
             .then(() => toast.success(t('download.zipDownloadComplete')))
             .catch(() => toast.error(t('download.downloadFailed')));
         } else {
@@ -253,6 +258,14 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     if (!fileList) return;
     const ids = fileList.files.filter(f => !p2pCompletedFileIds.has(f.id)).map(f => f.id);
     if (ids.length === 0) return;
+    const hasFolders =
+      fileList.files.some(f => (f.relative_path || '').includes('/')) ||
+      (fileList.empty_folders?.length ?? 0) > 0;
+    bulkJobRef.current = {
+      mode: hasFolders ? 'zip' : 'individual',
+      zipName: `share-${code}.zip`,
+      emptyFolders: fileList.empty_folders ?? [],
+    };
     bulkQueueRef.current = [...ids];
     bulkTotalRef.current = ids.length;
     bulkBlobsRef.current = [];
@@ -260,7 +273,39 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     setBulkP2PDownloading(true);
     setP2pActiveFileId(ids[0]);
     setP2pEnabled(true);
-  }, [fileList, p2pCompletedFileIds]);
+  }, [fileList, p2pCompletedFileIds, code]);
+
+  // Download one top-level folder as a single structured zip (its files + its empty subfolders).
+  const downloadFolderAsZip = useCallback((folderPath: string) => {
+    if (!fileList) return;
+    const prefix = folderPath + '/';
+    const ids = fileList.files
+      .filter(f => (f.relative_path || '').startsWith(prefix))
+      .filter(f => !p2pCompletedFileIds.has(f.id))
+      .map(f => f.id);
+    const folderEmpties = (fileList.empty_folders ?? []).filter(
+      ef => ef === folderPath || ef.startsWith(prefix)
+    );
+    const folderName = folderPath.split('/').pop() || folderPath;
+    const zipName = `${folderName}.zip`;
+    if (ids.length === 0) {
+      // Entirely empty folder (no files): zip just its structure.
+      if (folderEmpties.length > 0) {
+        createZipFromBlobs([], zipName, folderEmpties)
+          .then(() => toast.success(t('download.zipDownloadComplete')))
+          .catch(() => toast.error(t('download.downloadFailed')));
+      }
+      return;
+    }
+    bulkJobRef.current = { mode: 'zip', zipName, emptyFolders: folderEmpties };
+    bulkQueueRef.current = [...ids];
+    bulkTotalRef.current = ids.length;
+    bulkBlobsRef.current = [];
+    setBulkRemaining(ids.length);
+    setBulkP2PDownloading(true);
+    setP2pActiveFileId(ids[0]);
+    setP2pEnabled(true);
+  }, [fileList, p2pCompletedFileIds, t]);
 
   useEffect(() => {
     if (p2pStatus === 'error' || p2pStatus === 'cancelled') {
@@ -747,6 +792,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         handleDownload={handleDownload}
         startP2PDownload={startP2PDownload}
         startBulkP2PDownload={startBulkP2PDownload}
+        downloadFolderAsZip={downloadFolderAsZip}
         handleCancelP2PDownload={handleCancelP2PDownload}
         closeP2PSession={closeP2PSession}
         onReset={onReset || (() => {})}

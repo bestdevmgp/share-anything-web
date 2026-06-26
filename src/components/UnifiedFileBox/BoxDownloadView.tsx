@@ -58,6 +58,7 @@ interface Props {
   handleDownload: (asZip: boolean) => void;
   startP2PDownload: (fileId: string) => void;
   startBulkP2PDownload: () => void;
+  downloadFolderAsZip: (folderPath: string) => void;
   handleCancelP2PDownload: () => void;
   closeP2PSession: () => void;
   onReset: () => void;
@@ -142,6 +143,7 @@ const BoxDownloadView: React.FC<Props> = ({
   handleDownload,
   startP2PDownload,
   startBulkP2PDownload,
+  downloadFolderAsZip,
   handleCancelP2PDownload,
   closeP2PSession,
   onReset,
@@ -307,7 +309,7 @@ const BoxDownloadView: React.FC<Props> = ({
       desc = t('download.checkFileBeforeDownload');
     }
 
-    const p2pRowContent = (fileId: string, fileName: string, fileSize: number) => {
+    const p2pRowContent = (fileId: string, fileName: string, fileSize: number, showDownload: boolean) => {
       const done = p2pCompletedFileIds.has(fileId);
       const isActive = p2pActiveFileId === fileId && active;
       return (
@@ -361,7 +363,7 @@ const BoxDownloadView: React.FC<Props> = ({
               </button>
             </Hint>
           ) : (
-            files.length > 1 && !done && (
+            showDownload && !done && (
               <Hint label={t('common.download')}>
                 <Button onClick={() => startP2PDownload(fileId)} disabled={active} size="icon" aria-label={t('common.download')} className="flex-shrink-0 ml-2 md:h-8 md:w-8">
                   <ArrowDownTrayIcon strokeWidth={2} />
@@ -392,7 +394,7 @@ const BoxDownloadView: React.FC<Props> = ({
                   if (node.kind === 'file') {
                     return (
                       <div key={node.id} data-row className="flex items-center px-3 py-2 bg-muted rounded-lg border border-foreground/[0.09]">
-                        {p2pRowContent(node.id, node.name, node.size)}
+                        {p2pRowContent(node.id, node.name, node.size, true)}
                       </div>
                     );
                   }
@@ -418,6 +420,17 @@ const BoxDownloadView: React.FC<Props> = ({
                             {t('upload.folderItemCount', { count: nodeFileCount(node) })} · {formatFileSize(nodeSize(node))}
                           </p>
                         </div>
+                        <Hint label={t('common.download')}>
+                          <Button
+                            onClick={(e) => { e.stopPropagation(); downloadFolderAsZip(node.path); }}
+                            disabled={active}
+                            size="icon"
+                            aria-label={t('common.download')}
+                            className="flex-shrink-0 ml-1 mr-1 md:h-8 md:w-8"
+                          >
+                            <ArrowDownTrayIcon strokeWidth={2} />
+                          </Button>
+                        </Hint>
                         <ChevronDownIcon className={cn('w-5 h-5 text-muted-foreground/60 transition-transform flex-shrink-0', isOpen && 'rotate-180')} />
                       </div>
                       <Collapsible open={isOpen}>
@@ -431,7 +444,7 @@ const BoxDownloadView: React.FC<Props> = ({
                                 t={t}
                                 renderFile={(file, depth) => (
                                   <div data-row className="flex items-center -mx-2.5 px-2.5 py-2 rounded-lg" style={{ marginLeft: `calc(-0.625rem + ${treeIndent(depth)})` }}>
-                                    {p2pRowContent(file.id, file.name, file.size)}
+                                    {p2pRowContent(file.id, file.name, file.size, false)}
                                   </div>
                                 )}
                               />
@@ -444,7 +457,7 @@ const BoxDownloadView: React.FC<Props> = ({
               ) : (
                 files.map((file) => (
                   <div key={file.id} data-row className="flex items-center px-3 py-2 bg-muted rounded-lg border border-foreground/[0.09]">
-                    {p2pRowContent(file.id, file.file_name, file.file_size)}
+                    {p2pRowContent(file.id, file.file_name, file.file_size, files.length > 1)}
                   </div>
                 ))
               )}
