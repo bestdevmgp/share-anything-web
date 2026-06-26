@@ -19,6 +19,7 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [overlayMounted, setOverlayMounted] = useState(false);
   const [overlayClosing, setOverlayClosing] = useState(false);
   const [retrying, setRetrying] = useState(false);
+  const [tabVisible, setTabVisible] = useState(!document.hidden);
   const widgetRef = useRef<TurnstileInstance>(null);
   const interactiveRef = useRef<TurnstileInstance>(null);
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -155,6 +156,12 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, [forceRefresh]);
 
   useEffect(() => {
+    const onVisibility = () => setTabVisible(!document.hidden);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => document.removeEventListener('visibilitychange', onVisibility);
+  }, []);
+
+  useEffect(() => {
     const onVisible = () => {
       if (document.visibilityState !== 'visible') return;
       if (statusRef.current === 'failed' || statusRef.current === 'minting') return;
@@ -198,29 +205,33 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   return (
     <>
-      <div
-        style={{ position: 'fixed', left: -9999, top: -9999, width: 1, height: 1, overflow: 'hidden' }}
-        aria-hidden
-      >
-        <Turnstile
-          ref={widgetRef}
-          siteKey={SITE_KEY}
-          onSuccess={onTurnstileSuccess}
-          onError={onTurnstileError}
-          onExpire={forceRefresh}
-          options={{ size: 'invisible', action: 'session' }}
-        />
-      </div>
+      {!overlayMounted && (
+        <div
+          style={{ position: 'fixed', left: -9999, top: -9999, width: 1, height: 1, overflow: 'hidden' }}
+          aria-hidden
+        >
+          <Turnstile
+            ref={widgetRef}
+            siteKey={SITE_KEY}
+            onSuccess={onTurnstileSuccess}
+            onError={onTurnstileError}
+            onExpire={forceRefresh}
+            options={{ size: 'invisible', action: 'session' }}
+          />
+        </div>
+      )}
       {children}
       {overlayMounted && (
         <TurnstileBlockedOverlay onRetry={retry} closing={overlayClosing} loading={retrying}>
-          <Turnstile
-            ref={interactiveRef}
-            siteKey={SITE_KEY}
-            onSuccess={onTurnstileSuccess}
-            onError={onInteractiveError}
-            options={{ size: 'flexible', action: 'session' }}
-          />
+          {tabVisible ? (
+            <Turnstile
+              ref={interactiveRef}
+              siteKey={SITE_KEY}
+              onSuccess={onTurnstileSuccess}
+              onError={onInteractiveError}
+              options={{ size: 'flexible', action: 'session' }}
+            />
+          ) : null}
         </TurnstileBlockedOverlay>
       )}
     </>
