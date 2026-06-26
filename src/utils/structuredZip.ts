@@ -167,6 +167,88 @@ async function streamToDisk(
   }
 }
 
+/**
+ * Stream a ZIP straight to disk (File System Access), pulling each file from the
+ * caller's async iterable ONE AT A TIME. `makeZip` fully writes a file's bytes to
+ * disk before requesting the next entry, so the caller (a P2P receiver) only fetches
+ * the next file once the previous one is flushed — peak memory stays at ~one file.
+ * That is what lets a receiver save a hundreds-of-GB folder without holding it in RAM.
+ *
+ * Returns false if the user dismisses the save dialog (treat as a silent cancel).
+ * `onFileWritten` fires after each file's bytes have been written to disk.
+ */
+export async function streamBlobsToDiskZip(opts: {
+  files: AsyncIterable<{ name: string; blob: Blob }>;
+  suggestedName: string;
+  emptyFolders?: string[];
+  onFileWritten?: (name: string) => void;
+  signal?: AbortSignal;
+}): Promise<boolean> {
+  const win = window as unknown as SaveFilePickerWindow;
+  let handle: FileSystemFileHandleLike;
+  try {
+    handle = await win.showSaveFilePicker!({
+      suggestedName: opts.suggestedName,
+      types: [{ description: 'ZIP archive', accept: { 'application/zip': ['.zip'] } }],
+    });
+  } catch (err) {
+    if (err && (err as { name?: string }).name === 'AbortError') return false;
+    throw err;
+  }
+
+  const writable = await handle.createWritable();
+  const emptyFolders = normalizeFolderPaths(opts.emptyFolders);
+
+  // De-duplicate entry names on the fly (streaming sees them one at a time).
+  const seen = new Map<string, number>();
+  const uniqueName = (name: string): string => {
+    const key = name.toLowerCase();
+    const count = seen.get(key) ?? 0;
+    seen.set(key, count + 1);
+    if (count === 0) return name;
+    const slash = name.lastIndexOf('/');
+    const dir = slash === -1 ? '' : name.slice(0, slash + 1);
+    const leaf = slash === -1 ? name : name.slice(slash + 1);
+    const dot = leaf.lastIndexOf('.');
+    const base = dot <= 0 ? leaf : leaf.slice(0, dot);
+    const ext = dot <= 0 ? '' : leaf.slice(dot);
+    return `${dir}${base} (${count + 1})${ext}`;
+  };
+
+  async function* entries() {
+    for (const folder of emptyFolders) yield { name: folder };
+    for await (const { name, blob } of opts.files) {
+      if (opts.signal?.aborted) throw new DOMException('Aborted', 'AbortError');
+      yield {
+        name: uniqueName(name),
+        input: blob.stream() as ReadableStream<Uint8Array>,
+        size: blob.size,
+        lastModified: new Date(),
+      };
+      // Reached only after makeZip pulls the next entry, i.e. this file is fully written.
+      opts.onFileWritten?.(name);
+    }
+  }
+
+  const zipStream = makeZip(entries());
+  try {
+    const reader = zipStream.getReader();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      await writable.write(value);
+    }
+    await writable.close();
+    return true;
+  } catch (err) {
+    try {
+      await writable.abort?.();
+    } catch {
+    }
+    throw err;
+  }
+}
+
 export async function createZipFromBlobs(
   files: { entryName: string; blob: Blob }[],
   suggestedName: string,

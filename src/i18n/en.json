@@ -280,6 +280,7 @@
     "passwordIncorrect": "Incorrect password",
     "passwordVerifyFailed": "Password verification failed",
     "zipDownloadComplete": "ZIP file download is complete",
+    "largeZipConfirm": "These files are large and may fail to save if your device runs low on memory. Downloading folders one at a time is recommended. Continue anyway?",
     "downloadStarted": "Download has started",
     "multiDownloadStarted": "{{count}} file downloads have started",
     "downloadCancelled": "Download has been cancelled",

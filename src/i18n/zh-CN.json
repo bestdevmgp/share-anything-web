@@ -280,6 +280,7 @@
     "passwordIncorrect": "密码不正确",
     "passwordVerifyFailed": "密码验证失败",
     "zipDownloadComplete": "ZIP 文件下载完成",
+    "largeZipConfirm": "要接收的文件较大，设备内存不足时可能会失败。建议按文件夹分别接收。仍要继续吗？",
     "downloadStarted": "下载已开始",
     "multiDownloadStarted": "{{count}}个文件下载已开始",
     "downloadCancelled": "下载已取消",
