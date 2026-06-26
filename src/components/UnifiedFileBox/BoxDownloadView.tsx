@@ -320,7 +320,7 @@ const BoxDownloadView: React.FC<Props> = ({
               <TruncatedFilename name={fileName} className="text-sm font-medium text-foreground" />
               <div className="flex items-center justify-between gap-2 mt-0.5 leading-none">
                 {done ? (
-                  <span className="text-xs text-muted-foreground">{t('uploadSuccess.completed')}</span>
+                  <span className="text-xs font-medium text-green-600">✓ {t('uploadSuccess.completed')}</span>
                 ) : (
                   <>
                     <span className="text-xs text-muted-foreground whitespace-nowrap">{formatFileSize(fileSize)}</span>
