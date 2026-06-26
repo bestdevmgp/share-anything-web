@@ -33,8 +33,6 @@ const OAuthCallbackPage: React.FC = () => {
       const code = searchParams.get('code');
       const state = searchParams.get('state');
       const errorParam = searchParams.get('error');
-      const token = searchParams.get('token');
-      const userParam = searchParams.get('user');
       const appleUser = searchParams.get('apple_user');
 
       const processedKey = `oauth_processed_${code}`;
@@ -44,30 +42,6 @@ const OAuthCallbackPage: React.FC = () => {
 
       if (hasProcessed.current) {
         return;
-      }
-
-      if (token && userParam) {
-        try {
-          hasProcessed.current = true;
-          if (code) localStorage.setItem(processedKey, 'true');
-
-          const user = JSON.parse(decodeURIComponent(userParam));
-          if (provider) localStorage.setItem('lastLoginProvider', provider);
-          login(user);
-          const cliRedirect = localStorage.getItem('cli_signin_redirect');
-          if (cliRedirect) {
-            localStorage.removeItem('cli_signin_redirect');
-            navigate(cliRedirect, { replace: true });
-          } else {
-            const next = consumePostLoginRedirect();
-            navigate(next || '/', { replace: true });
-          }
-          return;
-        } catch (err) {
-          setError(t('oauth.userParseError'));
-          setTimeout(() => navigate('/signin', { replace: true }), 2000);
-          return;
-        }
       }
 
       if (errorParam) {
