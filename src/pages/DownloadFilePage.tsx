@@ -233,16 +233,16 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
 
   const startBulkP2PDownload = useCallback(() => {
     if (!fileList) return;
-    const ids = fileList.files.map(f => f.id);
+    const ids = fileList.files.filter(f => !p2pCompletedFileIds.has(f.id)).map(f => f.id);
+    if (ids.length === 0) return;
     bulkQueueRef.current = [...ids];
     bulkTotalRef.current = ids.length;
     bulkBlobsRef.current = [];
     setBulkRemaining(ids.length);
-    setP2pCompletedFileIds(new Set());
     setBulkP2PDownloading(true);
     setP2pActiveFileId(ids[0]);
     setP2pEnabled(true);
-  }, [fileList]);
+  }, [fileList, p2pCompletedFileIds]);
 
   useEffect(() => {
     if (p2pStatus === 'error' || p2pStatus === 'cancelled') {
