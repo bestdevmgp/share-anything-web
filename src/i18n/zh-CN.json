@@ -401,7 +401,7 @@
     "uploadedFrom": "从 {{device}} 上传",
     "fileCount": "{{count}}个",
     "share": "分享",
-    "shareSuccess": "分享链接已复制到剪贴板",
+    "shareSuccess": "已复制分享链接",
     "shareFailed": "分享失败"
   },
   "p2p": {

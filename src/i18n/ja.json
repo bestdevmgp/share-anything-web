@@ -401,7 +401,7 @@
     "uploadedFrom": "{{device}}からアップロード",
     "fileCount": "{{count}}件",
     "share": "共有",
-    "shareSuccess": "共有リンクがクリップボードにコピーされました",
+    "shareSuccess": "共有リンクをコピーしました",
     "shareFailed": "共有に失敗しました"
   },
   "p2p": {

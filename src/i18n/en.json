@@ -405,7 +405,7 @@
     "uploadedFrom": "From {{device}}",
     "fileCount": "{{count}}",
     "share": "Share",
-    "shareSuccess": "Share link copied to clipboard",
+    "shareSuccess": "Share link copied",
     "shareFailed": "Failed to share"
   },
   "p2p": {

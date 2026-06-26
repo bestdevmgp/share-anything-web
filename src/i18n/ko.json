@@ -405,7 +405,7 @@
     "uploadedFrom": "{{device}}에서 업로드",
     "fileCount": "{{count}}개",
     "share": "공유",
-    "shareSuccess": "공유 링크가 클립보드에 복사되었어요",
+    "shareSuccess": "공유 링크가 복사되었어요",
     "shareFailed": "공유에 실패했어요"
   },
   "p2p": {
