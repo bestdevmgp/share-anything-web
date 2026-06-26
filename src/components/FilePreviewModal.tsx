@@ -9,6 +9,7 @@ import { fileAPI } from '../services/api';
 import { useTranslation } from '../i18n';
 import { GlobalWorkerOptions } from 'pdfjs-dist';
 import { PDF_WORKER_SRC } from '../utils/pdfWorkerSetup';
+import { sanitizeRenderedDocx } from '../utils/sanitizeDocx';
 import {
   Dialog,
   DialogContent,
@@ -160,7 +161,9 @@ const FilePreviewModal: React.FC<FilePreviewModalProps> = ({ file, onClose }) =>
               experimental: false,
               trimXmlDeclaration: true,
               useBase64URL: true,
+              renderAltChunks: false,
             });
+            sanitizeRenderedDocx(docxContainerRef.current);
             setDocxReady(true);
           }
         } else if (isHwpFile(fileName)) {

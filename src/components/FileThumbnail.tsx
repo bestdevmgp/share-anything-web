@@ -5,6 +5,7 @@ import {
   isCsvFile, isExcelFile, isDocxFile, isPptxFile, isHwpFile
 } from '../utils/format';
 import { getArrayBuffer } from '../utils/filePreview';
+import { sanitizeRenderedDocx } from '../utils/sanitizeDocx';
 import { DocumentIcon, FilmIcon, MusicalNoteIcon, DocumentTextIcon, TableCellsIcon, PresentationChartBarIcon, PhotoIcon } from '@heroicons/react/24/outline';
 import { Spinner } from './ui/spinner';
 import { cn } from 'lib/utils';
@@ -78,8 +79,10 @@ const DocxMiniPreview: React.FC<{ source: File | string; boxClass: string; boxPx
           useBase64URL: true,
           ignoreWidth: true,
           ignoreHeight: true,
+          renderAltChunks: false,
         });
 
+        sanitizeRenderedDocx(el);
         docxHtmlCache.set(cacheKey, el.innerHTML);
         if (!cancelled) setReady(true);
       } catch {
