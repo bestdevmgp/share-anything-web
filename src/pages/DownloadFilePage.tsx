@@ -42,6 +42,16 @@ interface DownloadFilePageProps {
   onBusyChange?: (busy: boolean) => void;
 }
 
+// Gap between consecutive bulk-download saves so browsers don't drop rapid downloads.
+// Desktop (mouse + large screen) handles them with a short gap; touch devices (incl. iPad) need more.
+const BULK_SAVE_GAP_MS =
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(pointer: fine)').matches &&
+  window.matchMedia('(min-width: 1024px)').matches
+    ? 1000
+    : 3000;
+
 const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverride, onReset, onComplete, onBusyChange }) => {
   const { code: codeParam } = useParams<{ code: string }>();
   const code = codeOverride ?? codeParam;
@@ -90,6 +100,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   const bulkQueueRef = useRef<string[]>([]);
   const bulkTotalRef = useRef<number>(0);
   const bulkBlobsRef = useRef<{ entryName: string; blob: Blob }[]>([]);
+  const advanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const recordDownloadRef = useRef<() => void>(() => {});
   recordDownloadRef.current = () => {
@@ -129,7 +140,12 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       setBulkRemaining(bulkQueueRef.current.length);
       const nextId = bulkQueueRef.current[0];
       if (nextId) {
-        setP2pActiveFileId(nextId);
+        if (zipMode) {
+          setP2pActiveFileId(nextId);
+        } else {
+          // Space out individual saves so the browser doesn't drop rapid downloads.
+          advanceTimerRef.current = setTimeout(() => setP2pActiveFileId(nextId), BULK_SAVE_GAP_MS);
+        }
       } else {
         setBulkP2PDownloading(false);
         bulkTotalRef.current = 0;
@@ -247,6 +263,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
 
   useEffect(() => {
     if (p2pStatus === 'error' || p2pStatus === 'cancelled') {
+      if (advanceTimerRef.current) { clearTimeout(advanceTimerRef.current); advanceTimerRef.current = null; }
       setP2pActiveFileId(null);
       setP2pEnabled(false);
       if (bulkP2PDownloading) {
@@ -258,6 +275,10 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [p2pStatus]);
+
+  useEffect(() => () => {
+    if (advanceTimerRef.current) clearTimeout(advanceTimerRef.current);
+  }, []);
 
   useEffect(() => {
     if (!isP2PDownload || !fileList || !passwordVerified || !code) return;

@@ -70,8 +70,10 @@ export const downloadFile = (blob: Blob, filename: string) => {
   a.download = filename;
   document.body.appendChild(a);
   a.click();
-  window.URL.revokeObjectURL(url);
   document.body.removeChild(a);
+  // Revoke after the browser has started the download. Revoking in the same tick can drop the
+  // download — especially when several fire in quick succession (bulk receive on mobile).
+  setTimeout(() => window.URL.revokeObjectURL(url), 10_000);
 };
 
 export const copyToClipboard = async (text: string): Promise<boolean> => {
