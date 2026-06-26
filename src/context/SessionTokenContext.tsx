@@ -13,6 +13,13 @@ const MAX_RETRIES = 3;
 const LOAD_TIMEOUT_MS = 12_000;
 const BACKEND_RETRY_MS = 30_000;
 
+const retryBackoffMs = (elapsedMs: number): number => {
+  if (elapsedMs < 60_000) return 8_000;
+  if (elapsedMs < 120_000) return 15_000;
+  if (elapsedMs < 180_000) return 30_000;
+  return 60_000;
+};
+
 export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [status, setStatus] = useState<Status>('idle');
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
@@ -20,6 +27,8 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [overlayClosing, setOverlayClosing] = useState(false);
   const [retrying, setRetrying] = useState(false);
   const [tabVisible, setTabVisible] = useState(!document.hidden);
+  const [retryTick, setRetryTick] = useState(0);
+  const backoffStartRef = useRef(0);
   const widgetRef = useRef<TurnstileInstance>(null);
   const interactiveRef = useRef<TurnstileInstance>(null);
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -87,7 +96,8 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setRetrying(true);
     if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
     retryTimerRef.current = setTimeout(() => failRetry(), 20_000);
-    interactiveRef.current?.reset();
+    backoffStartRef.current = Date.now();
+    setRetryTick((t) => t + 1);
   }, [failRetry]);
 
   const scheduleRefresh = useCallback((expIso: string) => {
@@ -162,6 +172,18 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, []);
 
   useEffect(() => {
+    if (!overlayMounted) {
+      backoffStartRef.current = 0;
+      return;
+    }
+    if (!tabVisible) return;
+    if (backoffStartRef.current === 0) backoffStartRef.current = Date.now();
+    const elapsed = Date.now() - backoffStartRef.current;
+    const timer = setTimeout(() => setRetryTick((t) => t + 1), retryBackoffMs(elapsed));
+    return () => clearTimeout(timer);
+  }, [overlayMounted, tabVisible, retryTick]);
+
+  useEffect(() => {
     const onVisible = () => {
       if (document.visibilityState !== 'visible') return;
       if (statusRef.current === 'failed' || statusRef.current === 'minting') return;
@@ -225,11 +247,12 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
         <TurnstileBlockedOverlay onRetry={retry} closing={overlayClosing} loading={retrying}>
           {tabVisible ? (
             <Turnstile
+              key={retryTick}
               ref={interactiveRef}
               siteKey={SITE_KEY}
               onSuccess={onTurnstileSuccess}
               onError={onInteractiveError}
-              options={{ size: 'flexible', action: 'session' }}
+              options={{ size: 'flexible', action: 'session', retry: 'never' }}
             />
           ) : null}
         </TurnstileBlockedOverlay>
