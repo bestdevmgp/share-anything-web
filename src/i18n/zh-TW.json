@@ -65,7 +65,9 @@
     "themeLight": "淺色",
     "themeDark": "深色",
     "themeSystem": "系統",
-    "apiDocs": "OpenAPI"
+    "apiDocs": "OpenAPI",
+    "tryCli": "Try CLI",
+    "status": "Status"
   },
   "preview": {
     "loading": "正在載入預覽...",

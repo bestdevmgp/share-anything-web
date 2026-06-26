@@ -65,7 +65,9 @@
     "themeLight": "라이트",
     "themeDark": "다크",
     "themeSystem": "시스템",
-    "apiDocs": "OpenAPI"
+    "apiDocs": "OpenAPI",
+    "tryCli": "Try CLI",
+    "status": "Status"
   },
   "preview": {
     "loading": "미리보기 로드 중...",

@@ -65,7 +65,9 @@
     "themeLight": "Light",
     "themeDark": "Dark",
     "themeSystem": "System",
-    "apiDocs": "OpenAPI"
+    "apiDocs": "OpenAPI",
+    "tryCli": "Try CLI",
+    "status": "Status"
   },
   "preview": {
     "loading": "Loading preview...",
