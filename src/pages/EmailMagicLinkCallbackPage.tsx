@@ -26,7 +26,6 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [canClose, setCanClose] = useState(false);
   const [mergeInfo, setMergeInfo] = useState<{
-    token: string;
     user: User;
     existingProvider: string;
   } | null>(null);
@@ -85,7 +84,6 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
                   localStorage.setItem('lastLoginProvider', 'email');
                   login(data.auth!.user);
                   setMergeInfo({
-                    token: data.auth!.token,
                     user: data.auth!.user,
                     existingProvider: data.auth!.existing_provider!,
                   });

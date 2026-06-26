@@ -262,7 +262,7 @@ export const authAPI = {
   getMe: async () => {
     try {
       const response = await api.get('/auth/me');
-      return response.data?.user ?? null;
+      return { user: response.data?.user ?? null, reason: response.data?.reason ?? null };
     } catch {
       return undefined;
     }
@@ -685,7 +685,7 @@ export const quickAccessAPI = {
   },
 
   downloadFile: async (fileId: string): Promise<{ download_url: string; file_name: string; expires_in_secs: number }> => {
-    const response = await api.get<{ download_url: string; file_name: string; expires_in_secs: number }>(
+    const response = await api.post<{ download_url: string; file_name: string; expires_in_secs: number }>(
       `/user/quick-access/download/${fileId}`
     );
     return response.data;
@@ -813,7 +813,7 @@ export const apiKeyAPI = {
   },
 
   reveal: async (token: string): Promise<ApiKeyRevealResponse> => {
-    const response = await api.get(`/user/api-keys/reveal/${token}`);
+    const response = await api.post(`/user/api-keys/reveal/${token}`);
     return response.data;
   },
 };

@@ -93,7 +93,7 @@ const OAuthCallbackPage: React.FC = () => {
           appleUser || undefined
         );
 
-        if (data.token && data.user) {
+        if (data.user) {
           if (provider) localStorage.setItem('lastLoginProvider', provider);
           login(data.user);
           localStorage.removeItem(processedKey);

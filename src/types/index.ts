@@ -7,7 +7,6 @@ export interface User {
 }
 
 export interface AuthResponse {
-  token: string;
   user: User;
   reactivated?: boolean;
   is_new_user?: boolean;
@@ -308,17 +307,16 @@ export interface EmailAuthSendResponse {
 
 export interface EmailAuthStatusResponse {
   status: 'pending' | 'verified' | 'completed';
-  auth?: { token: string; user: User; existing_provider?: string };
+  auth?: { user: User; existing_provider?: string };
 }
 
 export interface EmailAuthVerifyResponse {
   same_device: boolean;
-  auth?: { token: string; user: User; existing_provider?: string };
+  auth?: { user: User; existing_provider?: string };
   verification_code?: string;
 }
 
 export interface EmailAuthVerifyCodeResponse {
-  token: string;
   user: User;
   existing_provider?: string;
 }

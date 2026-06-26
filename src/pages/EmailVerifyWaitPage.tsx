@@ -49,7 +49,6 @@ const EmailVerifyWaitPage: React.FC = () => {
   const [showCodeInput, setShowCodeInput] = useState(false);
 
   const [mergeInfo, setMergeInfo] = useState<{
-    token: string;
     user: User;
     existingProvider: string;
   } | null>(null);
@@ -72,10 +71,10 @@ const EmailVerifyWaitPage: React.FC = () => {
     }
   }, [email, sessionId, navigate]);
 
-  const handleLoginSuccess = useCallback((token: string, user: User, existingProvider?: string) => {
+  const handleLoginSuccess = useCallback((user: User, existingProvider?: string) => {
     if (hasLoggedIn.current) return;
     if (existingProvider) {
-      setMergeInfo({ token, user, existingProvider });
+      setMergeInfo({ user, existingProvider });
       return;
     }
     hasLoggedIn.current = true;
@@ -100,7 +99,7 @@ const EmailVerifyWaitPage: React.FC = () => {
       try {
         const data = await authAPI.checkEmailAuthStatus(sessionId);
         if (data.status === 'completed' && data.auth) {
-          handleLoginSuccess(data.auth.token, data.auth.user, data.auth.existing_provider);
+          handleLoginSuccess(data.auth.user, data.auth.existing_provider);
         }
       } catch {}
     }, 3000);
@@ -117,7 +116,7 @@ const EmailVerifyWaitPage: React.FC = () => {
       channel.onmessage = (e) => {
         if (e.data?.type === 'email-auth-complete' && e.data.auth) {
           channel.postMessage({ type: 'auth-received' });
-          handleLoginSuccess(e.data.auth.token, e.data.auth.user, e.data.auth.existing_provider);
+          handleLoginSuccess(e.data.auth.user, e.data.auth.existing_provider);
         }
       };
     } catch {
@@ -134,7 +133,7 @@ const EmailVerifyWaitPage: React.FC = () => {
     setVerifying(true);
     try {
       const data = await authAPI.verifyEmailCode(sessionId, target);
-      handleLoginSuccess(data.token, data.user, data.existing_provider);
+      handleLoginSuccess(data.user, data.existing_provider);
     } catch {
       setCodeError(t('emailAuth.verifyFailed'));
     } finally {

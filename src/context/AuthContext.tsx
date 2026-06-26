@@ -33,6 +33,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const { t } = useTranslation();
   const revokeNotifiedRef = useRef(false);
+  const reconcileGuard = useRef(false);
 
   useEffect(() => {
     const cached = authAPI.getCurrentUser();
@@ -43,16 +44,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setLoading(false);
 
     let cancelled = false;
-    authAPI.getMe().then((me) => {
-      if (cancelled || me === undefined) return;
-      if (me) {
-        setUser(me);
+    authAPI.getMe().then((res) => {
+      if (cancelled || res === undefined || reconcileGuard.current) return;
+      if (res.user) {
+        setUser(res.user);
         setIsAuthenticated(true);
-        localStorage.setItem('user', JSON.stringify(me));
+        localStorage.setItem('user', JSON.stringify(res.user));
       } else {
         setUser(null);
         setIsAuthenticated(false);
         localStorage.removeItem('user');
+        if (cached && res.reason === 'revoked') {
+          window.dispatchEvent(new CustomEvent('auth:logout', { detail: { reason: 'revoked' } }));
+        }
       }
     });
     return () => {
@@ -77,7 +81,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => window.removeEventListener('auth:logout', handleForcedLogout);
   }, [t]);
 
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key !== 'user') return;
+      reconcileGuard.current = true;
+      if (e.newValue) {
+        try {
+          const u = JSON.parse(e.newValue);
+          setUser(u);
+          setIsAuthenticated(true);
+        } catch {
+        }
+      } else {
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
   const login = (userData: User) => {
+    reconcileGuard.current = true;
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
     setIsAuthenticated(true);
@@ -85,6 +110,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = () => {
+    reconcileGuard.current = true;
     authAPI.logout();
     setUser(null);
     setIsAuthenticated(false);
