@@ -229,7 +229,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                       tabIndex={0}
                       onClick={(e) => { e.stopPropagation(); copyCode(s.code); }}
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); copyCode(s.code); } }}
-                      className="cursor-pointer underline-offset-2 transition-colors can-hover:hover:text-foreground can-hover:hover:underline"
+                      className="cursor-pointer underline decoration-transparent underline-offset-2 transition-colors can-hover:hover:text-foreground can-hover:hover:decoration-foreground"
                     >
                       {s.code}
                     </span> · {formatCompactDateTime(s.createdAt, language)}

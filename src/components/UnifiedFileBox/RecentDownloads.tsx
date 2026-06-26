@@ -196,7 +196,7 @@ const RecentDownloads: React.FC = () => {
                       tabIndex={0}
                       onClick={(e) => { e.stopPropagation(); copyCode(d.code); }}
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); copyCode(d.code); } }}
-                      className="cursor-pointer underline-offset-2 transition-colors can-hover:hover:text-foreground can-hover:hover:underline"
+                      className="cursor-pointer underline decoration-transparent underline-offset-2 transition-colors can-hover:hover:text-foreground can-hover:hover:decoration-foreground"
                     >
                       {d.code}
                     </span> · {formatCompactDateTime(d.downloadedAt, language)}
