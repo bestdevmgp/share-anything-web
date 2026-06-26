@@ -55,7 +55,7 @@ const Footer: React.FC = () => {
               href="/cli"
               className="text-muted-foreground can-hover:hover:text-foreground active:text-foreground text-sm transition-colors"
             >
-              CLI
+              Try CLI
             </a>
           </div>
           <div className="flex justify-center items-center gap-8">
