@@ -146,6 +146,20 @@ describe('UnifiedFileBox reducer', () => {
     expect(after.state).toBe('idleUpload');
   });
 
+  it('switchMode download → upload restores to p2pCompleted when the completed p2p session is still open', () => {
+    const before: State = { ...initialState, mode: 'download', state: 'idleDownload', p2pShareCode: 'ABC123' };
+    const after = reducer(before, { type: 'switchMode', mode: 'upload' });
+    expect(after.state).toBe('p2pCompleted');
+  });
+
+  it('p2pNewTransfer (done) clears the session so switching tabs back does not restore p2pCompleted', () => {
+    const completed: State = { ...initialState, state: 'p2pCompleted', p2pShareCode: 'ABC123' };
+    const done = reducer(completed, { type: 'p2pNewTransfer' });
+    const toDownload = reducer(done, { type: 'switchMode', mode: 'download' });
+    const back = reducer(toDownload, { type: 'switchMode', mode: 'upload' });
+    expect(back.state).toBe('idleUpload');
+  });
+
   it('p2pSessionCreated p2pCreating → p2pWaiting', () => {
     const before: State = { ...initialState, state: 'p2pCreating' };
     const after = reducer(before, { type: 'p2pSessionCreated', shareCode: '111222', expiresAt: 'iso' });

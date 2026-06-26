@@ -102,7 +102,7 @@ export const reducer = (s: State, a: Action): State => {
       return {
         ...s,
         mode: 'upload',
-        state: s.lastResult ? 'success' : 'idleUpload',
+        state: s.lastResult ? 'success' : s.p2pShareCode ? 'p2pCompleted' : 'idleUpload',
         downloadCode: null,
       };
     case 'enterDownload':
