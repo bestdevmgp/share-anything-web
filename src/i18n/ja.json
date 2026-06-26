@@ -280,7 +280,7 @@
     "passwordIncorrect": "パスワードが正しくありません",
     "passwordVerifyFailed": "パスワードの確認に失敗しました",
     "zipDownloadComplete": "ZIPファイルのダウンロードが完了しました",
-    "largeZipConfirm": "受け取るファイルの容量が大きく、端末のメモリが不足すると失敗することがあります。フォルダごとに分けて受け取ることをおすすめします。それでも進めますか？",
+    "largeZipConfirm": "ファイルの容量が大きく、端末のメモリが不足すると失敗することがあります。フォルダごとに分けて受け取るか、PC（Chromium）で受け取ることをおすすめします。それでも進めますか？",
     "downloadStarted": "ダウンロードが開始されました",
     "multiDownloadStarted": "{{count}}件のファイルのダウンロードが開始されました",
     "downloadCancelled": "ダウンロードがキャンセルされました",

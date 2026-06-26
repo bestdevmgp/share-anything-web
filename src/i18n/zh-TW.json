@@ -280,7 +280,7 @@
     "passwordIncorrect": "密碼不正確",
     "passwordVerifyFailed": "密碼驗證失敗",
     "zipDownloadComplete": "ZIP 檔案下載完成",
-    "largeZipConfirm": "要接收的檔案較大，裝置記憶體不足時可能會失敗。建議按資料夾分別接收。仍要繼續嗎？",
+    "largeZipConfirm": "檔案容量較大，裝置記憶體不足時可能會失敗。建議按資料夾分別接收，或在電腦（Chromium）上接收。仍要繼續嗎？",
     "downloadStarted": "下載已開始",
     "multiDownloadStarted": "{{count}}個檔案下載已開始",
     "downloadCancelled": "下載已取消",
