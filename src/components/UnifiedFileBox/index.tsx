@@ -138,7 +138,7 @@ const UnifiedFileBox: React.FC = () => {
   );
 
   const createP2PSession = useCallback(
-    async (files: File[]) => {
+    async (files: File[], emptyFolders: string[]) => {
       try {
         const fileInfo = files.map((f) => ({
           name: f.name,
@@ -146,7 +146,7 @@ const UnifiedFileBox: React.FC = () => {
           type: f.type || 'application/octet-stream',
           relative_path: getRelativePathSafe(f),
         }));
-        const res = await fileAPI.createP2PSession(fileInfo);
+        const res = await fileAPI.createP2PSession(fileInfo, undefined, emptyFolders);
         const expiresAt =
           res.files[0]?.expires_at ||
           new Date(Date.now() + 30 * 60_000).toISOString();
@@ -165,9 +165,12 @@ const UnifiedFileBox: React.FC = () => {
 
   const onNormal = useCallback(
     (files: File[]) => {
-      if (files.length === 0) return;
+      const emptyFolders = consumeEmptyFolders();
+      if (files.length === 0) {
+        if (emptyFolders.length > 0) window.alert(t('upload.emptyFolderNotAllowed'));
+        return;
+      }
       handleRef.current?.abort();
-      if (consumeEmptyFolders().length > 0) window.alert(t('upload.emptyFolderNotAllowed'));
       dispatch({ type: 'dropNormal', files });
       startNormalUploadPipeline(files);
     },
@@ -176,11 +179,16 @@ const UnifiedFileBox: React.FC = () => {
 
   const onSecure = useCallback(
     (files: File[]) => {
-      if (files.length === 0) return;
+      const emptyFolders = consumeEmptyFolders();
+      if (files.length === 0) {
+        // Nothing but empty folder(s) was dropped — reject the whole attach.
+        if (emptyFolders.length > 0) window.alert(t('upload.emptyFolderNotAllowed'));
+        return;
+      }
       handleRef.current?.abort();
-      if (consumeEmptyFolders().length > 0) window.alert(t('upload.emptyFolderNotAllowed'));
       dispatch({ type: 'dropSecure', files });
-      createP2PSession(files);
+      // Files present: keep them AND preserve their empty subfolders.
+      createP2PSession(files, emptyFolders);
     },
     [dispatch, createP2PSession, t]
   );
