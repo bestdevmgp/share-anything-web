@@ -968,7 +968,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
               })}
             </div>
 
-            <div className="mt-4 -mb-2 md:-mb-4 flex flex-col items-center gap-3">
+            <div className="mt-4 -mb-2 md:mb-1 flex flex-col items-center gap-3">
               {bulkP2PDownloading ? (
                 <p className="text-sm text-muted-foreground text-center">
                   {t('download.bulkProgress', { done: bulkTotalRef.current - bulkRemaining, total: bulkTotalRef.current })
@@ -979,7 +979,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                   <Button
                     variant="default"
                     onClick={startBulkP2PDownload}
-                    disabled={p2pEnabled}
+                    disabled={!!anyP2PDownloading}
                     className="w-full"
                   >
                     {t('download.downloadAll') || '전체 다운로드'}
