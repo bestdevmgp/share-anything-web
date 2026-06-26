@@ -8,7 +8,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   loading: boolean;
-  login: (token: string, user: User) => void;
+  login: (user: User) => void;
   logout: () => void;
   updateUser: (updates: Partial<User>) => void;
 }
@@ -35,16 +35,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const revokeNotifiedRef = useRef(false);
 
   useEffect(() => {
-    const currentUser = authAPI.getCurrentUser();
-    const isAuth = authAPI.isAuthenticated();
-
-    if (currentUser && isAuth) {
-      setUser(currentUser);
+    const cached = authAPI.getCurrentUser();
+    if (cached) {
+      setUser(cached);
       setIsAuthenticated(true);
-    } else if (currentUser && !isAuth) {
-      authAPI.logout();
     }
     setLoading(false);
+
+    let cancelled = false;
+    authAPI.getMe().then((me) => {
+      if (cancelled || me === undefined) return;
+      if (me) {
+        setUser(me);
+        setIsAuthenticated(true);
+        localStorage.setItem('user', JSON.stringify(me));
+      } else {
+        setUser(null);
+        setIsAuthenticated(false);
+        localStorage.removeItem('user');
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -64,8 +77,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => window.removeEventListener('auth:logout', handleForcedLogout);
   }, [t]);
 
-  const login = (token: string, userData: User) => {
-    localStorage.setItem('auth_token', token);
+  const login = (userData: User) => {
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
     setIsAuthenticated(true);

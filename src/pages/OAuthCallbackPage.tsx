@@ -53,7 +53,7 @@ const OAuthCallbackPage: React.FC = () => {
 
           const user = JSON.parse(decodeURIComponent(userParam));
           if (provider) localStorage.setItem('lastLoginProvider', provider);
-          login(token, user);
+          login(user);
           const cliRedirect = localStorage.getItem('cli_signin_redirect');
           if (cliRedirect) {
             localStorage.removeItem('cli_signin_redirect');
@@ -95,7 +95,7 @@ const OAuthCallbackPage: React.FC = () => {
 
         if (data.token && data.user) {
           if (provider) localStorage.setItem('lastLoginProvider', provider);
-          login(data.token, data.user);
+          login(data.user);
           localStorage.removeItem(processedKey);
           toast.success(data.reactivated ? t('oauth.welcomeBack') : data.is_new_user ? t('oauth.signupSuccess') : t('oauth.loginSuccess'));
           const cliRedirect = localStorage.getItem('cli_signin_redirect');

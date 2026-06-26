@@ -60,7 +60,7 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
             setIsLoggingIn(true);
             localStorage.removeItem('emailAuthDeviceId');
             localStorage.setItem('lastLoginProvider', 'email');
-            login(data.auth!.token, data.auth!.user);
+            login(data.auth!.user);
             toast.success(t('oauth.loginSuccess'));
             const cliRedirect = localStorage.getItem('cli_signin_redirect');
             if (cliRedirect) {
@@ -83,7 +83,7 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
                 if (hasExistingProvider) {
                   localStorage.removeItem('emailAuthDeviceId');
                   localStorage.setItem('lastLoginProvider', 'email');
-                  login(data.auth!.token, data.auth!.user);
+                  login(data.auth!.user);
                   setMergeInfo({
                     token: data.auth!.token,
                     user: data.auth!.user,

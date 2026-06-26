@@ -153,14 +153,10 @@ const requestFreshToken = (): void => {
 
 const api = axios.create({
   baseURL: API_BASE_URL,
+  withCredentials: true,
 });
 
 api.interceptors.request.use(async (config) => {
-  const authToken = localStorage.getItem('auth_token');
-  if (authToken) {
-    config.headers.Authorization = `Bearer ${authToken}`;
-  }
-
   config.headers['X-Device-Id'] = ensureDeviceId();
   if (!(config.data instanceof FormData)) {
     config.headers['Content-Type'] = 'application/json';
@@ -171,7 +167,8 @@ api.interceptors.request.use(async (config) => {
   const skipTokenWait =
     isExchange || url.includes('/auth/callback/') || url.includes('/file/quota');
 
-  if (!skipTokenWait && !currentSessionToken && !authToken && !tokenUnavailable) {
+  const isLoggedIn = !!localStorage.getItem('user');
+  if (!skipTokenWait && !currentSessionToken && !isLoggedIn && !tokenUnavailable) {
     await waitForToken(STARTUP_TOKEN_WAIT_MS);
   }
   if (!isExchange && currentSessionToken) {
@@ -180,18 +177,6 @@ api.interceptors.request.use(async (config) => {
 
   return config;
 });
-
-function isJwtUnexpired(token: string): boolean {
-  try {
-    const part = token.split('.')[1];
-    if (!part) return false;
-    const b64 = part.replace(/-/g, '+').replace(/_/g, '/');
-    const payload = JSON.parse(atob(b64 + '==='.slice((b64.length + 3) % 4)));
-    return typeof payload.exp === 'number' && payload.exp * 1000 > Date.now();
-  } catch {
-    return false;
-  }
-}
 
 api.interceptors.response.use(
   (response) => response,
@@ -215,24 +200,13 @@ api.interceptors.response.use(
       return api(original);
     }
 
-    if (
-      status === 401 &&
-      error.config?.headers?.Authorization
-    ) {
-      const url = error.config?.url || '';
-      const isPasswordEndpoint =
-        url.includes('/verify-password') ||
-        url.includes('/download') ||
-        url.includes('/preview');
-      if (!isPasswordEndpoint) {
-        const authToken = localStorage.getItem('auth_token');
-        const revoked = !!authToken && isJwtUnexpired(authToken);
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('user');
-        window.dispatchEvent(
-          new CustomEvent('auth:logout', { detail: { reason: revoked ? 'revoked' : 'expired' } })
-        );
-      }
+    if (status === 401 && (code === 'AUTH_SESSION_REVOKED' || code === 'AUTH_TOKEN_EXPIRED')) {
+      localStorage.removeItem('user');
+      window.dispatchEvent(
+        new CustomEvent('auth:logout', {
+          detail: { reason: code === 'AUTH_SESSION_REVOKED' ? 'revoked' : 'expired' },
+        })
+      );
     }
     return Promise.reject(error);
   }
@@ -272,14 +246,26 @@ export const authAPI = {
     return response.data;
   },
 
-  logout: () => {
-    localStorage.removeItem('auth_token');
+  logout: async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch {
+    }
     localStorage.removeItem('user');
   },
 
   getCurrentUser: () => {
     const userStr = localStorage.getItem('user');
     return userStr ? JSON.parse(userStr) : null;
+  },
+
+  getMe: async () => {
+    try {
+      const response = await api.get('/auth/me');
+      return response.data?.user ?? null;
+    } catch {
+      return undefined;
+    }
   },
 
   sendEmailAuth: async (email: string, deviceId: string): Promise<EmailAuthSendResponse> => {
@@ -302,23 +288,7 @@ export const authAPI = {
     return response.data;
   },
 
-  isAuthenticated: () => {
-    const token = localStorage.getItem('auth_token');
-    if (!token) return false;
-    try {
-      const parts = token.split('.');
-      if (parts.length === 3) {
-        const payload = JSON.parse(atob(parts[1]));
-        if (payload.exp && Date.now() >= payload.exp * 1000) {
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('user');
-          return false;
-        }
-      }
-    } catch {
-    }
-    return true;
-  },
+  isAuthenticated: () => !!localStorage.getItem('user'),
 
   exchangeSessionToken: async (turnstileToken: string): Promise<SessionTokenResponse> => {
     const response = await api.post<SessionTokenResponse>('/auth/session-token', {

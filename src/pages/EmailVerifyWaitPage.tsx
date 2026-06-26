@@ -81,7 +81,7 @@ const EmailVerifyWaitPage: React.FC = () => {
     hasLoggedIn.current = true;
     localStorage.removeItem('emailAuthDeviceId');
     localStorage.setItem('lastLoginProvider', 'email');
-    login(token, user);
+    login(user);
     sessionStorage.removeItem(SESSION_STORAGE_KEY);
     toast.success(t('oauth.loginSuccess'));
     const cliRedirect = localStorage.getItem('cli_signin_redirect');
@@ -151,7 +151,7 @@ const EmailVerifyWaitPage: React.FC = () => {
     hasLoggedIn.current = true;
     localStorage.removeItem('emailAuthDeviceId');
     localStorage.setItem('lastLoginProvider', 'email');
-    login(mergeInfo.token, mergeInfo.user);
+    login(mergeInfo.user);
     sessionStorage.removeItem(SESSION_STORAGE_KEY);
     toast.success(t('oauth.loginSuccess'));
     navigate('/', { replace: true });
