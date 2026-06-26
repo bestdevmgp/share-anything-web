@@ -26,6 +26,7 @@ import ScrollableFileList from './ScrollableFileList';
 import Collapsible from './Collapsible';
 import FolderTreeRows, { treeIndent } from './FolderTreeRows';
 import StatusIcon from '../StatusIcon';
+import PauseBarsIcon from '../PauseBarsIcon';
 import { Button } from '../ui/button';
 import { Hint } from '../ui/Hint';
 import { Input } from '../ui/input';
@@ -292,6 +293,10 @@ const BoxDownloadView: React.FC<Props> = ({
         : p2pPeerDeviceInfo
           ? t('download.connectedReceiving', { device: p2pPeerDeviceInfo })
           : t('download.receivingPleaseWait');
+    } else if (p2pCompletedFileIds.size > 0) {
+      circle = <GreenCircle><PauseBarsIcon className="w-9 h-9 text-green-600" /></GreenCircle>;
+      title = t('download.awaitingNextSelection');
+      desc = t('download.awaitingNextSelectionDesc');
     } else {
       circle = <GreenCircle><Check /></GreenCircle>;
       title = t('download.readyToDownload');
