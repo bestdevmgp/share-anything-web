@@ -4,7 +4,7 @@ import { fileAPI } from '../services/api';
 import { FileListResponse } from '../types';
 import { downloadFile, isPptxFile, formatTimeRemaining, calculateTimeRemaining, getDeviceInfo, isImageFile, formatFileSize } from '../utils/format';
 import TruncatedFilename from '../components/TruncatedFilename';
-import { XMarkIcon, ArrowDownTrayIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, ArrowDownTrayIcon, FolderIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import PauseBarsIcon from '../components/PauseBarsIcon';
 import { toast } from '../context/ToastContext';
 import { useTranslation, translateApiError } from '../i18n';
@@ -32,6 +32,9 @@ import DownloadErrorState from './download/DownloadErrorState';
 import PasswordForm from './download/PasswordForm';
 import SingleFileView from './download/SingleFileView';
 import MultiFileList from './download/MultiFileList';
+import { buildFileTree, nodeFileCount, nodeSize, toggleFolderOpen } from '../utils/fileTree';
+import FolderTreeRows, { treeIndent } from '../components/UnifiedFileBox/FolderTreeRows';
+import Collapsible from '../components/UnifiedFileBox/Collapsible';
 import BoxDownloadView from '../components/UnifiedFileBox/BoxDownloadView';
 
 interface DownloadFilePageProps {
@@ -95,6 +98,8 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   const [p2pEnabled, setP2pEnabled] = useState(false);
   const [p2pActiveFileId, setP2pActiveFileId] = useState<string | null>(null);
   const [p2pCompletedFileIds, setP2pCompletedFileIds] = useState<Set<string>>(new Set());
+  const [openP2PFolders, setOpenP2PFolders] = useState<Set<string>>(new Set());
+  const toggleP2PFolder = (path: string) => setOpenP2PFolders((prev) => toggleFolderOpen(prev, path));
 
   const [bulkP2PDownloading, setBulkP2PDownloading] = useState(false);
   const [bulkRemaining, setBulkRemaining] = useState(0);
@@ -900,6 +905,54 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     const anyP2PDownloading = p2pActiveFileId && (p2pStatus === 'downloading' || p2pStatus === 'connecting' || p2pStatus === 'processing');
     const awaitingNextSelection = !anyP2PDownloading && !allP2PCompleted && p2pCompletedFileIds.size > 0;
 
+    const p2pTree = buildFileTree(fileList.files, fileList.empty_folders ?? []);
+    const p2pHasFolders = p2pTree.some((n) => n.kind === 'folder');
+    const p2pFileRow = (fileId: string, fileName: string, fileSize: number, showDownload: boolean) => {
+      const isActive = p2pActiveFileId === fileId;
+      const isDownloading = isActive && (p2pStatus === 'downloading' || p2pStatus === 'connecting');
+      const isCompleted = p2pCompletedFileIds.has(fileId);
+      return (
+        <div className={cn('px-4 py-2 rounded-lg border transition-all', isActive ? 'bg-muted border-primary' : 'bg-muted border-foreground/[0.09]')}>
+          <div className="flex items-center">
+            <div className="flex-1 min-w-0">
+              <div className={cn('transition-transform duration-300 ease-out', !isDownloading && 'translate-y-[7px]')}>
+                <TruncatedFilename name={fileName} className="text-sm font-semibold text-foreground" />
+                <div className="flex items-center justify-between gap-2 mt-0.5 leading-none">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">{formatFileSize(fileSize)}</span>
+                  {isDownloading && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground whitespace-nowrap">{p2pTimeRemaining || t('format.calculating')}</span>
+                      <span className="text-xs font-semibold text-primary whitespace-nowrap">{p2pProgress}%</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="mt-2 h-1.5">
+                <div className={cn('w-full h-full bg-secondary rounded-full overflow-hidden transition-opacity duration-300', isDownloading ? 'opacity-100' : 'opacity-0')}>
+                  <div className="bg-primary h-full transition-all duration-1000 ease-out rounded-full" style={{ width: `${p2pProgress}%` }} />
+                </div>
+              </div>
+            </div>
+            {isCompleted ? (
+              <span className="flex-shrink-0 self-center ml-2 text-green-600 text-sm font-medium whitespace-nowrap">✓ {t('common.done')}</span>
+            ) : isDownloading ? (
+              <Hint label={t('download.cancelDownload')}>
+                <button onClick={handleCancelP2PDownload} className="flex-shrink-0 self-center ml-1 -mr-2 p-1 can-hover:hover:bg-accent active:bg-accent rounded-md transition-colors" aria-label={t('download.cancelDownload')}>
+                  <XMarkIcon className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </Hint>
+            ) : showDownload ? (
+              <Hint label={t('common.download')}>
+                <Button onClick={() => startP2PDownload(fileId)} disabled={bulkP2PDownloading || Boolean(anyP2PDownloading)} size="icon" aria-label={t('common.download')} className="flex-shrink-0 ml-2 md:h-8 md:w-8">
+                  <ArrowDownTrayIcon strokeWidth={2} />
+                </Button>
+              </Hint>
+            ) : null}
+          </div>
+        </div>
+      );
+    };
+
     return (
       <div className="min-h-full flex flex-col items-center justify-center pt-12 pb-20 px-4">
         <div className="w-full max-w-3xl mx-auto">
@@ -964,76 +1017,72 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
               </h3>
             </div>
 
-            <div className="space-y-2 sm:space-y-2.5 mb-8">
-              {fileList.files.map((file) => {
-                const isActive = p2pActiveFileId === file.id;
-                const isDownloading = isActive && (p2pStatus === 'downloading' || p2pStatus === 'connecting');
-                const isCompleted = p2pCompletedFileIds.has(file.id);
-
-                return (
-                  <div
-                    key={file.id}
-                    className={cn(
-                      'px-4 py-2 rounded-lg border transition-all',
-                      isCompleted
-                        ? 'bg-muted border-foreground/[0.09]'
-                        : isActive
-                          ? 'bg-muted border-primary'
-                          : 'bg-muted border-foreground/[0.09]'
-                    )}
-                  >
-                    <div className="flex items-center">
-                      <div className="flex-1 min-w-0">
-                        <div className={cn('transition-transform duration-300 ease-out', !isDownloading && 'translate-y-[7px]')}>
-                          <TruncatedFilename name={file.file_name} className="text-sm font-semibold text-foreground" />
-                          <div className="flex items-center justify-between gap-2 mt-0.5 leading-none">
-                            <span className="text-xs text-muted-foreground whitespace-nowrap">{formatFileSize(file.file_size)}</span>
-                            {isDownloading && (
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-muted-foreground whitespace-nowrap">{p2pTimeRemaining || t('format.calculating')}</span>
-                                <span className="text-xs font-semibold text-primary whitespace-nowrap">{p2pProgress}%</span>
-                              </div>
-                            )}
-                          </div>
+            <div className="space-y-2 sm:space-y-2.5 mb-8" style={{ containerType: 'inline-size' }}>
+              {p2pHasFolders ? (
+                p2pTree.map((node) => {
+                  if (node.kind === 'file') {
+                    return <div key={node.id}>{p2pFileRow(node.id, node.name, node.size, true)}</div>;
+                  }
+                  const hasChildren = node.children.length > 0;
+                  const isOpen = hasChildren && openP2PFolders.has(node.path);
+                  return (
+                    <div key={`folder:${node.path}`} className="bg-muted rounded-lg border border-foreground/[0.09] overflow-hidden">
+                      <div
+                        onClick={hasChildren ? () => toggleP2PFolder(node.path) : undefined}
+                        className={cn('flex items-center gap-3 px-4 py-3', hasChildren && 'cursor-pointer can-hover:hover:bg-accent active:bg-accent transition-colors')}
+                      >
+                        <div className="flex-shrink-0 w-10 h-10 rounded bg-background flex items-center justify-center">
+                          <FolderIcon className="w-6 h-6 text-muted-foreground" />
                         </div>
-                        <div className="mt-2 h-1.5">
-                          <div className={cn('w-full h-full bg-secondary rounded-full overflow-hidden transition-opacity duration-300', isDownloading ? 'opacity-100' : 'opacity-0')}>
-                            <div className="bg-primary h-full transition-all duration-1000 ease-out rounded-full" style={{ width: `${p2pProgress}%` }} />
-                          </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground truncate">{node.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {hasChildren
+                              ? `${t('upload.folderItemCount', { count: nodeFileCount(node) })} · ${formatFileSize(nodeSize(node))}`
+                              : t('upload.folderEmpty')}
+                          </p>
                         </div>
-                      </div>
-
-                      {isCompleted ? (
-                        <span className="flex-shrink-0 self-center ml-2 text-green-600 text-sm font-medium whitespace-nowrap">
-                          ✓ {t('common.done')}
-                        </span>
-                      ) : isDownloading ? (
-                        <Hint label={t('download.cancelDownload')}>
-                          <button
-                            onClick={handleCancelP2PDownload}
-                            className="flex-shrink-0 self-center ml-1 -mr-2 p-1 can-hover:hover:bg-accent active:bg-accent rounded-md transition-colors"
-                            aria-label={t('download.cancelDownload')}
-                          >
-                            <XMarkIcon className="w-4 h-4 text-muted-foreground" />
-                          </button>
-                        </Hint>
-                      ) : (
                         <Hint label={t('common.download')}>
                           <Button
-                            onClick={() => startP2PDownload(file.id)}
+                            onClick={(e) => { e.stopPropagation(); downloadFolderAsZip(node.path); }}
                             disabled={bulkP2PDownloading || Boolean(anyP2PDownloading)}
                             size="icon"
                             aria-label={t('common.download')}
-                            className="flex-shrink-0 ml-2 md:h-8 md:w-8"
+                            className="flex-shrink-0 md:h-8 md:w-8"
                           >
                             <ArrowDownTrayIcon strokeWidth={2} />
                           </Button>
                         </Hint>
+                        {hasChildren && (
+                          <ChevronDownIcon className={cn('w-5 h-5 text-muted-foreground/60 transition-transform flex-shrink-0', isOpen && 'rotate-180')} />
+                        )}
+                      </div>
+                      {hasChildren && (
+                        <Collapsible open={isOpen}>
+                          <div className="px-4 pb-3 space-y-1.5">
+                            <FolderTreeRows
+                              nodes={node.children}
+                              depth={1}
+                              openFolders={openP2PFolders}
+                              toggleFolder={toggleP2PFolder}
+                              t={t}
+                              renderFile={(file, depth) => (
+                                <div style={{ marginLeft: treeIndent(depth) }}>
+                                  {p2pFileRow(file.id, file.name, file.size, false)}
+                                </div>
+                              )}
+                            />
+                          </div>
+                        </Collapsible>
                       )}
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              ) : (
+                fileList.files.map((file) => (
+                  <div key={file.id}>{p2pFileRow(file.id, file.file_name, file.file_size, true)}</div>
+                ))
+              )}
             </div>
 
             <div className="mt-4 -mb-2 md:mb-1 flex flex-col items-center gap-3">
