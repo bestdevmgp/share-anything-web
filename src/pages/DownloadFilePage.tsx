@@ -43,13 +43,14 @@ interface DownloadFilePageProps {
 }
 
 // Gap between consecutive bulk-download saves so browsers don't drop rapid downloads.
-// Desktop (mouse + large screen) handles them with a short gap; touch devices (incl. iPad) need more.
+// Desktop (mouse + large screen) is reliable with the delayed revokeObjectURL alone, so no gap;
+// touch devices (incl. iPad) need spacing because of the one-download-per-gesture limit.
 const BULK_SAVE_GAP_MS =
   typeof window !== 'undefined' &&
   typeof window.matchMedia === 'function' &&
   window.matchMedia('(pointer: fine)').matches &&
   window.matchMedia('(min-width: 1024px)').matches
-    ? 1000
+    ? 0
     : 3000;
 
 const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverride, onReset, onComplete, onBusyChange }) => {
