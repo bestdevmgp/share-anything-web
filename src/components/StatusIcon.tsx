@@ -59,7 +59,7 @@ const StatusIcon: React.FC<StatusIconProps> = ({ variant, className }) => {
     case 'security':
       return (
         <div className={`${wrapperBase} bg-blue-100 dark:bg-blue-500/15 ${className ?? ''}`}>
-          <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="w-[34px] h-[34px]" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
             <circle cx="9" cy="7" r="4" />
             <polyline points="16 11 18 13 22 9" />
