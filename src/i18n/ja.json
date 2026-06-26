@@ -301,7 +301,6 @@
     "connectingToSender": "送信者に接続しています...",
     "connectedReceiving": "{{device}}に接続しました。ファイルを受信中です。",
     "receivingP2P": "ファイル受信中...",
-    "cancelReceive": "受信を中止",
     "checkFileBeforeDownload": "ファイル情報をご確認ください。",
     "fileSize": "ファイルサイズ",
     "uploader": "アップロードした人",

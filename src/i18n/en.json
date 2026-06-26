@@ -301,7 +301,6 @@
     "connectingToSender": "Connecting to the sender...",
     "connectedReceiving": "Connected to {{device}}. Receiving file...",
     "receivingP2P": "Receiving file...",
-    "cancelReceive": "Cancel receiving",
     "checkFileBeforeDownload": "Review the file information.",
     "fileSize": "File Size",
     "uploader": "Uploaded by",

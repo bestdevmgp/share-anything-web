@@ -301,7 +301,6 @@
     "connectingToSender": "正在连接发送方...",
     "connectedReceiving": "已连接到 {{device}}。正在接收文件。",
     "receivingP2P": "正在接收文件...",
-    "cancelReceive": "停止接收",
     "checkFileBeforeDownload": "请确认文件信息。",
     "fileSize": "文件大小",
     "uploader": "上传者",
