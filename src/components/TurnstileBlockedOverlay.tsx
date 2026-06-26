@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from '../i18n';
 import { Button } from './ui/button';
 import { Spinner } from './ui/spinner';
@@ -14,6 +14,7 @@ interface Props {
 
 const TurnstileBlockedOverlay: React.FC<Props> = ({ onRetry, children, closing = false, loading = false }) => {
   const { t } = useTranslation();
+  const [showFallback, setShowFallback] = useState(false);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -21,6 +22,11 @@ const TurnstileBlockedOverlay: React.FC<Props> = ({ onRetry, children, closing =
     return () => {
       document.body.style.overflow = prev;
     };
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowFallback(true), 1500);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -40,7 +46,19 @@ const TurnstileBlockedOverlay: React.FC<Props> = ({ onRetry, children, closing =
         <h2 className="mb-2 text-xl font-bold text-foreground">{t('botCheck.title')}</h2>
         <p className="mb-6 text-sm text-muted-foreground leading-relaxed">{t('botCheck.desc')}</p>
         {children && (
-          <div className="mb-6 flex justify-center">{children}</div>
+          <div className="relative mb-6 flex min-h-[65px] items-center justify-center">
+            <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center px-3">
+              <p
+                className={cn(
+                  'max-w-[18rem] text-center text-sm font-medium leading-snug text-destructive transition-opacity duration-300',
+                  showFallback ? 'opacity-100' : 'opacity-0'
+                )}
+              >
+                {t('botCheck.unsupported')}
+              </p>
+            </div>
+            <div className="relative z-10 flex w-full justify-center">{children}</div>
+          </div>
         )}
         <Button onClick={onRetry} size="lg" className="relative w-full" disabled={loading}>
           <span className={loading ? 'invisible' : ''}>{t('common.retry')}</span>

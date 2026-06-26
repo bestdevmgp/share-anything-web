@@ -756,6 +756,7 @@
   },
   "botCheck": {
     "title": "Security check required",
+    "unsupported": "Security verification isn't available in this environment.",
     "desc": "Please complete the security check below. If it keeps failing, disable any ad blocker or allow challenges.cloudflare.com, then try again.",
     "successToast": "Security check complete.",
     "failToast": "Security check failed. If an ad blocker is running, disable it and try again. Your browser may also be outdated or unsupported."
