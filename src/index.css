@@ -149,6 +149,11 @@ code {
   margin: 0 !important;
 }
 
+.dark .docx-container section.docx {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
 /* docx thumbnail: hide wrapper chrome, show content only */
 .docx-thumb-container .docx-wrapper {
   background: transparent !important;
