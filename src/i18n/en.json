@@ -242,6 +242,7 @@
     "uploadComplete": "Upload Complete",
     "keepPageOpen": "Do not close this page until the receiver connects.",
     "allFilesTransferred": "All files have been transferred successfully.",
+    "filesTransferred": "{{count}} file(s) have been transferred successfully.",
     "connectedTo": "Sending files to {{device}}...",
     "connectedReadyToDownload": "Connected to {{device}}. The receiver can start the download.",
     "transferringPleaseWait": "Transferring files. Please wait.",

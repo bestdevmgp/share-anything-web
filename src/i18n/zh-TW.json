@@ -242,6 +242,7 @@
     "uploadComplete": "上傳完成",
     "keepPageOpen": "在接收方連線前，請勿關閉此頁面。",
     "allFilesTransferred": "所有檔案已成功傳輸。",
+    "filesTransferred": "已成功傳輸 {{count}} 個檔案。",
     "connectedTo": "正在向 {{device}} 傳送檔案。",
     "connectedReadyToDownload": "已連線至 {{device}}，接收方可開始下載。",
     "transferringPleaseWait": "正在傳輸檔案，請稍候。",

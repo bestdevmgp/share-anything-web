@@ -197,13 +197,23 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
                   </Button>
                 </div>
               ) : (
-                <Button
-                  onClick={() => setP2pEnabled(true)}
-                  size="lg"
-                  className="w-full"
-                >
-                  <span>{t('download.startDownload')}</span>
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => setP2pEnabled(true)}
+                    size="lg"
+                    className="flex-1"
+                  >
+                    <span>{t('download.startDownload')}</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate('/')}
+                    size="lg"
+                    className="flex-1"
+                  >
+                    {t('common.back')}
+                  </Button>
+                </div>
               )
             ) : downloading ? (
               <Button size="lg" className="w-full" disabled>
@@ -221,16 +231,18 @@ const SingleFileView: React.FC<SingleFileViewProps> = ({
             )}
           </div>
 
-          <div className="mt-3 -mb-2 md:-mb-4 text-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/')}
-              className="text-muted-foreground can-hover:hover:text-foreground active:text-foreground"
-            >
-              {t('common.back')}
-            </Button>
-          </div>
+          {!isP2PDownload && (
+            <div className="mt-3 -mb-2 md:-mb-4 text-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/')}
+                className="text-muted-foreground can-hover:hover:text-foreground active:text-foreground"
+              >
+                {t('common.back')}
+              </Button>
+            </div>
+          )}
         </Card>
       </div>
     </div>

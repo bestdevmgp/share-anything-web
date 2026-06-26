@@ -429,6 +429,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
 
       switch (message.type) {
         case 'peer_matched':
+          isCleaningUpRef.current = false;
           setStatus('connected');
           if (message.device_info) {
             setPeerDeviceInfo(message.device_info);
@@ -499,6 +500,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
           break;
 
         case 'downloader_offline': {
+          if (isCleaningUpRef.current) break;
           const allDone =
             filesRef.current.length > 0 &&
             filesRef.current.every(f => fileProgressesRef.current.get(fileKey(f))?.status === 'completed');
@@ -531,6 +533,7 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
         }
 
         case 'downloader_paused': {
+          if (isCleaningUpRef.current) break;
           const allDone =
             filesRef.current.length > 0 &&
             filesRef.current.every(f => fileProgressesRef.current.get(fileKey(f))?.status === 'completed');

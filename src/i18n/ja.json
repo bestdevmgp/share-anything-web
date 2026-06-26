@@ -242,6 +242,7 @@
     "uploadComplete": "アップロード完了",
     "keepPageOpen": "受信者が接続するまでこのページを閉じないでください。",
     "allFilesTransferred": "すべてのファイルが正常に転送されました。",
+    "filesTransferred": "{{count}}個のファイルが正常に転送されました。",
     "connectedTo": "{{device}}にファイルを送信中です。",
     "connectedReadyToDownload": "{{device}}に接続しました。受信者がダウンロードを開始できます。",
     "transferringPleaseWait": "ファイルを転送中です。しばらくお待ちください。",

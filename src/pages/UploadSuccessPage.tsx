@@ -98,6 +98,10 @@ const UploadSuccessPage: React.FC = () => {
     return progress?.status === 'transferring';
   });
 
+  const transferredCount = files.filter(
+    file => fileProgresses.get(fileKey(file))?.status === 'completed'
+  ).length;
+
   const getOverallStatus = () => {
     if (p2pStatus === 'completed') return 'completed';
     if (allFilesCompleted) return 'completed';
@@ -152,7 +156,7 @@ const UploadSuccessPage: React.FC = () => {
               overallStatus === 'waiting' ? t('uploadSuccess.keepPageOpen') :
               overallStatus === 'connected' ? t('uploadSuccess.connectedReadyToDownload', { device: peerDeviceInfo || '' }) :
               overallStatus === 'waiting_for_next' ? t('uploadSuccess.waitingForNextRequestDesc') :
-              allFilesCompleted || overallStatus === 'completed' ? t('uploadSuccess.allFilesTransferred') :
+              allFilesCompleted || overallStatus === 'completed' ? (transferredCount < files.length ? t('uploadSuccess.filesTransferred', { count: transferredCount }) : t('uploadSuccess.allFilesTransferred')) :
               peerDeviceInfo ? t('uploadSuccess.connectedTo', { device: peerDeviceInfo }) :
               t('uploadSuccess.transferringPleaseWait')
             ) : t('uploadSuccess.shareCodeOrLink')}

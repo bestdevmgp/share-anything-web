@@ -40,6 +40,9 @@ const P2PActiveStage: React.FC<Props> = ({
 
   const allFilesCompleted =
     files.length > 0 && files.every((f) => fileProgresses.get(fileKey(f))?.status === 'completed');
+  const transferredCount = files.filter(
+    (f) => fileProgresses.get(fileKey(f))?.status === 'completed'
+  ).length;
   const anyFileTransferring = files.some(
     (f) => fileProgresses.get(fileKey(f))?.status === 'transferring'
   );
@@ -74,7 +77,9 @@ const P2PActiveStage: React.FC<Props> = ({
       : overall === 'waiting_for_next'
         ? t('uploadSuccess.waitingForNextRequestDesc')
         : overall === 'completed'
-          ? t('uploadSuccess.allFilesTransferred')
+          ? transferredCount < files.length
+            ? t('uploadSuccess.filesTransferred', { count: transferredCount })
+            : t('uploadSuccess.allFilesTransferred')
           : peerDeviceInfo
             ? t('uploadSuccess.connectedTo', { device: peerDeviceInfo })
             : t('uploadSuccess.transferringPleaseWait');

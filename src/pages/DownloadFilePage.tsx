@@ -725,6 +725,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         startP2PDownload={startP2PDownload}
         startBulkP2PDownload={startBulkP2PDownload}
         handleCancelP2PDownload={handleCancelP2PDownload}
+        closeP2PSession={closeP2PSession}
         onReset={onReset || (() => {})}
         onRetry={onRetry}
         previews={filePreviews}
@@ -966,37 +967,48 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
             </div>
 
             <div className="mt-4 -mb-2 md:-mb-4 flex flex-col items-center gap-3">
-              {!bulkP2PDownloading && p2pCompletedFileIds.size < fileList.files.length && (
-                <Button
-                  variant="secondary"
-                  onClick={startBulkP2PDownload}
-                  disabled={p2pEnabled}
-                  className="w-full"
-                >
-                  {t('download.downloadAll') || '전체 다운로드'}
-                </Button>
-              )}
-              {bulkP2PDownloading && (
+              {bulkP2PDownloading ? (
                 <p className="text-sm text-muted-foreground text-center">
                   {t('download.bulkProgress', { done: bulkTotalRef.current - bulkRemaining, total: bulkTotalRef.current })
                     || `${bulkTotalRef.current - bulkRemaining} / ${bulkTotalRef.current} 파일 받는 중…`}
                 </p>
-              )}
-              {p2pCompletedFileIds.size > 0 && !bulkP2PDownloading && (
+              ) : p2pCompletedFileIds.size < fileList.files.length ? (
+                <div className="grid grid-cols-2 gap-2 w-full">
+                  <Button
+                    variant="default"
+                    onClick={startBulkP2PDownload}
+                    disabled={p2pEnabled}
+                    className="w-full"
+                  >
+                    {t('download.downloadAll') || '전체 다운로드'}
+                  </Button>
+                  {p2pCompletedFileIds.size > 0 ? (
+                    <Button
+                      variant="outline"
+                      onClick={() => { closeP2PSession(); navigate('/'); }}
+                      className="w-full"
+                    >
+                      {t('common.done')}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      onClick={() => navigate('/')}
+                      className="w-full"
+                    >
+                      {t('common.back')}
+                    </Button>
+                  )}
+                </div>
+              ) : (
                 <Button
+                  variant="outline"
                   onClick={() => { closeP2PSession(); navigate('/'); }}
                   className="w-full"
                 >
                   {t('common.done')}
                 </Button>
               )}
-              <Button
-                variant="ghost"
-                onClick={() => navigate('/')}
-                className="text-sm text-muted-foreground can-hover:hover:text-foreground active:text-foreground"
-              >
-                {t('common.back')}
-              </Button>
             </div>
           </Card>
         </div>

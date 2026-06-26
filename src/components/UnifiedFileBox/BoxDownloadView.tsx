@@ -59,6 +59,7 @@ interface Props {
   startP2PDownload: (fileId: string) => void;
   startBulkP2PDownload: () => void;
   handleCancelP2PDownload: () => void;
+  closeP2PSession: () => void;
   onReset: () => void;
   onRetry: () => void;
   previews?: Record<string, string>;
@@ -141,6 +142,7 @@ const BoxDownloadView: React.FC<Props> = ({
   startP2PDownload,
   startBulkP2PDownload,
   handleCancelP2PDownload,
+  closeP2PSession,
   onReset,
   onRetry,
   previews,
@@ -449,7 +451,7 @@ const BoxDownloadView: React.FC<Props> = ({
         </div>
         <div className={cn('mt-6 flex flex-col gap-2', allDone ? '-mb-2 md:mb-1' : '-mb-5 md:-mb-2')}>
           {allDone ? (
-            <Button onClick={onReset} size="lg" className="w-full">
+            <Button onClick={() => { closeP2PSession(); onReset(); }} size="lg" className="w-full">
               {t('common.done')}
             </Button>
           ) : active ? (
@@ -463,23 +465,34 @@ const BoxDownloadView: React.FC<Props> = ({
               {t('download.cancelReceive')}
             </Button>
           ) : (
-            <Button
-              onClick={() => (files.length > 1 ? startBulkP2PDownload() : startP2PDownload(files[0].id))}
-              size="lg"
-              className="w-full"
-            >
-              <span>{files.length > 1 ? t('download.downloadAll') : t('download.downloadFile')}</span>
-            </Button>
-          )}
-          {!allDone && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="self-center text-muted-foreground can-hover:hover:text-foreground active:text-foreground"
-              onClick={onReset}
-            >
-              {t('common.back')}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => (files.length > 1 ? startBulkP2PDownload() : startP2PDownload(files[0].id))}
+                size="lg"
+                className="flex-1"
+              >
+                <span>{files.length > 1 ? t('download.downloadAll') : t('download.downloadFile')}</span>
+              </Button>
+              {p2pCompletedFileIds.size > 0 ? (
+                <Button
+                  variant="outline"
+                  onClick={() => { closeP2PSession(); onReset(); }}
+                  size="lg"
+                  className="flex-1"
+                >
+                  {t('common.done')}
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  onClick={onReset}
+                  size="lg"
+                  className="flex-1"
+                >
+                  {t('common.back')}
+                </Button>
+              )}
+            </div>
           )}
         </div>
       </>
