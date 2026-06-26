@@ -229,6 +229,7 @@
     "emptyFolder": "빈 폴더예요. 파일이 들어있는 폴더를 선택해 주세요.",
     "folderItemCount": "{{count}}개",
     "folderEmpty": "빈 폴더",
+    "emptyFolderNotAllowed": "빈 폴더는 추가할 수 없어요.",
     "fileCountLabel": "{{count}}개 파일"
   },
   "uploadSuccess": {

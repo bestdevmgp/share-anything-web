@@ -229,6 +229,7 @@
     "emptyFolder": "空のフォルダです。ファイルが入ったフォルダを選択してください。",
     "folderItemCount": "{{count}}個",
     "folderEmpty": "空のフォルダ",
+    "emptyFolderNotAllowed": "空のフォルダーは追加できません。",
     "fileCountLabel": "{{count}}個のファイル"
   },
   "uploadSuccess": {

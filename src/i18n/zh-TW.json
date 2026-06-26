@@ -229,6 +229,7 @@
     "emptyFolder": "這是空資料夾。請選擇包含檔案的資料夾。",
     "folderItemCount": "{{count}}個檔案",
     "folderEmpty": "空資料夾",
+    "emptyFolderNotAllowed": "無法新增空資料夾。",
     "fileCountLabel": "{{count}} 個檔案"
   },
   "uploadSuccess": {
