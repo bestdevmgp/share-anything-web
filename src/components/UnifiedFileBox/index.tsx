@@ -291,6 +291,7 @@ const UnifiedFileBox: React.FC = () => {
         {state.mode === 'upload' &&
           (state.state === 'p2pCreating' || state.state === 'p2pWaiting') && (
             <P2PWaiting
+              key={state.state === 'p2pCreating' || !state.p2pShareCode ? 'p2p-loading' : 'p2p-ready'}
               loading={state.state === 'p2pCreating' || !state.p2pShareCode}
               shareCode={state.p2pShareCode ?? undefined}
               fileCount={state.files.length}
@@ -333,6 +334,7 @@ const UnifiedFileBox: React.FC = () => {
             embedded
             codeOverride={state.downloadCode}
             onReset={() => dispatch({ type: 'closeDownload' })}
+            onComplete={() => dispatch({ type: 'switchMode', mode: 'upload' })}
             onBusyChange={setDownloadBusy}
           />
         )}

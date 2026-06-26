@@ -61,6 +61,7 @@ interface Props {
   handleCancelP2PDownload: () => void;
   closeP2PSession: () => void;
   onReset: () => void;
+  onComplete?: () => void;
   onRetry: () => void;
   previews?: Record<string, string>;
   selectedFiles: Set<string>;
@@ -144,6 +145,7 @@ const BoxDownloadView: React.FC<Props> = ({
   handleCancelP2PDownload,
   closeP2PSession,
   onReset,
+  onComplete,
   onRetry,
   previews,
   selectedFiles,
@@ -451,7 +453,7 @@ const BoxDownloadView: React.FC<Props> = ({
         </div>
         <div className={cn('mt-6 flex flex-col gap-2', allDone ? '-mb-2 md:mb-1' : '-mb-5 md:-mb-2')}>
           {allDone ? (
-            <Button onClick={() => { closeP2PSession(); onReset(); }} size="lg" className="w-full">
+            <Button onClick={() => { closeP2PSession(); (onComplete ?? onReset)(); }} size="lg" className="w-full">
               {t('common.done')}
             </Button>
           ) : (
@@ -467,7 +469,7 @@ const BoxDownloadView: React.FC<Props> = ({
               {active || p2pCompletedFileIds.size > 0 ? (
                 <Button
                   variant="outline"
-                  onClick={() => { closeP2PSession(); onReset(); }}
+                  onClick={() => { closeP2PSession(); (onComplete ?? onReset)(); }}
                   disabled={active}
                   size="lg"
                   className="flex-1"

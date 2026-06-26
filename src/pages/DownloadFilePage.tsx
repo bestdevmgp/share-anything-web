@@ -38,10 +38,11 @@ interface DownloadFilePageProps {
   embedded?: boolean;
   codeOverride?: string;
   onReset?: () => void;
+  onComplete?: () => void;
   onBusyChange?: (busy: boolean) => void;
 }
 
-const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverride, onReset, onBusyChange }) => {
+const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverride, onReset, onComplete, onBusyChange }) => {
   const { code: codeParam } = useParams<{ code: string }>();
   const code = codeOverride ?? codeParam;
   const { t, language } = useTranslation();
@@ -727,6 +728,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         handleCancelP2PDownload={handleCancelP2PDownload}
         closeP2PSession={closeP2PSession}
         onReset={onReset || (() => {})}
+        onComplete={onComplete}
         onRetry={onRetry}
         previews={filePreviews}
         selectedFiles={selectedFiles}
