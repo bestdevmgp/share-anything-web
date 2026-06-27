@@ -33,7 +33,7 @@ import DownloadErrorState from './download/DownloadErrorState';
 import PasswordForm from './download/PasswordForm';
 import SingleFileView from './download/SingleFileView';
 import MultiFileList from './download/MultiFileList';
-import { buildFileTree, nodeFileCount, nodeSize, toggleFolderOpen } from '../utils/fileTree';
+import { buildFileTree, collectFileIds, nodeFileCount, nodeSize, toggleFolderOpen, TreeFolder, TreeFile } from '../utils/fileTree';
 import FolderTreeRows, { treeIndent } from '../components/UnifiedFileBox/FolderTreeRows';
 import Collapsible from '../components/UnifiedFileBox/Collapsible';
 import FileThumbnail from '../components/FileThumbnail';
@@ -701,38 +701,66 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         return;
       }
 
-      const downloadUrls: { url: string; fileName: string }[] = [];
+      // Folders can't keep their paths on individual <a download> saves, so each top-level folder
+      // is zipped (structure preserved) while loose files download one by one. The ZIP button packs
+      // everything into one structured zip instead; this button keeps folders separate.
+      const selected = fileList.files.filter((f) => selectedFiles.has(f.id));
+      const allEmpties = fileList.empty_folders ?? [];
+      const selTree = buildFileTree(selected, []);
+      const topFolders = selTree.filter((n): n is TreeFolder => n.kind === 'folder');
+      const looseNodes = selTree.filter((n): n is TreeFile => n.kind === 'file');
 
-      for (let i = 0; i < selectedFileIds.length; i++) {
-        const fileId = selectedFileIds[i];
-        const file = fileList.files.find(f => f.id === fileId);
-        if (!file) continue;
+      const getUrl = async (fileId: string) =>
+        (await fileAPI.getDownloadUrl(code, fileId, password || undefined)).download_url;
 
-        const { download_url } = await fileAPI.getDownloadUrl(
-          code,
-          fileId,
-          password || undefined
-        );
-
-        downloadUrls.push({ url: download_url, fileName: file.file_name });
-        setDownloadProgress(Math.round(((i + 1) / selectedFileIds.length) * 50));
-      }
-
-      for (let i = 0; i < downloadUrls.length; i++) {
-        const { url, fileName } = downloadUrls[i];
-
+      const saveLoose = async (node: TreeFile) => {
+        const url = await getUrl(node.id);
         const link = document.createElement('a');
         link.href = url;
-        link.download = fileName;
+        link.download = node.name;
         link.style.display = 'none';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+      };
 
-        setDownloadProgress(50 + Math.round(((i + 1) / downloadUrls.length) * 50));
+      const zipFolder = (folder: TreeFolder, preferFallback: boolean) => {
+        const specs: ZipFileSpec[] = collectFileIds(folder).map((id) => {
+          const f = fileList.files.find((x) => x.id === id)!;
+          return { id: f.id, fileName: f.file_name, entryName: f.relative_path || f.file_name, size: f.file_size };
+        });
+        const folderEmpties = allEmpties.filter((ef) => ef === folder.path || ef.startsWith(folder.path + '/'));
+        return createStructuredZip({
+          specs,
+          getDownloadUrl: getUrl,
+          suggestedName: `${folder.name}.zip`,
+          emptyFolders: folderEmpties,
+          preferFallback,
+        });
+      };
 
-        if (i < downloadUrls.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+      if (topFolders.length === 0) {
+        // All loose files → individual saves, spaced so browsers don't drop rapid downloads.
+        for (let i = 0; i < looseNodes.length; i++) {
+          await saveLoose(looseNodes[i]);
+          setDownloadProgress(Math.round(((i + 1) / looseNodes.length) * 100));
+          if (i < looseNodes.length - 1) await new Promise((r) => setTimeout(r, 1000));
+        }
+      } else if (topFolders.length === 1 && looseNodes.length === 0) {
+        // Exactly one folder → a single structured zip, streamed to disk when supported
+        // (so a very large folder doesn't have to fit in memory). Same as the ZIP button.
+        await zipFolder(topFolders[0], false);
+      } else {
+        // Multiple folders / folders + loose files → one in-memory zip per folder (auto-downloads,
+        // no save dialog, so several can run back to back) plus each loose file, all spaced.
+        const tasks: (() => Promise<unknown>)[] = [
+          ...topFolders.map((folder) => () => zipFolder(folder, true)),
+          ...looseNodes.map((node) => () => saveLoose(node)),
+        ];
+        for (let i = 0; i < tasks.length; i++) {
+          await tasks[i]();
+          setDownloadProgress(Math.round(((i + 1) / tasks.length) * 100));
+          if (i < tasks.length - 1) await new Promise((r) => setTimeout(r, BULK_SAVE_GAP_MS));
         }
       }
 
