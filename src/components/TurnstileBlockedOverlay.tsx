@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from '../i18n';
 import { Button } from './ui/button';
 import { Spinner } from './ui/spinner';
@@ -12,9 +12,14 @@ interface Props {
   loading?: boolean;
 }
 
+const WIDGET_WIDTH = 300;
+const WIDGET_HEIGHT = 65;
+
 const TurnstileBlockedOverlay: React.FC<Props> = ({ onRetry, children, closing = false, loading = false }) => {
   const { t } = useTranslation();
   const [showFallback, setShowFallback] = useState(false);
+  const [scale, setScale] = useState(1);
+  const observerRef = useRef<ResizeObserver | null>(null);
 
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -27,6 +32,19 @@ const TurnstileBlockedOverlay: React.FC<Props> = ({ onRetry, children, closing =
   useEffect(() => {
     const timer = setTimeout(() => setShowFallback(true), 1500);
     return () => clearTimeout(timer);
+  }, []);
+
+  const measureSlot = useCallback((el: HTMLDivElement | null) => {
+    observerRef.current?.disconnect();
+    if (!el) return;
+    const update = () => {
+      const w = el.clientWidth;
+      if (w > 0) setScale(w < WIDGET_WIDTH ? w / WIDGET_WIDTH : 1);
+    };
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    observerRef.current = ro;
   }, []);
 
   return (
@@ -57,7 +75,28 @@ const TurnstileBlockedOverlay: React.FC<Props> = ({ onRetry, children, closing =
                 {t('botCheck.unsupported')}
               </p>
             </div>
-            <div className="relative z-10 flex w-full justify-center">{children}</div>
+            <div
+              ref={measureSlot}
+              className="relative z-10 w-full"
+              style={scale < 1 ? { height: WIDGET_HEIGHT * scale } : undefined}
+            >
+              <div
+                className={scale < 1 ? 'absolute top-0' : 'flex w-full justify-center'}
+                style={
+                  scale < 1
+                    ? {
+                        left: '50%',
+                        width: WIDGET_WIDTH,
+                        marginLeft: -WIDGET_WIDTH / 2,
+                        transform: `scale(${scale})`,
+                        transformOrigin: 'top center',
+                      }
+                    : undefined
+                }
+              >
+                {children}
+              </div>
+            </div>
           </div>
         )}
         <Button onClick={onRetry} size="lg" className="relative w-full" disabled={loading}>

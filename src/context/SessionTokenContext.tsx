@@ -27,6 +27,7 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [overlayMounted, setOverlayMounted] = useState(false);
   const [overlayClosing, setOverlayClosing] = useState(false);
   const [retrying, setRetrying] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const [tabVisible, setTabVisible] = useState(!document.hidden);
   const [retryTick, setRetryTick] = useState(0);
   const backoffStartRef = useRef(0);
@@ -114,6 +115,7 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const onTurnstileSuccess = useCallback(async (turnstileToken: string) => {
     widgetSolvedRef.current = true;
     setStatus('minting');
+    setVerifying(true);
     try {
       const { session_token, expires_at } = await authAPI.exchangeSessionToken(turnstileToken);
       setSessionToken(session_token);
@@ -123,6 +125,7 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
       if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
       scheduleRefresh(expires_at);
       finishRetrySuccess();
+      setVerifying(false);
     } catch (err: any) {
       console.warn('[SessionToken] exchange failed', err);
       attemptsRef.current += 1;
@@ -138,6 +141,7 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
         markUnreachable();
       }
       failRetry();
+      setVerifying(false);
     }
   }, [scheduleRefresh, forceRefresh, markFailed, markUnreachable, finishRetrySuccess, failRetry]);
 
@@ -149,8 +153,13 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   const onInteractiveError = useCallback(() => {
     console.warn('[SessionToken] interactive Turnstile error');
+    setVerifying(false);
     failRetry();
   }, [failRetry]);
+
+  const onBeforeInteractive = useCallback(() => {
+    setVerifying(true);
+  }, []);
 
   useEffect(() => {
     armLoadTimeout();
@@ -171,6 +180,10 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
     document.addEventListener('visibilitychange', onVisibility);
     return () => document.removeEventListener('visibilitychange', onVisibility);
   }, []);
+
+  useEffect(() => {
+    setVerifying(false);
+  }, [retryTick]);
 
   useEffect(() => {
     if (!overlayMounted) {
@@ -244,7 +257,7 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
       )}
       {children}
       {overlayMounted && (
-        <TurnstileBlockedOverlay onRetry={retry} closing={overlayClosing} loading={retrying}>
+        <TurnstileBlockedOverlay onRetry={retry} closing={overlayClosing} loading={retrying || verifying}>
           {tabVisible ? (
             <Turnstile
               key={retryTick}
@@ -253,6 +266,7 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
               siteKey={INTERACTIVE_SITE_KEY || SITE_KEY}
               onSuccess={onTurnstileSuccess}
               onError={onInteractiveError}
+              onBeforeInteractive={onBeforeInteractive}
               options={{ size: 'flexible', action: 'session', retry: 'never' }}
             />
           ) : null}
