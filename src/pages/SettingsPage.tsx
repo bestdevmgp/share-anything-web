@@ -903,13 +903,13 @@ const SettingsPage: React.FC = () => {
                         <ChevronDownIcon className="w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       </button>
                     </PopoverTrigger>
-                    <PopoverContent side="bottom" align="start" sideOffset={4} className="w-40 p-0 rounded-none border border-border bg-card sm:align-end">
+                    <PopoverContent side="bottom" align="start" sideOffset={4} className="w-40 p-1 rounded-none border border-border bg-card sm:align-end">
                       <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('settings.notifyLanguage')}</div>
                       {langOptions.map((option) => (
                         <button
                           key={option.key}
                           onClick={() => handleNotifyLanguageChange(option.key)}
-                          className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors ${
+                          className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors can-hover:hover:bg-accent active:bg-accent ${
                             notifyLanguage === option.key
                               ? 'text-foreground'
                               : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
@@ -954,13 +954,13 @@ const SettingsPage: React.FC = () => {
                         <ChevronDownIcon className="w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       </button>
                     </PopoverTrigger>
-                    <PopoverContent side="bottom" align="start" sideOffset={4} className="w-40 p-0 rounded-none border border-border bg-card sm:align-end">
+                    <PopoverContent side="bottom" align="start" sideOffset={4} className="w-40 p-1 rounded-none border border-border bg-card sm:align-end">
                       <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('settings.defaultExpirationLabel')}</div>
                       {expirationOptions.map((option) => (
                         <button
                           key={option.value}
                           onClick={() => handleDefaultExpirationChange(option.value)}
-                          className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors ${
+                          className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors can-hover:hover:bg-accent active:bg-accent ${
                             defaultExpiration === option.value
                               ? 'text-foreground'
                               : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
@@ -995,13 +995,13 @@ const SettingsPage: React.FC = () => {
                         <ChevronDownIcon className="w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       </button>
                     </PopoverTrigger>
-                    <PopoverContent side="bottom" align="start" sideOffset={4} className="w-40 p-0 rounded-none border border-border bg-card sm:align-end">
+                    <PopoverContent side="bottom" align="start" sideOffset={4} className="w-40 p-1 rounded-none border border-border bg-card sm:align-end">
                       <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('footer.language')}</div>
                       {langOptions.map((option) => (
                         <button
                           key={option.key}
                           onClick={() => { setSiteLanguage(option.key); setSiteLangOpen(false); }}
-                          className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors ${
+                          className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors can-hover:hover:bg-accent active:bg-accent ${
                             siteLanguage === option.key
                               ? 'text-foreground'
                               : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
@@ -1036,13 +1036,13 @@ const SettingsPage: React.FC = () => {
                         <ChevronDownIcon className="w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       </button>
                     </PopoverTrigger>
-                    <PopoverContent side="bottom" align="start" sideOffset={4} className="w-40 p-0 rounded-none border border-border bg-card sm:align-end">
+                    <PopoverContent side="bottom" align="start" sideOffset={4} className="w-40 p-1 rounded-none border border-border bg-card sm:align-end">
                       <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('footer.theme')}</div>
                       {themeOptions.map((option) => (
                         <button
                           key={option.key}
                           onClick={() => { setTheme(option.key); setSiteThemeOpen(false); }}
-                          className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors ${
+                          className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors can-hover:hover:bg-accent active:bg-accent ${
                             theme === option.key
                               ? 'text-foreground'
                               : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
@@ -1822,13 +1822,13 @@ const SettingsPage: React.FC = () => {
                               <ChevronDownIcon className="w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                             </button>
                           </PopoverTrigger>
-                          <PopoverContent side="bottom" align="start" className="w-44 p-0 rounded-none border border-border bg-card">
+                          <PopoverContent side="bottom" align="start" className="w-44 p-1 rounded-none border border-border bg-card">
                             <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('settings.apiKeys.expiration.label')}</div>
                             {(['7d', '30d', '60d', '90d', 'custom', 'none'] as ExpirationOption[]).map((opt) => (
                               <button
                                 key={opt}
                                 onClick={() => { setApplyExpiration(opt); setApplyExpirationOpen(false); }}
-                                className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors ${
+                                className={`w-full flex items-center gap-3 px-2.5 h-10 text-sm transition-colors can-hover:hover:bg-accent active:bg-accent ${
                                   applyExpiration === opt
                                     ? 'text-foreground'
                                     : 'text-muted-foreground can-hover:hover:bg-accent active:bg-accent'
