@@ -420,6 +420,7 @@
     "setupFailed": "P2P接続の設定に失敗しました",
     "senderCancelled": "送信者が転送を中止しました",
     "senderDisconnected": "送信者が接続を切断しました",
+    "senderCancelledTransfer": "送信者が転送をキャンセルしました",
     "downloadCancelled": "ダウンロードが中止されました"
   },
   "settings": {

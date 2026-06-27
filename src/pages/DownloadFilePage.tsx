@@ -244,6 +244,8 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     },
     onPeerFileRemoved: (removedKey) => {
       const removed = fileList?.files.find((f) => (f.relative_path || f.file_name) === removedKey);
+      const activeFile = p2pActiveFileId ? fileList?.files.find((f) => f.id === p2pActiveFileId) : null;
+      const activeRemoved = !!activeFile && (activeFile.relative_path || activeFile.file_name) === removedKey;
       setFileList((prev) => {
         if (!prev) return prev;
         const files = prev.files.filter((f) => (f.relative_path || f.file_name) !== removedKey);
@@ -252,6 +254,13 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       if (removed && bulkQueueRef.current.includes(removed.id)) {
         bulkQueueRef.current = bulkQueueRef.current.filter((id) => id !== removed.id);
         setBulkRemaining(bulkQueueRef.current.length);
+      }
+      if (activeRemoved) {
+        // The sender removed the file currently being received → it would otherwise hang on
+        // "receiving…". Warn the receiver and end the session.
+        toast.warning(t('p2p.senderCancelledTransfer'));
+        if (embedded) onReset?.();
+        else navigate('/');
       }
     },
     onSenderDisconnected: () => {

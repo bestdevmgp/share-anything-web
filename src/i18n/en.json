@@ -424,6 +424,7 @@
     "setupFailed": "Failed to set up P2P connection",
     "senderCancelled": "The sender stopped the transfer",
     "senderDisconnected": "The sender has disconnected",
+    "senderCancelledTransfer": "The sender cancelled the transfer",
     "downloadCancelled": "Download has been cancelled"
   },
   "settings": {
