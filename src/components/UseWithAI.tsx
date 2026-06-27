@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDownIcon, ArrowUpRightIcon } from '@heroicons/react/24/outline';
-import { SparklesIcon } from '@heroicons/react/24/solid';
+import { ChevronDownIcon, SparklesIcon, ArrowUpRightIcon } from '@heroicons/react/24/outline';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { toast } from '../context/ToastContext';
 import { copyToClipboard } from '../utils/format';
@@ -69,11 +68,11 @@ const UseWithAI: React.FC<Props> = ({ markdown, url, promptIntro, t }) => {
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="group inline-flex items-center gap-1.5 rounded-none border border-border bg-card px-3 py-2 text-sm font-medium text-foreground can-hover:hover:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors focus:outline-none"
+          className="group inline-flex items-center gap-1.5 rounded-none border border-border bg-card h-10 px-3 text-sm font-medium text-foreground can-hover:hover:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors focus:outline-none"
         >
-          <SparklesIcon className="w-[18px] h-[18px] text-foreground" />
+          <SparklesIcon className="w-[18px] h-[18px] text-foreground" strokeWidth={2} />
           <span>{t('cli.useWithAI')}</span>
-          <ChevronDownIcon className="w-3 h-3 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+          <ChevronDownIcon className="w-3 h-3 ml-1 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" sideOffset={6} className="flex flex-col w-auto px-1 py-[5px] rounded-none border-border bg-card">
