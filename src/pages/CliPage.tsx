@@ -4,6 +4,121 @@ import { useTranslation } from 'i18n';
 import { useAuth } from 'context/AuthContext';
 import { CommandLineIcon } from '@heroicons/react/24/outline';
 import CopyButton from '../components/CopyButton';
+import UseWithAI from '../components/UseWithAI';
+
+type TFunc = (key: string, params?: Record<string, string | number>) => string;
+
+// The page rendered as Markdown — fed to "Copy as Markdown" and the Claude/ChatGPT prompts so the
+// assistant has the full CLI reference inline (the /cli page is client-rendered, so a URL alone
+// wouldn't be readable).
+const buildCliMarkdown = (t: TFunc): string => `# ${t('cli.pageTitle')}
+
+${t('cli.pageDescription')}
+
+## ${t('cli.binaryTitle')}
+
+**${t('cli.installNpm')}**
+\`\`\`sh
+npm i -g share-anything-cli
+\`\`\`
+
+**${t('cli.installCurl')}**
+\`\`\`sh
+curl -fsSL share-api.mingyu.dev/install | sh
+\`\`\`
+
+**${t('cli.binaryTui')}** — ${t('cli.binaryTuiHint')}
+\`\`\`sh
+share
+\`\`\`
+
+**${t('cli.binaryUpload')}** — ${t('cli.binaryUploadHint')} ${t('cli.binaryUploadPathHint')}
+\`\`\`sh
+share upload myfile.txt
+\`\`\`
+
+**${t('cli.binarySecureUpload')}** — ${t('cli.binarySecureUploadHint')}
+\`\`\`sh
+share upload --secure myfile.txt
+\`\`\`
+
+**${t('cli.binaryList')}**
+\`\`\`sh
+share list
+\`\`\`
+
+**${t('cli.binaryDownload')}** — ${t('cli.binaryDownloadHint')}
+\`\`\`sh
+share download 123456
+\`\`\`
+
+**${t('cli.binaryInfo')}**
+\`\`\`sh
+share info 123456
+\`\`\`
+
+**${t('cli.binaryBrowserAuth')}** — ${t('cli.binaryBrowserAuthHint')}
+\`\`\`sh
+share login
+\`\`\`
+
+**${t('cli.binaryAuth')}**
+\`\`\`sh
+share login sat_your_token_here
+\`\`\`
+
+**${t('cli.binaryLogout')}**
+\`\`\`sh
+share logout
+\`\`\`
+
+## ${t('cli.curlTitle')}
+
+${t('cli.curlDescription')}
+
+**${t('cli.curlUpload')}** — ${t('cli.curlPathHint')}
+\`\`\`sh
+curl -F 'file=@./myfile.txt' https://share-api.mingyu.dev/cli/uploads
+\`\`\`
+
+**${t('cli.curlDownload')}**
+\`\`\`sh
+curl -OJ https://share-api.mingyu.dev/cli/shares/123456/download
+\`\`\`
+
+**${t('cli.curlMultipleFiles')}**
+\`\`\`sh
+curl -F 'file=@./file1.txt' -F 'file=@./file2.png' https://share-api.mingyu.dev/cli/uploads
+\`\`\`
+
+**${t('cli.curlWithPersonalToken')}**
+\`\`\`sh
+curl -H 'X-Personal-Token: sat_your_token_here' -F 'file=@./myfile.txt' -F 'expiration=1h' https://share-api.mingyu.dev/cli/uploads
+\`\`\`
+
+## ${t('cli.optionsTitle')}
+
+${t('cli.optionsDescription')}
+
+| ${t('cli.optionName')} | curl | share-cli | ${t('cli.optionValues')} |
+| --- | --- | --- | --- |
+| ${t('cli.limitExpiration')} | \`-F 'expiration=1h'\` | \`--expires 1h\` | 5m, 30m, 1h, 3h, 6h, 12h, 24h |
+| ${t('cli.limitPassword')} | \`-F 'password=secret'\` | \`--password secret\` | ${t('cli.optionAnyString')} |
+| ${t('cli.limitOneTime')} | \`-F 'is_one_time=true'\` | \`--one-time\` | - |
+| ${t('cli.limitSecure')} | - | \`--secure\` | - |
+
+${t('cli.optionsNote')}
+
+## ${t('cli.limitsTitle')}
+
+| ${t('cli.feature')} | ${t('cli.guest')} | ${t('cli.personalTokenUser')} |
+| --- | --- | --- |
+| ${t('cli.limitMaxSize')} | 10GB / day | 1TB / day |
+| ${t('cli.limitExpiration')} | 30m | 5m ~ 24h |
+| ${t('cli.limitPassword')} | - | ✓ |
+| ${t('cli.limitOneTime')} | - | ✓ |
+| ${t('cli.limitHistory')} | - | ✓ |
+`;
 
 const CliPage: React.FC = () => {
   const { t } = useTranslation();
@@ -72,9 +187,17 @@ const CliPage: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
-      <div className="flex items-center gap-3 mb-8">
-        <CommandLineIcon className="w-8 h-8 text-primary" style={{ strokeWidth: 2 }} />
-        <h1 className="text-3xl font-bold text-foreground">{t('cli.pageTitle')}</h1>
+      <div className="flex items-center justify-between gap-3 mb-8">
+        <div className="flex items-center gap-3 min-w-0">
+          <CommandLineIcon className="w-8 h-8 text-primary flex-shrink-0" style={{ strokeWidth: 2 }} />
+          <h1 className="text-3xl font-bold text-foreground truncate">{t('cli.pageTitle')}</h1>
+        </div>
+        <UseWithAI
+          markdown={buildCliMarkdown(t)}
+          url={typeof window !== 'undefined' ? `${window.location.origin}/cli` : 'https://share-api.mingyu.dev/cli'}
+          promptIntro={t('cli.aiPromptIntro')}
+          t={t}
+        />
       </div>
 
       <p className="text-lg text-muted-foreground mb-10">
