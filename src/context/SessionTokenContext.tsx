@@ -249,6 +249,7 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
             <Turnstile
               key={retryTick}
               ref={interactiveRef}
+              className="w-full"
               siteKey={INTERACTIVE_SITE_KEY || SITE_KEY}
               onSuccess={onTurnstileSuccess}
               onError={onInteractiveError}
