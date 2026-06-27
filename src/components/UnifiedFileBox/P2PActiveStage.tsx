@@ -73,12 +73,10 @@ const P2PActiveStage: React.FC<Props> = ({
             : 'connected';
 
   const isDone = overall === 'completed';
-  // ≥1 file sent but not all → let the sender finish now (button becomes "Done").
   const canFinishPartial = !isDone && transferredCount >= 1;
   const greenCircle =
     overall === 'connected' || overall === 'waiting_for_next' || overall === 'completed';
 
-  // On the completed screen show only the files that actually finished sending.
   const shownFiles = useMemo(
     () =>
       overall === 'completed'

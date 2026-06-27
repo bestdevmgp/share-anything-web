@@ -107,7 +107,6 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   const [p2pEnabled, setP2pEnabled] = useState(false);
   const [p2pActiveFileId, setP2pActiveFileId] = useState<string | null>(null);
   const [p2pCompletedFileIds, setP2pCompletedFileIds] = useState<Set<string>>(new Set());
-  // Sender ended the session while files remain — show a partial-success screen instead of bailing.
   const [senderEnded, setSenderEnded] = useState(false);
   const [openP2PFolders, setOpenP2PFolders] = useState<Set<string>>(new Set());
   const toggleP2PFolder = (path: string) => setOpenP2PFolders((prev) => toggleFolderOpen(prev, path));
@@ -258,16 +257,12 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         setBulkRemaining(bulkQueueRef.current.length);
       }
       if (activeRemoved) {
-        // The sender removed the file currently being received → it would otherwise hang on
-        // "receiving…". Warn the receiver and end the session.
         toast.warning(t('p2p.senderCancelledTransfer'));
         if (embedded) onReset?.();
         else navigate('/');
       }
     },
     onSenderDisconnected: () => {
-      // Sender ended the session. If everything was already received the success screen is showing.
-      // If ≥1 file made it, keep the receiver on a partial-success screen; if nothing arrived, warn and leave.
       const total = fileList?.files.length ?? 0;
       const received = fileList ? fileList.files.filter((f) => p2pCompletedFileIds.has(f.id)).length : 0;
       if (total > 0 && received === total) return;

@@ -434,8 +434,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
           if (!completedFileRef.current) {
             setStatus('cancelled');
           }
-          // Always tell the UI: between files completedFileRef is true, so without this the
-          // receiver would get no warning and the next file_request would silently no-op.
           onSenderDisconnectedRef.current?.();
           cleanupSession();
           break;
