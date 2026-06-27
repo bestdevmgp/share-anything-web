@@ -1,12 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ChevronDownIcon, SparklesIcon, ArrowUpRightIcon } from '@heroicons/react/24/outline';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from './ui/dropdown-menu';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { toast } from '../context/ToastContext';
 import { copyToClipboard } from '../utils/format';
 
@@ -48,37 +42,49 @@ const IconBox: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   </span>
 );
 
+const ITEM_CLASS =
+  'flex items-center gap-2.5 px-2 py-2 text-left transition-colors can-hover:hover:bg-accent active:bg-accent outline-none cursor-pointer';
+
 const UseWithAI: React.FC<Props> = ({ markdown, url, promptIntro, t }) => {
+  const [open, setOpen] = useState(false);
+
   // Short prompt: a localized intro + the raw-markdown URL the assistant should read.
   const aiPrompt = `${promptIntro} ${url}`;
 
   const openInAI = (base: string) => {
     window.open(base + encodeURIComponent(aiPrompt), '_blank', 'noopener,noreferrer');
+    setOpen(false);
   };
 
   const copyMarkdown = async () => {
     if (await copyToClipboard(markdown)) {
       toast.success(t('cli.markdownCopied'));
     }
+    setOpen(false);
   };
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger className="group inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-foreground can-hover:hover:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors focus:outline-none">
-        <SparklesIcon className="w-[18px] h-[18px] text-foreground" strokeWidth={2} />
-        <span>{t('cli.useWithAI')}</span>
-        <ChevronDownIcon className="w-3.5 h-3.5 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-auto">
-        <DropdownMenuItem className="cursor-pointer items-center gap-2.5 px-2 py-2" onClick={copyMarkdown}>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="group inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-foreground can-hover:hover:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors focus:outline-none"
+        >
+          <SparklesIcon className="w-[18px] h-[18px] text-foreground" strokeWidth={2} />
+          <span>{t('cli.useWithAI')}</span>
+          <ChevronDownIcon className="w-3.5 h-3.5 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="end" sideOffset={6} className="w-auto p-1 rounded-none border-border bg-card">
+        <button type="button" className={ITEM_CLASS} onClick={copyMarkdown}>
           <IconBox><MarkdownIcon /></IconBox>
           <div>
             <div className="text-sm font-medium text-foreground whitespace-nowrap">{t('cli.copyMarkdown')}</div>
             <div className="text-xs text-muted-foreground whitespace-nowrap">{t('cli.copyMarkdownDesc')}</div>
           </div>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator className="mx-1.5 bg-foreground/15 dark:bg-muted" />
-        <DropdownMenuItem className="cursor-pointer items-center gap-2.5 px-2 py-2" onClick={() => openInAI('https://claude.ai/new?q=')}>
+        </button>
+        <div className="mx-1.5 my-1 h-px bg-foreground/15 dark:bg-muted" />
+        <button type="button" className={ITEM_CLASS} onClick={() => openInAI('https://claude.ai/new?q=')}>
           <IconBox><ClaudeIcon /></IconBox>
           <div>
             <div className="flex items-center gap-1 text-sm font-medium text-foreground whitespace-nowrap">
@@ -87,8 +93,8 @@ const UseWithAI: React.FC<Props> = ({ markdown, url, promptIntro, t }) => {
             </div>
             <div className="text-xs text-muted-foreground whitespace-nowrap">{t('cli.openInClaudeDesc')}</div>
           </div>
-        </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer items-center gap-2.5 px-2 py-2" onClick={() => openInAI('https://chatgpt.com/?q=')}>
+        </button>
+        <button type="button" className={ITEM_CLASS} onClick={() => openInAI('https://chatgpt.com/?q=')}>
           <IconBox><ChatGptIcon /></IconBox>
           <div>
             <div className="flex items-center gap-1 text-sm font-medium text-foreground whitespace-nowrap">
@@ -97,9 +103,9 @@ const UseWithAI: React.FC<Props> = ({ markdown, url, promptIntro, t }) => {
             </div>
             <div className="text-xs text-muted-foreground whitespace-nowrap">{t('cli.openInChatGPTDesc')}</div>
           </div>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </button>
+      </PopoverContent>
+    </Popover>
   );
 };
 
