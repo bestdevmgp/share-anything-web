@@ -1,5 +1,7 @@
 # ShareAnything CLI
 
+ShareAnything is a file-sharing service: upload a file and share it with others via a short code or link.
+
 Share files from your terminal. Install the CLI via npm, or use curl to get started instantly.
 
 ## Install and use (Recommended)

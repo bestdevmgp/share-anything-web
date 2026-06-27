@@ -8,10 +8,11 @@ import UseWithAI from '../components/UseWithAI';
 
 type TFunc = (key: string, params?: Record<string, string | number>) => string;
 
-// The page rendered as Markdown — fed to "Copy as Markdown" and the Claude/ChatGPT prompts so the
-// assistant has the full CLI reference inline (the /cli page is client-rendered, so a URL alone
-// wouldn't be readable).
+// The page rendered as localized Markdown for "Copy as Markdown". (The AI prompts don't use this —
+// they point Claude/ChatGPT at the static English public/cli.md so the prompt stays short.)
 const buildCliMarkdown = (t: TFunc): string => `# ${t('cli.pageTitle')}
+
+${t('cli.serviceIntro')}
 
 ${t('cli.pageDescription')}
 
