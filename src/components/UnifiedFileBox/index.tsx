@@ -35,8 +35,11 @@ const UnifiedFileBox: React.FC = () => {
   const [downloadBusy, setDownloadBusy] = useState(false);
 
   const prevStateRef = useRef(state.state);
-  const idleReturnFromSuccess =
-    state.state === 'idleUpload' && prevStateRef.current === 'success';
+  const idleReturnAnimated =
+    state.state === 'idleUpload' &&
+    (prevStateRef.current === 'success' ||
+      prevStateRef.current === 'p2pCompleted' ||
+      prevStateRef.current === 'downloadActive');
   useEffect(() => {
     prevStateRef.current = state.state;
   }, [state.state]);
@@ -288,7 +291,7 @@ const UnifiedFileBox: React.FC = () => {
         role="tabpanel"
       >
         {state.mode === 'upload' && state.state === 'idleUpload' && (
-          <IdleUpload onNormal={onNormal} onSecure={onSecure} animateIn={idleReturnFromSuccess} />
+          <IdleUpload onNormal={onNormal} onSecure={onSecure} animateIn={idleReturnAnimated} />
         )}
         {state.mode === 'upload' && state.state === 'uploading' && (
           <Uploading items={items} onCancel={onCancelUploadFile} onCancelAll={onCancelAllUpload} />

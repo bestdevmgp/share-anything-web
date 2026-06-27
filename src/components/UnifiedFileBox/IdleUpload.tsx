@@ -16,7 +16,7 @@ const IdleUpload: React.FC<Props> = ({ onNormal, onSecure, animateIn }) => {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
   const [enterAnim] = useState(
-    animateIn ? 'animate-in fade-in-0 slide-in-from-bottom-1 duration-300' : ''
+    animateIn ? 'animate-in fade-in-0 slide-in-from-top-2 duration-300' : ''
   );
 
   const normalDz = useDropzone({ onDrop: onNormal, multiple: true, getFilesFromEvent: getFilesWithPaths });
