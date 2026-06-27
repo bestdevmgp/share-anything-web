@@ -75,7 +75,7 @@ const UseWithAI: React.FC<Props> = ({ markdown, url, promptIntro, t }) => {
           <ChevronDownIcon className="w-3 h-3 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" sideOffset={6} className="flex flex-col w-auto p-1 rounded-none border-border bg-card">
+      <PopoverContent align="end" sideOffset={6} className="flex flex-col w-auto px-1 py-1.5 rounded-none border-border bg-card">
         <button type="button" className={ITEM_CLASS} onClick={copyMarkdown}>
           <IconBox><MarkdownIcon /></IconBox>
           <div>
