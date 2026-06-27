@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronDownIcon, SparklesIcon, ArrowUpRightIcon } from '@heroicons/react/24/outline';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { toast } from '../context/ToastContext';
@@ -40,6 +40,14 @@ const ITEM_CLASS =
 
 const UseWithAI: React.FC<Props> = ({ markdown, url, promptIntro, t }) => {
   const [open, setOpen] = useState(false);
+  const [stacked, setStacked] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    const update = () => setStacked(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
 
   const aiPrompt = `${promptIntro} ${url}`;
 
@@ -67,7 +75,7 @@ const UseWithAI: React.FC<Props> = ({ markdown, url, promptIntro, t }) => {
           <ChevronDownIcon className="w-3 h-3 ml-1 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" sideOffset={6} className="flex flex-col w-auto px-1 py-[5px] rounded-none border-border bg-card">
+      <PopoverContent align={stacked ? 'start' : 'end'} sideOffset={6} className="flex flex-col w-auto px-1 py-[5px] rounded-none border-border bg-card">
         <button type="button" className={ITEM_CLASS} onClick={copyMarkdown}>
           <IconBox><MarkdownIcon /></IconBox>
           <div>
