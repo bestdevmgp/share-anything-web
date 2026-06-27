@@ -67,7 +67,7 @@ const UseWithAI: React.FC<Props> = ({ markdown, url, promptIntro, t }) => {
       <DropdownMenuTrigger className="group inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-foreground can-hover:hover:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors focus:outline-none">
         <SparklesIcon className="w-[18px] h-[18px] text-foreground" strokeWidth={2} />
         <span>{t('cli.useWithAI')}</span>
-        <ChevronDownIcon className="w-4 h-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+        <ChevronDownIcon className="w-3.5 h-3.5 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-auto">
         <DropdownMenuItem className="cursor-pointer items-center gap-2.5 px-2 py-2" onClick={copyMarkdown}>
@@ -77,7 +77,7 @@ const UseWithAI: React.FC<Props> = ({ markdown, url, promptIntro, t }) => {
             <div className="text-xs text-muted-foreground whitespace-nowrap">{t('cli.copyMarkdownDesc')}</div>
           </div>
         </DropdownMenuItem>
-        <DropdownMenuSeparator className="mx-1.5" />
+        <DropdownMenuSeparator className="mx-1.5 bg-foreground/15 dark:bg-muted" />
         <DropdownMenuItem className="cursor-pointer items-center gap-2.5 px-2 py-2" onClick={() => openInAI('https://claude.ai/new?q=')}>
           <IconBox><ClaudeIcon /></IconBox>
           <div>
