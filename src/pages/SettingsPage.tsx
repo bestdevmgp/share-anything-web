@@ -903,7 +903,7 @@ const SettingsPage: React.FC = () => {
                         <ChevronDownIcon className="w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       </button>
                     </PopoverTrigger>
-                    <PopoverContent side="bottom" align="start" sideOffset={4} className="w-40 p-1 rounded-none border border-border bg-card sm:align-end">
+                    <PopoverContent side="bottom" align="start" sideOffset={4} className="w-40 p-0 rounded-none border border-border bg-card sm:align-end">
                       <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('settings.notifyLanguage')}</div>
                       {langOptions.map((option) => (
                         <button
@@ -954,7 +954,7 @@ const SettingsPage: React.FC = () => {
                         <ChevronDownIcon className="w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       </button>
                     </PopoverTrigger>
-                    <PopoverContent side="bottom" align="start" sideOffset={4} className="w-40 p-1 rounded-none border border-border bg-card sm:align-end">
+                    <PopoverContent side="bottom" align="start" sideOffset={4} className="w-40 p-0 rounded-none border border-border bg-card sm:align-end">
                       <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('settings.defaultExpirationLabel')}</div>
                       {expirationOptions.map((option) => (
                         <button
@@ -995,7 +995,7 @@ const SettingsPage: React.FC = () => {
                         <ChevronDownIcon className="w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       </button>
                     </PopoverTrigger>
-                    <PopoverContent side="bottom" align="start" sideOffset={4} className="w-40 p-1 rounded-none border border-border bg-card sm:align-end">
+                    <PopoverContent side="bottom" align="start" sideOffset={4} className="w-40 p-0 rounded-none border border-border bg-card sm:align-end">
                       <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('footer.language')}</div>
                       {langOptions.map((option) => (
                         <button
@@ -1036,7 +1036,7 @@ const SettingsPage: React.FC = () => {
                         <ChevronDownIcon className="w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       </button>
                     </PopoverTrigger>
-                    <PopoverContent side="bottom" align="start" sideOffset={4} className="w-40 p-1 rounded-none border border-border bg-card sm:align-end">
+                    <PopoverContent side="bottom" align="start" sideOffset={4} className="w-40 p-0 rounded-none border border-border bg-card sm:align-end">
                       <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('footer.theme')}</div>
                       {themeOptions.map((option) => (
                         <button
@@ -1822,7 +1822,7 @@ const SettingsPage: React.FC = () => {
                               <ChevronDownIcon className="w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                             </button>
                           </PopoverTrigger>
-                          <PopoverContent side="bottom" align="start" className="w-44 p-1 rounded-none border border-border bg-card">
+                          <PopoverContent side="bottom" align="start" className="w-44 p-0 rounded-none border border-border bg-card">
                             <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('settings.apiKeys.expiration.label')}</div>
                             {(['7d', '30d', '60d', '90d', 'custom', 'none'] as ExpirationOption[]).map((opt) => (
                               <button

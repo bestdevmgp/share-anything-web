@@ -133,7 +133,7 @@ const Footer: React.FC = () => {
                 <ChevronUpIcon className="w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
               </button>
             </PopoverTrigger>
-            <PopoverContent side="top" align="start" className="w-40 p-1 rounded-none border border-border bg-card ">
+            <PopoverContent side="top" align="start" className="w-40 p-0 rounded-none border border-border bg-card ">
               <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('footer.language')}</div>
               {langOptions.map((option) => (
                 <button
@@ -161,7 +161,7 @@ const Footer: React.FC = () => {
                 <ChevronUpIcon className="w-3 h-3 transition-transform duration-200 group-data-[state=open]:rotate-180" />
               </button>
             </PopoverTrigger>
-            <PopoverContent side="top" align="end" className="w-28 p-1 rounded-none border border-border bg-card ">
+            <PopoverContent side="top" align="end" className="w-28 p-0 rounded-none border border-border bg-card ">
               <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('footer.theme')}</div>
               {themeOptions.map((option) => (
                 <button
