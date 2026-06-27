@@ -711,7 +711,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       const looseNodes = selTree.filter((n): n is TreeFile => n.kind === 'file');
 
       const getUrl = async (fileId: string) =>
-        (await fileAPI.getDownloadUrl(code, fileId, password || undefined)).download_url;
+        (await fileAPI.getDownloadUrl(code, fileId, password || undefined, undefined, undefined, true)).download_url;
 
       const saveLoose = async (node: TreeFile) => {
         const url = await getUrl(node.id);
@@ -764,6 +764,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         }
       }
 
+      fileAPI.notifyDownload(code, selectedFileIds);
       recordDownloadRef.current();
       toast.success(
         selectedFileIds.length === 1
@@ -822,7 +823,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
           emptyFolders: fileList.empty_folders,
           suggestedName: `share-${code}.zip`,
           getDownloadUrl: async (fileId) => {
-            const { download_url } = await fileAPI.getDownloadUrl(code, fileId, password || undefined);
+            const { download_url } = await fileAPI.getDownloadUrl(code, fileId, password || undefined, undefined, undefined, true);
             return download_url;
           },
           onProgress: (p) => {
@@ -835,6 +836,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
 
         if (saved) {
           recordDownloadRef.current();
+          fileAPI.notifyDownload(code, selected.map((f) => f.id));
           toast.success(t('download.zipDownloadComplete'));
         }
       } catch (err: any) {

@@ -457,7 +457,8 @@ export const fileAPI = {
     fileId: string,
     password?: string,
     inline?: boolean,
-    preview?: boolean
+    preview?: boolean,
+    deferNotify?: boolean
   ): Promise<{ download_url: string; expires_in_secs: number }> => {
     const headers: Record<string, string> = {};
     if (password) {
@@ -467,6 +468,9 @@ export const fileAPI = {
     const params: Record<string, string> = { code, file_id: fileId };
     if (inline) params.inline = 'true';
     if (preview) params.preview = 'true';
+    // Multi-file downloads request every URL with defer_notify so the server holds off on the
+    // per-file email; notifyDownload() then sends one aggregated "N files" notification.
+    if (deferNotify) params.defer_notify = 'true';
 
     const response = await api.get<{ download_url: string; expires_in_secs: number }>('/download/url', {
       params,
@@ -474,6 +478,17 @@ export const fileAPI = {
     });
 
     return response.data;
+  },
+
+  // Send ONE aggregated download notification for a multi-file event (used with getDownloadUrl's
+  // deferNotify). Best-effort: failures are swallowed so they never block the download UX.
+  notifyDownload: async (code: string, fileIds: string[]): Promise<void> => {
+    if (fileIds.length === 0) return;
+    try {
+      await api.post('/download/notify', { code, file_ids: fileIds });
+    } catch {
+      /* notification is best-effort */
+    }
   },
 
 
