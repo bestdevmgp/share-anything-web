@@ -8,6 +8,7 @@ import { toast } from './ToastContext';
 type Status = 'idle' | 'minting' | 'ready' | 'failed';
 
 const SITE_KEY = process.env.REACT_APP_TURNSTILE_SITE_KEY;
+const INTERACTIVE_SITE_KEY = process.env.REACT_APP_TURNSTILE_INTERACTIVE_SITE_KEY;
 const REFRESH_LEAD_MS = 300_000;
 const MAX_RETRIES = 3;
 const LOAD_TIMEOUT_MS = 12_000;
@@ -248,7 +249,7 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
             <Turnstile
               key={retryTick}
               ref={interactiveRef}
-              siteKey={SITE_KEY}
+              siteKey={INTERACTIVE_SITE_KEY || SITE_KEY}
               onSuccess={onTurnstileSuccess}
               onError={onInteractiveError}
               options={{ size: 'flexible', action: 'session', retry: 'never' }}
