@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { ChevronDownIcon, SparklesIcon, ArrowUpRightIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, ArrowUpRightIcon } from '@heroicons/react/24/outline';
+import { SparklesIcon } from '@heroicons/react/24/solid';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { toast } from '../context/ToastContext';
 import { copyToClipboard } from '../utils/format';
@@ -70,7 +71,7 @@ const UseWithAI: React.FC<Props> = ({ markdown, url, promptIntro, t }) => {
           type="button"
           className="group inline-flex items-center gap-1.5 rounded-none border border-border bg-card px-3 py-2 text-sm font-medium text-foreground can-hover:hover:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors focus:outline-none"
         >
-          <SparklesIcon className="w-[18px] h-[18px] text-foreground" strokeWidth={2} />
+          <SparklesIcon className="w-[18px] h-[18px] text-foreground" />
           <span>{t('cli.useWithAI')}</span>
           <ChevronDownIcon className="w-3 h-3 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
         </button>
