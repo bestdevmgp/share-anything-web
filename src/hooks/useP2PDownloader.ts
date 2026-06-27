@@ -11,13 +11,14 @@ interface UseP2PDownloaderProps {
   enabled: boolean;
   onComplete: (blob: Blob) => void;
   onPeerFileRemoved?: (fileName: string) => void;
+  onSenderDisconnected?: () => void;
   password?: string;
 }
 
 const fileKey = (info: { relative_path?: string; file_name: string }): string =>
   info.relative_path && info.relative_path.length > 0 ? info.relative_path : info.file_name;
 
-export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onPeerFileRemoved, password }: UseP2PDownloaderProps) => {
+export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onPeerFileRemoved, onSenderDisconnected, password }: UseP2PDownloaderProps) => {
   const { t } = useTranslation();
   const [status, setStatus] = useState<'waiting' | 'connecting' | 'downloading' | 'processing' | 'completed' | 'error' | 'cancelled'>('waiting');
   const [progress, setProgress] = useState(0);
@@ -51,6 +52,8 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
   onCompleteRef.current = onComplete;
   const onPeerFileRemovedRef = useRef(onPeerFileRemoved);
   onPeerFileRemovedRef.current = onPeerFileRemoved;
+  const onSenderDisconnectedRef = useRef(onSenderDisconnected);
+  onSenderDisconnectedRef.current = onSenderDisconnected;
   const shareCodeRef = useRef(shareCode);
   shareCodeRef.current = shareCode;
 
@@ -430,8 +433,10 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
           isCleaningUpRef.current = true;
           if (!completedFileRef.current) {
             setStatus('cancelled');
-            toast.warning(t('p2p.senderDisconnected'));
           }
+          // Always tell the UI: between files completedFileRef is true, so without this the
+          // receiver would get no warning and the next file_request would silently no-op.
+          onSenderDisconnectedRef.current?.();
           cleanupSession();
           break;
       }

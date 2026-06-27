@@ -253,6 +253,15 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         bulkQueueRef.current = bulkQueueRef.current.filter((id) => id !== removed.id);
         setBulkRemaining(bulkQueueRef.current.length);
       }
+    },
+    onSenderDisconnected: () => {
+      // Sender cancelled mid-session. If the receiver still has files left, warn them and return
+      // to the receive screen — otherwise the next download click just silently does nothing.
+      const allDone = !!fileList && fileList.files.length > 0 && fileList.files.every((f) => p2pCompletedFileIds.has(f.id));
+      if (allDone) return;
+      toast.warning(t('p2p.senderDisconnected'));
+      if (embedded) onReset?.();
+      else navigate('/');
     }
   });
 
