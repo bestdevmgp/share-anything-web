@@ -14,11 +14,12 @@ interface Props {
 
 const WIDGET_WIDTH = 300;
 const WIDGET_HEIGHT = 65;
+const OPTICAL_INSET = 8;
 
 const TurnstileBlockedOverlay: React.FC<Props> = ({ onRetry, children, closing = false, loading = false }) => {
   const { t } = useTranslation();
   const [showFallback, setShowFallback] = useState(false);
-  const [scale, setScale] = useState(1);
+  const [slotWidth, setSlotWidth] = useState(0);
   const observerRef = useRef<ResizeObserver | null>(null);
 
   useEffect(() => {
@@ -39,13 +40,17 @@ const TurnstileBlockedOverlay: React.FC<Props> = ({ onRetry, children, closing =
     if (!el) return;
     const update = () => {
       const w = el.clientWidth;
-      if (w > 0) setScale(w < WIDGET_WIDTH ? w / WIDGET_WIDTH : 1);
+      if (w > 0) setSlotWidth(w);
     };
     update();
     const ro = new ResizeObserver(update);
     ro.observe(el);
     observerRef.current = ro;
   }, []);
+
+  const targetWidth = slotWidth > 0 ? Math.max(WIDGET_WIDTH * 0.5, slotWidth - OPTICAL_INSET) : 0;
+  const scale = targetWidth > 0 && targetWidth < WIDGET_WIDTH ? targetWidth / WIDGET_WIDTH : 1;
+  const scaled = scale < 1;
 
   return (
     <div
@@ -62,7 +67,7 @@ const TurnstileBlockedOverlay: React.FC<Props> = ({ onRetry, children, closing =
       >
         <StatusIcon variant="security" />
         <h2 className="mb-2 text-xl font-bold text-foreground">{t('botCheck.title')}</h2>
-        <p className="mb-4 text-sm text-muted-foreground leading-relaxed">{t('botCheck.desc')}</p>
+        <p className="mb-[18px] text-sm text-muted-foreground leading-relaxed">{t('botCheck.desc')}</p>
         {children && (
           <div className="relative mb-[18px] flex min-h-[65px] items-center justify-center">
             <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center px-3">
@@ -78,12 +83,12 @@ const TurnstileBlockedOverlay: React.FC<Props> = ({ onRetry, children, closing =
             <div
               ref={measureSlot}
               className="relative z-10 w-full"
-              style={scale < 1 ? { height: WIDGET_HEIGHT * scale } : undefined}
+              style={scaled ? { height: WIDGET_HEIGHT * scale } : undefined}
             >
               <div
-                className={scale < 1 ? 'absolute top-0' : 'flex w-full justify-center'}
+                className={scaled ? 'absolute top-0' : 'mx-auto'}
                 style={
-                  scale < 1
+                  scaled
                     ? {
                         left: '50%',
                         width: WIDGET_WIDTH,
@@ -91,6 +96,8 @@ const TurnstileBlockedOverlay: React.FC<Props> = ({ onRetry, children, closing =
                         transform: `scale(${scale})`,
                         transformOrigin: 'top center',
                       }
+                    : targetWidth > 0
+                    ? { width: targetWidth }
                     : undefined
                 }
               >
