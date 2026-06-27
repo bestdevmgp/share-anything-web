@@ -68,14 +68,14 @@ const UseWithAI: React.FC<Props> = ({ markdown, url, promptIntro, t }) => {
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="group inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-foreground can-hover:hover:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors focus:outline-none"
+          className="group inline-flex items-center gap-1.5 rounded-none border border-border bg-card px-3 py-2 text-sm font-medium text-foreground can-hover:hover:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors focus:outline-none"
         >
           <SparklesIcon className="w-[18px] h-[18px] text-foreground" strokeWidth={2} />
           <span>{t('cli.useWithAI')}</span>
           <ChevronDownIcon className="w-3.5 h-3.5 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
         </button>
       </PopoverTrigger>
-      <PopoverContent align="end" sideOffset={6} className="w-auto p-1 rounded-none border-border bg-card">
+      <PopoverContent align="end" sideOffset={6} className="flex flex-col w-auto p-1 rounded-none border-border bg-card">
         <button type="button" className={ITEM_CLASS} onClick={copyMarkdown}>
           <IconBox><MarkdownIcon /></IconBox>
           <div>
