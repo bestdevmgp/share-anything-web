@@ -83,7 +83,7 @@ const UseWithAI: React.FC<Props> = ({ markdown, url, promptIntro, t }) => {
             <div className="text-xs text-muted-foreground whitespace-nowrap">{t('cli.copyMarkdownDesc')}</div>
           </div>
         </button>
-        <div className="mx-1.5 my-1 h-px bg-foreground/15" />
+        <div className="mx-1.5 my-1 h-px bg-foreground/10" />
         <button type="button" className={ITEM_CLASS} onClick={() => openInAI('https://claude.ai/new?q=')}>
           <IconBox><ClaudeIcon /></IconBox>
           <div>
