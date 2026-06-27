@@ -299,6 +299,7 @@
     "receivingFrom": "{{device}}からファイルを受信中です。",
     "receivingPleaseWait": "ファイルを受信中です。しばらくお待ちください。",
     "receivedSuccessfully": "ファイルの受信が完了しました。",
+    "filesReceived": "{{count}}個のファイルを正常に受信しました。",
     "connectedToDevice": "{{device}}に接続しました。",
     "connectionSuccess": "送信者への接続に成功しました。",
     "connectingToSender": "送信者に接続しています...",

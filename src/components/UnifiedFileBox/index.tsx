@@ -222,6 +222,12 @@ const UnifiedFileBox: React.FC = () => {
     dispatch({ type: 'p2pCancel' });
   }, [dispatch]);
 
+  const onP2PFinish = useCallback(() => {
+    // ≥1 file already sent: finish now. p2pCompleted flips p2pEnabled off, which tears down the
+    // socket → the receiver gets uploader_offline and renders its own partial-success screen.
+    dispatch({ type: 'p2pStatusChange', status: 'completed' });
+  }, [dispatch]);
+
   const onDrillDown = () => {
     navigate('/upload', { state: { initialFiles: state.files, fromUnifiedBox: true } });
   };
@@ -321,6 +327,7 @@ const UnifiedFileBox: React.FC = () => {
               peerDeviceInfo={p2p.peerDeviceInfo}
               completed={state.state === 'p2pCompleted'}
               onCancel={onP2PCancel}
+              onFinish={onP2PFinish}
               onCancelFile={(key) => {
                 const remaining = state.files.filter((f) => fileKey(f) !== key);
                 if (remaining.length === 0) {

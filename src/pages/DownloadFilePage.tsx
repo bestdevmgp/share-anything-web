@@ -107,6 +107,8 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   const [p2pEnabled, setP2pEnabled] = useState(false);
   const [p2pActiveFileId, setP2pActiveFileId] = useState<string | null>(null);
   const [p2pCompletedFileIds, setP2pCompletedFileIds] = useState<Set<string>>(new Set());
+  // Sender ended the session while files remain — show a partial-success screen instead of bailing.
+  const [senderEnded, setSenderEnded] = useState(false);
   const [openP2PFolders, setOpenP2PFolders] = useState<Set<string>>(new Set());
   const toggleP2PFolder = (path: string) => setOpenP2PFolders((prev) => toggleFolderOpen(prev, path));
 
@@ -264,11 +266,16 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       }
     },
     onSenderDisconnected: () => {
-      // Sender cancelled mid-session. If the receiver still has files left, warn them and return
-      // to the receive screen — otherwise the next download click just silently does nothing.
-      const allDone = !!fileList && fileList.files.length > 0 && fileList.files.every((f) => p2pCompletedFileIds.has(f.id));
-      if (allDone) return;
+      // Sender ended the session. If everything was already received the success screen is showing.
+      // If ≥1 file made it, keep the receiver on a partial-success screen; if nothing arrived, warn and leave.
+      const total = fileList?.files.length ?? 0;
+      const received = fileList ? fileList.files.filter((f) => p2pCompletedFileIds.has(f.id)).length : 0;
+      if (total > 0 && received === total) return;
       toast.warning(t('p2p.senderDisconnected'));
+      if (received >= 1) {
+        setSenderEnded(true);
+        return;
+      }
       if (embedded) onReset?.();
       else navigate('/');
     }
@@ -946,6 +953,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         p2pPeerDeviceInfo={p2pPeerDeviceInfo}
         p2pActiveFileId={p2pActiveFileId}
         p2pCompletedFileIds={p2pCompletedFileIds}
+        senderEnded={senderEnded}
         downloading={downloading}
         downloaded={downloaded}
         downloadProgress={downloadProgress}
@@ -1060,6 +1068,24 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     const allP2PCompleted = fileList.files.every(f => p2pCompletedFileIds.has(f.id));
     const anyP2PDownloading = p2pActiveFileId && (p2pStatus === 'downloading' || p2pStatus === 'connecting' || p2pStatus === 'processing');
     const awaitingNextSelection = !anyP2PDownloading && !allP2PCompleted && p2pCompletedFileIds.size > 0;
+
+    if (senderEnded && !allP2PCompleted && p2pCompletedFileIds.size > 0) {
+      return (
+        <div className="min-h-full flex flex-col items-center justify-center pt-12 pb-20 px-4">
+          <style>{`.p2p-end-check{stroke-dasharray:20;stroke-dashoffset:20;animation:drawP2PEndCheck .6s ease-out forwards}@keyframes drawP2PEndCheck{to{stroke-dashoffset:0}}`}</style>
+          <div className="w-full max-w-md mx-auto text-center">
+            <div className="flex justify-center mb-5">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center bg-green-100 dark:bg-green-500/15">
+                <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" className="p2p-end-check" /></svg>
+              </div>
+            </div>
+            <h1 className="text-4xl font-bold text-foreground mb-3">{t('download.receiveCompleteTitle')}</h1>
+            <p className="text-muted-foreground mb-8">{t('download.filesReceived', { count: p2pCompletedFileIds.size })}</p>
+            <Button onClick={() => navigate('/')} size="lg">{t('common.done')}</Button>
+          </div>
+        </div>
+      );
+    }
 
     const p2pTree = buildFileTree(fileList.files, fileList.empty_folders ?? []);
     const p2pHasFolders = p2pTree.some((n) => n.kind === 'folder');

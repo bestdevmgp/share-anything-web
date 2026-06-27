@@ -33,6 +33,7 @@ interface Props {
   peerDeviceInfo: string | null;
   completed: boolean;
   onCancel: () => void;
+  onFinish: () => void;
   onCancelFile: (fileName: string) => void;
   onNew: () => void;
 }
@@ -45,40 +46,11 @@ const P2PActiveStage: React.FC<Props> = ({
   peerDeviceInfo,
   completed,
   onCancel,
+  onFinish,
   onCancelFile,
   onNew,
 }) => {
   const { t } = useTranslation();
-
-  const fileByKey = useMemo(() => new Map(files.map((f) => [fileKey(f), f] as const)), [files]);
-  const tree = useMemo(
-    () =>
-      buildFileTree(
-        files.map((f) => ({
-          id: fileKey(f),
-          file_name: f.name,
-          file_size: f.size,
-          relative_path: getRelativePathSafe(f) || '',
-        })),
-        emptyFolders
-      ),
-    [files, emptyFolders]
-  );
-  const hasFolders = treeHasFolders(tree);
-  const [openFolders, setOpenFolders] = useState<Set<string>>(() => {
-    // Default every folder open so the sender can watch each file's progress
-    // (and so empty subfolders nested under populated folders stay visible).
-    const set = new Set<string>();
-    const walk = (nodes: typeof tree) =>
-      nodes.forEach((n) => {
-        if (n.kind === 'folder') {
-          set.add(n.path);
-          walk(n.children);
-        }
-      });
-    walk(tree);
-    return set;
-  });
 
   const allFilesCompleted =
     files.length > 0 && files.every((f) => fileProgresses.get(fileKey(f))?.status === 'completed');
@@ -101,8 +73,49 @@ const P2PActiveStage: React.FC<Props> = ({
             : 'connected';
 
   const isDone = overall === 'completed';
+  // ≥1 file sent but not all → let the sender finish now (button becomes "Done").
+  const canFinishPartial = !isDone && transferredCount >= 1;
   const greenCircle =
     overall === 'connected' || overall === 'waiting_for_next' || overall === 'completed';
+
+  // On the completed screen show only the files that actually finished sending.
+  const shownFiles = useMemo(
+    () =>
+      overall === 'completed'
+        ? files.filter((f) => fileProgresses.get(fileKey(f))?.status === 'completed')
+        : files,
+    [overall, files, fileProgresses]
+  );
+
+  const fileByKey = useMemo(() => new Map(shownFiles.map((f) => [fileKey(f), f] as const)), [shownFiles]);
+  const tree = useMemo(
+    () =>
+      buildFileTree(
+        shownFiles.map((f) => ({
+          id: fileKey(f),
+          file_name: f.name,
+          file_size: f.size,
+          relative_path: getRelativePathSafe(f) || '',
+        })),
+        emptyFolders
+      ),
+    [shownFiles, emptyFolders]
+  );
+  const hasFolders = treeHasFolders(tree);
+  const [openFolders, setOpenFolders] = useState<Set<string>>(() => {
+    // Default every folder open so the sender can watch each file's progress
+    // (and so empty subfolders nested under populated folders stay visible).
+    const set = new Set<string>();
+    const walk = (nodes: typeof tree) =>
+      nodes.forEach((n) => {
+        if (n.kind === 'folder') {
+          set.add(n.path);
+          walk(n.children);
+        }
+      });
+    walk(tree);
+    return set;
+  });
 
   const title =
     overall === 'connected'
@@ -243,10 +256,10 @@ const P2PActiveStage: React.FC<Props> = ({
 
         <div className="md:flex-1 flex flex-col min-w-0" style={{ containerType: 'inline-size' }}>
           <p className="text-sm font-medium text-muted-foreground mb-2">
-            {t('uploadSuccess.fileList', { count: files.length })}
+            {t('uploadSuccess.fileList', { count: shownFiles.length })}
           </p>
           <ScrollableFileList
-            count={hasFolders ? visibleRowCount : files.length}
+            count={hasFolders ? visibleRowCount : shownFiles.length}
             recomputeKey={hasFolders ? Array.from(openFolders).sort().join('|') : undefined}
           >
             {hasFolders ? (
@@ -321,7 +334,7 @@ const P2PActiveStage: React.FC<Props> = ({
                 );
               })
             ) : (
-              files.map((file) => (
+              shownFiles.map((file) => (
                 <div key={fileKey(file)} data-row className="flex items-center px-3 py-2 bg-muted rounded-lg border border-foreground/[0.09]">
                   {senderRow(file)}
                 </div>
@@ -332,12 +345,12 @@ const P2PActiveStage: React.FC<Props> = ({
       </div>
 
       <Button
-        onClick={isDone ? onNew : onCancel}
-        variant={isDone ? 'default' : 'outline'}
+        onClick={isDone ? onNew : canFinishPartial ? onFinish : onCancel}
+        variant={isDone || canFinishPartial ? 'default' : 'outline'}
         size="lg"
         className="w-full mt-6 -mb-2 md:mb-1"
       >
-        {isDone ? t('common.done') : t('unifiedBox.p2pCancelButton')}
+        {isDone || canFinishPartial ? t('common.done') : t('unifiedBox.p2pCancelButton')}
       </Button>
     </div>
   );

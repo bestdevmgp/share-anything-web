@@ -52,6 +52,7 @@ interface Props {
   p2pPeerDeviceInfo: string | null;
   p2pActiveFileId: string | null;
   p2pCompletedFileIds: Set<string>;
+  senderEnded: boolean;
   downloading: boolean;
   downloaded: boolean;
   downloadProgress?: number;
@@ -148,6 +149,7 @@ const BoxDownloadView: React.FC<Props> = ({
   downloadFolderAsZip,
   handleCancelP2PDownload,
   closeP2PSession,
+  senderEnded,
   onReset,
   onComplete,
   onRetry,
@@ -284,6 +286,22 @@ const BoxDownloadView: React.FC<Props> = ({
   if (isP2PDownload) {
     const allDone = files.length > 0 && files.every((f) => p2pCompletedFileIds.has(f.id));
     const active = p2pStatus === 'connecting' || p2pStatus === 'downloading' || p2pStatus === 'processing';
+
+    const receivedCount = p2pCompletedFileIds.size;
+    if (!allDone && senderEnded && receivedCount > 0) {
+      return wrap(
+        <div className="flex-1 flex flex-col items-center justify-center text-center">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-green-100 dark:bg-green-500/15">
+            <svg className="w-9 h-9" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 13l4 4L19 7" className="box-check-path" /></svg>
+          </div>
+          <h2 className="text-2xl font-bold text-foreground mb-1.5">{t('download.receiveCompleteTitle')}</h2>
+          <p className="text-sm text-muted-foreground">{t('download.filesReceived', { count: receivedCount })}</p>
+          <Button onClick={() => { closeP2PSession(); (onComplete ?? onReset)(); }} size="lg" className="w-full max-w-xs mt-8">
+            {t('common.done')}
+          </Button>
+        </div>
+      );
+    }
 
     let circle: React.ReactNode;
     let title: string;

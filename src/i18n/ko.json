@@ -299,6 +299,7 @@
     "receivingFrom": "{{device}}에서 파일을 받는 중이에요.",
     "receivingPleaseWait": "파일을 받는 중이에요. 잠시만 기다려주세요.",
     "receivedSuccessfully": "파일이 성공적으로 수신되었어요.",
+    "filesReceived": "{{count}}개의 파일을 성공적으로 받았어요.",
     "connectedToDevice": "{{device}}에 연결되었어요.",
     "connectionSuccess": "발신자 연결에 성공했어요.",
     "connectingToSender": "발신자에게 연결하고 있어요.",

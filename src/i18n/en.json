@@ -299,6 +299,7 @@
     "receivingFrom": "Receiving file from {{device}}.",
     "receivingPleaseWait": "Receiving file. Please wait.",
     "receivedSuccessfully": "File received successfully.",
+    "filesReceived": "{{count}} file(s) received successfully.",
     "connectedToDevice": "Connected to {{device}}.",
     "connectionSuccess": "Successfully connected to sender.",
     "connectingToSender": "Connecting to the sender...",

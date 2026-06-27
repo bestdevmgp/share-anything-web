@@ -299,6 +299,7 @@
     "receivingFrom": "正在从 {{device}} 接收文件。",
     "receivingPleaseWait": "正在接收文件，请稍候。",
     "receivedSuccessfully": "文件接收成功。",
+    "filesReceived": "已成功接收 {{count}} 个文件。",
     "connectedToDevice": "已连接到 {{device}}。",
     "connectionSuccess": "已成功连接到发送方。",
     "connectingToSender": "正在连接发送方...",
