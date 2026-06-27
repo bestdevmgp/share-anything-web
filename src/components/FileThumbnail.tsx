@@ -38,6 +38,7 @@ const iconSizeMap = {
   lg: 'w-8 h-8',
 };
 
+const MAX_DOCX_CACHE = 20;
 const docxHtmlCache = new Map<string, string>();
 
 function getDocxCacheKey(source: File | string): string {
@@ -84,6 +85,7 @@ const DocxMiniPreview: React.FC<{ source: File | string; boxClass: string; boxPx
 
         sanitizeRenderedDocx(el);
         docxHtmlCache.set(cacheKey, el.innerHTML);
+        while (docxHtmlCache.size > MAX_DOCX_CACHE) docxHtmlCache.delete(docxHtmlCache.keys().next().value as string);
         if (!cancelled) setReady(true);
       } catch {
         if (!cancelled) setFailed(true);

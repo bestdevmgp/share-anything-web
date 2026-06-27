@@ -7,7 +7,28 @@ type ThumbnailResult = {
   loading: boolean;
 };
 
+const MAX_THUMBNAIL_CACHE = 120;
 const cache = new Map<string, string>();
+
+function touchCache(key: string): string | undefined {
+  const v = cache.get(key);
+  if (v !== undefined) {
+    cache.delete(key);
+    cache.set(key, v);
+  }
+  return v;
+}
+
+function putCache(key: string, url: string): void {
+  cache.delete(key);
+  cache.set(key, url);
+  while (cache.size > MAX_THUMBNAIL_CACHE) {
+    const oldest = cache.keys().next().value as string;
+    const oldestUrl = cache.get(oldest);
+    cache.delete(oldest);
+    if (oldestUrl && oldestUrl.startsWith('blob:')) URL.revokeObjectURL(oldestUrl);
+  }
+}
 
 function getCacheKey(source: File | string, fileName: string, width: number): string {
   if (source instanceof File) {
@@ -23,7 +44,7 @@ function needsThumbnail(fileName: string): boolean {
 export function useThumbnail(source: File | string | null, fileName: string, thumbnailWidth = 200): ThumbnailResult {
   const [url, setUrl] = useState<string | null>(() => {
     if (!source) return null;
-    return cache.get(getCacheKey(source, fileName, thumbnailWidth)) || null;
+    return touchCache(getCacheKey(source, fileName, thumbnailWidth)) || null;
   });
   const [loading, setLoading] = useState(() => {
     if (!source) return false;
@@ -39,7 +60,7 @@ export function useThumbnail(source: File | string | null, fileName: string, thu
     }
 
     const key = getCacheKey(source, fileName, thumbnailWidth);
-    const cached = cache.get(key);
+    const cached = touchCache(key);
     if (cached) {
       setUrl(cached);
       setLoading(false);
@@ -70,7 +91,7 @@ export function useThumbnail(source: File | string | null, fileName: string, thu
         }
 
         if (!cancelled && objectUrl) {
-          cache.set(key, objectUrl);
+          putCache(key, objectUrl);
           setUrl(objectUrl);
         }
       } catch {

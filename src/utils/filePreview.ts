@@ -19,17 +19,19 @@ export async function generatePdfThumbnail(source: File | string, width = 200): 
   pdfjs.GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
   const data = await getArrayBuffer(source);
   const pdf = await pdfjs.getDocument({ data }).promise;
-  const page = await pdf.getPage(1);
-  const scale = width / page.getViewport({ scale: 1 }).width;
-  const viewport = page.getViewport({ scale });
-  const canvas = document.createElement('canvas');
-  canvas.width = viewport.width;
-  canvas.height = viewport.height;
-  const ctx = canvas.getContext('2d')!;
-  await page.render({ canvasContext: ctx, canvas, viewport }).promise;
-  const dataUrl = canvas.toDataURL('image/png');
-  pdf.destroy();
-  return dataUrl;
+  try {
+    const page = await pdf.getPage(1);
+    const scale = width / page.getViewport({ scale: 1 }).width;
+    const viewport = page.getViewport({ scale });
+    const canvas = document.createElement('canvas');
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const ctx = canvas.getContext('2d')!;
+    await page.render({ canvasContext: ctx, canvas, viewport }).promise;
+    return canvas.toDataURL('image/png');
+  } finally {
+    pdf.destroy();
+  }
 }
 
 export function generateVideoThumbnail(source: File | string): Promise<string> {

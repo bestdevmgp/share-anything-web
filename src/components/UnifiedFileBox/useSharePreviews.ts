@@ -8,6 +8,7 @@ interface CachedUrl {
   url: string;
   expiresAt: number;
 }
+const MAX_PREVIEW_URL_CACHE = 200;
 const urlCache = new Map<string, CachedUrl>();
 const inflight = new Map<string, Promise<string | null>>();
 const EXPIRY_MARGIN_MS = 60_000;
@@ -19,6 +20,7 @@ const resolvePreviewUrl = (code: string, fileId: string): Promise<string | null>
   const key = `${code}:${fileId}`;
   const cached = urlCache.get(key);
   if (cached && cached.expiresAt > Date.now()) return Promise.resolve(cached.url);
+  if (cached) urlCache.delete(key);
   const existing = inflight.get(key);
   if (existing) return existing;
   const p = (async () => {
@@ -34,6 +36,7 @@ const resolvePreviewUrl = (code: string, fileId: string): Promise<string | null>
         url: download_url,
         expiresAt: Date.now() + Math.max(0, expires_in_secs * 1000 - EXPIRY_MARGIN_MS),
       });
+      while (urlCache.size > MAX_PREVIEW_URL_CACHE) urlCache.delete(urlCache.keys().next().value as string);
       return download_url;
     } catch {
       return null;
