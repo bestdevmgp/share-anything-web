@@ -15,6 +15,9 @@ import FilePreviewModal from '../FilePreviewModal';
 import TruncatedFilename from '../TruncatedFilename';
 import CopyButton from '../CopyButton';
 import { Hint } from '../ui/Hint';
+import FolderTreeRows, { treeIndent } from './FolderTreeRows';
+import Collapsible from './Collapsible';
+import { buildFileTree, toggleFolderOpen } from '../../utils/fileTree';
 import { cn } from '../../lib/utils';
 
 const RecentDownloads: React.FC = () => {
@@ -23,9 +26,17 @@ const RecentDownloads: React.FC = () => {
   const [downloads, setDownloads] = useState<RecentDownload[]>(() => listDownloads());
   const [expanded, setExpanded] = useState<string | null>(null);
   const [bundleFiles, setBundleFiles] = useState<Record<string, FileListItem[]>>({});
+  const [bundleEmptyFolders, setBundleEmptyFolders] = useState<Record<string, string[]>>({});
   const [previewFile, setPreviewFile] = useState<
     { fileName: string; fileSize: number; source?: string; code?: string; fileId?: string; presignedUrl?: string } | null
   >(null);
+  const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
+  const toggleFolder = (path: string) =>
+    setOpenFolders((prev) => toggleFolderOpen(prev, path));
+
+  useEffect(() => {
+    setOpenFolders(new Set());
+  }, [expanded]);
 
   const mergedItems: MergedShare[] = downloads.map((d) => ({
     code: d.code,
@@ -43,12 +54,16 @@ const RecentDownloads: React.FC = () => {
     const cached = getCachedFileList(expanded);
     if (cached) {
       setBundleFiles((p) => ({ ...p, [expanded]: cached.files }));
+      setBundleEmptyFolders((p) => ({ ...p, [expanded]: cached.empty_folders ?? [] }));
       return;
     }
     let cancelled = false;
     fetchShareFileList(expanded)
       .then((res) => {
-        if (!cancelled) setBundleFiles((p) => ({ ...p, [expanded]: res.files }));
+        if (!cancelled) {
+          setBundleFiles((p) => ({ ...p, [expanded]: res.files }));
+          setBundleEmptyFolders((p) => ({ ...p, [expanded]: res.empty_folders ?? [] }));
+        }
       })
       .catch(() => {});
     return () => {
@@ -145,6 +160,7 @@ const RecentDownloads: React.FC = () => {
           const { text: remainText, expired } = remainingLabel(d.expiresAt);
           const isBundle = d.fileNames.length > 1;
           const isOpen = expanded === d.code;
+          const treeFiles = bundleFiles[d.code];
           const url = `${window.location.origin}/download/${d.code}`;
 
           return (
@@ -242,53 +258,57 @@ const RecentDownloads: React.FC = () => {
                 </div>
               </div>
 
-              {isBundle && isOpen && (
-                <div className="px-3 pb-3">
-                  <div className="border-t border-foreground/[0.08] pt-2.5 space-y-2">
-                    {(bundleFiles[d.code]
-                      ? bundleFiles[d.code].map((f) => ({
-                          name: f.file_name,
-                          size: f.file_size as number | undefined,
-                          id: f.id as string | undefined,
-                          previewUrl: f.preview_url as string | undefined,
-                        }))
-                      : d.fileNames.map((name) => ({
-                          name,
-                          size: undefined as number | undefined,
-                          id: undefined as string | undefined,
-                          previewUrl: undefined as string | undefined,
-                        }))
-                    ).map((f, i) => {
-                      const clickable = !!f.id;
-                      const rowInner = (
-                        <>
-                          <FileThumbnail source={f.id ? bundlePreviews[f.id] ?? null : null} fileName={f.name} size="sm" />
-                          <TruncatedFilename name={f.name} className="flex-1 text-sm font-medium text-foreground text-left" />
-                          {f.size != null && (
-                            <span className="flex-shrink-0 text-sm text-muted-foreground">
-                              {formatFileSize(f.size)}
-                            </span>
-                          )}
-                        </>
-                      );
-                      return clickable ? (
-                        <button
-                          key={`${f.name}-${i}`}
-                          type="button"
-                          onClick={(e) => { e.stopPropagation(); openPreviewFor(d.code, f.id!, f.name, f.size ?? 0, f.previewUrl); }}
-                          className="w-full flex items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2 rounded-lg can-hover:hover:bg-accent active:bg-accent transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                          aria-label={f.name}
-                        >
-                          {rowInner}
-                        </button>
-                      ) : (
-                        <div key={`${f.name}-${i}`} className="flex items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2">
-                          {rowInner}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
+              {isBundle && (
+                <Collapsible open={isOpen}>
+                    <div className="px-3 pb-3">
+                      <div className="border-t border-foreground/[0.08] pt-2.5 space-y-2">
+                        {treeFiles ? (
+                          <FolderTreeRows
+                            nodes={buildFileTree(
+                              treeFiles.map((f) => ({
+                                id: f.id,
+                                file_name: f.file_name,
+                                file_size: f.file_size,
+                                relative_path: f.relative_path,
+                                preview_url: f.preview_url,
+                              })),
+                              bundleEmptyFolders[d.code] ?? []
+                            )}
+                            depth={1}
+                            openFolders={openFolders}
+                            toggleFolder={toggleFolder}
+                            t={t}
+                            renderFile={(file, depth) => (
+                              <div
+                                data-row
+                                onClick={(e) => { e.stopPropagation(); openPreviewFor(d.code, file.id, file.name, file.size, file.previewUrl); }}
+                                className="flex items-center gap-3 min-w-0 -mx-2.5 px-2.5 py-2 rounded-lg transition-colors cursor-pointer can-hover:hover:bg-accent active:bg-accent"
+                                style={{ marginLeft: `calc(-0.625rem + ${treeIndent(depth)})` }}
+                              >
+                                <FileThumbnail source={bundlePreviews[file.id] ?? null} fileName={file.name} size="sm" />
+                                <div className="flex-1 min-w-0">
+                                  <TruncatedFilename name={file.name} className="text-sm font-medium text-foreground" />
+                                  <p className="text-xs text-muted-foreground">{formatFileSize(file.size)}</p>
+                                </div>
+                              </div>
+                            )}
+                          />
+                        ) : (
+                          <div className="space-y-1">
+                            {[0, 1].map((i) => (
+                              <div key={i} className="flex items-center gap-3 -mx-2.5 px-2.5 py-2">
+                                <div className="w-10 h-10 rounded bg-foreground/[0.06] animate-pulse flex-shrink-0" />
+                                <div className="flex-1 min-w-0 space-y-1.5">
+                                  <div className="h-3 w-2/5 rounded bg-foreground/[0.06] animate-pulse" />
+                                  <div className="h-2.5 w-1/5 rounded bg-foreground/[0.06] animate-pulse" />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                </Collapsible>
               )}
             </div>
           );
