@@ -37,7 +37,9 @@ const ChatGptIcon = () => (
 const UseWithAI: React.FC<Props> = ({ markdown, url, promptIntro, t }) => {
   const [open, setOpen] = useState(false);
 
-  const aiPrompt = `${promptIntro}\n\n${markdown}\n\n(${url})`;
+  // Keep the prompt short: point the assistant at the raw-markdown URL instead of pasting the
+  // whole reference, so the user still has room to add their own question.
+  const aiPrompt = `${promptIntro} ${url}`;
 
   const openInAI = (base: string) => {
     window.open(base + encodeURIComponent(aiPrompt), '_blank', 'noopener,noreferrer');

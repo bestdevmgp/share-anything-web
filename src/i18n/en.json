@@ -667,7 +667,7 @@
     "openInChatGPT": "Open in ChatGPT",
     "openInChatGPTDesc": "Ask ChatGPT about this page",
     "markdownCopied": "Copied the usage to your clipboard",
-    "aiPromptIntro": "Here is the ShareAnything CLI usage. Please use it to answer my questions.",
+    "aiPromptIntro": "Read the following doc and answer my questions about the ShareAnything CLI:",
     "pageDescription": "Share files from your terminal, too. Install the CLI tool via npm, or use curl to get started instantly.",
     "curlTitle": "Quick Start with curl",
     "curlDescription": "No installation needed. Use curl to upload and download files.",

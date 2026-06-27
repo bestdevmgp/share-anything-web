@@ -663,7 +663,7 @@
     "openInChatGPT": "在 ChatGPT 中打开",
     "openInChatGPTDesc": "向 ChatGPT 询问此页面",
     "markdownCopied": "已将用法复制到剪贴板",
-    "aiPromptIntro": "以下是 ShareAnything CLI 的用法。请根据这些内容回答我的问题。",
+    "aiPromptIntro": "请阅读以下文档，并回答我关于 ShareAnything CLI 的问题：",
     "pageDescription": "也可以从终端轻松共享文件。通过 npm 安装专用 CLI 工具，或使用 curl 立即开始。",
     "curlTitle": "使用 curl 快速开始",
     "curlDescription": "无需安装。仅使用 curl 命令即可上传和下载文件。",

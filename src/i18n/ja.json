@@ -663,7 +663,7 @@
     "openInChatGPT": "ChatGPTで開く",
     "openInChatGPTDesc": "このページについてChatGPTに質問",
     "markdownCopied": "使い方をクリップボードにコピーしました",
-    "aiPromptIntro": "以下はShareAnything CLIの使い方です。この内容をもとに質問に答えてください。",
+    "aiPromptIntro": "次のドキュメントを読んで、ShareAnything CLI の使い方について質問に答えてください:",
     "pageDescription": "ターミナルからもファイルを簡単に共有できます。npmで専用CLIツールをインストールするか、curlですぐに使用できます。",
     "curlTitle": "curlですぐに使う",
     "curlDescription": "インストール不要。curlコマンドだけでファイルの送受信ができます。",

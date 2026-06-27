@@ -194,7 +194,7 @@ const CliPage: React.FC = () => {
         </div>
         <UseWithAI
           markdown={buildCliMarkdown(t)}
-          url={typeof window !== 'undefined' ? `${window.location.origin}/cli` : 'https://share-api.mingyu.dev/cli'}
+          url={typeof window !== 'undefined' ? `${window.location.origin}/cli.md` : 'https://share-api.mingyu.dev/cli.md'}
           promptIntro={t('cli.aiPromptIntro')}
           t={t}
         />
