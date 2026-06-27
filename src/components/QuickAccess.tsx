@@ -463,7 +463,7 @@ const QuickAccess: React.FC = () => {
                         className="p-1.5 rounded-lg transition-colors text-muted-foreground/50 can-hover:hover:text-muted-foreground can-hover:hover:bg-foreground/10 active:text-muted-foreground active:bg-foreground/10"
                         aria-label={t('common.download')}
                       >
-                        <ArrowDownTrayIcon className="w-5 h-5" />
+                        <ArrowDownTrayIcon className="w-5 h-5" strokeWidth={2.5} />
                       </button>
                     </Hint>
                     <Hint label={t('common.delete')}>
