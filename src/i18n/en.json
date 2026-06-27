@@ -295,6 +295,7 @@
     "downloading": "Receiving file...",
     "receiveCompleteTitle": "Transfer Complete",
     "readyToDownload": "Ready to Download",
+    "downloadCompleteTitle": "Download complete",
     "receivingFrom": "Receiving file from {{device}}.",
     "receivingPleaseWait": "Receiving file. Please wait.",
     "receivedSuccessfully": "File received successfully.",

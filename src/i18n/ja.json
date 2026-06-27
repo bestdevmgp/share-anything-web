@@ -295,6 +295,7 @@
     "downloading": "ファイル受信中...",
     "receiveCompleteTitle": "受信完了",
     "readyToDownload": "ダウンロード準備完了",
+    "downloadCompleteTitle": "ダウンロード完了",
     "receivingFrom": "{{device}}からファイルを受信中です。",
     "receivingPleaseWait": "ファイルを受信中です。しばらくお待ちください。",
     "receivedSuccessfully": "ファイルの受信が完了しました。",

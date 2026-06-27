@@ -86,6 +86,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
 
   const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set());
   const [downloading, setDownloading] = useState(false);
+  const [downloaded, setDownloaded] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [downloadTimeRemaining, setDownloadTimeRemaining] = useState<string>('');
   const [downloadAbortController, setDownloadAbortController] = useState<AbortController | null>(null);
@@ -697,6 +698,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
 
         downloadFile(blob, `share-${code}.zip`);
         recordDownloadRef.current();
+        setDownloaded(true);
         toast.success(t('download.zipDownloadComplete'));
         return;
       }
@@ -749,7 +751,8 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       } else if (topFolders.length === 1 && looseNodes.length === 0) {
         // Exactly one folder → a single structured zip, streamed to disk when supported
         // (so a very large folder doesn't have to fit in memory). Same as the ZIP button.
-        await zipFolder(topFolders[0], false);
+        const ok = await zipFolder(topFolders[0], false);
+        if (ok === false) return;
       } else {
         // Multiple folders / folders + loose files → one in-memory zip per folder (auto-downloads,
         // no save dialog, so several can run back to back) plus each loose file, all spaced.
@@ -766,6 +769,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
 
       fileAPI.notifyDownload(code, selectedFileIds);
       recordDownloadRef.current();
+      setDownloaded(true);
       toast.success(
         selectedFileIds.length === 1
           ? t('download.downloadStarted')
@@ -837,6 +841,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         if (saved) {
           recordDownloadRef.current();
           fileAPI.notifyDownload(code, selected.map((f) => f.id));
+          setDownloaded(true);
           toast.success(t('download.zipDownloadComplete'));
         }
       } catch (err: any) {
@@ -924,6 +929,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         p2pActiveFileId={p2pActiveFileId}
         p2pCompletedFileIds={p2pCompletedFileIds}
         downloading={downloading}
+        downloaded={downloaded}
         downloadProgress={downloadProgress}
         downloadAsZip={downloadAsZip}
         handleDownload={handleDownload}
@@ -1286,6 +1292,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         selectAllFiles={selectAllFiles}
         deselectAllFiles={deselectAllFiles}
         downloading={downloading}
+        downloaded={downloaded}
         downloadProgress={downloadProgress}
         downloadTimeRemaining={downloadTimeRemaining}
         downloadAsZip={downloadAsZip}

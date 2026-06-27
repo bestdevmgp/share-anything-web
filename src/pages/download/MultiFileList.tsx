@@ -23,6 +23,7 @@ export interface MultiFileListProps {
   selectAllFiles: () => void;
   deselectAllFiles: () => void;
   downloading: boolean;
+  downloaded: boolean;
   downloadProgress: number;
   downloadTimeRemaining: string;
   downloadAsZip: boolean;
@@ -50,6 +51,7 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
   selectAllFiles,
   deselectAllFiles,
   downloading,
+  downloaded,
   downloadProgress,
   downloadTimeRemaining,
   downloadAsZip,
@@ -110,9 +112,9 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
               </svg>
             </div>
           </div>
-          <h1 className="text-4xl font-bold text-foreground mb-3">{t('download.readyToDownload')}</h1>
+          <h1 className="text-4xl font-bold text-foreground mb-3">{downloaded ? t('download.downloadCompleteTitle') : t('download.readyToDownload')}</h1>
           <p className="text-muted-foreground">
-            {t('download.totalFilesAvailable', { count: fileList.total_count })}
+            {downloaded ? t('download.downloadComplete') : t('download.totalFilesAvailable', { count: fileList.total_count })}
           </p>
         </div>
         <style>{`
@@ -276,7 +278,11 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
           </div>
 
           <div className="">
-            {downloading ? (
+            {downloaded ? (
+              <Button onClick={() => navigate('/')} size="lg" className="w-full">
+                {t('common.done')}
+              </Button>
+            ) : downloading ? (
               <div>
                 <div className="flex items-center gap-2">
                   <div className="flex-1">
@@ -400,16 +406,18 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
             )}
           </div>
 
-          <div className="mt-3 md:-mb-4 text-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/')}
-              className="text-muted-foreground can-hover:hover:text-foreground active:text-foreground"
-            >
-              {t('common.back')}
-            </Button>
-          </div>
+          {!downloaded && (
+            <div className="mt-3 md:-mb-4 text-center">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/')}
+                className="text-muted-foreground can-hover:hover:text-foreground active:text-foreground"
+              >
+                {t('common.back')}
+              </Button>
+            </div>
+          )}
         </Card>
       </div>
     </div>

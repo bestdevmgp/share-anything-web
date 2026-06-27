@@ -53,6 +53,7 @@ interface Props {
   p2pActiveFileId: string | null;
   p2pCompletedFileIds: Set<string>;
   downloading: boolean;
+  downloaded: boolean;
   downloadProgress?: number;
   downloadAsZip?: boolean;
   handleDownload: (asZip: boolean) => void;
@@ -138,6 +139,7 @@ const BoxDownloadView: React.FC<Props> = ({
   p2pActiveFileId,
   p2pCompletedFileIds,
   downloading,
+  downloaded,
   downloadProgress = 0,
   downloadAsZip = false,
   handleDownload,
@@ -516,10 +518,12 @@ const BoxDownloadView: React.FC<Props> = ({
         <div className="flex flex-col items-center justify-center text-center md:flex-1">
           {downloading ? <NeutralCircle><Spinner size="xl" /></NeutralCircle> : <GreenCircle><Check /></GreenCircle>}
           <h2 className="text-2xl font-bold text-foreground mb-1.5">
-            {downloading ? t('download.downloadingP2P') : t('download.readyToDownload')}
+            {downloaded ? t('download.downloadCompleteTitle') : downloading ? t('download.downloadingP2P') : t('download.readyToDownload')}
           </h2>
           <p className="text-sm text-muted-foreground">
-            {downloading
+            {downloaded
+              ? t('download.downloadComplete')
+              : downloading
               ? (downloadAsZip
                   ? (downloadProgress > 0
                       ? t('download.zipReceiving', { percent: downloadProgress })
@@ -699,7 +703,11 @@ const BoxDownloadView: React.FC<Props> = ({
         </div>
       </div>
       <div className="mt-6 -mb-5 md:-mb-2 flex flex-col gap-2">
-        {showSelection ? (() => {
+        {downloaded ? (
+          <Button onClick={() => (onComplete ?? onReset)()} size="lg" className="w-full">
+            {t('common.done')}
+          </Button>
+        ) : showSelection ? (() => {
           const selectedTotalSize = files
             .filter((f) => selectedFiles.has(f.id))
             .reduce((sum, f) => sum + f.file_size, 0);
@@ -730,14 +738,16 @@ const BoxDownloadView: React.FC<Props> = ({
             )}
           </Button>
         )}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="self-center text-muted-foreground can-hover:hover:text-foreground active:text-foreground"
-          onClick={onReset}
-        >
-          {t('common.back')}
-        </Button>
+        {!downloaded && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="self-center text-muted-foreground can-hover:hover:text-foreground active:text-foreground"
+            onClick={onReset}
+          >
+            {t('common.back')}
+          </Button>
+        )}
       </div>
     </>
   );

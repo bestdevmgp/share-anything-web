@@ -295,6 +295,7 @@
     "downloading": "文件接收中...",
     "receiveCompleteTitle": "接收完成",
     "readyToDownload": "准备下载",
+    "downloadCompleteTitle": "下载完成",
     "receivingFrom": "正在从 {{device}} 接收文件。",
     "receivingPleaseWait": "正在接收文件，请稍候。",
     "receivedSuccessfully": "文件接收成功。",

@@ -295,6 +295,7 @@
     "downloading": "파일 수신 중...",
     "receiveCompleteTitle": "수신 완료",
     "readyToDownload": "다운로드 준비 완료",
+    "downloadCompleteTitle": "다운로드 완료",
     "receivingFrom": "{{device}}에서 파일을 받는 중이에요.",
     "receivingPleaseWait": "파일을 받는 중이에요. 잠시만 기다려주세요.",
     "receivedSuccessfully": "파일이 성공적으로 수신되었어요.",
