@@ -186,7 +186,7 @@ const CliPage: React.FC = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-20">
-      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between mb-8">
+      <div className="flex flex-col items-start gap-8 sm:flex-row sm:items-center sm:justify-between sm:gap-3 mb-8">
         <div className="flex items-center gap-3 min-w-0 max-w-full">
           <CommandLineIcon className="w-8 h-8 text-primary flex-shrink-0" style={{ strokeWidth: 2 }} />
           <h1 className="text-3xl font-bold text-foreground truncate">{t('cli.pageTitle')}</h1>
