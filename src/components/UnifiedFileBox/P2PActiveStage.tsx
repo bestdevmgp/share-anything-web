@@ -28,6 +28,7 @@ type P2PStatus = 'waiting' | 'connected' | 'transferring' | 'waiting_for_next' |
 interface Props {
   status: P2PStatus;
   files: File[];
+  emptyFolders: string[];
   fileProgresses: Map<string, FileProgress>;
   peerDeviceInfo: string | null;
   completed: boolean;
@@ -39,6 +40,7 @@ interface Props {
 const P2PActiveStage: React.FC<Props> = ({
   status,
   files,
+  emptyFolders,
   fileProgresses,
   peerDeviceInfo,
   completed,
@@ -58,23 +60,23 @@ const P2PActiveStage: React.FC<Props> = ({
           file_size: f.size,
           relative_path: getRelativePathSafe(f) || '',
         })),
-        []
+        emptyFolders
       ),
-    [files]
+    [files, emptyFolders]
   );
   const hasFolders = treeHasFolders(tree);
   const [openFolders, setOpenFolders] = useState<Set<string>>(() => {
-    // Default every folder open so the sender can watch each file's progress.
+    // Default every folder open so the sender can watch each file's progress
+    // (and so empty subfolders nested under populated folders stay visible).
     const set = new Set<string>();
-    files.forEach((f) => {
-      const parts = (getRelativePathSafe(f) || '').split('/');
-      parts.pop();
-      let acc = '';
-      for (const p of parts) {
-        acc = acc ? `${acc}/${p}` : p;
-        set.add(acc);
-      }
-    });
+    const walk = (nodes: typeof tree) =>
+      nodes.forEach((n) => {
+        if (n.kind === 'folder') {
+          set.add(n.path);
+          walk(n.children);
+        }
+      });
+    walk(tree);
     return set;
   });
 
@@ -257,7 +259,22 @@ const P2PActiveStage: React.FC<Props> = ({
                     </div>
                   ) : null;
                 }
-                if (node.children.length === 0) return null;
+                if (node.children.length === 0) {
+                  // Empty folder: same card, no expand/collapse chevron.
+                  return (
+                    <div key={`folder:${node.path}`} data-row className="flex items-center px-3 py-3 bg-muted rounded-lg border border-foreground/[0.09]">
+                      <div className="flex-shrink-0 mr-3">
+                        <div className="w-11 h-11 rounded bg-background flex items-center justify-center">
+                          <FolderIcon className="w-7 h-7 text-muted-foreground" />
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{node.name}</p>
+                        <p className="text-xs text-muted-foreground">{t('upload.folderEmpty')}</p>
+                      </div>
+                    </div>
+                  );
+                }
                 const isOpen = openFolders.has(node.path);
                 return (
                   <div key={`folder:${node.path}`} className="bg-muted rounded-lg border border-foreground/[0.09] overflow-hidden">

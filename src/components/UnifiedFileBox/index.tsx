@@ -186,7 +186,7 @@ const UnifiedFileBox: React.FC = () => {
         return;
       }
       handleRef.current?.abort();
-      dispatch({ type: 'dropSecure', files });
+      dispatch({ type: 'dropSecure', files, emptyFolders });
       // Files present: keep them AND preserve their empty subfolders.
       createP2PSession(files, emptyFolders);
     },
@@ -316,6 +316,7 @@ const UnifiedFileBox: React.FC = () => {
             <P2PActiveStage
               status={p2p.status}
               files={state.files}
+              emptyFolders={state.emptyFolders}
               fileProgresses={p2p.fileProgresses}
               peerDeviceInfo={p2p.peerDeviceInfo}
               completed={state.state === 'p2pCompleted'}

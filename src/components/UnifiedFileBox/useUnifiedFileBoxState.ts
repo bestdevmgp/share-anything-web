@@ -24,11 +24,12 @@ export interface State {
   p2pShareCode: string | null;
   p2pExpiresAt: string | null;
   downloadCode: string | null;
+  emptyFolders: string[];
 }
 
 export type Action =
   | { type: 'dropNormal'; files: File[] }
-  | { type: 'dropSecure'; files: File[] }
+  | { type: 'dropSecure'; files: File[]; emptyFolders?: string[] }
   | { type: 'cancelUpload' }
   | { type: 'completeAll'; result: RecentSession }
   | { type: 'completePartial'; result: RecentSession; failedNames: string[] }
@@ -53,6 +54,7 @@ export const initialState: State = {
   p2pShareCode: null,
   p2pExpiresAt: null,
   downloadCode: null,
+  emptyFolders: [],
 };
 
 const isUploadActive = (s: BoxState): boolean =>
@@ -83,6 +85,7 @@ export const reducer = (s: State, a: Action): State => {
         uploadFailures: [],
         p2pShareCode: null,
         p2pExpiresAt: null,
+        emptyFolders: a.emptyFolders ?? [],
       };
     case 'cancelUpload':
       return { ...s, state: 'idleUpload', files: [] };
@@ -154,6 +157,7 @@ export const reducer = (s: State, a: Action): State => {
         files: [],
         p2pShareCode: null,
         p2pExpiresAt: null,
+        emptyFolders: [],
       };
     case 'p2pCancel':
       return {
@@ -162,6 +166,7 @@ export const reducer = (s: State, a: Action): State => {
         files: [],
         p2pShareCode: null,
         p2pExpiresAt: null,
+        emptyFolders: [],
       };
     case 'p2pNewTransfer':
       return {
@@ -170,6 +175,7 @@ export const reducer = (s: State, a: Action): State => {
         files: [],
         p2pShareCode: null,
         p2pExpiresAt: null,
+        emptyFolders: [],
       };
   }
 };
