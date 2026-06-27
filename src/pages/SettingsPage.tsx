@@ -904,7 +904,7 @@ const SettingsPage: React.FC = () => {
                       </button>
                     </PopoverTrigger>
                     <PopoverContent side="bottom" align="start" sideOffset={4} className="w-40 p-0 rounded-none border border-border bg-card sm:align-end">
-                      <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('footer.language')}</div>
+                      <div className="px-2.5 py-1.5 text-xs text-muted-foreground/60">{t('settings.notifyLanguage')}</div>
                       {langOptions.map((option) => (
                         <button
                           key={option.key}
