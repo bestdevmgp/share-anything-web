@@ -1050,7 +1050,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
           ) : showDownload ? (
             <Hint label={t('common.download')}>
               <Button onClick={() => startP2PDownload(fileId)} disabled={bulkP2PDownloading || Boolean(anyP2PDownloading)} size="icon" aria-label={t('common.download')} className="flex-shrink-0 ml-2 md:h-8 md:w-8">
-                <ArrowDownTrayIcon strokeWidth={2} />
+                <ArrowDownTrayIcon strokeWidth={2.5} />
               </Button>
             </Hint>
           ) : null}
@@ -1160,7 +1160,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                               aria-label={t('common.download')}
                               className="md:h-8 md:w-8"
                             >
-                              <ArrowDownTrayIcon strokeWidth={2} />
+                              <ArrowDownTrayIcon strokeWidth={2.5} />
                             </Button>
                           </Hint>
                         </div>

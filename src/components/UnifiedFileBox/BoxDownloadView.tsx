@@ -366,7 +366,7 @@ const BoxDownloadView: React.FC<Props> = ({
             showDownload && !done && (
               <Hint label={t('common.download')}>
                 <Button onClick={() => startP2PDownload(fileId)} disabled={active} size="icon" aria-label={t('common.download')} className="flex-shrink-0 ml-2 md:h-8 md:w-8">
-                  <ArrowDownTrayIcon strokeWidth={2} />
+                  <ArrowDownTrayIcon strokeWidth={2.5} />
                 </Button>
               </Hint>
             )
@@ -430,7 +430,7 @@ const BoxDownloadView: React.FC<Props> = ({
                               aria-label={t('common.download')}
                               className="md:h-8 md:w-8"
                             >
-                              <ArrowDownTrayIcon strokeWidth={2} />
+                              <ArrowDownTrayIcon strokeWidth={2.5} />
                             </Button>
                           </Hint>
                         </div>
