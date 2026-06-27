@@ -43,7 +43,7 @@ const ChatGptIcon = () => (
 
 // Thin square tile that frames each menu icon.
 const IconBox: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <span className="flex items-center justify-center w-9 h-9 shrink-0 rounded-md border border-border">
+  <span className="flex items-center justify-center w-9 h-9 shrink-0 rounded-lg border border-border">
     {children}
   </span>
 );
@@ -69,7 +69,7 @@ const UseWithAI: React.FC<Props> = ({ markdown, url, promptIntro, t }) => {
         <span>{t('cli.useWithAI')}</span>
         <ChevronDownIcon className="w-4 h-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-72 rounded-md">
+      <DropdownMenuContent align="end" className="w-72">
         <DropdownMenuItem className="cursor-pointer items-center gap-2.5 px-3 py-2" onClick={copyMarkdown}>
           <IconBox><MarkdownIcon /></IconBox>
           <div className="min-w-0">
