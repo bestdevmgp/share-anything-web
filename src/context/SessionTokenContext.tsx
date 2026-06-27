@@ -115,7 +115,7 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const onTurnstileSuccess = useCallback(async (turnstileToken: string) => {
     widgetSolvedRef.current = true;
     setStatus('minting');
-    setVerifying(true);
+    setVerifying(false);
     try {
       const { session_token, expires_at } = await authAPI.exchangeSessionToken(turnstileToken);
       setSessionToken(session_token);
@@ -125,7 +125,6 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
       if (loadTimerRef.current) clearTimeout(loadTimerRef.current);
       scheduleRefresh(expires_at);
       finishRetrySuccess();
-      setVerifying(false);
     } catch (err: any) {
       console.warn('[SessionToken] exchange failed', err);
       attemptsRef.current += 1;
@@ -141,7 +140,6 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
         markUnreachable();
       }
       failRetry();
-      setVerifying(false);
     }
   }, [scheduleRefresh, forceRefresh, markFailed, markUnreachable, finishRetrySuccess, failRetry]);
 
@@ -158,6 +156,14 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
   }, [failRetry]);
 
   const onBeforeInteractive = useCallback(() => {
+    setVerifying(false);
+  }, []);
+
+  const onAfterInteractive = useCallback(() => {
+    setVerifying(true);
+  }, []);
+
+  const onWidgetLoad = useCallback(() => {
     setVerifying(true);
   }, []);
 
@@ -180,10 +186,6 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
     document.addEventListener('visibilitychange', onVisibility);
     return () => document.removeEventListener('visibilitychange', onVisibility);
   }, []);
-
-  useEffect(() => {
-    setVerifying(false);
-  }, [retryTick]);
 
   useEffect(() => {
     if (!overlayMounted) {
@@ -267,6 +269,8 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
               onSuccess={onTurnstileSuccess}
               onError={onInteractiveError}
               onBeforeInteractive={onBeforeInteractive}
+              onAfterInteractive={onAfterInteractive}
+              onWidgetLoad={onWidgetLoad}
               options={{ size: 'flexible', action: 'session', retry: 'never' }}
             />
           ) : null}
