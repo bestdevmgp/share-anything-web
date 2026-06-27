@@ -72,7 +72,7 @@ const UseWithAI: React.FC<Props> = ({ markdown, url, promptIntro, t }) => {
         >
           <SparklesIcon className="w-[18px] h-[18px] text-foreground" strokeWidth={2} />
           <span>{t('cli.useWithAI')}</span>
-          <ChevronDownIcon className="w-3.5 h-3.5 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+          <ChevronDownIcon className="w-3 h-3 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" sideOffset={6} className="flex flex-col w-auto p-1 rounded-none border-border bg-card">
