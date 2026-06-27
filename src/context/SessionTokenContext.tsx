@@ -26,7 +26,6 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [expiresAt, setExpiresAt] = useState<string | null>(null);
   const [overlayMounted, setOverlayMounted] = useState(false);
   const [overlayClosing, setOverlayClosing] = useState(false);
-  const [retrying, setRetrying] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [tabVisible, setTabVisible] = useState(!document.hidden);
   const [retryTick, setRetryTick] = useState(0);
@@ -50,14 +49,12 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const failRetry = useCallback(() => {
     if (!retryingRef.current) return;
     retryingRef.current = false;
-    setRetrying(false);
     if (retryTimerRef.current) { clearTimeout(retryTimerRef.current); retryTimerRef.current = null; }
     if (modalShownRef.current) toast.error(tRef.current('botCheck.failToast'));
   }, []);
 
   const finishRetrySuccess = useCallback(() => {
     retryingRef.current = false;
-    setRetrying(false);
     if (retryTimerRef.current) { clearTimeout(retryTimerRef.current); retryTimerRef.current = null; }
   }, []);
 
@@ -95,7 +92,6 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
     attemptsRef.current = 0;
     lastResetRef.current = Date.now();
     retryingRef.current = true;
-    setRetrying(true);
     if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
     retryTimerRef.current = setTimeout(() => failRetry(), 20_000);
     backoffStartRef.current = Date.now();
@@ -259,7 +255,7 @@ export const SessionTokenProvider: React.FC<{ children: React.ReactNode }> = ({ 
       )}
       {children}
       {overlayMounted && (
-        <TurnstileBlockedOverlay onRetry={retry} closing={overlayClosing} loading={retrying || verifying}>
+        <TurnstileBlockedOverlay onRetry={retry} closing={overlayClosing} loading={verifying}>
           {tabVisible ? (
             <Turnstile
               key={retryTick}
