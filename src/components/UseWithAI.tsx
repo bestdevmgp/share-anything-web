@@ -65,7 +65,7 @@ const UseWithAI: React.FC<Props> = ({ markdown, url, promptIntro, t }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="group inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-2 text-sm font-medium text-foreground can-hover:hover:bg-accent active:bg-accent data-[state=open]:bg-accent transition-colors focus:outline-none">
-        <SparklesIcon className="w-4 h-4 text-primary" />
+        <SparklesIcon className="w-[18px] h-[18px] text-foreground" strokeWidth={2} />
         <span>{t('cli.useWithAI')}</span>
         <ChevronDownIcon className="w-4 h-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
       </DropdownMenuTrigger>
