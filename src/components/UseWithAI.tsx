@@ -43,7 +43,7 @@ const ChatGptIcon = () => (
 
 // Thin square tile that frames each menu icon.
 const IconBox: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <span className="flex items-center justify-center w-5 h-5 shrink-0 rounded-[5px] border border-border">
+  <span className="flex items-center justify-center w-9 h-9 shrink-0 rounded-lg border border-border">
     {children}
   </span>
 );
