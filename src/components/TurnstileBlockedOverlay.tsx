@@ -62,9 +62,9 @@ const TurnstileBlockedOverlay: React.FC<Props> = ({ onRetry, children, closing =
       >
         <StatusIcon variant="security" />
         <h2 className="mb-2 text-xl font-bold text-foreground">{t('botCheck.title')}</h2>
-        <p className="mb-6 text-sm text-muted-foreground leading-relaxed">{t('botCheck.desc')}</p>
+        <p className="mb-5 text-sm text-muted-foreground leading-relaxed">{t('botCheck.desc')}</p>
         {children && (
-          <div className="relative mb-6 flex min-h-[65px] items-center justify-center">
+          <div className="relative mb-5 flex min-h-[65px] items-center justify-center">
             <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center px-3">
               <p
                 className={cn(
