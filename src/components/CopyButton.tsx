@@ -51,7 +51,7 @@ const CopyButton = forwardRef<HTMLButtonElement, CopyButtonProps>(
         <span className={cn('relative inline-block w-5 h-5', iconClassName)} aria-hidden>
           <ClipboardDocumentIcon
             className={cn(
-              'absolute inset-0 w-full h-full transition-opacity duration-150',
+              'absolute inset-0 w-full h-full transition-opacity duration-200 ease-out motion-reduce:transition-none',
               'text-muted-foreground',
               iconIdleClass,
               copied ? 'opacity-0' : 'opacity-100',
@@ -59,7 +59,7 @@ const CopyButton = forwardRef<HTMLButtonElement, CopyButtonProps>(
           />
           <CheckIcon
             className={cn(
-              'absolute inset-0 w-full h-full transition-opacity duration-150',
+              'absolute inset-0 w-full h-full transition-opacity duration-200 ease-out motion-reduce:transition-none',
               'text-emerald-600 dark:text-emerald-400',
               iconCopiedClass,
               copied ? 'opacity-100' : 'opacity-0',
