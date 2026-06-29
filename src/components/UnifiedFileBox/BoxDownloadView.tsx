@@ -200,8 +200,9 @@ const BoxDownloadView: React.FC<Props> = ({
     return () => window.removeEventListener('keydown', onKey);
   }, [showError, onRetry]);
 
-  const wrap = (children: React.ReactNode) => (
+  const wrap = (children: React.ReactNode, animKey?: string) => (
     <div
+      key={animKey}
       className="flex-1 flex flex-col px-6 md:px-8 py-8 md:py-5 animate-in fade-in-0 slide-in-from-bottom-1 duration-300"
       onClick={(e) => e.stopPropagation()}
     >
@@ -222,7 +223,8 @@ const BoxDownloadView: React.FC<Props> = ({
       <div className="flex-1 flex flex-col items-center justify-center text-center">
         <Spinner size="xl" className="text-primary mb-4" />
         <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
-      </div>
+      </div>,
+      'loading'
     );
   }
 
@@ -769,7 +771,8 @@ const BoxDownloadView: React.FC<Props> = ({
           </Button>
         )}
       </div>
-    </>
+    </>,
+    'ready'
   );
 };
 
