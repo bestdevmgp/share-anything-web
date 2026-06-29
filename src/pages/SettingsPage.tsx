@@ -1870,7 +1870,7 @@ const SettingsPage: React.FC = () => {
                       {t('settings.apiKeys.modal.emailNotice', { email: user?.email || '' })}
                     </div>
 
-                    <label className="flex items-start gap-2 cursor-pointer">
+                    <label className="flex w-fit items-start gap-2 cursor-pointer">
                       <Checkbox
                         checked={applyTerms}
                         onCheckedChange={(checked) => setApplyTerms(checked === true)}
