@@ -1858,7 +1858,7 @@ const SettingsPage: React.FC = () => {
                       </label>
                       <div className="space-y-2">
                         {(['read', 'upload', 'delete', 'p2p_transfer'] as const).map((s) => (
-                          <label key={s} className="flex items-center gap-2 text-sm cursor-pointer">
+                          <label key={s} className="flex w-fit items-center gap-2 text-sm cursor-pointer">
                             <Checkbox checked={applyScopes.includes(s)} onCheckedChange={() => toggleApplyScope(s)} />
                             <span>{t(`settings.apiKeys.modal.scope.${s}`)}</span>
                           </label>
