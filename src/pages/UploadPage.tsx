@@ -15,6 +15,7 @@ import UploadProgressBar from './upload/UploadProgressBar';
 import { storeUploadFiles, restoreUploadFiles, clearUploadFiles } from '../utils/uploadFileStorage';
 import { getFilesWithPaths, consumeEmptyFolders, supportsDirectoryPicker, pickDirectoryWithEmpties } from '../utils/dropzoneFiles';
 import { getRelativePathSafe } from '../utils/fileWithPath';
+import { sanitizeRelativePath } from '../utils/folderPath';
 
 const runConcurrent = async <T,>(
   tasks: (() => Promise<T>)[],
@@ -47,6 +48,7 @@ const UploadPage: React.FC = () => {
   const fallbackHandledRef = useRef(false);
 
   const initialFiles = location.state?.initialFiles as File[] | undefined;
+  const initialEmptyFolders = location.state?.initialEmptyFolders as string[] | undefined;
   const fromUnifiedBox = location.state?.fromUnifiedBox as boolean | undefined;
   const initialFilesHandledRef = useRef(false);
 
@@ -74,6 +76,8 @@ const UploadPage: React.FC = () => {
 
   const filesRef = useRef(files);
   filesRef.current = files;
+  const emptyFoldersRef = useRef(emptyFolders);
+  emptyFoldersRef.current = emptyFolders;
   const transferTypeRef = useRef(transferType);
   transferTypeRef.current = transferType;
   const descriptionRef = useRef(description);
@@ -100,6 +104,7 @@ const UploadPage: React.FC = () => {
       const savedPassword = sessionStorage.getItem('uploadPassword');
       const savedExpiration = sessionStorage.getItem('uploadExpiration') as ExpirationOption | null;
       const savedIsOneTime = sessionStorage.getItem('uploadIsOneTime');
+      const savedEmptyFolders = sessionStorage.getItem('uploadEmptyFolders');
 
       if (savedTransferType) {
         setTransferType(savedTransferType);
@@ -111,6 +116,14 @@ const UploadPage: React.FC = () => {
       if (savedPassword !== null) setPassword(savedPassword);
       if (savedExpiration) setExpiration(savedExpiration);
       if (savedIsOneTime !== null) setIsOneTime(savedIsOneTime === 'true');
+      if (savedEmptyFolders) {
+        try {
+          const restored = JSON.parse(savedEmptyFolders);
+          if (Array.isArray(restored)) {
+            setEmptyFolders(restored.filter((p): p is string => typeof p === 'string'));
+          }
+        } catch {}
+      }
       isRestoringRef.current = true;
       restoreUploadFiles().then(restored => {
         if (restored.length > 0) {
@@ -125,6 +138,7 @@ const UploadPage: React.FC = () => {
       sessionStorage.removeItem('uploadPassword');
       sessionStorage.removeItem('uploadExpiration');
       sessionStorage.removeItem('uploadIsOneTime');
+      sessionStorage.removeItem('uploadEmptyFolders');
     }
   }, []);
 
@@ -148,14 +162,25 @@ const UploadPage: React.FC = () => {
   }, [files]);
 
   useEffect(() => {
+    if (isRestoringRef.current) return;
+
+    if (emptyFolders.length > 0) {
+      sessionStorage.setItem('uploadEmptyFolders', JSON.stringify(emptyFolders));
+    } else {
+      sessionStorage.removeItem('uploadEmptyFolders');
+    }
+  }, [emptyFolders]);
+
+  useEffect(() => {
     const handlePageHide = () => {
-      if (filesRef.current.length > 0) {
+      if (filesRef.current.length > 0 || emptyFoldersRef.current.length > 0) {
         sessionStorage.setItem('uploadPageRefreshing', 'true');
         sessionStorage.setItem('uploadTransferType', transferTypeRef.current);
         sessionStorage.setItem('uploadDescription', descriptionRef.current);
         sessionStorage.setItem('uploadPassword', passwordRef.current);
         sessionStorage.setItem('uploadExpiration', expirationRef.current);
         sessionStorage.setItem('uploadIsOneTime', isOneTimeRef.current ? 'true' : 'false');
+        sessionStorage.setItem('uploadEmptyFolders', JSON.stringify(emptyFoldersRef.current));
       }
     };
     const handlePageShow = (e: PageTransitionEvent) => {
@@ -184,22 +209,25 @@ const UploadPage: React.FC = () => {
   }, [fromP2PFallback, fallbackFiles]);
 
   useEffect(() => {
-    if (fromUnifiedBox && initialFiles && initialFiles.length > 0 && !initialFilesHandledRef.current) {
+    const hasInitialFiles = !!initialFiles && initialFiles.length > 0;
+    const hasInitialEmptyFolders = !!initialEmptyFolders && initialEmptyFolders.length > 0;
+    if (fromUnifiedBox && (hasInitialFiles || hasInitialEmptyFolders) && !initialFilesHandledRef.current) {
       initialFilesHandledRef.current = true;
-      setFiles(initialFiles);
+      if (hasInitialFiles) setFiles(initialFiles);
+      if (hasInitialEmptyFolders) setEmptyFolders(initialEmptyFolders);
       window.history.replaceState({}, document.title);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fromUnifiedBox, initialFiles]);
+  }, [fromUnifiedBox, initialFiles, initialEmptyFolders]);
 
   const addFiles = useCallback(async (acceptedFiles: File[], empties: string[]) => {
-    if (acceptedFiles.length === 0) {
+    if (acceptedFiles.length === 0 && empties.length === 0) {
       toast.warning(t('upload.emptyFolder'));
       return;
     }
     setIsProcessingFiles(true);
     await new Promise(resolve => setTimeout(resolve, 10));
-    setFiles(prev => [...prev, ...acceptedFiles]);
+    if (acceptedFiles.length > 0) setFiles(prev => [...prev, ...acceptedFiles]);
     if (empties.length > 0) setEmptyFolders(prev => [...prev, ...empties]);
     setIsProcessingFiles(false);
   }, [t]);
@@ -243,9 +271,21 @@ const UploadPage: React.FC = () => {
     setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const removeFiles = (indices: number[]) => {
+  const pruneEmptyFoldersUnder = (path: string) => {
+    setEmptyFolders(prev => prev.filter(p => {
+      const sanitized = sanitizeRelativePath(p);
+      return sanitized !== path && !sanitized.startsWith(path + '/');
+    }));
+  };
+
+  const removeFiles = (indices: number[], folderPath?: string) => {
     const set = new Set(indices);
     setFiles(prev => prev.filter((_, i) => !set.has(i)));
+    if (folderPath) pruneEmptyFoldersUnder(folderPath);
+  };
+
+  const removeEmptyFolder = (path: string) => {
+    pruneEmptyFoldersUnder(path);
   };
 
   const handleUpload = async () => {
@@ -261,6 +301,10 @@ const UploadPage: React.FC = () => {
     const MAX_CONCURRENT_UPLOADS = 10;
     const DIRECT_UPLOAD_THRESHOLD = 100 * 1024 * 1024;
 
+    const sanitizedEmptyFolders = Array.from(
+      new Set(emptyFolders.map(p => sanitizeRelativePath(p)).filter(p => p !== ''))
+    );
+
     try {
       setIsUploading(true);
       setUploadProgress(0);
@@ -274,13 +318,14 @@ const UploadPage: React.FC = () => {
             relative_path: getRelativePathSafe(file)
           })),
           isAuthenticated && password ? password : undefined,
-          emptyFolders
+          sanitizedEmptyFolders
         );
 
         navigate('/upload/success', {
           state: {
             uploadResult: response,
-            uploadedFiles: files
+            uploadedFiles: files,
+            emptyFolders: sanitizedEmptyFolders
           }
         });
         return;
@@ -444,7 +489,7 @@ const UploadPage: React.FC = () => {
           image_width: dimensions[i]?.width,
           image_height: dimensions[i]?.height,
         })),
-        empty_folders: emptyFolders.length > 0 ? emptyFolders : undefined,
+        empty_folders: sanitizedEmptyFolders.length > 0 ? sanitizedEmptyFolders : undefined,
       });
 
       navigate('/upload/success', {
@@ -586,6 +631,7 @@ const UploadPage: React.FC = () => {
           getInputProps={getInputProps}
           onRemoveFile={removeFile}
           onRemoveFiles={removeFiles}
+          onRemoveEmptyFolder={removeEmptyFolder}
           onPreviewFile={setPreviewFile}
           onSelectFolder={handleSelectFolder}
           folderInputRef={folderInputRef}

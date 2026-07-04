@@ -5,7 +5,6 @@ import { useMultipartUpload, UploadProgressEvent } from '../../hooks/useMultipar
 import { useP2PUploader } from '../../hooks/useP2PUploader';
 import { pushSession } from '../../utils/recentSessions';
 import { getRelativePathSafe, fileKey } from '../../utils/fileWithPath';
-import { consumeEmptyFolders } from '../../utils/dropzoneFiles';
 import { useUnifiedFileBoxState } from './useUnifiedFileBoxState';
 import ModeHeader from './ModeHeader';
 import IdleUpload from './IdleUpload';
@@ -101,7 +100,7 @@ const UnifiedFileBox: React.FC = () => {
   }, [p2p.connectionFailed, p2pEnabled, dispatch, t]);
 
   const startNormalUploadPipeline = useCallback(
-    (files: File[]) => {
+    (files: File[], emptyFolders: string[]) => {
       setItems(
         files.map((f, i) => ({
           id: `u-${Date.now()}-${i}`,
@@ -112,7 +111,7 @@ const UnifiedFileBox: React.FC = () => {
           file: f,
         }))
       );
-      const handle = uploader.startUpload({ files });
+      const handle = uploader.startUpload({ files, emptyFolders });
       handleRef.current = handle;
       handle.promise
         .then((result) => {
@@ -167,30 +166,26 @@ const UnifiedFileBox: React.FC = () => {
   );
 
   const onNormal = useCallback(
-    (files: File[]) => {
-      const emptyFolders = consumeEmptyFolders();
+    (files: File[], emptyFolders: string[]) => {
       if (files.length === 0) {
         if (emptyFolders.length > 0) window.alert(t('upload.emptyFolderNotAllowed'));
         return;
       }
       handleRef.current?.abort();
-      dispatch({ type: 'dropNormal', files });
-      startNormalUploadPipeline(files);
+      dispatch({ type: 'dropNormal', files, emptyFolders });
+      startNormalUploadPipeline(files, emptyFolders);
     },
     [dispatch, startNormalUploadPipeline, t]
   );
 
   const onSecure = useCallback(
-    (files: File[]) => {
-      const emptyFolders = consumeEmptyFolders();
+    (files: File[], emptyFolders: string[]) => {
       if (files.length === 0) {
-        // Nothing but empty folder(s) was dropped — reject the whole attach.
         if (emptyFolders.length > 0) window.alert(t('upload.emptyFolderNotAllowed'));
         return;
       }
       handleRef.current?.abort();
       dispatch({ type: 'dropSecure', files, emptyFolders });
-      // Files present: keep them AND preserve their empty subfolders.
       createP2PSession(files, emptyFolders);
     },
     [dispatch, createP2PSession, t]
@@ -230,7 +225,7 @@ const UnifiedFileBox: React.FC = () => {
   }, [dispatch]);
 
   const onDrillDown = () => {
-    navigate('/upload', { state: { initialFiles: state.files, fromUnifiedBox: true } });
+    navigate('/upload', { state: { initialFiles: state.files, initialEmptyFolders: state.emptyFolders, fromUnifiedBox: true } });
   };
 
   useEffect(() => {
@@ -302,7 +297,7 @@ const UnifiedFileBox: React.FC = () => {
             failedNames={state.uploadFailures}
             onConfirm={() => dispatch({ type: 'close' })}
             onRetry={() =>
-              onNormal(state.files.filter((f) => state.uploadFailures.includes(f.name)))
+              onNormal(state.files.filter((f) => state.uploadFailures.includes(f.name)), [])
             }
           />
         )}

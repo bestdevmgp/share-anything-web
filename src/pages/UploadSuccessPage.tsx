@@ -3,11 +3,20 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import StyledQRCode from '../components/StyledQRCode';
 import { FileUploadResponse } from '../types';
 import { formatDateTime, formatFileSize } from '../utils/format';
-import { CheckIcon, ExclamationTriangleIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { CheckIcon, ExclamationTriangleIcon, XMarkIcon, FolderIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import PauseBarsIcon from '../components/PauseBarsIcon';
 import CopyButton from '../components/CopyButton';
 import { useP2PUploader } from '../hooks/useP2PUploader';
-import { fileKey } from '../utils/fileWithPath';
+import { fileKey, getRelativePathSafe } from '../utils/fileWithPath';
+import FolderTreeRows, { treeIndent } from '../components/UnifiedFileBox/FolderTreeRows';
+import Collapsible from '../components/UnifiedFileBox/Collapsible';
+import {
+  buildFileTree,
+  nodeFileCount,
+  nodeSize,
+  toggleFolderOpen,
+  hasFolders as treeHasFolders,
+} from '../utils/fileTree';
 import FileThumbnail from '../components/FileThumbnail';
 import FilePreviewModal from '../components/FilePreviewModal';
 import TruncatedFilename from '../components/TruncatedFilename';
@@ -38,6 +47,40 @@ const UploadSuccessPage: React.FC = () => {
   const files = useMemo(() => {
     return uploadedFiles || (uploadedFile ? [uploadedFile] : []);
   }, [uploadedFiles, uploadedFile]);
+
+  const emptyFolders = useMemo(
+    () => (location.state?.emptyFolders as string[] | undefined) ?? [],
+    [location.state]
+  );
+
+  const fileByKey = useMemo(() => new Map(files.map((f) => [fileKey(f), f] as const)), [files]);
+  const tree = useMemo(
+    () =>
+      buildFileTree(
+        files.map((f) => ({
+          id: fileKey(f),
+          file_name: f.name,
+          file_size: f.size,
+          relative_path: getRelativePathSafe(f) || '',
+        })),
+        emptyFolders
+      ),
+    [files, emptyFolders]
+  );
+  const hasFolders = treeHasFolders(tree);
+  const [openFolders, setOpenFolders] = useState<Set<string>>(() => {
+    const set = new Set<string>();
+    const walk = (nodes: typeof tree) =>
+      nodes.forEach((n) => {
+        if (n.kind === 'folder') {
+          set.add(n.path);
+          walk(n.children);
+        }
+      });
+    walk(tree);
+    return set;
+  });
+  const toggleFolder = (path: string) => setOpenFolders((prev) => toggleFolderOpen(prev, path));
 
   const [previewFile, setPreviewFile] = useState<File | null>(null);
 
@@ -112,6 +155,60 @@ const UploadSuccessPage: React.FC = () => {
   };
 
   const overallStatus = getOverallStatus();
+
+  const p2pTreeRow = (file: File) => {
+    const progress = fileProgresses.get(fileKey(file));
+    const isTransferring = progress?.status === 'transferring';
+    const isCompleted = progress?.status === 'completed';
+    return (
+      <>
+        <div className="flex-shrink-0 mr-3">
+          {isCompleted ? (
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-green-100 dark:bg-green-500/15">
+              <CheckIcon className="w-5 h-5 text-green-600" />
+            </div>
+          ) : (
+            <FileThumbnail source={file} fileName={file.name} size="sm" />
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className={cn('transition-transform duration-300 ease-out', !isTransferring && 'translate-y-[7px]')}>
+            <TruncatedFilename name={file.name} className="text-sm font-medium text-foreground" />
+            <div className="flex items-center justify-between gap-2 mt-0.5 leading-none">
+              <span className="text-xs text-muted-foreground whitespace-nowrap">{formatFileSize(file.size)}</span>
+              {isTransferring && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">{progress?.timeRemaining || t('format.calculating')}</span>
+                  <span className="text-xs font-semibold text-primary whitespace-nowrap">{progress?.progress || 0}%</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="mt-2 h-1.5">
+            <div className={cn('w-full h-full bg-secondary rounded-full overflow-hidden transition-opacity duration-300', isTransferring ? 'opacity-100' : 'opacity-0')}>
+              <div
+                className="bg-primary h-full transition-all duration-1000 ease-out rounded-full"
+                style={{ width: `${progress?.progress || 0}%` }}
+              />
+            </div>
+          </div>
+        </div>
+        {isCompleted ? (
+          <span className="flex-shrink-0 self-center ml-3 text-sm text-green-600 font-medium whitespace-nowrap">{t('uploadSuccess.completed')}</span>
+        ) : isTransferring ? (
+          <Hint label={t('uploadSuccess.cancelTransfer')}>
+            <button
+              onClick={(e) => { e.stopPropagation(); cancelTransfer(fileKey(file)); }}
+              className="flex-shrink-0 self-center ml-1 -mr-1 p-1 rounded-md transition-colors can-hover:hover:bg-accent active:bg-accent"
+              aria-label={t('uploadSuccess.cancelTransfer')}
+            >
+              <XMarkIcon className="w-4 h-4 text-muted-foreground" />
+            </button>
+          </Hint>
+        ) : null}
+      </>
+    );
+  };
 
   return (
     <div className="flex items-center justify-center px-4 pt-12 pb-20">
@@ -240,7 +337,7 @@ const UploadSuccessPage: React.FC = () => {
 
           {isP2PTransfer && (
             <div className="mb-8">
-              {files.length === 1 ? (
+              {files.length === 1 && !hasFolders ? (
                 (() => {
                   const file = files[0];
                   const progress = fileProgresses.get(fileKey(file));
@@ -345,6 +442,112 @@ const UploadSuccessPage: React.FC = () => {
                     </>
                   );
                 })()
+              ) : hasFolders ? (
+                <>
+                  <label className="block text-sm font-medium text-muted-foreground mb-3">
+                    {t('uploadSuccess.fileList', { count: files.length })}
+                  </label>
+                  <div className="space-y-3" style={{ containerType: 'inline-size' }}>
+                    {tree.map((node) => {
+                      if (node.kind === 'file') {
+                        const f = fileByKey.get(node.id);
+                        if (!f) return null;
+                        const progress = fileProgresses.get(fileKey(f));
+                        const isTransferring = progress?.status === 'transferring';
+                        const isCompleted = progress?.status === 'completed';
+                        return (
+                          <div
+                            key={node.id}
+                            className={cn(
+                              'flex items-center px-4 py-2 rounded-lg border transition-all',
+                              isTransferring ? 'bg-muted border-primary' :
+                              isCompleted ? 'bg-muted border-foreground/[0.09]' :
+                              'bg-muted border-foreground/[0.09] cursor-pointer can-hover:hover:bg-accent active:bg-accent'
+                            )}
+                            onClick={() => {
+                              if (!isTransferring && !isCompleted) setPreviewFile(f);
+                            }}
+                          >
+                            {p2pTreeRow(f)}
+                          </div>
+                        );
+                      }
+                      if (node.children.length === 0) {
+                        return (
+                          <div key={`folder:${node.path}`} className="flex items-center px-4 py-3 bg-muted rounded-lg border border-foreground/[0.09]">
+                            <div className="flex-shrink-0 mr-3">
+                              <div className="w-11 h-11 rounded bg-background flex items-center justify-center">
+                                <FolderIcon className="w-7 h-7 text-muted-foreground" />
+                              </div>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-foreground truncate">{node.name}</p>
+                              <p className="text-xs text-muted-foreground">{t('upload.folderEmpty')}</p>
+                            </div>
+                          </div>
+                        );
+                      }
+                      const isOpen = openFolders.has(node.path);
+                      return (
+                        <div key={`folder:${node.path}`} className="bg-muted rounded-lg border border-foreground/[0.09] overflow-hidden">
+                          <div
+                            onClick={() => toggleFolder(node.path)}
+                            className="flex items-center px-4 py-3 cursor-pointer can-hover:hover:bg-accent active:bg-accent transition-colors"
+                          >
+                            <div className="flex-shrink-0 mr-3">
+                              <div className="w-11 h-11 rounded bg-background flex items-center justify-center">
+                                <FolderIcon className="w-7 h-7 text-muted-foreground" />
+                              </div>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-foreground truncate">{node.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {t('upload.folderItemCount', { count: nodeFileCount(node) })} · {formatFileSize(nodeSize(node))}
+                              </p>
+                            </div>
+                            <ChevronDownIcon className={cn('w-5 h-5 text-muted-foreground/60 transition-transform flex-shrink-0', isOpen && 'rotate-180')} />
+                          </div>
+                          <Collapsible open={isOpen}>
+                            <div className="px-4 pb-3">
+                              <div className="border-t border-foreground/[0.08] pt-2.5 space-y-1">
+                                <FolderTreeRows
+                                  nodes={node.children}
+                                  depth={1}
+                                  openFolders={openFolders}
+                                  toggleFolder={toggleFolder}
+                                  t={t}
+                                  renderFile={(tf, depth) => {
+                                    const f = fileByKey.get(tf.id);
+                                    if (!f) return null;
+                                    const progress = fileProgresses.get(fileKey(f));
+                                    const isTransferring = progress?.status === 'transferring';
+                                    const isCompleted = progress?.status === 'completed';
+                                    return (
+                                      <div
+                                        data-row
+                                        className={cn(
+                                          'flex items-center -mx-2.5 px-2.5 py-2 rounded-lg transition-colors',
+                                          !isTransferring && !isCompleted && 'cursor-pointer can-hover:hover:bg-accent active:bg-accent'
+                                        )}
+                                        style={{ marginLeft: `calc(-0.625rem + ${treeIndent(depth)})` }}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          if (!isTransferring && !isCompleted) setPreviewFile(f);
+                                        }}
+                                      >
+                                        {p2pTreeRow(f)}
+                                      </div>
+                                    );
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          </Collapsible>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
               ) : (
                 <>
                   <label className="block text-sm font-medium text-muted-foreground mb-3">

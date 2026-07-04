@@ -105,7 +105,9 @@ const Check: React.FC = () => (
 const EmptyFolderCard: React.FC<{
   name: string;
   t: (key: string, params?: Record<string, string | number>) => string;
-}> = ({ name, t }) => (
+  onDownload?: () => void;
+  downloadDisabled?: boolean;
+}> = ({ name, t, onDownload, downloadDisabled }) => (
   <div className="bg-muted rounded-lg border border-foreground/[0.09] overflow-hidden">
     <div className="flex items-center px-3 py-3">
       <div className="flex-shrink-0 mr-3">
@@ -117,6 +119,21 @@ const EmptyFolderCard: React.FC<{
         <p className="text-sm font-medium text-foreground truncate">{name}</p>
         <p className="text-xs text-muted-foreground">{t('upload.folderEmpty')}</p>
       </div>
+      {onDownload && (
+        <div className="flex-shrink-0 ml-2">
+          <Hint label={t('common.download')}>
+            <Button
+              onClick={(e) => { e.stopPropagation(); onDownload(); }}
+              disabled={downloadDisabled}
+              size="icon"
+              aria-label={t('common.download')}
+              className="md:h-8 md:w-8"
+            >
+              <ArrowDownTrayIcon strokeWidth={2.5} />
+            </Button>
+          </Hint>
+        </div>
+      )}
     </div>
   </div>
 );
@@ -423,7 +440,16 @@ const BoxDownloadView: React.FC<Props> = ({
                     );
                   }
                   if (node.children.length === 0) {
-                    return <div key={`folder:${node.path}`} data-row><EmptyFolderCard name={node.name} t={t} /></div>;
+                    return (
+                      <div key={`folder:${node.path}`} data-row>
+                        <EmptyFolderCard
+                          name={node.name}
+                          t={t}
+                          onDownload={() => downloadFolderAsZip(node.path)}
+                          downloadDisabled={active}
+                        />
+                      </div>
+                    );
                   }
                   const isOpen = openFolders.has(node.path);
                   return (
@@ -498,12 +524,12 @@ const BoxDownloadView: React.FC<Props> = ({
           ) : (
             <div className="flex gap-2">
               <Button
-                onClick={() => (files.length > 1 ? startBulkP2PDownload() : startP2PDownload(files[0].id))}
+                onClick={() => (files.length === 1 && !hasFolders ? startP2PDownload(files[0].id) : startBulkP2PDownload())}
                 disabled={active}
                 size="lg"
                 className="flex-1"
               >
-                <span>{files.length > 1 ? t('download.downloadAll') : t('download.downloadFile')}</span>
+                <span>{files.length === 1 && !hasFolders ? t('download.downloadFile') : t('download.downloadAll')}</span>
               </Button>
               {active || p2pCompletedFileIds.size > 0 ? (
                 <Button
@@ -733,8 +759,8 @@ const BoxDownloadView: React.FC<Props> = ({
           const selectedTotalSize = files
             .filter((f) => selectedFiles.has(f.id))
             .reduce((sum, f) => sum + f.file_size, 0);
-          const canZip = selectedFiles.size > 1 && selectedTotalSize < 500 * 1024 * 1024;
           const hasSelection = selectedFiles.size > 0;
+          const canZip = hasSelection && (selectedFiles.size > 1 || hasFolders) && selectedTotalSize < 500 * 1024 * 1024;
           return (
             <div className="flex gap-2">
               <Button onClick={() => handleDownload(true)} disabled={downloading || !canZip} size="lg" className="flex-1">

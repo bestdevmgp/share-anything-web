@@ -3,6 +3,7 @@ import { SignalingMessage, FileInfo } from '../types';
 import { createWebSocketConnection, createPeerConnection, generatePeerId, sendSignalingMessage } from '../utils/webrtc';
 import { toast } from '../context/ToastContext';
 import { getDeviceInfo } from '../utils/format';
+import { sanitizeRelativePath } from '../utils/folderPath';
 import { useTranslation, translateSignalingError } from '../i18n';
 
 interface UseP2PDownloaderProps {
@@ -15,8 +16,10 @@ interface UseP2PDownloaderProps {
   password?: string;
 }
 
-const fileKey = (info: { relative_path?: string; file_name: string }): string =>
-  info.relative_path && info.relative_path.length > 0 ? info.relative_path : info.file_name;
+const fileKey = (info: { relative_path?: string; file_name: string }): string => {
+  const sanitized = sanitizeRelativePath(info.relative_path);
+  return sanitized.length > 0 ? sanitized : info.file_name;
+};
 
 export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onPeerFileRemoved, onSenderDisconnected, password }: UseP2PDownloaderProps) => {
   const { t } = useTranslation();
@@ -47,6 +50,9 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
   const completedFileRef = useRef<boolean>(false);
   const actualFileSizeRef = useRef<number>(0);
   const actualFileTypeRef = useRef<string>('');
+  // Set true when the file currently being received is removed by the sender: any straggler
+  // chunks / __EOF__ for it are then dropped until the next file_metadata opens a clean file.
+  const awaitingNextFileRef = useRef<boolean>(false);
 
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
@@ -135,6 +141,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
     sessionActiveRef.current = true;
     isCleaningUpRef.current = false;
     iceConnectedRef.current = false;
+    awaitingNextFileRef.current = false;
     peerIdRef.current = generatePeerId();
     resetPerFileState(fileInfo);
     setStatus('connecting');
@@ -223,6 +230,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
           dataChannel.onmessage = (event) => {
             if (typeof event.data === 'string') {
               if (event.data === '__EOF__') {
+                if (awaitingNextFileRef.current) return;
                 if (completedFileRef.current) return;
                 setTimeout(() => {
                   setStatus('processing');
@@ -236,18 +244,24 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
               try {
                 const metadata = JSON.parse(event.data);
                 if (metadata.type === 'file_metadata') {
+                  awaitingNextFileRef.current = false;
                   actualFileSizeRef.current = metadata.fileSize;
                   actualFileTypeRef.current = metadata.fileType;
                   downloadStartTimeRef.current = Date.now();
                   return;
                 }
                 if (metadata.type === 'file_removed' && metadata.fileName) {
+                  if (metadata.fileName === currentFileNameRef.current) {
+                    awaitingNextFileRef.current = true;
+                  }
                   onPeerFileRemovedRef.current?.(metadata.fileName);
                   return;
                 }
               } catch {}
               return;
             }
+
+            if (awaitingNextFileRef.current) return;
 
             const chunk = event.data as ArrayBuffer;
             pendingChunksRef.current.push(chunk);
@@ -476,6 +490,7 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
   const cancelDownload = useCallback(() => {
     isCleaningUpRef.current = true;
     cleanupSession();
+    awaitingNextFileRef.current = false;
     receivedBlobsRef.current = [];
     pendingChunksRef.current = [];
     pendingSizeRef.current = 0;

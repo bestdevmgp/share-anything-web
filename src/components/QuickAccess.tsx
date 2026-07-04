@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { quickAccessAPI } from '../services/api';
 import { QuickAccessFile } from '../types';
 import { formatFileSize, copyToClipboard, formatCompactDateTime } from '../utils/format';
+import { isJunkFileName } from '../utils/folderPath';
 import { PlusIcon, TrashIcon, ArrowDownTrayIcon, ArrowUpTrayIcon } from '@heroicons/react/24/outline';
 import UploadProgressRow from './UploadProgressRow';
 import { toast } from '../context/ToastContext';
@@ -119,7 +120,9 @@ const QuickAccess: React.FC = () => {
     setIsFileDialogOpen(false);
     if (!isAuthenticated) return;
     if (isUploading) return;
-    handleUpload(acceptedFiles);
+    const filtered = acceptedFiles.filter((f) => !isJunkFileName(f.name));
+    if (filtered.length === 0) return;
+    handleUpload(filtered);
   }, [isAuthenticated, isUploading, handleUpload]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({

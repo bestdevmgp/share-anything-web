@@ -230,6 +230,7 @@
     "folderItemCount": "{{count}}個檔案",
     "folderEmpty": "空資料夾",
     "emptyFolderNotAllowed": "無法新增空資料夾。",
+    "filesRequiredHint": "僅有空資料夾無法上傳，請至少新增一個檔案。",
     "fileCountLabel": "{{count}} 個檔案"
   },
   "uploadSuccess": {

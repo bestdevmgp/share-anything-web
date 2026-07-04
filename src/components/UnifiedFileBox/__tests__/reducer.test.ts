@@ -27,6 +27,23 @@ describe('UnifiedFileBox reducer', () => {
     expect(s.files).toHaveLength(1);
     expect(s.lastResult).toBeNull();
     expect(s.uploadFailures).toEqual([]);
+    expect(s.emptyFolders).toEqual([]);
+  });
+
+  it('dropNormal stores emptyFolders', () => {
+    const s = reducer(initialState, {
+      type: 'dropNormal',
+      files: [file('a.pdf')],
+      emptyFolders: ['dir/empty'],
+    });
+    expect(s.state).toBe('uploading');
+    expect(s.emptyFolders).toEqual(['dir/empty']);
+  });
+
+  it('dropNormal without emptyFolders clears previous emptyFolders', () => {
+    const before: State = { ...initialState, emptyFolders: ['stale'] };
+    const after = reducer(before, { type: 'dropNormal', files: [file('a.pdf')] });
+    expect(after.emptyFolders).toEqual([]);
   });
 
   it('dropSecure in upload mode → p2pCreating', () => {
@@ -49,11 +66,17 @@ describe('UnifiedFileBox reducer', () => {
     expect(after).toEqual(before);
   });
 
-  it('cancelUpload → idleUpload, clears files', () => {
-    const before: State = { ...initialState, state: 'uploading', files: [file('a.pdf')] };
+  it('cancelUpload → idleUpload, clears files and emptyFolders', () => {
+    const before: State = {
+      ...initialState,
+      state: 'uploading',
+      files: [file('a.pdf')],
+      emptyFolders: ['dir/empty'],
+    };
     const after = reducer(before, { type: 'cancelUpload' });
     expect(after.state).toBe('idleUpload');
     expect(after.files).toEqual([]);
+    expect(after.emptyFolders).toEqual([]);
   });
 
   it('completeAll → success with result', () => {
@@ -74,20 +97,32 @@ describe('UnifiedFileBox reducer', () => {
     expect(after.uploadFailures).toEqual(['x.zip', 'y.bin']);
   });
 
-  it('failAll → idleUpload, files cleared', () => {
-    const before: State = { ...initialState, state: 'uploading', files: [file('a.pdf')] };
+  it('failAll → idleUpload, files and emptyFolders cleared', () => {
+    const before: State = {
+      ...initialState,
+      state: 'uploading',
+      files: [file('a.pdf')],
+      emptyFolders: ['dir/empty'],
+    };
     const after = reducer(before, { type: 'failAll' });
     expect(after.state).toBe('idleUpload');
     expect(after.files).toEqual([]);
+    expect(after.emptyFolders).toEqual([]);
   });
 
   it('close → idleUpload, files cleared (used as confirm from success view)', () => {
-    const before: State = { ...initialState, state: 'success', lastResult: mkResult() };
+    const before: State = {
+      ...initialState,
+      state: 'success',
+      lastResult: mkResult(),
+      emptyFolders: ['dir/empty'],
+    };
     const after = reducer(before, { type: 'close' });
     expect(after.state).toBe('idleUpload');
     expect(after.files).toEqual([]);
     expect(after.lastResult).toBeNull();
     expect(after.uploadFailures).toEqual([]);
+    expect(after.emptyFolders).toEqual([]);
   });
 
   it('close then switching tabs away and back does not restore the success view', () => {

@@ -22,7 +22,8 @@ export interface FileDropzoneProps {
   getRootProps: <T extends DropzoneRootProps>(props?: T) => T;
   getInputProps: <T extends DropzoneInputProps>(props?: T) => T;
   onRemoveFile: (index: number) => void;
-  onRemoveFiles: (indices: number[]) => void;
+  onRemoveFiles: (indices: number[], folderPath: string) => void;
+  onRemoveEmptyFolder: (path: string) => void;
   onPreviewFile: (file: File) => void;
   onSelectFolder: () => void;
   folderInputRef: React.RefObject<HTMLInputElement | null>;
@@ -40,6 +41,7 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
   getInputProps,
   onRemoveFile,
   onRemoveFiles,
+  onRemoveEmptyFolder,
   onPreviewFile,
   onSelectFolder,
   folderInputRef,
@@ -48,6 +50,8 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
   const { t } = useTranslation();
 
   const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
+
+  const hasItems = files.length > 0 || emptyFolders.length > 0;
 
   const tree = useMemo(
     () =>
@@ -78,12 +82,12 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
             isDragActive
               ? 'border-primary bg-primary/5'
               : 'border-input bg-card can-hover:hover:border-foreground/40 active:border-foreground/40',
-            files.length > 0 ? 'p-4 md:p-6 flex flex-col' : 'p-6 md:p-16 text-center'
+            hasItems ? 'p-4 md:p-6 flex flex-col' : 'p-6 md:p-16 text-center'
           )}
         >
           <input {...getInputProps()} />
 
-          {files.length === 0 ? (
+          {!hasItems ? (
             <div className="flex flex-col items-center justify-center h-full">
               <div className="w-14 h-14 md:w-20 md:h-20 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-3 md:mb-6">
                 <DocumentIcon className="w-7 h-7 md:w-10 md:h-10 text-primary" />
@@ -119,8 +123,13 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
             <>
               <div className="flex items-center justify-between gap-2 mt-0.5 md:mt-0 mb-3.5 md:mb-4 flex-shrink-0">
                 <h3 className="font-semibold text-foreground">{t('upload.selectedFiles', { count: files.length })}</h3>
-                <span className="text-sm text-muted-foreground whitespace-nowrap">{formatFileSize(totalSize)}</span>
+                {files.length > 0 && (
+                  <span className="text-sm text-muted-foreground whitespace-nowrap">{formatFileSize(totalSize)}</span>
+                )}
               </div>
+              {files.length === 0 && emptyFolders.length > 0 && (
+                <p className="text-xs text-muted-foreground -mt-2 md:-mt-2.5 mb-3.5 md:mb-4 flex-shrink-0">{t('upload.filesRequiredHint')}</p>
+              )}
               <div className="flex-1 overflow-y-auto space-y-2 min-h-0" style={{ containerType: 'inline-size' }}>
                 {tree.map((node) => {
                   if (node.kind === 'file') {
@@ -162,12 +171,20 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                           <p className="text-base font-medium text-foreground truncate">{node.name}</p>
                           <p className="text-xs text-muted-foreground">{isEmpty ? t('upload.folderEmpty') : `${t('upload.folderItemCount', { count: nodeFileCount(node) })} · ${formatFileSize(nodeSize(node))}`}</p>
                         </div>
-                        {!isEmpty && (
+                        {isEmpty ? (
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); onRemoveEmptyFolder(node.path); }}
+                            className="ml-1 -mr-1 p-1 can-hover:hover:bg-foreground/10 active:bg-foreground/10 rounded-md transition-colors flex-shrink-0"
+                          >
+                            <XMarkIcon className="w-4 h-4 text-muted-foreground" />
+                          </button>
+                        ) : (
                           <div className="flex items-center gap-1 flex-shrink-0">
                             <ChevronDownIcon className={cn('w-5 h-5 text-muted-foreground/50 transition-transform', isOpen && 'rotate-180')} />
                             <button
                               type="button"
-                              onClick={(e) => { e.stopPropagation(); onRemoveFiles(collectFileIds(node).map(Number)); }}
+                              onClick={(e) => { e.stopPropagation(); onRemoveFiles(collectFileIds(node).map(Number), node.path); }}
                               className="-mr-1 p-1 can-hover:hover:bg-foreground/10 active:bg-foreground/10 rounded-md transition-colors"
                             >
                               <XMarkIcon className="w-4 h-4 text-muted-foreground" />
@@ -188,7 +205,7 @@ const FileDropzone: React.FC<FileDropzoneProps> = ({
                                   folderNode.children.length === 0 ? null : (
                                     <button
                                       type="button"
-                                      onClick={(e) => { e.stopPropagation(); onRemoveFiles(collectFileIds(folderNode).map(Number)); }}
+                                      onClick={(e) => { e.stopPropagation(); onRemoveFiles(collectFileIds(folderNode).map(Number), folderNode.path); }}
                                       className="-mr-0.5 p-1 can-hover:hover:bg-foreground/10 active:bg-foreground/10 rounded-md transition-colors flex-shrink-0"
                                     >
                                       <XMarkIcon className="w-4 h-4 text-muted-foreground" />

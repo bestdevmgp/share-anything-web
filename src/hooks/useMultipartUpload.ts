@@ -3,6 +3,7 @@ import { quickAccessAPI, fileAPI, workerAPI } from '../services/api';
 import { InitMultipartUploadResponse } from '../types';
 import { getDeviceInfo, getImageDimensions } from '../utils/format';
 import { getRelativePathSafe } from '../utils/fileWithPath';
+import { sanitizeRelativePath } from '../utils/folderPath';
 
 type UploadMode = 'quick-access' | 'public';
 
@@ -26,6 +27,7 @@ interface StartUploadInput {
   files: File[];
   description?: string;
   password?: string;
+  emptyFolders?: string[];
 }
 
 interface UploadHandle {
@@ -107,6 +109,7 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
             file_name: file.name,
             file_size: file.size,
             content_type: file.type || 'application/octet-stream',
+            relative_path: getRelativePathSafe(file),
           })),
           CHUNK_SIZE,
           getDeviceInfo()
@@ -227,9 +230,14 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
 
       if (sessionAborted) throw new Error('Upload cancelled');
 
+      const sanitizedEmptyFolders = Array.from(
+        new Set((input.emptyFolders ?? []).map((p) => sanitizeRelativePath(p)).filter((p) => p.length > 0))
+      );
+
       const completeResp = await fileAPI.completeMultipartUpload({
         upload_session_id: initResponse.upload_session_id,
         share_code: initResponse.share_code,
+        ...(sanitizedEmptyFolders.length > 0 ? { empty_folders: sanitizedEmptyFolders } : {}),
         files: liveIndices.map((i, pos) => {
           const fileInit = initResponse.files[i];
           return {

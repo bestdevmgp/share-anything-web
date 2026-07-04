@@ -1,5 +1,6 @@
 import { makeZip } from 'client-zip';
 import { downloadFile } from './format';
+import { sanitizeRelativePath } from './folderPath';
 
 interface FileSystemWritableFileStreamLike {
   write(data: BufferSource | Blob | string): Promise<void>;
@@ -48,13 +49,24 @@ function normalizeFolderPaths(paths: string[] | undefined): string[] {
   const seen = new Set<string>();
   const out: string[] = [];
   for (const raw of paths) {
-    const p = (raw || '').trim().replace(/^\/+|\/+$/g, '');
+    const p = sanitizeRelativePath(raw);
     if (p && !seen.has(p)) {
       seen.add(p);
       out.push(p);
     }
   }
   return out;
+}
+
+function sanitizeEntryName(entryName: string, fallback?: string): string {
+  return sanitizeRelativePath(entryName) || sanitizeRelativePath(fallback) || 'file';
+}
+
+function sanitizeSpecEntryNames(specs: ZipFileSpec[]): ZipFileSpec[] {
+  return specs.map((spec) => {
+    const entryName = sanitizeEntryName(spec.entryName, spec.fileName);
+    return entryName === spec.entryName ? spec : { ...spec, entryName };
+  });
 }
 
 function dedupeEntryNames(specs: ZipFileSpec[]): ZipFileSpec[] {
@@ -84,7 +96,7 @@ export async function createStructuredZip(opts: {
   preferFallback?: boolean;
   emptyFolders?: string[];
 }): Promise<boolean> {
-  const specs = dedupeEntryNames(opts.specs);
+  const specs = dedupeEntryNames(sanitizeSpecEntryNames(opts.specs));
   const emptyFolders = normalizeFolderPaths(opts.emptyFolders);
   const total = specs.length;
 
@@ -220,7 +232,7 @@ export async function streamBlobsToDiskZip(opts: {
     for await (const { name, blob } of opts.files) {
       if (opts.signal?.aborted) throw new DOMException('Aborted', 'AbortError');
       yield {
-        name: uniqueName(name),
+        name: uniqueName(sanitizeEntryName(name)),
         input: blob.stream() as ReadableStream<Uint8Array>,
         size: blob.size,
         lastModified: new Date(),
@@ -255,7 +267,7 @@ export async function createZipFromBlobs(
   emptyFolders?: string[]
 ): Promise<void> {
   const specs = dedupeEntryNames(
-    files.map((f, i) => ({ id: String(i), entryName: f.entryName, fileName: f.entryName, size: f.blob.size }))
+    files.map((f, i) => ({ id: String(i), entryName: sanitizeEntryName(f.entryName), fileName: f.entryName, size: f.blob.size }))
   );
   const JSZip = (await import('jszip')).default;
   const zip = new JSZip();

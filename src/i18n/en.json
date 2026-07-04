@@ -230,6 +230,7 @@
     "folderItemCount": "{{count}} files",
     "folderEmpty": "Empty folder",
     "emptyFolderNotAllowed": "Empty folders can't be added.",
+    "filesRequiredHint": "Empty folders alone can't be uploaded. Add at least one file.",
     "fileCountLabel": "{{count}} files"
   },
   "uploadSuccess": {

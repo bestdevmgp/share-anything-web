@@ -46,6 +46,8 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
   const cancelledRef = useRef<boolean>(false);
   const isCleaningUpRef = useRef<boolean>(false);
   const fileProgressesRef = useRef<Map<string, FileProgress>>(new Map());
+  const currentFileNameRef = useRef<string>('');
+  currentFileNameRef.current = currentFileName;
 
   useEffect(() => {
     fileProgressesRef.current = fileProgresses;
@@ -248,9 +250,9 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
     isTransferringRef.current = true;
     setFileProgresses(prev => {
       const newMap = new Map(prev);
-      const fileProgress = newMap.get(file.name);
+      const fileProgress = newMap.get(fileKey(file));
       if (fileProgress) {
-        newMap.set(file.name, {
+        newMap.set(fileKey(file), {
           ...fileProgress,
           progress: 0,
           status: 'transferring',
@@ -284,9 +286,9 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
 
     setFileProgresses(prev => {
       const newMap = new Map(prev);
-      const fileProgress = newMap.get(file.name);
+      const fileProgress = newMap.get(fileKey(file));
       if (fileProgress) {
-        newMap.set(file.name, {
+        newMap.set(fileKey(file), {
           ...fileProgress,
           progress: 0,
           status: 'transferring',
@@ -665,6 +667,12 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
   }, [shareCode]);
 
   const removeFile = useCallback((fileName: string) => {
+    // Halt the in-flight pump if the file being removed is the one currently transferring,
+    // so no more of its chunks (or its __EOF__) reach the receiver after file_removed.
+    if (isTransferringRef.current && currentFileNameRef.current === fileName) {
+      cancelledRef.current = true;
+      isTransferringRef.current = false;
+    }
     const dc = dataChannelRef.current;
     if (dc && dc.readyState === 'open') {
       try {

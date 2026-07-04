@@ -230,6 +230,7 @@
     "folderItemCount": "{{count}}个文件",
     "folderEmpty": "空文件夹",
     "emptyFolderNotAllowed": "无法添加空文件夹。",
+    "filesRequiredHint": "仅有空文件夹无法上传，请添加至少一个文件。",
     "fileCountLabel": "{{count}} 个文件"
   },
   "uploadSuccess": {

@@ -20,6 +20,9 @@ import Collapsible from './Collapsible';
 import { buildFileTree, toggleFolderOpen } from '../../utils/fileTree';
 import { cn } from '../../lib/utils';
 
+const hasNestedFile = (files?: { relative_path?: string }[]): boolean =>
+  !!files?.some((f) => !!f.relative_path && f.relative_path.includes('/'));
+
 const RecentDownloads: React.FC = () => {
   const { t, language } = useTranslation();
   const navigate = useNavigate();
@@ -161,6 +164,8 @@ const RecentDownloads: React.FC = () => {
           const isBundle = d.fileNames.length > 1;
           const isOpen = expanded === d.code;
           const treeFiles = bundleFiles[d.code];
+          const isExpandable =
+            isBundle || hasNestedFile(treeFiles) || hasNestedFile(getCachedFileList(d.code)?.files);
           const url = `${window.location.origin}/download/${d.code}`;
 
           return (
@@ -174,7 +179,7 @@ const RecentDownloads: React.FC = () => {
               <div
                 role="button"
                 onClick={() => {
-                  if (isBundle) setExpanded(isOpen ? null : d.code);
+                  if (isExpandable) setExpanded(isOpen ? null : d.code);
                   else if (expired) navigate(`/download/${d.code}`);
                   else openDownloadPreview(d);
                 }}
@@ -247,7 +252,7 @@ const RecentDownloads: React.FC = () => {
                       <TrashIcon className="w-5 h-5" />
                     </button>
                   </Hint>
-                  {isBundle && (
+                  {isExpandable && (
                     <ChevronDownIcon
                       className={cn(
                         'w-5 h-5 text-muted-foreground/50 transition-transform',
@@ -258,7 +263,7 @@ const RecentDownloads: React.FC = () => {
                 </div>
               </div>
 
-              {isBundle && (
+              {isExpandable && (
                 <Collapsible open={isOpen}>
                     <div className="px-3 pb-3">
                       <div className="border-t border-foreground/[0.08] pt-2.5 space-y-2">

@@ -5,6 +5,16 @@ const STORE_NAME = 'pendingFiles';
 const DB_VERSION = 1;
 const MAX_TOTAL_SIZE = 500 * 1024 * 1024;
 
+// Serialize every store/clear/restore so overlapping calls (the files effect can fire again
+// while a large selection is still being read) can't interleave transactions or leave a
+// half-cleared store behind.
+let opChain: Promise<unknown> = Promise.resolve();
+function enqueue<T>(op: () => Promise<T>): Promise<T> {
+  const run = opChain.then(op, op);
+  opChain = run.then(() => {}, () => {});
+  return run as Promise<T>;
+}
+
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -19,9 +29,26 @@ function openDB(): Promise<IDBDatabase> {
   });
 }
 
-export async function storeUploadFiles(files: File[]): Promise<void> {
+async function clearImpl(): Promise<void> {
+  try {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    tx.objectStore(STORE_NAME).clear();
+    await new Promise<void>((resolve, reject) => {
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+    db.close();
+  } catch {
+  }
+}
+
+async function storeImpl(files: File[]): Promise<void> {
   const totalSize = files.reduce((sum, f) => sum + f.size, 0);
-  if (totalSize > MAX_TOTAL_SIZE) return;
+  if (totalSize > MAX_TOTAL_SIZE) {
+    await clearImpl();
+    return;
+  }
 
   try {
     const fileData = await Promise.all(
@@ -55,7 +82,7 @@ export async function storeUploadFiles(files: File[]): Promise<void> {
   }
 }
 
-export async function restoreUploadFiles(): Promise<File[]> {
+async function restoreImpl(): Promise<File[]> {
   try {
     const db = await openDB();
     const tx = db.transaction(STORE_NAME, 'readonly');
@@ -84,16 +111,14 @@ export async function restoreUploadFiles(): Promise<File[]> {
   }
 }
 
-export async function clearUploadFiles(): Promise<void> {
-  try {
-    const db = await openDB();
-    const tx = db.transaction(STORE_NAME, 'readwrite');
-    tx.objectStore(STORE_NAME).clear();
-    await new Promise<void>((resolve, reject) => {
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
-    });
-    db.close();
-  } catch {
-  }
+export function storeUploadFiles(files: File[]): Promise<void> {
+  return enqueue(() => storeImpl(files));
+}
+
+export function restoreUploadFiles(): Promise<File[]> {
+  return enqueue(() => restoreImpl());
+}
+
+export function clearUploadFiles(): Promise<void> {
+  return enqueue(() => clearImpl());
 }

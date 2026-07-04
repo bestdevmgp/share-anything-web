@@ -25,6 +25,9 @@ interface Props {
   refreshKey: number;
 }
 
+const hasNestedFile = (files?: { relative_path?: string }[]): boolean =>
+  !!files?.some((f) => !!f.relative_path && f.relative_path.includes('/'));
+
 const RecentShares: React.FC<Props> = ({ refreshKey }) => {
   const { t, language } = useTranslation();
   const { isAuthenticated } = useAuth();
@@ -178,6 +181,8 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
           const isBundle = s.fileNames.length > 1;
           const isOpen = expanded === s.code;
           const treeFiles = bundleFiles[s.code] ?? s.files;
+          const isExpandable =
+            isBundle || hasNestedFile(treeFiles) || hasNestedFile(getCachedFileList(s.code)?.files);
           const url = `${window.location.origin}/download/${s.code}`;
 
           return (
@@ -191,7 +196,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
               <div
                 role="button"
                 onClick={() => {
-                  if (isBundle) setExpanded(isOpen ? null : s.code);
+                  if (isExpandable) setExpanded(isOpen ? null : s.code);
                   else if (expired) navigate(`/download/${s.code}`);
                   else openSharePreview(s);
                 }}
@@ -264,7 +269,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                       <TrashIcon className="w-5 h-5" />
                     </button>
                   </Hint>
-                  {isBundle && (
+                  {isExpandable && (
                     <ChevronDownIcon
                       className={cn(
                         'w-5 h-5 text-muted-foreground/50 transition-transform',
@@ -275,7 +280,7 @@ const RecentShares: React.FC<Props> = ({ refreshKey }) => {
                 </div>
               </div>
 
-              {isBundle && (
+              {isExpandable && (
                 <Collapsible open={isOpen}>
                     <div className="px-3 pb-3">
                       <div className="border-t border-foreground/[0.08] pt-2.5 space-y-2">

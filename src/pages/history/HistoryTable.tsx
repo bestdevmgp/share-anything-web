@@ -157,6 +157,9 @@ const HistoryTable: React.FC<HistoryTableProps> = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingPreview, detailUploadId]);
+  useEffect(() => {
+    if (expandedRow) setOpenFolders(new Set());
+  }, [expandedRow]);
   const toggleFolder = (key: string) =>
     setOpenFolders((prev) => toggleFolderOpen(prev, key));
 

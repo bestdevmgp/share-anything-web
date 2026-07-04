@@ -3,7 +3,6 @@ import React, { useLayoutEffect, useRef, useState } from 'react';
 interface Props {
   count: number;
   recomputeKey?: string | number;
-  expandableFolders?: number;
   children: React.ReactNode;
 }
 

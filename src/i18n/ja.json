@@ -230,6 +230,7 @@
     "folderItemCount": "{{count}}個",
     "folderEmpty": "空のフォルダ",
     "emptyFolderNotAllowed": "空のフォルダーは追加できません。",
+    "filesRequiredHint": "空のフォルダーのみではアップロードできません。ファイルを追加してください。",
     "fileCountLabel": "{{count}}個のファイル"
   },
   "uploadSuccess": {

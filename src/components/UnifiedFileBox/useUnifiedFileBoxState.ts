@@ -28,7 +28,7 @@ export interface State {
 }
 
 export type Action =
-  | { type: 'dropNormal'; files: File[] }
+  | { type: 'dropNormal'; files: File[]; emptyFolders?: string[] }
   | { type: 'dropSecure'; files: File[]; emptyFolders?: string[] }
   | { type: 'cancelUpload' }
   | { type: 'completeAll'; result: RecentSession }
@@ -74,6 +74,7 @@ export const reducer = (s: State, a: Action): State => {
         files: a.files,
         lastResult: null,
         uploadFailures: [],
+        emptyFolders: a.emptyFolders ?? [],
       };
     case 'dropSecure':
       if (s.mode !== 'upload') return s;
@@ -88,15 +89,15 @@ export const reducer = (s: State, a: Action): State => {
         emptyFolders: a.emptyFolders ?? [],
       };
     case 'cancelUpload':
-      return { ...s, state: 'idleUpload', files: [] };
+      return { ...s, state: 'idleUpload', files: [], emptyFolders: [] };
     case 'completeAll':
       return { ...s, state: 'success', lastResult: a.result, uploadFailures: [] };
     case 'completePartial':
       return { ...s, state: 'success', lastResult: a.result, uploadFailures: a.failedNames };
     case 'failAll':
-      return { ...s, state: 'idleUpload', files: [], uploadFailures: [] };
+      return { ...s, state: 'idleUpload', files: [], uploadFailures: [], emptyFolders: [] };
     case 'close':
-      return { ...s, state: 'idleUpload', files: [], lastResult: null, uploadFailures: [] };
+      return { ...s, state: 'idleUpload', files: [], lastResult: null, uploadFailures: [], emptyFolders: [] };
     case 'switchMode':
       if (isUploadActive(s.state)) return s;
       if (a.mode === 'download') {

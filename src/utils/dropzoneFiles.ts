@@ -1,5 +1,5 @@
 import { setRelativePath } from './fileWithPath';
-import { isJunkPath } from './folderPath';
+import { isJunkPath, isJunkFileName, isJunkDirectoryName } from './folderPath';
 
 interface FSEntry {
   isFile: boolean;
@@ -44,38 +44,39 @@ async function walkEntry(
   out: { file: File; path: string }[],
   emptyDirs: string[]
 ): Promise<boolean> {
-  if (isJunkPath(entry.name)) return false;
-
   if (entry.isFile) {
+    if (isJunkFileName(entry.name)) return false;
     const fileEntry = entry as FSFileEntry;
     let file: File;
     try {
       file = await readFile(fileEntry);
     } catch {
-      return false;
+      return true;
     }
+    if (isJunkFileName(file.name)) return false;
     const path = prefix ? `${prefix}/${file.name}` : file.name;
-    if (isJunkPath(path)) return false;
     out.push({ file, path });
     return true;
   }
 
   if (entry.isDirectory) {
+    if (isJunkDirectoryName(entry.name)) return false;
     const dirEntry = entry as FSDirectoryEntry;
     const reader = dirEntry.createReader();
     let entries: FSEntry[];
     try {
       entries = await readAllEntries(reader);
     } catch {
-      return false;
+      return true;
     }
     const childPrefix = prefix ? `${prefix}/${entry.name}` : entry.name;
     let anyFile = false;
+    const emptyCountBefore = emptyDirs.length;
     for (const child of entries) {
       const contributed = await walkEntry(child, childPrefix, out, emptyDirs);
       anyFile = anyFile || contributed;
     }
-    if (!anyFile) emptyDirs.push(childPrefix);
+    if (!anyFile && emptyDirs.length === emptyCountBefore) emptyDirs.push(childPrefix);
     return anyFile;
   }
   return false;
@@ -157,29 +158,38 @@ async function walkDirHandle(
 ): Promise<boolean> {
   const childPrefix = prefix ? `${prefix}/${dir.name}` : dir.name;
   let anyFile = false;
+  const emptyCountBefore = emptyDirs.length;
   const it = dir.values();
   for (;;) {
-    const next = await it.next();
+    let next: { done?: boolean; value: DirEntry };
+    try {
+      next = await it.next();
+    } catch {
+      anyFile = true;
+      break;
+    }
     if (next.done) break;
     const handle = next.value;
-    if (isJunkPath(handle.name)) continue;
     if (handle.kind === 'file') {
+      if (isJunkFileName(handle.name)) continue;
       let file: File;
       try {
         file = await handle.getFile();
       } catch {
+        anyFile = true;
         continue;
       }
+      if (isJunkFileName(file.name)) continue;
       const path = `${childPrefix}/${file.name}`;
-      if (isJunkPath(path)) continue;
       out.push({ file, path });
       anyFile = true;
     } else {
+      if (isJunkDirectoryName(handle.name)) continue;
       const contributed = await walkDirHandle(handle, childPrefix, out, emptyDirs);
       anyFile = anyFile || contributed;
     }
   }
-  if (!anyFile) emptyDirs.push(childPrefix);
+  if (!anyFile && emptyDirs.length === emptyCountBefore) emptyDirs.push(childPrefix);
   return anyFile;
 }
 

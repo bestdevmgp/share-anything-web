@@ -26,6 +26,17 @@ export function sanitizeRelativePath(raw: string | null | undefined): string {
   return result;
 }
 
+export function isJunkFileName(name: string): boolean {
+  if (!name) return false;
+  const lower = name.toLowerCase();
+  return JUNK_NAMES.has(lower) || lower.startsWith('._');
+}
+
+export function isJunkDirectoryName(name: string): boolean {
+  if (!name) return false;
+  return JUNK_SEGMENTS.has(name.toLowerCase());
+}
+
 export function isJunkPath(pathOrName: string): boolean {
   if (!pathOrName) return false;
   const segments = pathOrName.replace(/\\/g, '/').split('/').filter(Boolean);
@@ -35,6 +46,5 @@ export function isJunkPath(pathOrName: string): boolean {
     if (JUNK_SEGMENTS.has(seg.toLowerCase())) return true;
   }
 
-  const leaf = segments[segments.length - 1].toLowerCase();
-  return JUNK_NAMES.has(leaf);
+  return isJunkFileName(segments[segments.length - 1]);
 }

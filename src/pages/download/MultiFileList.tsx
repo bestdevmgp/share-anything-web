@@ -98,8 +98,8 @@ const MultiFileList: React.FC<MultiFileListProps> = ({
   const FALLBACK_WARN_LIMIT = 1024 * 1024 * 1024;
   const showFallbackWarning = !canStreamZip && selectedTotalSize >= FALLBACK_WARN_LIMIT;
 
-  const canZip = selectedFiles.size > 1;
   const hasSelection = selectedFiles.size > 0;
+  const canZip = hasSelection && (selectedFiles.size > 1 || isFolderShare);
 
   return (
     <div className="pt-8 pb-20 px-4 sm:pt-12">

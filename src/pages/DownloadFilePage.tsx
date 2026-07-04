@@ -33,7 +33,8 @@ import DownloadErrorState from './download/DownloadErrorState';
 import PasswordForm from './download/PasswordForm';
 import SingleFileView from './download/SingleFileView';
 import MultiFileList from './download/MultiFileList';
-import { buildFileTree, collectFileIds, nodeFileCount, nodeSize, toggleFolderOpen, TreeFolder, TreeFile } from '../utils/fileTree';
+import { buildFileTree, collectFileIds, nodeFileCount, nodeSize, toggleFolderOpen, ancestorPaths, TreeFolder, TreeFile } from '../utils/fileTree';
+import { sanitizeRelativePath } from '../utils/folderPath';
 import FolderTreeRows, { treeIndent } from '../components/UnifiedFileBox/FolderTreeRows';
 import Collapsible from '../components/UnifiedFileBox/Collapsible';
 import FileThumbnail from '../components/FileThumbnail';
@@ -63,6 +64,13 @@ const BULK_SAVE_GAP_MS = IS_PC ? 0 : 3000;
 // When a ZIP must be built in memory (no File System Access streaming), warn past this
 // total size — building holds every file in RAM at once, which crashes low-memory devices.
 const IN_MEMORY_ZIP_WARN_BYTES = IS_PC ? 4_000_000_000 : 1_000_000_000;
+
+const SKIP_REMOVED_FILE = 'P2PFileRemovedSkip';
+const skipRemovedFileError = () => {
+  const err = new Error('File removed by sender');
+  err.name = SKIP_REMOVED_FILE;
+  return err;
+};
 
 const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverride, onReset, onComplete, onBusyChange }) => {
   const { code: codeParam } = useParams<{ code: string }>();
@@ -111,6 +119,19 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   const [openP2PFolders, setOpenP2PFolders] = useState<Set<string>>(new Set());
   const toggleP2PFolder = (path: string) => setOpenP2PFolders((prev) => toggleFolderOpen(prev, path));
 
+  useEffect(() => {
+    if (!isP2PDownload || !p2pActiveFileId || !fileList) return;
+    const tree = buildFileTree(fileList.files, fileList.empty_folders ?? []);
+    const paths = ancestorPaths(tree, p2pActiveFileId);
+    if (!paths || paths.length === 0) return;
+    setOpenP2PFolders((prev) => {
+      if (paths.every((p) => prev.has(p))) return prev;
+      const next = new Set(prev);
+      paths.forEach((p) => next.add(p));
+      return next;
+    });
+  }, [isP2PDownload, p2pActiveFileId, fileList]);
+
   const [bulkP2PDownloading, setBulkP2PDownloading] = useState(false);
   const [bulkRemaining, setBulkRemaining] = useState(0);
   const bulkQueueRef = useRef<string[]>([]);
@@ -124,6 +145,9 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     zipName: '',
     emptyFolders: [],
   });
+  // Ids marked completed for the current bulk job but not yet durably saved (zip not on disk).
+  const jobPendingIdsRef = useRef<Set<string>>(new Set());
+  const removedIdsRef = useRef<Set<string>>(new Set());
 
   // Streaming-zip-to-disk bridge: in this mode each received file is handed straight to the
   // on-disk zip (resolving the pending per-file promise) instead of being kept in memory.
@@ -145,6 +169,17 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     });
   };
 
+  const rollbackPendingP2PIds = useCallback(() => {
+    const pending = jobPendingIdsRef.current;
+    jobPendingIdsRef.current = new Set();
+    if (pending.size === 0) return;
+    setP2pCompletedFileIds((prev) => {
+      const next = new Set(prev);
+      pending.forEach((id) => next.delete(id));
+      return next;
+    });
+  }, []);
+
   const handleP2PDownloadComplete = useCallback((blob: Blob, fileName: string) => {
     const completedId = p2pActiveFileId || '';
     const completedFile = fileList?.files.find((f) => f.id === completedId);
@@ -153,9 +188,12 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
 
     if (zipMode) {
       bulkBlobsRef.current.push({
-        entryName: completedFile?.relative_path || completedFile?.file_name || fileName,
+        entryName: completedFile
+          ? sanitizeRelativePath(completedFile.relative_path) || completedFile.file_name
+          : fileName,
         blob,
       });
+      jobPendingIdsRef.current.add(completedId);
     } else {
       downloadFile(blob, fileName);
     }
@@ -179,9 +217,22 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         if (zipMode) {
           const collected = bulkBlobsRef.current;
           bulkBlobsRef.current = [];
+          // Snapshot this job's pending ids and clear the shared ref synchronously so a
+          // later job can't have its ids wiped (or rolled back) by this async completion.
+          const jobIds = jobPendingIdsRef.current;
+          jobPendingIdsRef.current = new Set();
           createZipFromBlobs(collected, job.zipName, job.emptyFolders)
-            .then(() => toast.success(t('download.zipDownloadComplete')))
-            .catch(() => toast.error(t('download.downloadFailed')));
+            .then(() => {
+              toast.success(t('download.zipDownloadComplete'));
+            })
+            .catch(() => {
+              setP2pCompletedFileIds((prev) => {
+                const next = new Set(prev);
+                jobIds.forEach((id) => next.delete(id));
+                return next;
+              });
+              toast.error(t('download.downloadFailed'));
+            });
         } else {
           toast.success(t('download.downloadComplete'));
         }
@@ -191,7 +242,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
 
     toast.success(t('download.downloadComplete'));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [p2pActiveFileId, bulkP2PDownloading, fileList, code, t]);
+  }, [p2pActiveFileId, bulkP2PDownloading, fileList, code, t, rollbackPendingP2PIds]);
 
   const singleFile = fileList?.files?.length === 1 ? fileList.files[0] : null;
   const singleFileThumbnail = useThumbnail(
@@ -237,6 +288,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         streamResolveRef.current = null;
         streamRejectRef.current = null;
         setP2pCompletedFileIds((prev) => new Set(prev).add(p2pActiveFileId || ''));
+        jobPendingIdsRef.current.add(p2pActiveFileId || '');
         recordDownloadRef.current();
         resolve(blob);
         return;
@@ -244,25 +296,50 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       handleP2PDownloadComplete(blob, p2pActiveFile?.file_name || 'file');
     },
     onPeerFileRemoved: (removedKey) => {
-      const removed = fileList?.files.find((f) => (f.relative_path || f.file_name) === removedKey);
+      const keyOf = (f: { relative_path?: string; file_name: string }) =>
+        sanitizeRelativePath(f.relative_path) || f.file_name;
+      const removed = fileList?.files.find((f) => keyOf(f) === removedKey);
       const activeFile = p2pActiveFileId ? fileList?.files.find((f) => f.id === p2pActiveFileId) : null;
-      const activeRemoved = !!activeFile && (activeFile.relative_path || activeFile.file_name) === removedKey;
+      const activeRemoved = !!activeFile && keyOf(activeFile) === removedKey;
       setFileList((prev) => {
         if (!prev) return prev;
-        const files = prev.files.filter((f) => (f.relative_path || f.file_name) !== removedKey);
+        const files = prev.files.filter((f) => keyOf(f) !== removedKey);
         return { ...prev, files, total_count: files.length };
       });
-      if (removed && bulkQueueRef.current.includes(removed.id)) {
-        bulkQueueRef.current = bulkQueueRef.current.filter((id) => id !== removed.id);
-        setBulkRemaining(bulkQueueRef.current.length);
+      if (removed) {
+        removedIdsRef.current.add(removed.id);
+        if (bulkQueueRef.current.includes(removed.id)) {
+          bulkQueueRef.current = bulkQueueRef.current.filter((id) => id !== removed.id);
+          setBulkRemaining(bulkQueueRef.current.length);
+        }
       }
       if (activeRemoved) {
+        // Streaming zip: skip just this file so already-written entries survive.
+        if (streamingRef.current) {
+          if (streamRejectRef.current) {
+            const reject = streamRejectRef.current;
+            streamResolveRef.current = null;
+            streamRejectRef.current = null;
+            reject(skipRemovedFileError());
+          }
+          return;
+        }
         toast.warning(t('p2p.senderCancelledTransfer'));
         if (embedded) onReset?.();
         else navigate('/');
       }
     },
     onSenderDisconnected: () => {
+      // Unblock a streaming zip waiting on the current file so runStreamingZip can unwind
+      // (roll back pending ids, close the writable) instead of hanging forever.
+      if (streamingRef.current && streamRejectRef.current) {
+        const reject = streamRejectRef.current;
+        streamResolveRef.current = null;
+        streamRejectRef.current = null;
+        const err = new Error('sender disconnected');
+        err.name = 'AbortError';
+        reject(err);
+      }
       const total = fileList?.files.length ?? 0;
       const received = fileList ? fileList.files.filter((f) => p2pCompletedFileIds.has(f.id)).length : 0;
       if (total > 0 && received === total) return;
@@ -302,9 +379,10 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       bulkBlobsRef.current = [];
       setBulkRemaining(0);
       setBulkP2PDownloading(false);
+      rollbackPendingP2PIds();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cancelDownload, bulkP2PDownloading]);
+  }, [cancelDownload, bulkP2PDownloading, rollbackPendingP2PIds]);
 
   // Receive one P2P file and resolve with its blob (used by the streaming-zip generator).
   const receiveOneFile = useCallback(
@@ -324,24 +402,49 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     async (ids: string[], zipName: string, emptyFolders: string[]) => {
       if (!fileList) return;
       streamingRef.current = true;
+      jobPendingIdsRef.current = new Set();
+      removedIdsRef.current = new Set();
       bulkTotalRef.current = ids.length;
       setBulkRemaining(ids.length);
       setBulkP2PDownloading(true);
       let remaining = ids.length;
       const filesIter = (async function* () {
         for (const id of ids) {
+          if (removedIdsRef.current.has(id)) {
+            remaining -= 1;
+            setBulkRemaining(remaining);
+            continue;
+          }
           const file = fileList.files.find((f) => f.id === id);
-          const blob = await receiveOneFile(id);
+          let blob: Blob;
+          try {
+            blob = await receiveOneFile(id);
+          } catch (err) {
+            if ((err as { name?: string } | null)?.name === SKIP_REMOVED_FILE) {
+              remaining -= 1;
+              setBulkRemaining(remaining);
+              continue;
+            }
+            throw err;
+          }
           remaining -= 1;
           setBulkRemaining(remaining);
-          yield { name: file?.relative_path || file?.file_name || 'file', blob };
+          yield { name: file ? sanitizeRelativePath(file.relative_path) || file.file_name : 'file', blob };
         }
       })();
       try {
         const ok = await streamBlobsToDiskZip({ files: filesIter, suggestedName: zipName, emptyFolders });
-        if (ok) toast.success(t('download.zipDownloadComplete'));
-      } catch {
-        toast.error(t('download.downloadFailed'));
+        if (ok) {
+          jobPendingIdsRef.current = new Set();
+          toast.success(t('download.zipDownloadComplete'));
+        } else {
+          rollbackPendingP2PIds();
+        }
+      } catch (err) {
+        rollbackPendingP2PIds();
+        if ((err as { name?: string } | null)?.name !== 'AbortError') {
+          toast.error(t('download.downloadFailed'));
+        }
       } finally {
         streamingRef.current = false;
         streamResolveRef.current = null;
@@ -353,7 +456,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         setBulkRemaining(0);
       }
     },
-    [fileList, receiveOneFile, t]
+    [fileList, receiveOneFile, rollbackPendingP2PIds, t]
   );
 
   // Build a structured ZIP for the given file ids: stream to disk where supported (desktop
@@ -370,6 +473,8 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         .reduce((sum, f) => sum + f.file_size, 0);
       if (totalBytes > IN_MEMORY_ZIP_WARN_BYTES && !window.confirm(t('download.largeZipConfirm'))) return;
       bulkJobRef.current = { mode: 'zip', zipName, emptyFolders };
+      jobPendingIdsRef.current = new Set();
+      removedIdsRef.current = new Set();
       bulkQueueRef.current = [...ids];
       bulkTotalRef.current = ids.length;
       bulkBlobsRef.current = [];
@@ -384,16 +489,26 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
   const startBulkP2PDownload = useCallback(() => {
     if (!fileList) return;
     const ids = fileList.files.filter(f => !p2pCompletedFileIds.has(f.id)).map(f => f.id);
-    if (ids.length === 0) return;
+    const empties = fileList.empty_folders ?? [];
+    if (ids.length === 0) {
+      // Empty-folder-only share: zip just the structure.
+      if (fileList.files.length === 0 && empties.length > 0) {
+        createZipFromBlobs([], `share-${code}.zip`, empties)
+          .then(() => toast.success(t('download.zipDownloadComplete')))
+          .catch(() => toast.error(t('download.downloadFailed')));
+      }
+      return;
+    }
     const hasFolders =
-      fileList.files.some(f => (f.relative_path || '').includes('/')) ||
-      (fileList.empty_folders?.length ?? 0) > 0;
+      fileList.files.some(f => sanitizeRelativePath(f.relative_path).includes('/')) ||
+      empties.length > 0;
     if (hasFolders) {
-      startZipDownload(ids, `share-${code}.zip`, fileList.empty_folders ?? []);
+      startZipDownload(ids, `share-${code}.zip`, empties);
       return;
     }
     // All-loose files: keep individual saves (memory-light; lets the user pick per file).
     bulkJobRef.current = { mode: 'individual', zipName: `share-${code}.zip`, emptyFolders: [] };
+    jobPendingIdsRef.current = new Set();
     bulkQueueRef.current = [...ids];
     bulkTotalRef.current = ids.length;
     bulkBlobsRef.current = [];
@@ -401,19 +516,19 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     setBulkP2PDownloading(true);
     setP2pActiveFileId(ids[0]);
     setP2pEnabled(true);
-  }, [fileList, p2pCompletedFileIds, code, startZipDownload]);
+  }, [fileList, p2pCompletedFileIds, code, startZipDownload, t]);
 
   // Download one top-level folder as a single structured zip (its files + its empty subfolders).
   const downloadFolderAsZip = useCallback((folderPath: string) => {
     if (!fileList) return;
     const prefix = folderPath + '/';
     const ids = fileList.files
-      .filter(f => (f.relative_path || '').startsWith(prefix))
+      .filter(f => sanitizeRelativePath(f.relative_path).startsWith(prefix))
       .filter(f => !p2pCompletedFileIds.has(f.id))
       .map(f => f.id);
-    const folderEmpties = (fileList.empty_folders ?? []).filter(
-      ef => ef === folderPath || ef.startsWith(prefix)
-    );
+    const folderEmpties = (fileList.empty_folders ?? [])
+      .map(ef => sanitizeRelativePath(ef))
+      .filter(ef => ef === folderPath || ef.startsWith(prefix));
     const folderName = folderPath.split('/').pop() || folderPath;
     const zipName = `${folderName}.zip`;
     if (ids.length === 0) {
@@ -443,8 +558,10 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       if (bulkP2PDownloading) {
         bulkQueueRef.current = [];
         bulkTotalRef.current = 0;
+        bulkBlobsRef.current = [];
         setBulkRemaining(0);
         setBulkP2PDownloading(false);
+        rollbackPendingP2PIds();
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -675,6 +792,21 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     }
   };
 
+  // Empty folders scoped to the current selection: everything selected → all of them;
+  // otherwise only those under a top-level folder that has at least one selected file.
+  const scopedEmptyFolders = (selected: FileListResponse['files']): string[] => {
+    if (!fileList) return [];
+    const all = (fileList.empty_folders ?? []).map((ef) => sanitizeRelativePath(ef)).filter(Boolean);
+    if (all.length === 0 || selected.length === fileList.files.length) return all;
+    const tops = new Set<string>();
+    for (const f of selected) {
+      const rel = sanitizeRelativePath(f.relative_path);
+      const slash = rel.indexOf('/');
+      if (slash > 0) tops.add(rel.slice(0, slash));
+    }
+    return all.filter((ef) => tops.has(ef.split('/')[0]));
+  };
+
   const handleDownload = async (asZip: boolean = false) => {
     if (!code || !fileList || selectedFiles.size === 0) return;
 
@@ -688,11 +820,42 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       setDownloadProgress(0);
       setDownloadTimeRemaining('');
       const selectedFileIds = Array.from(selectedFiles);
+      const selected = fileList.files.filter((f) => selectedFiles.has(f.id));
+
+      const getUrl = async (fileId: string) =>
+        (await fileAPI.getDownloadUrl(code, fileId, password || undefined, undefined, undefined, true)).download_url;
+
+      const hasStructure =
+        fileList.files.some((f) => sanitizeRelativePath(f.relative_path).includes('/')) ||
+        (fileList.empty_folders?.length ?? 0) > 0;
+
+      if (asZip && hasStructure) {
+        // The server bulk endpoint flattens paths, so structured shares build the zip client-side.
+        const specs: ZipFileSpec[] = selected.map((f) => ({
+          id: f.id,
+          fileName: f.file_name,
+          entryName: f.relative_path || f.file_name,
+          size: f.file_size,
+        }));
+        const saved = await createStructuredZip({
+          specs,
+          getDownloadUrl: getUrl,
+          suggestedName: `share-${code}.zip`,
+          emptyFolders: scopedEmptyFolders(selected),
+          onProgress: (p) => setDownloadProgress(p.total > 0 ? Math.round((p.done / p.total) * 100) : 0),
+          signal: abortController.signal,
+        });
+        if (saved) {
+          fileAPI.notifyDownload(code, selectedFileIds);
+          recordDownloadRef.current();
+          setDownloaded(true);
+          toast.success(t('download.zipDownloadComplete'));
+        }
+        return;
+      }
 
       if (asZip && selectedFileIds.length > 1) {
-        const totalSize = fileList.files
-          .filter(f => selectedFiles.has(f.id))
-          .reduce((sum, f) => sum + f.file_size, 0);
+        const totalSize = selected.reduce((sum, f) => sum + f.file_size, 0);
 
         const blob = await fileAPI.downloadBulk(
           {
@@ -726,14 +889,26 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       // Folders can't keep their paths on individual <a download> saves, so each top-level folder
       // is zipped (structure preserved) while loose files download one by one. The ZIP button packs
       // everything into one structured zip instead; this button keeps folders separate.
-      const selected = fileList.files.filter((f) => selectedFiles.has(f.id));
-      const allEmpties = fileList.empty_folders ?? [];
+      const sanitizedEmpties = (fileList.empty_folders ?? []).map((ef) => sanitizeRelativePath(ef)).filter(Boolean);
       const selTree = buildFileTree(selected, []);
       const topFolders = selTree.filter((n): n is TreeFolder => n.kind === 'folder');
       const looseNodes = selTree.filter((n): n is TreeFile => n.kind === 'file');
 
-      const getUrl = async (fileId: string) =>
-        (await fileAPI.getDownloadUrl(code, fileId, password || undefined, undefined, undefined, true)).download_url;
+      const fileTops = new Set<string>();
+      for (const f of fileList.files) {
+        const rel = sanitizeRelativePath(f.relative_path);
+        const slash = rel.indexOf('/');
+        if (slash > 0) fileTops.add(rel.slice(0, slash));
+      }
+      // Entirely-empty top-level folders get a structure-only zip when everything is selected.
+      const emptyTopFolders =
+        selected.length === fileList.files.length
+          ? Array.from(new Set(sanitizedEmpties.map((ef) => ef.split('/')[0]))).filter((top) => !fileTops.has(top))
+          : [];
+
+      const throwIfAborted = () => {
+        if (abortController.signal.aborted) throw new DOMException('Aborted', 'AbortError');
+      };
 
       const saveLoose = async (node: TreeFile) => {
         const url = await getUrl(node.id);
@@ -746,43 +921,66 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         document.body.removeChild(link);
       };
 
-      const zipFolder = (folder: TreeFolder, preferFallback: boolean) => {
+      const zipFolder = (folder: TreeFolder, preferFallback: boolean, onProgress?: (p: { done: number; total: number }) => void) => {
         const specs: ZipFileSpec[] = collectFileIds(folder).map((id) => {
           const f = fileList.files.find((x) => x.id === id)!;
           return { id: f.id, fileName: f.file_name, entryName: f.relative_path || f.file_name, size: f.file_size };
         });
-        const folderEmpties = allEmpties.filter((ef) => ef === folder.path || ef.startsWith(folder.path + '/'));
+        const folderEmpties = sanitizedEmpties.filter((ef) => ef === folder.path || ef.startsWith(folder.path + '/'));
         return createStructuredZip({
           specs,
           getDownloadUrl: getUrl,
           suggestedName: `${folder.name}.zip`,
           emptyFolders: folderEmpties,
           preferFallback,
+          onProgress,
+          signal: abortController.signal,
         });
       };
 
-      if (topFolders.length === 0) {
+      const emptyTopZip = (top: string) =>
+        createZipFromBlobs([], `${top}.zip`, sanitizedEmpties.filter((ef) => ef === top || ef.startsWith(top + '/')));
+
+      const singleStreamedFolder = topFolders.length === 1 && looseNodes.length === 0 && emptyTopFolders.length === 0;
+      const inMemoryFolderBytes =
+        topFolders.length === 0 || (singleStreamedFolder && canStreamToDisk())
+          ? 0
+          : topFolders.reduce((sum, f) => sum + nodeSize(f), 0);
+      if (inMemoryFolderBytes > IN_MEMORY_ZIP_WARN_BYTES && !window.confirm(t('download.largeZipConfirm'))) return;
+
+      if (topFolders.length === 0 && emptyTopFolders.length === 0) {
         // All loose files → individual saves, spaced so browsers don't drop rapid downloads.
         for (let i = 0; i < looseNodes.length; i++) {
+          throwIfAborted();
           await saveLoose(looseNodes[i]);
           setDownloadProgress(Math.round(((i + 1) / looseNodes.length) * 100));
           if (i < looseNodes.length - 1) await new Promise((r) => setTimeout(r, 1000));
         }
-      } else if (topFolders.length === 1 && looseNodes.length === 0) {
+      } else if (singleStreamedFolder) {
         // Exactly one folder → a single structured zip, streamed to disk when supported
         // (so a very large folder doesn't have to fit in memory). Same as the ZIP button.
-        const ok = await zipFolder(topFolders[0], false);
+        const ok = await zipFolder(topFolders[0], false, (p) =>
+          setDownloadProgress(p.total > 0 ? Math.round((p.done / p.total) * 100) : 0)
+        );
         if (ok === false) return;
       } else {
         // Multiple folders / folders + loose files → one in-memory zip per folder (auto-downloads,
         // no save dialog, so several can run back to back) plus each loose file, all spaced.
-        const tasks: (() => Promise<unknown>)[] = [
-          ...topFolders.map((folder) => () => zipFolder(folder, true)),
+        const taskCount = topFolders.length + emptyTopFolders.length + looseNodes.length;
+        const tasks: ((index: number) => Promise<unknown>)[] = [
+          ...topFolders.map((folder) => (index: number) =>
+            zipFolder(folder, true, (p) => {
+              const frac = p.total > 0 ? p.done / p.total : 0;
+              setDownloadProgress(Math.round(((index + frac) / taskCount) * 100));
+            })
+          ),
+          ...emptyTopFolders.map((top) => () => emptyTopZip(top)),
           ...looseNodes.map((node) => () => saveLoose(node)),
         ];
         for (let i = 0; i < tasks.length; i++) {
-          await tasks[i]();
-          setDownloadProgress(Math.round(((i + 1) / tasks.length) * 100));
+          throwIfAborted();
+          await tasks[i](i);
+          setDownloadProgress(Math.round(((i + 1) / taskCount) * 100));
           if (i < tasks.length - 1) await new Promise((r) => setTimeout(r, BULK_SAVE_GAP_MS));
         }
       }
@@ -796,7 +994,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
           : t('download.multiDownloadStarted', { count: selectedFileIds.length })
       );
     } catch (err: any) {
-      if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED') {
+      if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED' || err.name === 'AbortError') {
         toast.info(t('download.downloadCancelled'));
       } else if (err.response?.status === 401) {
         toast.error(t('download.passwordIncorrect'));
@@ -844,7 +1042,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       try {
         const saved = await createStructuredZip({
           specs,
-          emptyFolders: fileList.empty_folders,
+          emptyFolders: scopedEmptyFolders(selected),
           suggestedName: `share-${code}.zip`,
           getDownloadUrl: async (fileId) => {
             const { download_url } = await fileAPI.getDownloadUrl(code, fileId, password || undefined, undefined, undefined, true);
@@ -886,11 +1084,10 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     zipAbortRef.current?.abort();
   }, []);
 
-  const handleZipFallbackToIndividual = useCallback(() => {
+  const handleZipFallbackToIndividual = () => {
     setZipError(false);
     handleDownload(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  };
 
   const toggleFileSelection = (fileId: string) => {
     setSelectedFiles(prev => {
@@ -1020,7 +1217,12 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     );
   }
 
-  if (fileList.files.length === 1) {
+  const isSingleLooseFile =
+    fileList.files.length === 1 &&
+    !sanitizeRelativePath(fileList.files[0].relative_path).includes('/') &&
+    (fileList.empty_folders ?? []).length === 0;
+
+  if (isSingleLooseFile) {
     const file = fileList.files[0];
 
     return (
@@ -1059,8 +1261,8 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     );
   }
 
-  if (isP2PDownload && fileList.files.length > 1) {
-    const allP2PCompleted = fileList.files.every(f => p2pCompletedFileIds.has(f.id));
+  if (isP2PDownload) {
+    const allP2PCompleted = fileList.files.length > 0 && fileList.files.every(f => p2pCompletedFileIds.has(f.id));
     const anyP2PDownloading = p2pActiveFileId && (p2pStatus === 'downloading' || p2pStatus === 'connecting' || p2pStatus === 'processing');
     const awaitingNextSelection = !anyP2PDownloading && !allP2PCompleted && p2pCompletedFileIds.size > 0;
 
@@ -1276,7 +1478,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
                   {t('download.bulkProgress', { done: bulkTotalRef.current - bulkRemaining, total: bulkTotalRef.current })
                     || `${bulkTotalRef.current - bulkRemaining} / ${bulkTotalRef.current} 파일 받는 중…`}
                 </p>
-              ) : p2pCompletedFileIds.size < fileList.files.length ? (
+              ) : !allP2PCompleted ? (
                 <div className="grid grid-cols-2 gap-2 w-full">
                   <Button
                     variant="default"
