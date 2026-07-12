@@ -162,7 +162,7 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
       file,
     }));
     const batchIds = new Set(newUploadingFiles.map(uf => uf.id));
-    setUploadingFiles(prev => [...prev, ...newUploadingFiles]);
+    setUploadingFiles(prev => [...newUploadingFiles, ...prev]);
 
     const controllersMap = fileAbortControllersRef.current;
     newUploadingFiles.forEach(uf => {

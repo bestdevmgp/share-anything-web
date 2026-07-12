@@ -62,7 +62,7 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-test('a second upload started mid-flight adds to the in-progress list instead of replacing it', async () => {
+test('files added mid-flight appear above the already in-progress files', async () => {
   quickAccessAPI.initUpload.mockReturnValue(new Promise(() => {}));
   renderProvider();
 
@@ -73,7 +73,7 @@ test('a second upload started mid-flight adds to the in-progress list instead of
     ctx.handleUpload([makeFile('second.txt')]);
   });
 
-  expect(uploadingNames()).toEqual(['first.txt', 'second.txt']);
+  expect(uploadingNames()).toEqual(['second.txt', 'first.txt']);
 });
 
 test('a failing upload batch does not clear a concurrent in-flight batch', async () => {
