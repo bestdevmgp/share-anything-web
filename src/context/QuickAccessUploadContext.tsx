@@ -72,6 +72,7 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
   const fileTrackingRef = useRef<Map<string, FileTrackingData>>(new Map());
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const lastTimeUpdateRef = useRef<number>(0);
+  const uploadSeqRef = useRef(0);
 
   const isUploading = uploadingFiles.length > 0;
 
@@ -151,10 +152,8 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
     const MAX_CONCURRENT_UPLOADS = 10;
     const DIRECT_UPLOAD_THRESHOLD = 100 * 1024 * 1024;
 
-    cancelledFileIdsRef.current.clear();
-
-    const newUploadingFiles: UploadingFile[] = droppedFiles.map((file, i) => ({
-      id: `uploading-${Date.now()}-${i}`,
+    const newUploadingFiles: UploadingFile[] = droppedFiles.map((file) => ({
+      id: `uploading-${uploadSeqRef.current++}`,
       fileName: file.name,
       fileSize: file.size,
       progress: 0,
@@ -162,16 +161,15 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
       completed: false,
       file,
     }));
-    setUploadingFiles(newUploadingFiles);
+    const batchIds = new Set(newUploadingFiles.map(uf => uf.id));
+    setUploadingFiles(prev => [...prev, ...newUploadingFiles]);
 
     const controllersMap = fileAbortControllersRef.current;
-    controllersMap.clear();
     newUploadingFiles.forEach(uf => {
       controllersMap.set(uf.id, new AbortController());
     });
 
     const trackingMap = fileTrackingRef.current;
-    trackingMap.clear();
     newUploadingFiles.forEach(uf => {
       trackingMap.set(uf.id, {
         completedBytes: 0,
@@ -342,11 +340,15 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
         toast.error(tRef.current('quickAccess.uploadFailed'));
       }
     } finally {
-      stopProgressUpdates();
-      fileTrackingRef.current.clear();
-      fileAbortControllersRef.current.clear();
-      cancelledFileIdsRef.current.clear();
-      if (!awaitingServerSync) setUploadingFiles([]);
+      batchIds.forEach(id => {
+        fileTrackingRef.current.delete(id);
+        fileAbortControllersRef.current.delete(id);
+        cancelledFileIdsRef.current.delete(id);
+      });
+      if (fileTrackingRef.current.size === 0) stopProgressUpdates();
+      if (!awaitingServerSync) {
+        setUploadingFiles(prev => prev.filter(uf => !batchIds.has(uf.id)));
+      }
     }
   }, [startProgressUpdates, stopProgressUpdates]);
 

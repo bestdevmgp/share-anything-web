@@ -35,7 +35,7 @@ const QuickAccess: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const { t, language } = useTranslation();
   const navigate = useNavigate();
-  const { uploadingFiles, isUploading, handleUpload, handleCancelUpload, completedCounter, clearCompleted } = useQuickAccessUpload();
+  const { uploadingFiles, handleUpload, handleCancelUpload, completedCounter, clearCompleted } = useQuickAccessUpload();
 
   const [files, setFiles] = useState<QuickAccessFile[]>([]);
   const [pendingDelete, setPendingDelete] = useState<Set<string>>(new Set());
@@ -119,17 +119,14 @@ const QuickAccess: React.FC = () => {
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setIsFileDialogOpen(false);
     if (!isAuthenticated) return;
-    if (isUploading) return;
     const filtered = acceptedFiles.filter((f) => !isJunkFileName(f.name));
     if (filtered.length === 0) return;
     handleUpload(filtered);
-  }, [isAuthenticated, isUploading, handleUpload]);
+  }, [isAuthenticated, handleUpload]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     multiple: true,
-    noClick: isUploading,
-    noDrag: isUploading,
     onFileDialogOpen: () => setIsFileDialogOpen(true),
     onFileDialogCancel: () => setIsFileDialogOpen(false),
   });
