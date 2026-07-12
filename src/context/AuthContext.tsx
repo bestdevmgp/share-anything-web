@@ -69,12 +69,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(null);
       setIsAuthenticated(false);
       const reason = (e as CustomEvent<{ reason?: string }>).detail?.reason;
-      if (reason === 'revoked') {
+      if (reason === 'revoked' || reason === 'expired') {
         suppressErrorToasts();
-        if (!revokeNotifiedRef.current) {
-          revokeNotifiedRef.current = true;
-          toast.warning(t('login.loggedOutByRequest'));
-        }
+      }
+      if (reason === 'revoked' && !revokeNotifiedRef.current) {
+        revokeNotifiedRef.current = true;
+        toast.warning(t('login.loggedOutByRequest'));
       }
     };
     window.addEventListener('auth:logout', handleForcedLogout);
