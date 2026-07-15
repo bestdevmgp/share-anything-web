@@ -75,7 +75,7 @@ const Header: React.FC = () => {
             </div>
             {isAuthenticated && user ? (
               <DropdownMenu>
-                <DropdownMenuTrigger className="group flex items-center space-x-2 active:bg-accent can-hover:hover:bg-accent rounded-sm px-3 py-2 transition-colors focus:outline-none data-[state=open]:bg-accent">
+                <DropdownMenuTrigger className="group flex items-center space-x-2 active:bg-accent can-hover:hover:bg-accent rounded-sm px-3 py-2 transition-colors focus:outline-none data-[state=open]:bg-accent data-[state=open]:pointer-events-auto">
                   {user.profile_image && (
                     <img
                       src={user.profile_image}
