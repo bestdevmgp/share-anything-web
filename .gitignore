@@ -25,3 +25,5 @@ yarn-error.log*
 .env
 CLAUDE.md
 .playwright-mcp
+.vercel
+.env*

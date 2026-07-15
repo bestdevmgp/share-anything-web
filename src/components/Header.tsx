@@ -51,7 +51,7 @@ const Header: React.FC = () => {
                 Try CLI
               </Link>
               <a
-                href={process.env.REACT_APP_DOCS_URL || 'https://share-api.mingyu.dev/reference'}
+                href={process.env.REACT_APP_DOCS_URL || 'https://api.shareany.app/reference'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 pl-3 pr-2 py-2 text-sm font-medium text-muted-foreground rounded-sm can-hover:hover:bg-accent active:bg-accent transition-colors"
@@ -62,7 +62,7 @@ const Header: React.FC = () => {
                 </svg>
               </a>
               <a
-                href="https://status.share.mingyu.dev"
+                href="https://status.shareany.app"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1 pl-3 pr-2 py-2 text-sm font-medium text-muted-foreground rounded-sm can-hover:hover:bg-accent active:bg-accent transition-colors"

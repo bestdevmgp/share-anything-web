@@ -8,7 +8,7 @@
           "key": "r"
         }
       ],
-      "destination": "https://share-api.mingyu.dev/og/:code"
+      "destination": "https://api.shareany.app/og/:code"
     }
   ],
   "headers": [

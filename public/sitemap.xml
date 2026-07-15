@@ -2,28 +2,28 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://share.mingyu.dev/</loc>
+    <loc>https://shareany.app/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <xhtml:link rel="alternate" hreflang="ko" href="https://share.mingyu.dev/" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://share.mingyu.dev/" />
-    <xhtml:link rel="alternate" hreflang="ja" href="https://share.mingyu.dev/" />
-    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://share.mingyu.dev/" />
-    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://share.mingyu.dev/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://share.mingyu.dev/" />
+    <xhtml:link rel="alternate" hreflang="ko" href="https://shareany.app/" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://shareany.app/" />
+    <xhtml:link rel="alternate" hreflang="ja" href="https://shareany.app/" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://shareany.app/" />
+    <xhtml:link rel="alternate" hreflang="zh-TW" href="https://shareany.app/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://shareany.app/" />
   </url>
   <url>
-    <loc>https://share.mingyu.dev/cli</loc>
+    <loc>https://shareany.app/cli</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://share.mingyu.dev/privacy-policy</loc>
+    <loc>https://shareany.app/privacy-policy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://share.mingyu.dev/terms-of-use</loc>
+    <loc>https://shareany.app/terms-of-use</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

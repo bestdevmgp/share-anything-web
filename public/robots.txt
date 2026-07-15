@@ -21,4 +21,4 @@ Allow: /
 User-agent: Daumoa
 Allow: /
 
-Sitemap: https://share.mingyu.dev/sitemap.xml
+Sitemap: https://shareany.app/sitemap.xml

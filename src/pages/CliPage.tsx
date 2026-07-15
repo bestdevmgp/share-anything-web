@@ -23,7 +23,7 @@ npm i -g share-anything-cli
 
 **${t('cli.installCurl')}**
 \`\`\`sh
-curl -fsSL share-api.mingyu.dev/install | sh
+curl -fsSL api.shareany.app/install | sh
 \`\`\`
 
 **${t('cli.binaryTui')}** — ${t('cli.binaryTuiHint')}
@@ -77,22 +77,22 @@ ${t('cli.curlDescription')}
 
 **${t('cli.curlUpload')}** — ${t('cli.curlPathHint')}
 \`\`\`sh
-curl -F 'file=@./myfile.txt' https://share-api.mingyu.dev/cli/uploads
+curl -F 'file=@./myfile.txt' https://api.shareany.app/cli/uploads
 \`\`\`
 
 **${t('cli.curlDownload')}**
 \`\`\`sh
-curl -OJ https://share-api.mingyu.dev/cli/shares/123456/download
+curl -OJ https://api.shareany.app/cli/shares/123456/download
 \`\`\`
 
 **${t('cli.curlMultipleFiles')}**
 \`\`\`sh
-curl -F 'file=@./file1.txt' -F 'file=@./file2.png' https://share-api.mingyu.dev/cli/uploads
+curl -F 'file=@./file1.txt' -F 'file=@./file2.png' https://api.shareany.app/cli/uploads
 \`\`\`
 
 **${t('cli.curlWithPersonalToken')}**
 \`\`\`sh
-curl -H 'X-Personal-Token: sat_your_token_here' -F 'file=@./myfile.txt' -F 'expiration=1h' https://share-api.mingyu.dev/cli/uploads
+curl -H 'X-Personal-Token: sat_your_token_here' -F 'file=@./myfile.txt' -F 'expiration=1h' https://api.shareany.app/cli/uploads
 \`\`\`
 
 ## ${t('cli.optionsTitle')}
@@ -193,7 +193,7 @@ const CliPage: React.FC = () => {
         </div>
         <UseWithAI
           markdown={buildCliMarkdown(t)}
-          url={typeof window !== 'undefined' ? `${window.location.origin}/cli.md` : 'https://share-api.mingyu.dev/cli.md'}
+          url={typeof window !== 'undefined' ? `${window.location.origin}/cli.md` : 'https://api.shareany.app/cli.md'}
           promptIntro={t('cli.aiPromptIntro')}
           t={t}
         />
@@ -213,7 +213,7 @@ const CliPage: React.FC = () => {
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.installCurl')}</p>
-            <CodeBlock code="curl -fsSL share-api.mingyu.dev/install | sh" index={4} />
+            <CodeBlock code="curl -fsSL api.shareany.app/install | sh" index={4} />
           </div>
 
           <hr className="border-black/[0.11] dark:border-border" />
@@ -281,20 +281,20 @@ const CliPage: React.FC = () => {
         <div className="space-y-4">
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.curlUpload')}</p>
-            <CodeBlock code="curl -F 'file=@./myfile.txt' https://share-api.mingyu.dev/cli/uploads" index={0} />
+            <CodeBlock code="curl -F 'file=@./myfile.txt' https://api.shareany.app/cli/uploads" index={0} />
             <p className="text-xs text-muted-foreground mt-1.5">{t('cli.curlPathHint')}</p>
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.curlDownload')}</p>
-            <CodeBlock code="curl -OJ https://share-api.mingyu.dev/cli/shares/123456/download" index={1} />
+            <CodeBlock code="curl -OJ https://api.shareany.app/cli/shares/123456/download" index={1} />
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.curlMultipleFiles')}</p>
-            <CodeBlock code="curl -F 'file=@./file1.txt' -F 'file=@./file2.png' https://share-api.mingyu.dev/cli/uploads" index={2} />
+            <CodeBlock code="curl -F 'file=@./file1.txt' -F 'file=@./file2.png' https://api.shareany.app/cli/uploads" index={2} />
           </div>
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t('cli.curlWithPersonalToken')}</p>
-            <CodeBlock code="curl -H 'X-Personal-Token: sat_your_token_here' -F 'file=@./myfile.txt' -F 'expiration=1h' https://share-api.mingyu.dev/cli/uploads" index={3} />
+            <CodeBlock code="curl -H 'X-Personal-Token: sat_your_token_here' -F 'file=@./myfile.txt' -F 'expiration=1h' https://api.shareany.app/cli/uploads" index={3} />
           </div>
         </div>
       </section>

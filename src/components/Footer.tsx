@@ -60,7 +60,7 @@ const Footer: React.FC = () => {
           </div>
           <div className="flex justify-center items-center gap-8">
             <a
-              href={process.env.REACT_APP_DOCS_URL || 'https://share-api.mingyu.dev/reference'}
+              href={process.env.REACT_APP_DOCS_URL || 'https://api.shareany.app/reference'}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-muted-foreground can-hover:hover:text-foreground active:text-foreground text-sm transition-colors"
@@ -71,7 +71,7 @@ const Footer: React.FC = () => {
               </svg>
             </a>
             <a
-              href="https://status.share.mingyu.dev"
+              href="https://status.shareany.app"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 text-muted-foreground can-hover:hover:text-foreground active:text-foreground text-sm transition-colors"

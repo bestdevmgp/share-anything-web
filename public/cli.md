@@ -13,7 +13,7 @@ npm i -g share-anything-cli
 
 **Install via script**
 ```sh
-curl -fsSL share-api.mingyu.dev/install | sh
+curl -fsSL api.shareany.app/install | sh
 ```
 
 **Use the TUI** — Access every CLI feature through the TUI without typing any commands.
@@ -67,22 +67,22 @@ No installation needed. Use curl to upload and download files.
 
 **Upload a file** — `@./myfile.txt` can be a relative or absolute path (e.g. `@./photo.png` or `@/home/user/file.txt`).
 ```sh
-curl -F 'file=@./myfile.txt' https://share-api.mingyu.dev/cli/uploads
+curl -F 'file=@./myfile.txt' https://api.shareany.app/cli/uploads
 ```
 
 **Download a file**
 ```sh
-curl -OJ https://share-api.mingyu.dev/cli/shares/123456/download
+curl -OJ https://api.shareany.app/cli/shares/123456/download
 ```
 
 **Upload multiple files**
 ```sh
-curl -F 'file=@./file1.txt' -F 'file=@./file2.png' https://share-api.mingyu.dev/cli/uploads
+curl -F 'file=@./file1.txt' -F 'file=@./file2.png' https://api.shareany.app/cli/uploads
 ```
 
 **Upload with a Personal Token (set expiration)**
 ```sh
-curl -H 'X-Personal-Token: sat_your_token_here' -F 'file=@./myfile.txt' -F 'expiration=1h' https://share-api.mingyu.dev/cli/uploads
+curl -H 'X-Personal-Token: sat_your_token_here' -F 'file=@./myfile.txt' -F 'expiration=1h' https://api.shareany.app/cli/uploads
 ```
 
 ## Upload options
@@ -110,4 +110,4 @@ All options above require a Personal Token. Without one, files expire in 30 minu
 
 ---
 
-Web app & docs: https://share-api.mingyu.dev/cli
+Web app & docs: https://api.shareany.app/cli
