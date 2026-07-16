@@ -173,6 +173,8 @@ export interface PresignedUploadRequest {
   password?: string;
   expiration?: ExpirationOption;
   is_one_time?: boolean;
+  /** Uploader's UI language, used by the backend to localize the OG link preview. */
+  locale?: string;
 }
 
 export interface PresignedUploadUrl {
@@ -217,6 +219,8 @@ export interface InitMultipartUploadRequest {
   expiration?: ExpirationOption;
   is_one_time?: boolean;
   chunk_size: number;
+  /** Uploader's UI language, used by the backend to localize the OG link preview. */
+  locale?: string;
 }
 
 export interface MultipartUploadFileInit {

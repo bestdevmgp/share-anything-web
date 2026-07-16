@@ -34,6 +34,20 @@ import type {
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 const WORKER_URL = 'https://share-anything-upload.pmg3858.workers.dev';
 
+// Uploader's UI language, persisted by LanguageContext under localStorage['language'].
+// Sent with upload requests so the backend can localize the Open Graph link preview to
+// the sharer's language — the preview is fetched by the platform crawler, which can't
+// reveal the viewer's language, so the uploader's language is the best available signal.
+const UPLOAD_LOCALES = ['ko', 'en', 'ja', 'zh-CN', 'zh-TW'];
+const getUploadLocale = (): string | undefined => {
+  try {
+    const stored = localStorage.getItem('language');
+    return stored && UPLOAD_LOCALES.includes(stored) ? stored : undefined;
+  } catch {
+    return undefined;
+  }
+};
+
 export const workerAPI = {
   createMultipartUpload: async (storageKey: string, contentType: string): Promise<{ uploadId: string; key: string }> => {
     const response = await axios.post(`${WORKER_URL}/multipart/create`, {
@@ -370,6 +384,8 @@ export const fileAPI = {
     };
     if (password) body.password = password;
     if (emptyFolders && emptyFolders.length > 0) body.empty_folders = emptyFolders;
+    const locale = getUploadLocale();
+    if (locale) body.locale = locale;
     const response = await api.post<FileUploadResponse>('/file/p2p/create', body);
     return response.data;
   },
@@ -542,7 +558,7 @@ export const fileAPI = {
   },
 
   requestPresignedUpload: async (request: PresignedUploadRequest): Promise<PresignedUploadResponse> => {
-    const response = await api.post<PresignedUploadResponse>('/file/presign', request);
+    const response = await api.post<PresignedUploadResponse>('/file/presign', { ...request, locale: getUploadLocale() });
     return response.data;
   },
 
@@ -576,7 +592,7 @@ export const fileAPI = {
   },
 
   initMultipartUpload: async (request: InitMultipartUploadRequest): Promise<InitMultipartUploadResponse> => {
-    const response = await api.post<InitMultipartUploadResponse>('/file/multipart/init', request);
+    const response = await api.post<InitMultipartUploadResponse>('/file/multipart/init', { ...request, locale: getUploadLocale() });
     return response.data;
   },
 
