@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { ensureDeviceId } from '../utils/deviceId';
 import { getDeviceInfo } from '../utils/format';
+import { resolveLanguage } from '../utils/language';
 import type {
   FileUploadResponse,
   FileInfo,
@@ -34,19 +35,14 @@ import type {
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 const WORKER_URL = 'https://share-anything-upload.pmg3858.workers.dev';
 
-// Uploader's UI language, persisted by LanguageContext under localStorage['language'].
-// Sent with upload requests so the backend can localize the Open Graph link preview to
-// the sharer's language — the preview is fetched by the platform crawler, which can't
-// reveal the viewer's language, so the uploader's language is the best available signal.
-const UPLOAD_LOCALES = ['ko', 'en', 'ja', 'zh-CN', 'zh-TW'];
-const getUploadLocale = (): string | undefined => {
-  try {
-    const stored = localStorage.getItem('language');
-    return stored && UPLOAD_LOCALES.includes(stored) ? stored : undefined;
-  } catch {
-    return undefined;
-  }
-};
+// Uploader's current UI language, resolved exactly the way the app resolves what the
+// user sees (their saved choice → browser default). Sent with upload requests so the
+// backend can localize the Open Graph link preview to the sharer's language — the
+// preview is fetched by the platform crawler, which can't reveal the viewer's language,
+// so the uploader's language is the best available signal. Reading only localStorage was
+// wrong: it's empty until the user *manually* switches language, so a Korean-browser user
+// who never touched the switch sent no locale and the preview fell back to English.
+const getUploadLocale = (): string => resolveLanguage();
 
 export const workerAPI = {
   createMultipartUpload: async (storageKey: string, contentType: string): Promise<{ uploadId: string; key: string }> => {
@@ -384,8 +380,7 @@ export const fileAPI = {
     };
     if (password) body.password = password;
     if (emptyFolders && emptyFolders.length > 0) body.empty_folders = emptyFolders;
-    const locale = getUploadLocale();
-    if (locale) body.locale = locale;
+    body.locale = getUploadLocale();
     const response = await api.post<FileUploadResponse>('/file/p2p/create', body);
     return response.data;
   },
