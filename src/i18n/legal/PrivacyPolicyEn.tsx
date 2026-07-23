@@ -200,7 +200,7 @@ const PrivacyPolicyEn: React.FC = () => (
                 <ul className="space-y-1 text-sm">
                     <li>Name: Mingyu Park</li>
                     <li>Position: ShareAnything Developer</li>
-                    <li>Contact: me@mingyu.dev</li>
+                    <li>Contact: support@shareany.app</li>
                 </ul>
             </div>
         </section>

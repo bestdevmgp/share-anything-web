@@ -200,7 +200,7 @@ const PrivacyPolicyZhCN: React.FC = () => (
                 <ul className="space-y-1 text-sm">
                     <li>姓名: 朴珉圭</li>
                     <li>职务: ShareAnything开发者</li>
-                    <li>联系方式: me@mingyu.dev</li>
+                    <li>联系方式: support@shareany.app</li>
                 </ul>
             </div>
         </section>

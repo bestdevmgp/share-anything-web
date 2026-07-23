@@ -200,7 +200,7 @@ const PrivacyPolicyKo: React.FC = () => (
                 <ul className="space-y-1 text-sm">
                     <li>성명: 박민규</li>
                     <li>직책: ShareAnything 개발자</li>
-                    <li>연락처: me@mingyu.dev</li>
+                    <li>연락처: support@shareany.app</li>
                 </ul>
             </div>
         </section>
