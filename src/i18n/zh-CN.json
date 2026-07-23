@@ -164,6 +164,7 @@
     "providerName.kakao": "Kakao",
     "providerName.apple": "Apple",
     "loginCompleteTitle": "登录完成",
+    "returnToOriginalTab": "请回到原来的标签页。",
     "canCloseTab": "您可以关闭此标签页。"
   },
   "oauth": {

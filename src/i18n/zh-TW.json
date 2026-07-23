@@ -164,6 +164,7 @@
     "providerName.kakao": "Kakao",
     "providerName.apple": "Apple",
     "loginCompleteTitle": "登入完成",
+    "returnToOriginalTab": "請回到原本的分頁。",
     "canCloseTab": "您可以關閉此分頁。"
   },
   "oauth": {

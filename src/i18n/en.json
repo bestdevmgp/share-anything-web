@@ -164,6 +164,7 @@
     "providerName.kakao": "Kakao",
     "providerName.apple": "Apple",
     "loginCompleteTitle": "Sign-in Complete",
+    "returnToOriginalTab": "Return to your original tab.",
     "canCloseTab": "You can close this tab."
   },
   "oauth": {

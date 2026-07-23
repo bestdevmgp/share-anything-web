@@ -164,6 +164,7 @@
     "providerName.kakao": "Kakao",
     "providerName.apple": "Apple",
     "loginCompleteTitle": "ログイン完了",
+    "returnToOriginalTab": "元のタブに戻ってください。",
     "canCloseTab": "このタブを閉じても構いません。"
   },
   "oauth": {

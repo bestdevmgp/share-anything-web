@@ -132,7 +132,8 @@ const EmailMagicLinkCallbackPage: React.FC = () => {
             <CardContent className="p-0">
               <StatusIcon variant="success" />
               <h2 className="text-2xl font-bold text-foreground mb-2">{t('emailAuth.loginCompleteTitle')}</h2>
-              <p className="text-muted-foreground">{t('emailAuth.canCloseTab')}</p>
+              <p className="text-muted-foreground">{t('emailAuth.returnToOriginalTab')}</p>
+              <p className="text-sm text-muted-foreground/70 mt-1">{t('emailAuth.canCloseTab')}</p>
             </CardContent>
           </Card>
         </div>
