@@ -35,13 +35,6 @@ import type {
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 const WORKER_URL = 'https://share-anything-upload.pmg3858.workers.dev';
 
-// Uploader's current UI language, resolved exactly the way the app resolves what the
-// user sees (their saved choice → browser default). Sent with upload requests so the
-// backend can localize the Open Graph link preview to the sharer's language — the
-// preview is fetched by the platform crawler, which can't reveal the viewer's language,
-// so the uploader's language is the best available signal. Reading only localStorage was
-// wrong: it's empty until the user *manually* switches language, so a Korean-browser user
-// who never touched the switch sent no locale and the preview fell back to English.
 const getUploadLocale = (): string => resolveLanguage();
 
 export const workerAPI = {
@@ -479,8 +472,6 @@ export const fileAPI = {
     const params: Record<string, string> = { code, file_id: fileId };
     if (inline) params.inline = 'true';
     if (preview) params.preview = 'true';
-    // Multi-file downloads request every URL with defer_notify so the server holds off on the
-    // per-file email; notifyDownload() then sends one aggregated "N files" notification.
     if (deferNotify) params.defer_notify = 'true';
 
     const response = await api.get<{ download_url: string; expires_in_secs: number }>('/download/url', {
@@ -491,8 +482,6 @@ export const fileAPI = {
     return response.data;
   },
 
-  // Send ONE aggregated download notification for a multi-file event (used with getDownloadUrl's
-  // deferNotify). Best-effort: failures are swallowed so they never block the download UX.
   notifyDownload: async (code: string, fileIds: string[]): Promise<void> => {
     if (fileIds.length === 0) return;
     try {

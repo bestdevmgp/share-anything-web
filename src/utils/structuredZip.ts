@@ -211,7 +211,6 @@ export async function streamBlobsToDiskZip(opts: {
   const writable = await handle.createWritable();
   const emptyFolders = normalizeFolderPaths(opts.emptyFolders);
 
-  // De-duplicate entry names on the fly (streaming sees them one at a time).
   const seen = new Map<string, number>();
   const uniqueName = (name: string): string => {
     const key = name.toLowerCase();
@@ -237,7 +236,6 @@ export async function streamBlobsToDiskZip(opts: {
         size: blob.size,
         lastModified: new Date(),
       };
-      // Reached only after makeZip pulls the next entry, i.e. this file is fully written.
       opts.onFileWritten?.(name);
     }
   }

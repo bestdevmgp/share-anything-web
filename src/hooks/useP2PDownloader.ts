@@ -50,8 +50,6 @@ export const useP2PDownloader = ({ shareCode, fileInfo, enabled, onComplete, onP
   const completedFileRef = useRef<boolean>(false);
   const actualFileSizeRef = useRef<number>(0);
   const actualFileTypeRef = useRef<string>('');
-  // Set true when the file currently being received is removed by the sender: any straggler
-  // chunks / __EOF__ for it are then dropped until the next file_metadata opens a clean file.
   const awaitingNextFileRef = useRef<boolean>(false);
 
   const onCompleteRef = useRef(onComplete);

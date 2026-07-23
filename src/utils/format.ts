@@ -71,8 +71,6 @@ export const downloadFile = (blob: Blob, filename: string) => {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  // Revoke after the browser has started the download. Revoking in the same tick can drop the
-  // download — especially when several fire in quick succession (bulk receive on mobile).
   setTimeout(() => window.URL.revokeObjectURL(url), 10_000);
 };
 

@@ -1,9 +1,3 @@
-// Single source of truth for "which language is the user actually seeing".
-// Both LanguageContext (the UI) and api.ts (the uploaded `locale` for OG previews)
-// resolve the language through here so the two can never drift apart — the bug where
-// a Korean-browser user saw Korean UI but the OG preview fell back to English came
-// from api.ts reading only localStorage, which is empty until the user *manually*
-// switches language.
 
 export type Language = 'ko' | 'en' | 'ja' | 'zh-CN' | 'zh-TW';
 
@@ -30,7 +24,6 @@ export const resolveLanguage = (): Language => {
       return stored as Language;
     }
   } catch {
-    // localStorage unavailable (private mode / blocked) — fall through to the browser default.
   }
   return getBrowserLanguage();
 };

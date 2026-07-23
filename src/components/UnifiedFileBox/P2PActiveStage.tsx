@@ -101,8 +101,6 @@ const P2PActiveStage: React.FC<Props> = ({
   );
   const hasFolders = treeHasFolders(tree);
   const [openFolders, setOpenFolders] = useState<Set<string>>(() => {
-    // Default every folder open so the sender can watch each file's progress
-    // (and so empty subfolders nested under populated folders stay visible).
     const set = new Set<string>();
     const walk = (nodes: typeof tree) =>
       nodes.forEach((n) => {
@@ -140,7 +138,6 @@ const P2PActiveStage: React.FC<Props> = ({
   const toggleFolder = (path: string) => setOpenFolders((prev) => toggleFolderOpen(prev, path));
   const visibleRowCount = countVisibleRows(tree, (path) => openFolders.has(path));
 
-  // One file row (thumbnail + name + per-file progress + cancel), shared by loose files and folder children.
   const senderRow = (file: File) => {
     const progress = fileProgresses.get(fileKey(file));
     const pct = progress?.progress ?? 0;
@@ -271,7 +268,6 @@ const P2PActiveStage: React.FC<Props> = ({
                   ) : null;
                 }
                 if (node.children.length === 0) {
-                  // Empty folder: same card, no expand/collapse chevron.
                   return (
                     <div key={`folder:${node.path}`} data-row className="flex items-center px-3 py-3 bg-muted rounded-lg border border-foreground/[0.09]">
                       <div className="flex-shrink-0 mr-3">

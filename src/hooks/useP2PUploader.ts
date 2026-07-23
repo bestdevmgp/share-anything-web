@@ -667,8 +667,6 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
   }, [shareCode]);
 
   const removeFile = useCallback((fileName: string) => {
-    // Halt the in-flight pump if the file being removed is the one currently transferring,
-    // so no more of its chunks (or its __EOF__) reach the receiver after file_removed.
     if (isTransferringRef.current && currentFileNameRef.current === fileName) {
       cancelledRef.current = true;
       isTransferringRef.current = false;

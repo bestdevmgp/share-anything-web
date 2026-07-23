@@ -5,9 +5,6 @@ const STORE_NAME = 'pendingFiles';
 const DB_VERSION = 1;
 const MAX_TOTAL_SIZE = 500 * 1024 * 1024;
 
-// Serialize every store/clear/restore so overlapping calls (the files effect can fire again
-// while a large selection is still being read) can't interleave transactions or leave a
-// half-cleared store behind.
 let opChain: Promise<unknown> = Promise.resolve();
 function enqueue<T>(op: () => Promise<T>): Promise<T> {
   const run = opChain.then(op, op);
