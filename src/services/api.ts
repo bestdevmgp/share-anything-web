@@ -168,7 +168,11 @@ api.interceptors.request.use(async (config) => {
   const url = config.url || '';
   const isExchange = url.includes('/auth/session-token');
   const skipTokenWait =
-    isExchange || url.includes('/auth/callback/') || url.includes('/file/quota');
+    isExchange ||
+    url.includes('/auth/callback/') ||
+    url === '/auth/email/verify' ||
+    url.startsWith('/auth/email/status') ||
+    url.includes('/file/quota');
 
   const isLoggedIn = !!localStorage.getItem('user');
   if (!skipTokenWait && !currentSessionToken && !isLoggedIn && !tokenUnavailable) {
