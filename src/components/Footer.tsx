@@ -110,7 +110,7 @@ const Footer: React.FC = () => {
           </a>
 
           <a
-            href="mailto:me@mingyu.dev"
+            href="mailto:support@shareany.app"
             className="text-muted-foreground/70 can-hover:hover:text-foreground active:text-foreground transition-colors"
             aria-label="Email"
           >
