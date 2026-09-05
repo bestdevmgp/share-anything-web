@@ -3,6 +3,7 @@ import { quickAccessAPI, fileAPI, workerAPI } from '../services/api';
 import { formatTimeRemaining, getDeviceInfo, getImageDimensions } from '../utils/format';
 import { toast } from './ToastContext';
 import { useTranslation } from '../i18n';
+import { track, networkInfo } from '../analytics/posthog';
 
 export interface UploadingFile {
   id: string;
@@ -152,6 +153,11 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
     const MAX_CONCURRENT_UPLOADS = 10;
     const DIRECT_UPLOAD_THRESHOLD = 100 * 1024 * 1024;
 
+    const startedAt = performance.now();
+    const totalBytes = droppedFiles.reduce((sum, f) => sum + f.size, 0);
+    let initMs = 0;
+    let outcome: 'success' | 'cancelled' | 'failed' = 'failed';
+
     const newUploadingFiles: UploadingFile[] = droppedFiles.map((file) => ({
       id: `uploading-${uploadSeqRef.current++}`,
       fileName: file.name,
@@ -195,6 +201,8 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
         CHUNK_SIZE,
         deviceInfo
       );
+
+      initMs = performance.now() - startedAt;
 
       const completedFileParts: { [key: string]: { part_number: number; etag: string }[] } = {};
       const workerUploadIds: { [key: string]: string } = {};
@@ -332,14 +340,37 @@ export const QuickAccessUploadProvider: React.FC<{ children: React.ReactNode }> 
         });
 
         toast.success(tRef.current('quickAccess.uploadComplete'));
+        outcome = 'success';
         awaitingServerSync = true;
         setCompletedCounter(prev => prev + 1);
       }
     } catch (err: any) {
       if (err.name !== 'CanceledError' && err.code !== 'ERR_CANCELED' && err.message !== 'Upload cancelled') {
         toast.error(tRef.current('quickAccess.uploadFailed'));
+      } else {
+        outcome = 'cancelled';
       }
     } finally {
+      const durationMs = Math.max(performance.now() - startedAt, 1);
+      const transferMs = Math.max(durationMs - initMs, 1);
+      track(outcome === 'success' ? 'upload_completed' : `upload_${outcome}`, {
+        mode: 'quick-access',
+        file_count: droppedFiles.length,
+        total_bytes: totalBytes,
+        largest_bytes: droppedFiles.reduce((max, f) => Math.max(max, f.size), 0),
+        transfer_path: droppedFiles.every((f) => f.size < DIRECT_UPLOAD_THRESHOLD)
+          ? 'direct'
+          : droppedFiles.every((f) => f.size >= DIRECT_UPLOAD_THRESHOLD)
+            ? 'multipart'
+            : 'mixed',
+        duration_ms: Math.round(durationMs),
+        init_ms: Math.round(initMs),
+        transfer_ms: Math.round(transferMs),
+        ...(outcome === 'success'
+          ? { uploaded_bytes: totalBytes, mbps: Math.round(((totalBytes * 0.008) / transferMs) * 100) / 100 }
+          : {}),
+        ...networkInfo(),
+      });
       batchIds.forEach(id => {
         fileTrackingRef.current.delete(id);
         fileAbortControllersRef.current.delete(id);

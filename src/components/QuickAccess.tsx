@@ -10,6 +10,7 @@ import UploadProgressRow from './UploadProgressRow';
 import { toast } from '../context/ToastContext';
 import { useTranslation } from '../i18n';
 import { useNavigate } from 'react-router-dom';
+import { track, networkInfo } from '../analytics/posthog';
 import FileThumbnail from './FileThumbnail';
 import FilePreviewModal from './FilePreviewModal';
 import TruncatedFilename from './TruncatedFilename';
@@ -167,6 +168,15 @@ const QuickAccess: React.FC = () => {
   };
 
   const handleDownload = async (file: QuickAccessFile) => {
+    const startedAt = performance.now();
+    const report = (outcome: 'started' | 'failed') =>
+      track('quick_access_download', {
+        file_count: 1,
+        total_bytes: file.file_size,
+        duration_ms: Math.round(performance.now() - startedAt),
+        outcome,
+        ...networkInfo(),
+      });
     try {
       const response = await quickAccessAPI.downloadFile(file.id);
       const a = document.createElement('a');
@@ -176,8 +186,10 @@ const QuickAccess: React.FC = () => {
       a.click();
       document.body.removeChild(a);
       toast.success(t('quickAccess.downloadStarted'));
+      report('started');
       setFiles(prev => prev.filter(f => f.id !== file.id));
     } catch {
+      report('failed');
       toast.error(t('quickAccess.downloadFailed'));
     }
   };
