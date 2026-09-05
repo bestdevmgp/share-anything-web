@@ -107,7 +107,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       resetIdentity();
       return;
     }
-    identifyUser(user.id, user.oauth_provider ? { oauth_provider: user.oauth_provider } : undefined);
+    identifyUser(user.id, {
+      email: user.email,
+      name: user.name,
+      ...(user.oauth_provider ? { oauth_provider: user.oauth_provider } : {}),
+    });
   }, [user]);
 
   const login = (userData: User) => {
