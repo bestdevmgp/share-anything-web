@@ -95,9 +95,7 @@ export async function bootPostHog() {
     persistence: 'localStorage+cookie',
     session_recording: {
       maskAllInputs: false,
-      maskInputOptions: { password: true },
-      maskInputFn: (text: string, element?: HTMLElement) =>
-        element?.hasAttribute('data-ph-mask') ? '*'.repeat(text.length) : text,
+      maskInputOptions: { password: false },
     },
   });
 

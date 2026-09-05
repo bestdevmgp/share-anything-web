@@ -96,7 +96,6 @@ const TransferSettings: React.FC<TransferSettingsProps> = ({
         <div className="relative">
           <Input
             type={showPassword ? "text" : "password"}
-              data-ph-mask
             value={password}
             onChange={(e) => onPasswordChange(e.target.value)}
             disabled={!isAuthenticated}
