@@ -4,6 +4,7 @@ import { InitMultipartUploadResponse } from '../types';
 import { getDeviceInfo, getImageDimensions } from '../utils/format';
 import { getRelativePathSafe } from '../utils/fileWithPath';
 import { sanitizeRelativePath } from '../utils/folderPath';
+import { track, networkInfo } from '../analytics/posthog';
 
 type UploadMode = 'quick-access' | 'public';
 
@@ -79,6 +80,23 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
     const canceled = new Set<number>();
     let sessionAborted = false;
 
+    const startedAt = performance.now();
+    const totalBytes = files.reduce((sum, f) => sum + f.size, 0);
+    let initMs = 0;
+
+    const uploadShape = () => ({
+      mode: optsRef.current.mode,
+      file_count: files.length,
+      total_bytes: totalBytes,
+      largest_bytes: files.reduce((max, f) => Math.max(max, f.size), 0),
+      transfer_path: files.every((f) => f.size < DIRECT_UPLOAD_THRESHOLD)
+        ? 'direct'
+        : files.every((f) => f.size >= DIRECT_UPLOAD_THRESHOLD)
+          ? 'multipart'
+          : 'mixed',
+      ...networkInfo(),
+    });
+
     const trackingPerFile = files.map((f) => ({
       completedBytes: 0,
       partProgress: {} as Record<string, number>,
@@ -101,7 +119,7 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
       optsRef.current.onProgress?.(events);
     };
 
-    const promise = (async (): Promise<CompletedSessionResult> => {
+    const session = (async (): Promise<CompletedSessionResult> => {
       let initResponse: InitMultipartUploadResponse;
       if (optsRef.current.mode === 'quick-access') {
         initResponse = await quickAccessAPI.initUpload(
@@ -127,6 +145,8 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
           chunk_size: CHUNK_SIZE,
         });
       }
+
+      initMs = performance.now() - startedAt;
 
       const completedFileParts: Record<string, { part_number: number; etag: string }[]> = {};
       const workerUploadIds: Record<string, string> = {};
@@ -262,6 +282,32 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
         totalSize: liveIndices.reduce((s, i) => s + files[i].size, 0),
       };
     })();
+
+    const promise = session.then(
+      (result) => {
+        const durationMs = performance.now() - startedAt;
+        const transferMs = Math.max(durationMs - initMs, 1);
+        track('upload_completed', {
+          ...uploadShape(),
+          uploaded_bytes: result.totalSize,
+          duration_ms: Math.round(durationMs),
+          init_ms: Math.round(initMs),
+          transfer_ms: Math.round(transferMs),
+          mbps: Math.round(((result.totalSize * 0.008) / transferMs) * 100) / 100,
+        });
+        return result;
+      },
+      (error: unknown) => {
+        const cancelled = sessionAborted || canceled.size > 0;
+        track(cancelled ? 'upload_cancelled' : 'upload_failed', {
+          ...uploadShape(),
+          duration_ms: Math.round(performance.now() - startedAt),
+          init_ms: Math.round(initMs),
+          ...(cancelled ? {} : { error: error instanceof Error ? error.message : String(error) }),
+        });
+        throw error;
+      }
+    );
 
     return {
       abort: () => {

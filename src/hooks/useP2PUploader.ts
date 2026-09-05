@@ -5,6 +5,7 @@ import { toast } from '../context/ToastContext';
 import { getDeviceInfo } from '../utils/format';
 import { fileKey } from '../utils/fileWithPath';
 import { useTranslation, translateSignalingError } from '../i18n';
+import { track, networkInfo } from '../analytics/posthog';
 
 export interface FileProgress {
   fileName: string;
@@ -683,6 +684,36 @@ export const useP2PUploader = ({ shareCode, files, enabled }: UseP2PUploaderProp
       return newMap;
     });
   }, []);
+
+  const transferStartedAt = useRef(0);
+
+  useEffect(() => {
+    const totals = () => {
+      const list = filesRef.current;
+      return {
+        file_count: list.length,
+        total_bytes: list.reduce((sum, f) => sum + f.size, 0),
+      };
+    };
+
+    if (status === 'transferring' && !transferStartedAt.current) {
+      transferStartedAt.current = performance.now();
+      track('p2p_transfer_started', { ...totals(), ...networkInfo() });
+      return;
+    }
+
+    if (status === 'completed' && transferStartedAt.current) {
+      const durationMs = Math.max(performance.now() - transferStartedAt.current, 1);
+      transferStartedAt.current = 0;
+      const counts = totals();
+      track('p2p_transfer_completed', {
+        ...counts,
+        duration_ms: Math.round(durationMs),
+        mbps: Math.round(((counts.total_bytes * 0.008) / durationMs) * 100) / 100,
+        ...networkInfo(),
+      });
+    }
+  }, [status]);
 
   return { status, fileProgresses, currentFileName, peerDeviceInfo, connectionFailed, retry, cancelTransfer, removeFile };
 };

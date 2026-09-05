@@ -9,6 +9,7 @@ import PauseBarsIcon from '../components/PauseBarsIcon';
 import { toast } from '../context/ToastContext';
 import { useTranslation, translateApiError } from '../i18n';
 import { useP2PDownloader } from '../hooks/useP2PDownloader';
+import { track, networkInfo } from '../analytics/posthog';
 import { createWebSocketConnection, generatePeerId, sendSignalingMessage } from '../utils/webrtc';
 import FilePreviewModal from '../components/FilePreviewModal';
 import { useThumbnail } from '../hooks/useThumbnail';
@@ -783,6 +784,9 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
     setDownloadAbortController(abortController);
     const downloadStartTime = Date.now();
     setDownloadAsZip(asZip);
+    const selectedForStats = fileList.files.filter((f) => selectedFiles.has(f.id));
+    const downloadBytes = selectedForStats.reduce((sum, f) => sum + f.file_size, 0);
+    let downloadOutcome: 'success' | 'cancelled' | 'failed' = 'failed';
 
     try {
       setDownloading(true);
@@ -849,6 +853,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
 
         downloadFile(blob, `share-${code}.zip`);
         recordDownloadRef.current();
+        downloadOutcome = 'success';
         setDownloaded(true);
         toast.success(t('download.zipDownloadComplete'));
         return;
@@ -946,6 +951,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
 
       fileAPI.notifyDownload(code, selectedFileIds);
       recordDownloadRef.current();
+      downloadOutcome = 'success';
       setDownloaded(true);
       toast.success(
         selectedFileIds.length === 1
@@ -954,6 +960,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
       );
     } catch (err: any) {
       if (err.name === 'CanceledError' || err.code === 'ERR_CANCELED' || err.name === 'AbortError') {
+        downloadOutcome = 'cancelled';
         toast.info(t('download.downloadCancelled'));
       } else if (err.response?.status === 401) {
         toast.error(t('download.passwordIncorrect'));
@@ -962,6 +969,16 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         toast.error(translateApiError(err.response?.data, t) || t('download.downloadFailed'));
       }
     } finally {
+      const durationMs = Math.max(Date.now() - downloadStartTime, 1);
+      track('download_finished', {
+        outcome: downloadOutcome,
+        as_zip: asZip,
+        file_count: selectedForStats.length,
+        total_bytes: downloadBytes,
+        duration_ms: durationMs,
+        mbps: Math.round(((downloadBytes * 0.008) / durationMs) * 100) / 100,
+        ...networkInfo(),
+      });
       setDownloading(false);
       setDownloadProgress(0);
       setDownloadTimeRemaining('');

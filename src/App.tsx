@@ -31,10 +31,12 @@ import NotFoundPage from './pages/NotFoundPage';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
+import AnalyticsBoot from './analytics/AnalyticsBoot';
 
 const AppContent: React.FC = () => {
   return (
     <div className="min-h-screen bg-background flex flex-col">
+      <AnalyticsBoot />
       <Header />
       <ToastContainer />
       <div className="flex-1 min-h-[calc(100dvh-4rem)]">

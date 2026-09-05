@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { type Language, resolveLanguage } from '../utils/language';
+import { setLocale } from '../analytics/posthog';
 
 export type { Language };
 
@@ -30,6 +31,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       'zh-TW': "'Noto Sans TC', 'Geist', -apple-system, BlinkMacSystemFont, sans-serif",
     };
     document.body.style.fontFamily = fontMap[language];
+    setLocale(language);
   }, [language]);
 
   return (
