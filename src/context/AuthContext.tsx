@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 import { User } from '../types';
+import { identifyUser, resetIdentity } from '../analytics/posthog';
 import { authAPI } from '../services/api';
 import { useTranslation } from '../i18n';
 import { toast, suppressErrorToasts } from './ToastContext';
@@ -100,6 +101,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
   }, []);
+
+  useEffect(() => {
+    if (!user) {
+      resetIdentity();
+      return;
+    }
+    identifyUser(user.id, user.oauth_provider ? { oauth_provider: user.oauth_provider } : undefined);
+  }, [user]);
 
   const login = (userData: User) => {
     reconcileGuard.current = true;

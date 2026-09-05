@@ -9,7 +9,9 @@ const QUEUE_LIMIT = 50;
 
 let client: PostHog | null = null;
 let booting = false;
+let identity: { id: string; props?: Props } | null = null;
 const queue: { name: string; props?: Props }[] = [];
+const errorQueue: { error: Error; props?: Props }[] = [];
 
 const isLocalhost = () =>
   typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
@@ -54,6 +56,27 @@ export function track(name: string, props?: Props) {
   if (queue.length < QUEUE_LIMIT) queue.push({ name, props });
 }
 
+export function captureError(error: unknown, props?: Props) {
+  if (!isAnalyticsEnabled()) return;
+  const wrapped = error instanceof Error ? error : new Error(String(error));
+  if (client) {
+    client.captureException(wrapped, props);
+    return;
+  }
+  if (errorQueue.length < QUEUE_LIMIT) errorQueue.push({ error: wrapped, props });
+}
+
+export function identifyUser(id: string, props?: Props) {
+  identity = { id, props };
+  client?.identify(id, props);
+}
+
+export function resetIdentity() {
+  if (!identity) return;
+  identity = null;
+  client?.reset();
+}
+
 export function setLocale(locale: string) {
   client?.register({ locale });
 }
@@ -80,5 +103,8 @@ export async function bootPostHog() {
   });
 
   client = posthog;
+
+  if (identity) posthog.identify(identity.id, identity.props);
   for (const event of queue.splice(0)) posthog.capture(event.name, event.props);
+  for (const entry of errorQueue.splice(0)) posthog.captureException(entry.error, entry.props);
 }

@@ -4,7 +4,9 @@ import { InitMultipartUploadResponse } from '../types';
 import { getDeviceInfo, getImageDimensions } from '../utils/format';
 import { getRelativePathSafe } from '../utils/fileWithPath';
 import { sanitizeRelativePath } from '../utils/folderPath';
-import { track, networkInfo } from '../analytics/posthog';
+import { track, networkInfo, captureError } from '../analytics/posthog';
+import { fileTypeSummary } from '../analytics/fileSummary';
+import { createStallWatcher } from '../analytics/stallWatcher';
 
 type UploadMode = 'quick-access' | 'public';
 
@@ -83,6 +85,7 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
     const startedAt = performance.now();
     const totalBytes = files.reduce((sum, f) => sum + f.size, 0);
     let initMs = 0;
+    let stall: ReturnType<typeof createStallWatcher> | null = null;
 
     const uploadShape = () => ({
       mode: optsRef.current.mode,
@@ -94,6 +97,8 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
         : files.every((f) => f.size >= DIRECT_UPLOAD_THRESHOLD)
           ? 'multipart'
           : 'mixed',
+      ...fileTypeSummary(files.map((f) => f.name)),
+      ...(stall ? stall.summary() : {}),
       ...networkInfo(),
     });
 
@@ -147,6 +152,12 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
       }
 
       initMs = performance.now() - startedAt;
+      stall = createStallWatcher(() =>
+        trackingPerFile.reduce(
+          (sum, t) => sum + t.completedBytes + Object.values(t.partProgress).reduce((s2, b) => s2 + b, 0),
+          0
+        )
+      );
 
       const completedFileParts: Record<string, { part_number: number; etag: string }[]> = {};
       const workerUploadIds: Record<string, string> = {};
@@ -241,6 +252,8 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
         MAX_CONCURRENT_FILES
       );
 
+      stall?.stop();
+
       if (sessionAborted) throw new Error('Upload cancelled');
 
       const liveIndices = indices.filter((i) => !canceled.has(i));
@@ -298,7 +311,9 @@ export const useMultipartUpload = (opts: UseMultipartUploadOptions): UseMultipar
         return result;
       },
       (error: unknown) => {
+        stall?.stop();
         const cancelled = sessionAborted || canceled.size > 0;
+        if (!cancelled) captureError(error, { ...uploadShape(), stage: initMs ? 'transfer' : 'init' });
         track(cancelled ? 'upload_cancelled' : 'upload_failed', {
           ...uploadShape(),
           duration_ms: Math.round(performance.now() - startedAt),

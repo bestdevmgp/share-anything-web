@@ -10,6 +10,7 @@ import { toast } from '../context/ToastContext';
 import { useTranslation, translateApiError } from '../i18n';
 import { useP2PDownloader } from '../hooks/useP2PDownloader';
 import { track, networkInfo } from '../analytics/posthog';
+import { fileTypeSummary } from '../analytics/fileSummary';
 import { createWebSocketConnection, generatePeerId, sendSignalingMessage } from '../utils/webrtc';
 import FilePreviewModal from '../components/FilePreviewModal';
 import { useThumbnail } from '../hooks/useThumbnail';
@@ -975,6 +976,7 @@ const DownloadFilePage: React.FC<DownloadFilePageProps> = ({ embedded, codeOverr
         as_zip: asZip,
         file_count: selectedForStats.length,
         total_bytes: downloadBytes,
+        ...fileTypeSummary(selectedForStats.map((f) => f.file_name)),
         duration_ms: durationMs,
         mbps: Math.round(((downloadBytes * 0.008) / durationMs) * 100) / 100,
         ...networkInfo(),
