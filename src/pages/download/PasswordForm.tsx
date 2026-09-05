@@ -40,6 +40,7 @@ const PasswordForm: React.FC<PasswordFormProps> = ({
               <div className="relative">
                 <Input
                   type={showPassword ? "text" : "password"}
+              data-ph-mask
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder={t('download.passwordPlaceholder')}

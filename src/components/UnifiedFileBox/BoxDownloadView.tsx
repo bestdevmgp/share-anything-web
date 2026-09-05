@@ -270,6 +270,7 @@ const BoxDownloadView: React.FC<Props> = ({
           <div className="relative mb-3">
             <Input
               type={showPassword ? 'text' : 'password'}
+              data-ph-mask
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t('download.passwordPlaceholder')}
